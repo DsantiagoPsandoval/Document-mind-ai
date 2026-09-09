@@ -3,13 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DocuMind - AI | Documentación Automática de Repositorios mediante IA</title>
-    <meta name="description" content="Plataforma de Inteligencia Artificial que sincroniza automáticamente la documentación, arquitectura viva y contratos de API de repositorios de software en cada git push.">
+    <title>DocuMind - AI | Documentación Automática de Repositorios mediante AST + LLM</title>
+    <meta name="description" content="Plataforma de Inteligencia Artificial que sincroniza automáticamente documentación, arquitectura viva y contratos de API de repositorios de software en cada git push. Universidad Libre - Reto HIT 2026.">
+    <meta name="keywords" content="DocuMind AI, Documentación Automática, AST Parser, LLM, Git Push, C4 Diagrams, OpenAPI, Universidad Libre">
+    <meta name="author" content="Daniel Santiago Palencia Sandoval & Nelson Andrés Ayala Álvarez">
+    
+    <!-- Open Graph / Social Meta -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dsantiagopsandoval.github.io/Document-mind-ai/">
+    <meta property="og:title" content="DocuMind - AI | Tu código cambia todos los días. Tu documentación ahora también.">
+    <meta property="og:description" content="Plataforma de Inteligencia Artificial para documentación viva de software basada en análisis AST y modelos de lenguaje.">
+    <meta property="og:image" content="https://dsantiagopsandoval.github.io/Document-mind-ai/assets/qr-landing.png">
+    
+    <!-- Favicon (SVG Brain Tech) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23020617' stroke='%2338bdf8' stroke-width='4'/><path d='M30 45 C30 35, 45 32, 48 40 C52 32, 70 35, 70 45 C70 55, 62 65, 50 72 C38 65, 30 55, 30 45 Z' fill='%230ea5e9'/><circle cx='42' cy='48' r='4' fill='%23ffffff'/><circle cx='58' cy='48' r='4' fill='%23ffffff'/><path d='M42 48 L58 48' stroke='%23ffffff' stroke-width='2'/></svg>">
+    <meta name="theme-color" content="#020617">
+
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=2.3">
+    
+    <!-- Custom Design System Stylesheet -->
+    <link rel="stylesheet" href="styles.css?v=3.0">
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 relative">
 
@@ -19,81 +36,94 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none max-w-[90vw]"></div>
 
-    <!-- Header / Navbar -->
+    <!-- ======================================================================
+         1. NAVBAR
+         ====================================================================== -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 transition-all duration-300" id="navbar">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
             <a href="#" class="flex items-center space-x-3 group" style="text-decoration: none;">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 ring-1 ring-white/20 group-hover:scale-110 group-hover:rotate-3 transition-transform shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 ring-1 ring-white/20 group-hover:scale-105 group-hover:rotate-3 transition-transform shrink-0">
                     <i class="fa-solid fa-brain text-white text-lg"></i>
                 </div>
-                <div class="brand-logo-text" style="display: inline-flex; align-items: center; gap: 6px;">
+                <div class="brand-logo-text">
                     <span style="color: #ffffff; font-weight: 900; font-size: 1.35rem; letter-spacing: -0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">DocuMind</span>
                     <span style="color: #38bdf8; font-weight: 900; font-size: 1.35rem;">-</span>
-                    <span style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); color: #020617; font-size: 0.75rem; font-weight: 900; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.05em; box-shadow: 0 0 12px rgba(6, 182, 212, 0.6); display: inline-block;">AI</span>
+                    <span class="brand-badge-ai">AI</span>
                 </div>
             </a>
 
             <!-- Desktop Nav Links -->
-            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+            <nav class="hidden lg:flex items-center space-x-7 text-sm font-medium text-slate-300">
                 <a href="#problema" class="hover:text-cyan-400 transition-colors py-1">Problemática</a>
                 <a href="#solucion" class="hover:text-cyan-400 transition-colors py-1">Solución</a>
+                <a href="#como-funciona" class="hover:text-cyan-400 transition-colors py-1">Cómo Funciona</a>
                 <a href="#demo" class="hover:text-cyan-400 transition-colors py-1">Prototipo en Vivo</a>
                 <a href="#equipo" class="hover:text-cyan-400 transition-colors py-1">Equipo</a>
                 <a href="#metricas" class="hover:text-cyan-400 transition-colors py-1">Métricas</a>
                 <a href="#infografia" class="hover:text-cyan-400 transition-colors py-1">Teoría & UX/UI</a>
             </nav>
 
+            <!-- CTA Action & Mobile Toggle -->
             <div class="flex items-center space-x-4">
-                <a href="#registro" class="btn-cyber hidden sm:inline-flex px-5 py-2.5 text-sm font-bold">
+                <a href="#registro" class="btn-cyber hidden sm:inline-flex text-xs sm:text-sm font-bold">
                     <span>Acceso VIP Beta</span>
-                    <i class="fa-solid fa-bolt ml-2 text-xs"></i>
+                    <i class="fa-solid fa-bolt ml-2 text-xs text-slate-950"></i>
                 </a>
-                <button id="mobile-menu-btn" class="md:hidden text-slate-400 hover:text-white p-2 text-xl" aria-label="Abrir menú">
+                <button id="mobile-menu-btn" class="lg:hidden text-slate-400 hover:text-white p-2 text-xl focus:outline-none" aria-label="Abrir menú de navegación">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-900/95 backdrop-blur-lg border-b border-slate-800 px-6 py-5 space-y-4">
-            <a href="#problema" class="block text-slate-300 hover:text-cyan-400">Problemática</a>
-            <a href="#solucion" class="block text-slate-300 hover:text-cyan-400">Solución</a>
-            <a href="#demo" class="block text-slate-300 hover:text-cyan-400">Prototipo en Vivo</a>
-            <a href="#equipo" class="block text-slate-300 hover:text-cyan-400">Equipo</a>
-            <a href="#metricas" class="block text-slate-300 hover:text-cyan-400">Métricas</a>
-            <a href="#infografia" class="block text-slate-300 hover:text-cyan-400">Teoría & UX/UI</a>
-            <a href="#registro" class="btn-cyber block text-center py-3 w-full">Acceso VIP Beta</a>
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-slate-900/95 backdrop-blur-lg border-b border-slate-800 px-6 py-6 space-y-4 shadow-2xl">
+            <a href="#problema" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Problemática</a>
+            <a href="#solucion" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Solución Técnica</a>
+            <a href="#como-funciona" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Cómo Funciona</a>
+            <a href="#demo" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Prototipo en Vivo</a>
+            <a href="#equipo" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Equipo Fundador</a>
+            <a href="#metricas" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Métricas de Validación</a>
+            <a href="#infografia" class="block text-sm font-semibold text-slate-300 hover:text-cyan-400 py-1">Infografía Color & UX/UI</a>
+            <div class="pt-2">
+                <a href="#registro" class="btn-cyber block text-center py-3 w-full">
+                    <span>Solicitar Acceso VIP Beta</span>
+                    <i class="fa-solid fa-bolt ml-2 text-xs text-slate-950"></i>
+                </a>
+            </div>
         </div>
     </header>
 
     <main class="pt-20">
-        <!-- Hero Section -->
-        <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-14 sm:py-20 lg:py-24">
+        <!-- ======================================================================
+             2. HERO SECTION
+             ====================================================================== -->
+        <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-16 sm:py-20 lg:py-28">
+            <!-- Background Ambient Glow Flares -->
             <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
             <div class="absolute bottom-10 right-10 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
             <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:28px_28px] opacity-40 pointer-events-none -z-20"></div>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center min-w-0">
-                <!-- Brand Badge -->
+                <!-- Product Version Pill Badge -->
                 <div class="mb-6">
                     <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/10">
                         <i class="fa-solid fa-sparkles text-cyan-400"></i>
-                        DocuMind - AI Engine
+                        <span>DocuMind - AI Engine • Cohorte 2026</span>
                     </span>
                 </div>
 
-                <!-- Main Title -->
+                <!-- Hero H1: Title & Subtitle Hierarchy -->
                 <h1 class="hero-title text-white max-w-5xl mx-auto tracking-tight">
                     Tu código cambia todos los días.
                 </h1>
 
-                <!-- Subtitle — separate line, accent color, lighter weight -->
-                <p style="font-size: clamp(1.6rem, 4.8vw, 3.5rem); line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; color: #22d3ee; margin-top: 0.5rem;" class="max-w-5xl mx-auto">
+                <p class="hero-subtitle max-w-5xl mx-auto mt-2 sm:mt-3">
                     Tu documentación ahora también.
                 </p>
 
-                <!-- Validation Strip -->
-                <div class="mt-8 flex justify-center">
+                <!-- Validation Data Strip -->
+                <div class="mt-7 flex justify-center">
                     <div class="inline-flex items-center justify-center space-x-2 px-4 py-2 rounded-full bg-slate-900/90 border border-slate-700/80 text-[11px] sm:text-xs font-medium text-slate-400 max-w-full leading-snug">
                         <span class="flex h-2 w-2 relative shrink-0">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -103,24 +133,25 @@
                     </div>
                 </div>
 
-                <!-- Description -->
-                <p class="mt-6 text-sm sm:text-base lg:text-xl text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed break-words px-2">
+                <!-- Value Proposition Description -->
+                <p class="mt-6 text-sm sm:text-base lg:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed break-words px-2">
                     <strong class="text-white font-semibold">DocuMind - AI</strong> analiza el Árbol Sintáctico Abstracto (AST) de tus repositorios y sincroniza automáticamente diagramas de arquitectura viva, contratos de API y guías de onboarding en cada <code class="text-cyan-300 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700 text-xs sm:text-sm font-mono inline-block">git push</code>.
                 </p>
 
+                <!-- Hero CTA Buttons -->
                 <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 px-2">
-                    <a href="#registro" class="btn-cyber w-full sm:w-auto px-8 py-4 text-sm sm:text-base">
+                    <a href="#registro" class="btn-cyber w-full sm:w-auto px-8 py-4 text-sm sm:text-base font-bold">
                         <i class="fa-solid fa-bolt-lightning mr-2.5 text-slate-950"></i>
                         <span>Unirse a la Beta Privada</span>
                     </a>
-                    <a href="#demo" class="btn-cyber-outline w-full sm:w-auto px-8 py-4 text-sm sm:text-base">
+                    <a href="#demo" class="btn-cyber-outline w-full sm:w-auto px-8 py-4 text-sm sm:text-base font-bold">
                         <i class="fa-solid fa-play mr-2.5 text-cyan-400 text-sm"></i>
                         <span>Probar Simulador en Vivo</span>
                     </a>
                 </div>
 
-                <!-- Trust Strip -->
-                <div class="mt-12 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pt-8 sm:pt-10 border-t border-slate-800/80 text-left max-w-4xl mx-auto">
+                <!-- Trust Strip / Key Metrics (Never cut off, balanced 4 cards) -->
+                <div class="mt-14 sm:mt-18 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pt-10 border-t border-slate-800/80 text-left max-w-4xl mx-auto">
                     <div class="glow-card p-5 sm:p-6 text-center flex flex-col justify-center items-center min-w-0 gap-2">
                         <p class="text-3xl sm:text-4xl font-extrabold text-cyan-400 font-mono leading-none">20%</p>
                         <p class="text-xs sm:text-sm text-slate-400 font-medium leading-snug">Tiempo recuperado<br>jornada dev</p>
@@ -141,26 +172,33 @@
             </div>
         </section>
 
-        <!-- Problemática Section -->
-        <section id="problema" class="py-20 bg-slate-900/40 relative border-y border-slate-800/80">
+        <!-- ======================================================================
+             3. PROBLEMÁTICA SECTION
+             ====================================================================== -->
+        <section id="problema" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-rose-400 bg-rose-950/60 px-3.5 py-1 rounded-full border border-rose-800/50">El Problema Reto HIT</span>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-4 tracking-tight">El costo invisible de la documentación desactualizada</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg">
-                        Las empresas de tecnología pierden miles de dólares y semanas enteras cuando los repositorios carecen de documentación viva y contextual.
+                    <span class="text-xs uppercase tracking-widest font-bold text-rose-400 bg-rose-950/60 px-4 py-1.5 rounded-full border border-rose-800/50 inline-block mb-3">
+                        <i class="fa-solid fa-triangle-exclamation mr-1.5 text-rose-400"></i> El Problema Reto HIT
+                    </span>
+                    <h2 class="section-title text-white tracking-tight">El costo invisible de la documentación desactualizada</h2>
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                        Los equipos de ingeniería pierden miles de dólares y semanas enteras cuando los repositorios carecen de documentación viva, exacta y contextual.
                     </p>
                 </div>
 
+                <!-- Problem Cards Grid (Balanced heights and metrics) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-                    <div class="glow-card glow-card-rose p-6 sm:p-8 flex flex-col justify-between h-full group min-w-0">
+                    <!-- Card 1: Tiempo perdido -->
+                    <div class="glow-card glow-card-rose p-7 sm:p-8 flex flex-col justify-between h-full group min-w-0">
                         <div>
-                            <div class="w-14 h-14 rounded-2xl bg-rose-950/70 border border-rose-700/60 flex items-center justify-center text-rose-400 text-2xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg shadow-rose-950/50 shrink-0">
+                            <div class="w-14 h-14 rounded-2xl bg-rose-950/70 border border-rose-700/60 flex items-center justify-center text-rose-400 text-2xl mb-6 group-hover:scale-105 group-hover:rotate-3 transition-transform shadow-lg shadow-rose-950/50 shrink-0">
                                 <i class="fa-solid fa-clock-rotate-left"></i>
                             </div>
                             <h3 class="text-xl font-bold text-white mb-3 group-hover:text-rose-300 transition-colors">20% de Jornada Improductiva</h3>
                             <p class="text-slate-400 text-sm leading-relaxed">
-                                Los desarrolladores invierten hasta 1 de cada 5 días descifrando código ajeno, preguntando en canales de Slack y deduciendo arquitecturas no documentadas.
+                                Los desarrolladores invierten hasta 1 de cada 5 días descifrando código ajeno, preguntando en canales de chat y deduciendo arquitecturas no documentadas.
                             </p>
                         </div>
                         <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-rose-400 font-mono">
@@ -169,9 +207,10 @@
                         </div>
                     </div>
 
-                    <div class="glow-card glow-card-amber p-6 sm:p-8 flex flex-col justify-between h-full group min-w-0">
+                    <!-- Card 2: Onboarding -->
+                    <div class="glow-card glow-card-amber p-7 sm:p-8 flex flex-col justify-between h-full group min-w-0">
                         <div>
-                            <div class="w-14 h-14 rounded-2xl bg-amber-950/70 border border-amber-700/60 flex items-center justify-center text-amber-400 text-2xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg shadow-amber-950/50 shrink-0">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-950/70 border border-amber-700/60 flex items-center justify-center text-amber-400 text-2xl mb-6 group-hover:scale-105 group-hover:rotate-3 transition-transform shadow-lg shadow-amber-950/50 shrink-0">
                                 <i class="fa-solid fa-user-xmark"></i>
                             </div>
                             <h3 class="text-xl font-bold text-white mb-3 group-hover:text-amber-300 transition-colors">Onboarding Lento y Fricción</h3>
@@ -185,9 +224,10 @@
                         </div>
                     </div>
 
-                    <div class="glow-card glow-card-indigo p-6 sm:p-8 flex flex-col justify-between h-full group min-w-0">
+                    <!-- Card 3: Drift -->
+                    <div class="glow-card glow-card-indigo p-7 sm:p-8 flex flex-col justify-between h-full group min-w-0">
                         <div>
-                            <div class="w-14 h-14 rounded-2xl bg-indigo-950/70 border border-indigo-700/60 flex items-center justify-center text-indigo-400 text-2xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-lg shadow-indigo-950/50 shrink-0">
+                            <div class="w-14 h-14 rounded-2xl bg-indigo-950/70 border border-indigo-700/60 flex items-center justify-center text-indigo-400 text-2xl mb-6 group-hover:scale-105 group-hover:rotate-3 transition-transform shadow-lg shadow-indigo-950/50 shrink-0">
                                 <i class="fa-solid fa-file-circle-exclamation"></i>
                             </div>
                             <h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">Drift & Deuda Técnica</h3>
@@ -204,62 +244,68 @@
             </div>
         </section>
 
-        <!-- Solución Section -->
-        <section id="solucion" class="py-20 relative">
+        <!-- ======================================================================
+             4. SOLUCIÓN SECTION (PROPUESTA DE VALOR)
+             ====================================================================== -->
+        <section id="solucion" class="py-24 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-cyan-400 bg-cyan-950/60 px-3.5 py-1 rounded-full border border-cyan-800/50">La Solución de Ingeniería</span>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-4 tracking-tight">Arquitectura Viva impulsada por AST + LLM</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg">
+                    <span class="text-xs uppercase tracking-widest font-bold text-cyan-400 bg-cyan-950/60 px-4 py-1.5 rounded-full border border-cyan-800/50 inline-block mb-3">
+                        <i class="fa-solid fa-microchip mr-1.5 text-cyan-400"></i> La Solución de Ingeniería
+                    </span>
+                    <h2 class="section-title text-white tracking-tight">Arquitectura Viva impulsada por AST + LLM</h2>
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
                         Un motor de comprensión semántica profunda que convierte código fuente en documentación viva y diagramas interactivos en tiempo real.
                     </p>
                 </div>
 
+                <!-- 2-Column Split: 4 Pillars (Left) + CI/CD Workflow Mockup (Right) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div class="space-y-5">
-                        <div class="glow-card p-5 flex items-start space-x-4">
+                        <div class="glow-card p-6 flex items-start space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
                                 <i class="fa-solid fa-diagram-project"></i>
                             </div>
                             <div>
                                 <h4 class="text-base font-bold text-white">Parseo AST & Grafo de Dependencias</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
                                     Inspección sintáctica precisa del código fuente (TypeScript, Python, Go, Java, Rust) sin necesidad de compilar ni exponer secretos.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="glow-card p-5 flex items-start space-x-4">
+                        <div class="glow-card p-6 flex items-start space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
                                 <i class="fa-solid fa-code-commit"></i>
                             </div>
                             <div>
                                 <h4 class="text-base font-bold text-white">Integración Nativa GitHub Actions & CLI</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
                                     Se ejecuta como un bot en tu pipeline de CI/CD. Genera resúmenes en Pull Requests y actualiza automáticamente el portal wiki.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="glow-card p-5 flex items-start space-x-4">
+                        <div class="glow-card p-6 flex items-start space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
                                 <i class="fa-solid fa-draw-polygon"></i>
                             </div>
                             <div>
                                 <h4 class="text-base font-bold text-white">Diagramas C4 y Mermaid Autogenerados</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
                                     Diagramas interactivos de componentes, flujo de datos y dependencias de microservicios renderizados con sincronización bidireccional.
                                 </p>
                             </div>
                         </div>
 
-                        <div class="glow-card p-5 flex items-start space-x-4">
+                        <div class="glow-card p-6 flex items-start space-x-4">
                             <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
                                 <i class="fa-solid fa-comments"></i>
                             </div>
                             <div>
                                 <h4 class="text-base font-bold text-white">AI Assistant con Contexto de Código (RAG)</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
                                     Pregúntale al repositorio en lenguaje natural: <em>"¿Dónde se gestiona el token JWT?"</em> o <em>"¿Qué microservicios consumen este evento?"</em>.
                                 </p>
                             </div>
@@ -275,7 +321,7 @@
                                 <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
                                 <span class="text-xs font-mono text-slate-400 ml-2">.github/workflows/documind-sync.yml</span>
                             </div>
-                            <span class="text-xs font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">CI/CD Automated</span>
+                            <span class="text-xs font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-0.5 rounded border border-cyan-800/60">CI/CD Automated</span>
                         </div>
                         <div class="p-6 font-mono text-xs sm:text-sm text-slate-300 space-y-2 overflow-x-auto">
                             <p class="text-slate-500"># GitHub Action Workflow</p>
@@ -291,9 +337,9 @@
                             <p class="pl-20">generate_c4_diagrams: <span class="text-emerald-400">true</span></p>
                             <p class="pl-20">detect_drift: <span class="text-emerald-400">true</span></p>
                             <p class="pl-20">export_wiki_format: <span class="text-amber-300">'markdown+openapi'</span></p>
-                            <div class="mt-4 p-3 bg-emerald-950/60 border border-emerald-700/60 rounded-xl text-emerald-300 text-xs flex items-center space-x-2 shadow-inner">
-                                <i class="fa-solid fa-circle-check text-emerald-400"></i>
-                                <span>✔ Documentación y OpenAPI actualizados en 1.8s (0 drift detectado).</span>
+                            <div class="mt-4 p-3.5 bg-emerald-950/60 border border-emerald-700/60 rounded-xl text-emerald-300 text-xs flex items-center space-x-2.5 shadow-inner">
+                                <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+                                <span>Documentación y OpenAPI sincronizados en 1.8s (0 drift detectado).</span>
                             </div>
                         </div>
                     </div>
@@ -301,29 +347,136 @@
             </div>
         </section>
 
-        <!-- Interactive Prototype Demo Section -->
-        <section id="demo" class="py-20 bg-slate-900/60 border-y border-slate-800/80 relative">
+        <!-- ======================================================================
+             5. CÓMO FUNCIONA (SAAS PIPELINE 4-STEP FLOW)
+             ====================================================================== -->
+        <section id="como-funciona" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center max-w-3xl mx-auto mb-14">
-                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-400 bg-indigo-950/60 px-3.5 py-1 rounded-full border border-indigo-800/50">Prototipo en Acción</span>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-4 tracking-tight">Simulador de Análisis de Repositorio</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg">
-                        Selecciona un lenguaje de programación o prueba tu repositorio para experimentar la generación instantánea de arquitectura.
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-xs uppercase tracking-widest font-bold text-sky-400 bg-sky-950/60 px-4 py-1.5 rounded-full border border-sky-800/50 inline-block mb-3">
+                        <i class="fa-solid fa-arrows-split-up-and-left mr-1.5 text-sky-400"></i> Flujo Automatizado SaaS
+                    </span>
+                    <h2 class="section-title text-white tracking-tight">Cómo Funciona Document-Mind AI</h2>
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                        De repositorio a documentación viva en 4 pasos completamente automáticos integrados en tu flujo de trabajo de Git.
                     </p>
                 </div>
 
-                <div class="glow-card p-6 sm:p-8 max-w-5xl mx-auto shadow-2xl">
+                <!-- 4 Steps Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+                    <!-- Step 01 -->
+                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="step-number">01</span>
+                                <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-700/60 flex items-center justify-center text-cyan-400 text-base">
+                                    <i class="fa-brands fa-github"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Conecta tu Repositorio</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                Instala el webhook de GitHub Action o ejecuta el CLI de DocuMind en tu terminal con una sola línea de configuración.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-cyan-300">
+                            <code>$ documind init</code>
+                        </div>
+                    </div>
+
+                    <!-- Step 02 -->
+                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="step-number">02</span>
+                                <div class="w-10 h-10 rounded-xl bg-indigo-950 border border-indigo-700/60 flex items-center justify-center text-indigo-400 text-base">
+                                    <i class="fa-solid fa-code-branch"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Analiza tu Código</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                El motor de parseo AST inspecciona tipos, llamadas y dependencias de forma estática, sin compilar ni enviar código sensible a la nube.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-indigo-300">
+                            <code>ast_parser.parse()</code>
+                        </div>
+                    </div>
+
+                    <!-- Step 03 -->
+                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="step-number">03</span>
+                                <div class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-700/60 flex items-center justify-center text-purple-400 text-base">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Comprende la Arquitectura</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                El LLM sintetiza la topología del sistema, extrayendo endpoints REST, contratos DTO y generando diagramas C4 y Mermaid.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-purple-300">
+                            <code>llm.generate_c4()</code>
+                        </div>
+                    </div>
+
+                    <!-- Step 04 -->
+                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="step-number">04</span>
+                                <div class="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 text-base">
+                                    <i class="fa-solid fa-book"></i>
+                                </div>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mb-2">Genera Documentación</h3>
+                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                Wiki interactivo, Swagger OpenAPI y comentarios automáticos en Pull Requests sincronizados en cada commit sin mantenimiento manual.
+                            </p>
+                        </div>
+                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-emerald-300">
+                            <code>sync: 100% up to date</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ======================================================================
+             6. PROTOTIPO EN ACCIÓN (SIMULADOR EN VIVO)
+             ====================================================================== -->
+        <section id="demo" class="py-24 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto mb-14">
+                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-400 bg-indigo-950/60 px-4 py-1.5 rounded-full border border-indigo-800/50 inline-block mb-3">
+                        <i class="fa-solid fa-terminal mr-1.5 text-indigo-400"></i> Prototipo en Acción
+                    </span>
+                    <h2 class="section-title text-white tracking-tight">Simulador de Análisis de Repositorio</h2>
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                        Selecciona un stack o ingresa tu repositorio para experimentar la generación instantánea de arquitectura técnica y contratos de API.
+                    </p>
+                </div>
+
+                <!-- Interactive Simulator Card -->
+                <div class="glow-card p-6 sm:p-8 lg:p-10 max-w-5xl mx-auto shadow-2xl">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
                         <div class="sm:col-span-2">
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Repositorio de prueba</label>
+                            <label for="repo-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                                <i class="fa-brands fa-github text-cyan-400 mr-1.5"></i> Repositorio de prueba
+                            </label>
                             <div class="relative">
                                 <i class="fa-brands fa-github absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="w-full pl-10 pr-4 py-3 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono">
+                                <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="w-full pl-10 pr-4 py-3 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors font-mono">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Lenguaje principal</label>
-                            <select id="lang-select" class="w-full px-4 py-3 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-colors font-mono">
+                            <label for="lang-select" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                                <i class="fa-solid fa-code text-cyan-400 mr-1.5"></i> Lenguaje principal
+                            </label>
+                            <select id="lang-select" class="w-full px-4 py-3 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors font-mono">
                                 <option value="ts">TypeScript / Node.js</option>
                                 <option value="py">Python / FastAPI</option>
                                 <option value="go">Go / Microservices</option>
@@ -333,8 +486,8 @@
                     </div>
 
                     <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
-                        <button id="btn-run-analysis" class="btn-cyber px-6 py-3 text-sm font-bold">
-                            <i class="fa-solid fa-play mr-2 text-xs"></i>
+                        <button id="btn-run-analysis" class="btn-cyber px-6 py-3.5 text-sm font-bold">
+                            <i class="fa-solid fa-play mr-2 text-xs text-slate-950"></i>
                             <span>Ejecutar Análisis AST & Generar Docs</span>
                         </button>
                         <div class="flex items-center space-x-2 text-xs font-mono text-slate-400">
@@ -343,6 +496,7 @@
                         </div>
                     </div>
 
+                    <!-- Split Console Log vs Generated Doc Preview -->
                     <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                         <!-- Terminal Log -->
                         <div class="cyber-terminal p-4 text-xs text-slate-300 min-h-[18rem] max-h-[24rem] overflow-y-auto overflow-x-hidden space-y-1.5 min-w-0" id="terminal-log">
@@ -383,125 +537,139 @@
             </div>
         </section>
 
-        <!-- Equipo y Quiénes Somos -->
-        <section id="equipo" class="py-20 relative">
+        <!-- ======================================================================
+             7. EQUIPO DE EMPRENDIMIENTO & AUTORES
+             ====================================================================== -->
+        <section id="equipo" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-cyan-400 bg-cyan-950/60 px-3.5 py-1 rounded-full border border-cyan-800/50">Conformación del Equipo Empresarial</span>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-4 tracking-tight">Quiénes Somos</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg">
+                    <span class="text-xs uppercase tracking-widest font-bold text-cyan-400 bg-cyan-950/60 px-4 py-1.5 rounded-full border border-cyan-800/50 inline-block mb-3">
+                        <i class="fa-solid fa-users-gear mr-1.5 text-cyan-400"></i> Conformación del Equipo Empresarial
+                    </span>
+                    <h2 class="section-title text-white tracking-tight">Quiénes Somos</h2>
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
                         Iniciativa de emprendimiento de base tecnológica desarrollada en la <strong>Universidad Libre - Facultad de Ingeniería</strong>, articulando liderazgo técnico e ingeniería de producto orientada al mercado.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <!-- Daniel Santiago Palencia Sandoval -->
-                    <div class="glow-card p-6 sm:p-8 flex flex-col justify-between h-full group min-w-0">
+                <!-- 2-Card Founders Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
+                    <!-- Daniel Santiago Palencia Sandoval (CTO) -->
+                    <div class="glow-card p-7 sm:p-9 flex flex-col justify-between h-full group min-w-0">
                         <div>
                             <div class="flex items-center space-x-4 mb-6">
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-lg shadow-cyan-500/30 ring-2 ring-white/20 group-hover:scale-110 group-hover:rotate-3 transition-transform shrink-0">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-cyan-500/30 ring-2 ring-white/20 group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0">
                                     DP
                                 </div>
                                 <div class="min-w-0">
-                                    <h3 class="text-base sm:text-xl font-bold text-white group-hover:text-cyan-400 transition-colors leading-snug break-words">Daniel Santiago Palencia Sandoval</h3>
-                                    <p class="text-cyan-400 text-xs font-semibold uppercase tracking-wider mt-0.5">Líder Tecnológico (CTO)</p>
+                                    <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-400 transition-colors leading-snug break-words">Daniel Santiago Palencia Sandoval</h3>
+                                    <p class="text-cyan-400 text-xs font-bold uppercase tracking-wider mt-0.5">Líder Tecnológico (CTO)</p>
                                     <p class="text-slate-400 text-xs mt-1 break-words"><i class="fa-solid fa-graduation-cap mr-1 text-slate-500"></i> Universidad Libre - Facultad de Ingeniería</p>
                                 </div>
                             </div>
-                            <div class="space-y-3 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-4">
-                                <p><strong class="text-white">Responsabilidades Clave:</strong></p>
-                                <ul class="space-y-2 text-slate-400 text-xs">
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2 mt-1 shrink-0"></i> <span class="break-words">Diseñar la arquitectura técnica del MVP integrando parsers AST de código y modelos de IA generativa.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2 mt-1 shrink-0"></i> <span class="break-words">Desarrollar la integración continua (GitHub Action / CLI) para análisis automático de repositorios.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2 mt-1 shrink-0"></i> <span class="break-words">Ejecutar pruebas técnicas con repositorios reales y recolectar feedback de usabilidad y precisión del prototipo.</span></li>
+                            <div class="space-y-3 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-5">
+                                <p><strong class="text-white text-xs uppercase tracking-wider">Responsabilidades Clave:</strong></p>
+                                <ul class="space-y-2.5 text-slate-400 text-xs">
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Diseñar la arquitectura técnica del MVP integrando parsers AST de código y modelos de IA generativa.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Desarrollar la integración continua (GitHub Action / CLI) para análisis automático de repositorios.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Ejecutar pruebas técnicas con repositorios reales y recolectar feedback de usabilidad y precisión del prototipo.</span></li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center space-x-3">
-                            <a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="GitHub de Daniel Palencia"><i class="fa-brands fa-github"></i></a>
-                            <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="LinkedIn de Daniel Palencia"><i class="fa-brands fa-linkedin"></i></a>
-                            <a href="mailto:daniels-palencias@unilibre.edu.co" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Correo Institucional"><i class="fa-solid fa-envelope"></i></a>
+                        <div class="mt-8 pt-5 border-t border-slate-800 flex items-center space-x-3">
+                            <a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="GitHub de Daniel Palencia" aria-label="GitHub de Daniel Palencia"><i class="fa-brands fa-github text-base"></i></a>
+                            <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="LinkedIn de Daniel Palencia" aria-label="LinkedIn de Daniel Palencia"><i class="fa-brands fa-linkedin text-base"></i></a>
+                            <a href="mailto:daniels-palencias@unilibre.edu.co" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Correo Institucional Daniel Palencia" aria-label="Correo Institucional Daniel Palencia"><i class="fa-solid fa-envelope text-base"></i></a>
                         </div>
                     </div>
 
-                    <!-- Nelson Andrés Ayala Álvarez -->
-                    <div class="glow-card p-6 sm:p-8 flex flex-col justify-between h-full group min-w-0">
+                    <!-- Nelson Andrés Ayala Álvarez (CMO/CBO) -->
+                    <div class="glow-card p-7 sm:p-9 flex flex-col justify-between h-full group min-w-0">
                         <div>
                             <div class="flex items-center space-x-4 mb-6">
-                                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-lg shadow-indigo-500/30 ring-2 ring-white/20 group-hover:scale-110 group-hover:rotate-3 transition-transform shrink-0">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-500/30 ring-2 ring-white/20 group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0">
                                     NA
                                 </div>
                                 <div class="min-w-0">
-                                    <h3 class="text-base sm:text-xl font-bold text-white group-hover:text-indigo-400 transition-colors leading-snug break-words">Nelson Andrés Ayala Álvarez</h3>
-                                    <p class="text-indigo-400 text-xs font-semibold uppercase tracking-wider mt-0.5">Líder de Mercadeo & Negocios (CMO/CBO)</p>
+                                    <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-indigo-400 transition-colors leading-snug break-words">Nelson Andrés Ayala Álvarez</h3>
+                                    <p class="text-indigo-400 text-xs font-bold uppercase tracking-wider mt-0.5">Líder de Mercadeo & Negocios (CMO/CBO)</p>
                                     <p class="text-slate-400 text-xs mt-1 break-words"><i class="fa-solid fa-graduation-cap mr-1 text-slate-500"></i> Universidad Libre - Facultad de Ingeniería</p>
                                 </div>
                             </div>
-                            <div class="space-y-3 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-4">
-                                <p><strong class="text-white">Responsabilidades Clave:</strong></p>
-                                <ul class="space-y-2 text-slate-400 text-xs">
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2 mt-1 shrink-0"></i> <span class="break-words">Diseñar y desplegar la landing page interactiva con propuesta de valor clara y registro de early adopters.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2 mt-1 shrink-0"></i> <span class="break-words">Conducir las entrevistas de descubrimiento y validación con CTOs, Tech Leads y análisis competitivo vs Swimm/Mintlify.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2 mt-1 shrink-0"></i> <span class="break-words">Estructurar el modelo de precios SaaS B2B, métricas de adquisición y proyecciones comerciales.</span></li>
+                            <div class="space-y-3 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-5">
+                                <p><strong class="text-white text-xs uppercase tracking-wider">Responsabilidades Clave:</strong></p>
+                                <ul class="space-y-2.5 text-slate-400 text-xs">
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Diseñar y desplegar la landing page interactiva con propuesta de valor clara y registro de early adopters.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Conducir las entrevistas de descubrimiento y validación con CTOs, Tech Leads y análisis competitivo vs Swimm/Mintlify.</span></li>
+                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Estructurar el modelo de precios SaaS B2B, métricas de adquisición y proyecciones comerciales.</span></li>
                                 </ul>
                             </div>
                         </div>
-                        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center space-x-3">
-                            <a href="https://github.com/nexker" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="GitHub de Nelson Ayala"><i class="fa-brands fa-github"></i></a>
-                            <a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener noreferrer" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="LinkedIn de Nelson Ayala"><i class="fa-brands fa-linkedin"></i></a>
-                            <a href="mailto:nelsona-ayalaa@unilibre.edu.co" class="w-9 h-9 rounded-lg bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Correo Institucional"><i class="fa-solid fa-envelope"></i></a>
+                        <div class="mt-8 pt-5 border-t border-slate-800 flex items-center space-x-3">
+                            <a href="https://github.com/nexker" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="GitHub de Nelson Ayala" aria-label="GitHub de Nelson Ayala"><i class="fa-brands fa-github text-base"></i></a>
+                            <a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="LinkedIn de Nelson Ayala" aria-label="LinkedIn de Nelson Ayala"><i class="fa-brands fa-linkedin text-base"></i></a>
+                            <a href="mailto:nelsona-ayalaa@unilibre.edu.co" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Correo Institucional Nelson Ayala" aria-label="Correo Institucional Nelson Ayala"><i class="fa-solid fa-envelope text-base"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Métricas y Contador Estadístico -->
-        <section id="metricas" class="py-20 bg-slate-900/50 border-y border-slate-800/80 relative">
+        <!-- ======================================================================
+             8. MÉTRICAS Y CONTADOR ESTADÍSTICO
+             ====================================================================== -->
+        <section id="metricas" class="py-24 relative">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-400 bg-emerald-950/60 px-3.5 py-1 rounded-full border border-emerald-800/50">Tracción & Datos Relevantes</span>
-                    <h2 class="text-3xl sm:text-5xl font-extrabold text-white mt-4 tracking-tight">Métricas de Validación en Vivo</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg">
+                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-400 bg-emerald-950/60 px-4 py-1.5 rounded-full border border-emerald-800/50 inline-block mb-3">
+                        <i class="fa-solid fa-chart-line mr-1.5 text-emerald-400"></i> Tracción & Datos Relevantes
+                    </span>
+                    <h2 class="section-title text-white tracking-tight">Métricas de Validación en Vivo</h2>
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
                         Telemetría e indicadores cuantificables que sustentan la alta demanda y justificación del proyecto ante comités evaluadores.
                     </p>
                 </div>
 
+                <!-- 4 Metrics Counter Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="glow-card p-6 text-center">
+                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Visitantes Únicos</div>
-                        <div class="text-4xl font-extrabold text-cyan-400 font-mono neon-glow-cyan" id="visitor-counter">1,250</div>
-                        <p class="text-xs text-emerald-400 mt-2"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +14.2% esta semana</p>
+                        <div class="text-4xl font-extrabold text-cyan-400 font-mono neon-glow-cyan my-1" id="visitor-counter">1,250</div>
+                        <p class="text-xs text-emerald-400 mt-2 font-medium"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +14.2% esta semana</p>
                     </div>
 
-                    <div class="glow-card p-6 text-center">
+                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Early Adopters VIP</div>
-                        <div class="text-4xl font-extrabold text-sky-400 font-mono" id="registered-counter">186</div>
-                        <p class="text-xs text-emerald-400 mt-2"><i class="fa-solid fa-users mr-1"></i> Lista beta activa</p>
+                        <div class="text-4xl font-extrabold text-sky-400 font-mono my-1" id="registered-counter">186</div>
+                        <p class="text-xs text-emerald-400 mt-2 font-medium"><i class="fa-solid fa-users mr-1"></i> Lista beta activa</p>
                     </div>
 
-                    <div class="glow-card p-6 text-center">
+                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tasa de Conversión (CTR)</div>
-                        <div class="text-4xl font-extrabold text-emerald-400 font-mono neon-glow-emerald">14.7%</div>
+                        <div class="text-4xl font-extrabold text-emerald-400 font-mono neon-glow-emerald my-1">14.7%</div>
                         <p class="text-xs text-slate-400 mt-2">Promedio SaaS B2B: ~3.5%</p>
                     </div>
 
-                    <div class="glow-card p-6 text-center">
+                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
                         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Validación de Dolor</div>
-                        <div class="text-4xl font-extrabold text-indigo-400 font-mono">86.0%</div>
+                        <div class="text-4xl font-extrabold text-indigo-400 font-mono my-1">86.0%</div>
                         <p class="text-xs text-slate-400 mt-2">Muestra en Software Houses</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Infografía PDF Section -->
-        <section id="infografia" class="py-20 relative">
+        <!-- ======================================================================
+             9. INFOGRAFÍA OFICIAL & RECURSOS TÉCNICOS
+             ====================================================================== -->
+        <section id="infografia" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="glow-card bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/90 p-8 sm:p-12 shadow-2xl border border-cyan-900/60">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                         <div class="lg:col-span-8 space-y-4">
-                            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-800/60 text-xs font-semibold text-cyan-300">
+                            <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-800/60 text-xs font-semibold text-cyan-300">
                                 <i class="fa-solid fa-file-pdf text-rose-400 mr-1"></i>
                                 <span>Entregable Académico & Técnico</span>
                             </div>
@@ -512,19 +680,20 @@
                                 Documento estructurado bajo los lineamientos de la <strong>Universidad Libre</strong> y las mejores prácticas de <strong>HubSpot</strong>. Incluye la sustentación de la paleta cromática con contraste WCAG 2.1 AAA, heurísticas de usabilidad de Nielsen, jerarquía visual y el código QR de acceso.
                             </p>
                             <div class="pt-4 flex flex-wrap gap-4">
-                                <a href="infografia.html" target="_blank" class="btn-cyber px-6 py-3 text-sm font-bold">
-                                    <i class="fa-solid fa-eye mr-2 text-xs"></i>
+                                <a href="infografia.html" target="_blank" class="btn-cyber px-6 py-3.5 text-sm font-bold">
+                                    <i class="fa-solid fa-eye mr-2 text-xs text-slate-950"></i>
                                     <span>Ver Infografía Interactiva</span>
                                 </a>
-                                <a href="DocuMind_AI_Infografia_Color_UXUI.pdf" download class="btn-cyber-outline px-6 py-3 text-sm font-semibold">
+                                <a href="DocuMind_AI_Infografia_Color_UXUI.pdf" download class="btn-cyber-outline px-6 py-3.5 text-sm font-bold">
                                     <i class="fa-solid fa-download mr-2 text-rose-400 text-xs"></i>
                                     <span>Descargar Infografía (.PDF)</span>
                                 </a>
                             </div>
                         </div>
 
+                        <!-- Direct QR Code Card -->
                         <div class="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-slate-950/90 rounded-2xl border border-slate-800 text-center shadow-inner">
-                            <a href="https://dsantiagopsandoval.github.io/Document-mind-ai/" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center">
+                            <a href="https://dsantiagopsandoval.github.io/Document-mind-ai/" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center" style="text-decoration: none;">
                                 <div class="bg-white p-3 rounded-xl shadow-lg mb-3 ring-2 ring-cyan-500/40 group-hover:scale-105 transition-transform">
                                     <img src="assets/qr-landing.png" alt="Código QR de acceso a la Landing Page" class="w-36 h-36 object-contain">
                                 </div>
@@ -537,7 +706,9 @@
             </div>
         </section>
 
-        <!-- SECCIÓN FUTURISTA: SÉ PARTE DE LA BETA PRIVADA -->
+        <!-- ======================================================================
+             10. SECCIÓN BETA PRIVADA (REGISTRO VIP EARLY ADOPTERS)
+             ====================================================================== -->
         <section id="registro" class="py-28 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative border-t border-slate-800/80 overflow-hidden">
             <!-- Background Glow Flares -->
             <div class="absolute top-1/2 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 -z-10"></div>
@@ -545,15 +716,15 @@
 
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-20">
-                    <div class="inline-flex items-center space-x-2 px-5 py-2 rounded-full bg-cyan-950/80 border border-cyan-700/60 text-xs font-bold text-cyan-300 shadow-inner mb-5">
+                <div class="text-center max-w-3xl mx-auto mb-18">
+                    <div class="inline-flex items-center space-x-2 px-5 py-2 rounded-full bg-cyan-950/80 border border-cyan-700/60 text-xs font-bold text-cyan-300 shadow-inner mb-4">
                         <i class="fa-solid fa-shield-halved text-cyan-400 mr-1"></i>
                         <span>PROGRAMA EXCLUSIVO EARLY ADOPTERS 2026</span>
                     </div>
-                    <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight mt-2">
+                    <h2 class="section-title text-white tracking-tight mt-1">
                         Sé parte de la <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent neon-glow-cyan">Beta Privada</span>
                     </h2>
-                    <p class="text-slate-300 mt-6 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
                         Accede antes que nadie a la plataforma de documentación automática de software y obtén beneficios exclusivos para tu equipo de ingeniería.
                     </p>
                 </div>
@@ -563,10 +734,10 @@
                     
                     <!-- Left Column: VIP Perks & Dev Terminal -->
                     <div class="lg:col-span-5 flex flex-col justify-between space-y-6">
-                        <div class="glow-card p-7 sm:p-10 flex-1 flex flex-col justify-between min-w-0">
+                        <div class="glow-card p-7 sm:p-9 flex-1 flex flex-col justify-between min-w-0">
                             <div>
                                 <!-- Urgency Pill -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-slate-950/90 rounded-xl border border-rose-800/50 gap-3 mb-8">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-slate-950/90 rounded-xl border border-rose-800/50 gap-3 mb-7">
                                     <div class="flex items-center space-x-2 text-xs font-bold text-rose-400">
                                         <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping shrink-0"></span>
                                         <span class="break-words">Fase de Cupos Limitados</span>
@@ -574,16 +745,16 @@
                                     <span class="text-xs font-mono font-black text-white bg-rose-950 px-3 py-1.5 rounded-lg border border-rose-800/60 shrink-0" id="spots-left">🔥 14 cupos restantes</span>
                                 </div>
 
-                                <h3 class="text-xl sm:text-2xl font-black text-white mb-7 break-words">Beneficios para Early Adopters</h3>
+                                <h3 class="text-xl sm:text-2xl font-black text-white mb-6 break-words">Beneficios para Early Adopters</h3>
 
-                                <div class="space-y-6">
+                                <div class="space-y-5">
                                     <div class="flex items-start space-x-4">
                                         <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-sm mt-0.5">
                                             <i class="fa-solid fa-key"></i>
                                         </div>
                                         <div class="min-w-0">
                                             <h5 class="text-sm font-bold text-white break-words">6 Meses Enterprise Gratuito</h5>
-                                            <p class="text-slate-400 text-xs mt-1.5 break-words leading-relaxed">Acceso sin límites a análisis AST y sincronización de repositorios sin costo.</p>
+                                            <p class="text-slate-400 text-xs mt-1 break-words leading-relaxed">Acceso sin límites a análisis AST y sincronización de repositorios sin costo.</p>
                                         </div>
                                     </div>
 
@@ -593,7 +764,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <h5 class="text-sm font-bold text-white break-words">Soporte Directo con el Equipo Fundador</h5>
-                                            <p class="text-slate-400 text-xs mt-1.5 break-words leading-relaxed">Sesiones de onboarding 1-on-1 guiadas por Daniel Palencia y Nelson Ayala.</p>
+                                            <p class="text-slate-400 text-xs mt-1 break-words leading-relaxed">Sesiones de onboarding 1-on-1 guiadas por Daniel Palencia y Nelson Ayala.</p>
                                         </div>
                                     </div>
 
@@ -603,55 +774,56 @@
                                         </div>
                                         <div class="min-w-0">
                                             <h5 class="text-sm font-bold text-white break-words">Insignia de Early Backer en GitHub</h5>
-                                            <p class="text-slate-400 text-xs mt-1.5 break-words leading-relaxed">Reconocimiento oficial en la documentación de la Universidad Libre.</p>
+                                            <p class="text-slate-400 text-xs mt-1 break-words leading-relaxed">Reconocimiento oficial en la documentación de la Universidad Libre.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Simulated API Token Card -->
-                            <div class="mt-8 sm:mt-10 p-5 bg-slate-950/90 rounded-xl border border-cyan-900/60 font-mono text-xs min-w-0">
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 mb-3 border-b border-slate-800 pb-3 gap-2">
+                            <div class="mt-8 p-4 bg-slate-950/90 rounded-xl border border-cyan-900/60 font-mono text-xs min-w-0">
+                                <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2 border-b border-slate-800 pb-2 gap-2">
                                     <span class="flex items-center truncate"><i class="fa-solid fa-lock text-cyan-400 mr-1.5 shrink-0"></i> TOKEN ASIGNADO:</span>
                                     <span class="text-emerald-400 font-bold shrink-0">TIER_VIP_READY</span>
                                 </div>
-                                <p class="text-cyan-300 break-all text-[11px] leading-relaxed">documind_live_9f8a2e1d7c4b0a8f</p>
+                                <p class="text-cyan-300 break-all text-[11px]">documind_live_9f8a2e1d7c4b0a8f</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Right Column: High-End Futuristic Registration Form -->
                     <div class="lg:col-span-7 min-w-0">
-                        <div class="glow-card p-7 sm:p-10 lg:p-12 shadow-2xl relative min-w-0" id="form-wrapper">
+                        <div class="glow-card p-7 sm:p-10 lg:p-11 shadow-2xl relative min-w-0" id="form-wrapper">
                             <!-- Form Header -->
-                            <div class="mb-8 pb-6" style="border-bottom: 1px solid rgba(51,65,85,0.6);">
+                            <div class="mb-7 pb-5 border-b border-slate-800/80">
                                 <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">Solicita tu acceso anticipado</h3>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-2 leading-relaxed">Completa el formulario y recibirás tu pase VIP de la cohorte beta 2026.</p>
+                                <p class="text-slate-400 text-xs sm:text-sm mt-1.5 leading-relaxed">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
                             </div>
-                            <form id="lead-form" class="space-y-7">
+
+                            <form id="lead-form" class="space-y-6">
                                 <!-- Inputs Row 1 -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div>
-                                        <label for="name" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
+                                        <label for="name" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                                             <i class="fa-solid fa-user text-cyan-400 mr-1.5"></i> Nombre Completo *
                                         </label>
-                                        <input type="text" id="name" required placeholder="Ej. Carlos Mendoza" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans">
+                                        <input type="text" id="name" required placeholder="Ej. Carlos Mendoza" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all font-sans">
                                     </div>
                                     <div>
-                                        <label for="email" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
+                                        <label for="email" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                                             <i class="fa-solid fa-envelope text-cyan-400 mr-1.5"></i> Correo Corporativo / Dev *
                                         </label>
-                                        <input type="email" id="email" required placeholder="carlos@empresa.com" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans">
+                                        <input type="email" id="email" required placeholder="carlos@empresa.com" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all font-sans">
                                     </div>
                                 </div>
 
-                                <!-- Interactive Quick-Role Selector Chips -->
+                                <!-- Quick-Role Selector Chips -->
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
+                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
                                         <i class="fa-solid fa-id-badge text-cyan-400 mr-1.5"></i> Selecciona tu Rol Principal *
                                     </label>
                                     <input type="hidden" id="selected-role" name="role" value="tech_lead" required>
-                                    <div class="flex flex-wrap gap-2 sm:gap-2.5" id="role-chips-container">
+                                    <div class="flex flex-wrap gap-2" id="role-chips-container">
                                         <button type="button" class="role-chip" data-role="cto"><i class="fa-solid fa-crown text-amber-400"></i> CTO / VP Eng</button>
                                         <button type="button" class="role-chip active" data-role="tech_lead"><i class="fa-solid fa-cube text-cyan-400"></i> Tech Lead</button>
                                         <button type="button" class="role-chip" data-role="dev"><i class="fa-solid fa-code text-emerald-400"></i> Senior Dev</button>
@@ -660,23 +832,23 @@
                                     </div>
                                 </div>
 
-                                <!-- Repo Size & Infrastructure Selection -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+                                <!-- Repo Size & CI/CD Platform Selection -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div>
-                                        <label for="repo_size" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
+                                        <label for="repo_size" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                                             <i class="fa-solid fa-folder-tree text-cyan-400 mr-1.5"></i> Tamaño de Repositorios
                                         </label>
-                                        <select id="repo_size" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans">
+                                        <select id="repo_size" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 focus:outline-none transition-all font-sans">
                                             <option value="1-5">1 a 5 microservicios / repos</option>
                                             <option value="6-20">6 a 20 repositorios</option>
                                             <option value="20+">Monorepo / Más de 20 repos</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="ci_cd_tool" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
+                                        <label for="ci_cd_tool" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                                             <i class="fa-brands fa-github text-cyan-400 mr-1.5"></i> Plataforma de CI/CD
                                         </label>
-                                        <select id="ci_cd_tool" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans">
+                                        <select id="ci_cd_tool" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 focus:outline-none transition-all font-sans">
                                             <option value="github_actions">GitHub Actions</option>
                                             <option value="gitlab_ci">GitLab CI/CD</option>
                                             <option value="bitbucket">Bitbucket Pipelines</option>
@@ -687,10 +859,10 @@
 
                                 <!-- Feedback / Challenge -->
                                 <div>
-                                    <label for="comments" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
+                                    <label for="comments" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                                         <i class="fa-solid fa-comment-dots text-cyan-400 mr-1.5"></i> ¿Cuál es tu mayor dolor actual con la documentación?
                                     </label>
-                                    <textarea id="comments" rows="4" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas de arquitectura quedan obsoletos con cada sprint..." class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all font-sans"></textarea>
+                                    <textarea id="comments" rows="4" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas de arquitectura quedan obsoletos con cada sprint..." class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all font-sans"></textarea>
                                 </div>
 
                                 <!-- Terms -->
@@ -738,7 +910,7 @@
                                         <p class="text-cyan-400 text-[11px] break-all" id="pass-invite-link">https://dsantiagopsandoval.github.io/Document-mind-ai/?ref=DOCU-2026</p>
                                     </div>
                                     <button type="button" id="btn-copy-pass" class="btn-cyber px-5 py-2.5 text-xs font-bold shrink-0 w-full sm:w-auto">
-                                        <i class="fa-solid fa-copy mr-1"></i> Copiar
+                                        <i class="fa-solid fa-copy mr-1 text-slate-950"></i> Copiar
                                     </button>
                                 </div>
                             </div>
@@ -749,53 +921,62 @@
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 py-12 text-sm">
+    <!-- ======================================================================
+         11. FOOTER INSTITUCIONAL
+         ====================================================================== -->
+    <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 py-14 text-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <!-- Col 1 & 2: Brand Info -->
                 <div class="md:col-span-2 space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/30">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/30">
                             <i class="fa-solid fa-brain text-sm"></i>
                         </div>
-                        <span class="text-lg font-bold text-white">DocuMind - AI</span>
+                        <span class="text-lg font-bold text-white tracking-tight">DocuMind - AI</span>
                     </div>
                     <p class="text-slate-400 text-xs max-w-md leading-relaxed">
-                        Proyecto de Innovación y Emprendimiento Tecnológico. Universidad Libre, Facultad de Ingeniería, Bogotá D.C., Colombia.
+                        Proyecto de Innovación y Emprendimiento Tecnológico. Universidad Libre, Facultad de Ingeniería, Bogotá D.C., Colombia. Reto HIT 2026.
                     </p>
                     <p class="text-xs text-slate-500">
-                        Desarrollado por <strong>Daniel Santiago Palencia Sandoval</strong> & <strong>Nelson Andrés Ayala Álvarez</strong>.
+                        Desarrollado por <strong>Daniel Santiago Palencia Sandoval</strong> &amp; <strong>Nelson Andrés Ayala Álvarez</strong>.
                     </p>
                 </div>
 
+                <!-- Col 3: Enlaces Rápidos -->
                 <div>
-                    <h5 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-3">Enlaces Rápidos</h5>
-                    <ul class="space-y-2 text-xs">
-                        <li><a href="#problema" class="hover:text-cyan-400">Problemática Reto HIT</a></li>
-                        <li><a href="#solucion" class="hover:text-cyan-400">Arquitectura AST + LLM</a></li>
-                        <li><a href="#equipo" class="hover:text-cyan-400">Equipo de Emprendimiento</a></li>
-                        <li><a href="infografia.html" target="_blank" class="hover:text-cyan-400">Infografía Color & UX/UI</a></li>
+                    <h5 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-4">Navegación del Producto</h5>
+                    <ul class="space-y-2.5 text-xs">
+                        <li><a href="#problema" class="hover:text-cyan-400 transition-colors">Problemática Reto HIT</a></li>
+                        <li><a href="#solucion" class="hover:text-cyan-400 transition-colors">Arquitectura AST + LLM</a></li>
+                        <li><a href="#como-funciona" class="hover:text-cyan-400 transition-colors">Cómo Funciona (Pipeline)</a></li>
+                        <li><a href="#demo" class="hover:text-cyan-400 transition-colors">Simulador en Vivo</a></li>
+                        <li><a href="#equipo" class="hover:text-cyan-400 transition-colors">Equipo de Emprendimiento</a></li>
+                        <li><a href="#infografia" class="hover:text-cyan-400 transition-colors">Infografía Color &amp; UX/UI</a></li>
                     </ul>
                 </div>
 
+                <!-- Col 4: Institucional & Comunidad -->
                 <div>
-                    <h5 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-3">Institucional & Comunidad</h5>
-                    <ul class="space-y-2 text-xs">
-                        <li><a href="https://www.unilibre.edu.co/bogota/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400"><i class="fa-solid fa-building-columns mr-1.5"></i> Universidad Libre</a></li>
-                        <li><a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400"><i class="fa-brands fa-github mr-1.5"></i> GitHub Daniel Palencia</a></li>
-                        <li><a href="https://github.com/nexker" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400"><i class="fa-brands fa-github mr-1.5"></i> GitHub Nelson Ayala</a></li>
-                        <li><a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400"><i class="fa-brands fa-linkedin mr-1.5"></i> LinkedIn Founders</a></li>
+                    <h5 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-4">Institucional &amp; Comunidad</h5>
+                    <ul class="space-y-2.5 text-xs">
+                        <li><a href="https://www.unilibre.edu.co/bogota/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-solid fa-building-columns mr-2 text-cyan-400"></i> Universidad Libre</a></li>
+                        <li><a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-github mr-2 text-cyan-400"></i> GitHub Daniel Palencia</a></li>
+                        <li><a href="https://github.com/nexker" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-github mr-2 text-cyan-400"></i> GitHub Nelson Ayala</a></li>
+                        <li><a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-linkedin mr-2 text-cyan-400"></i> LinkedIn Daniel Palencia</a></li>
+                        <li><a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-linkedin mr-2 text-cyan-400"></i> LinkedIn Nelson Ayala</a></li>
                     </ul>
                 </div>
             </div>
 
             <div class="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
                 <p>© 2026 DocuMind AI. Todos los derechos reservados. Universidad Libre - Facultad de Ingeniería.</p>
-                <p class="mt-2 sm:mt-0">Diseñado con principios de accesibilidad WCAG 2.1 AAA & Atomic Design.</p>
+                <p class="mt-2 sm:mt-0">Diseñado con principios de accesibilidad WCAG 2.1 AAA &amp; Heurísticas de Nielsen.</p>
             </div>
         </div>
     </footer>
 
+    <!-- Interactive Logic Script -->
     <script src="app.js"></script>
 </body>
 </html>
