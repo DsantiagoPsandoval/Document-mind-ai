@@ -100,15 +100,26 @@ code, pre, .font-mono {
 
 /* Fluid Hero Title */
 .hero-title {
-    font-size: clamp(2.15rem, 5.2vw, 4.35rem);
-    line-height: 1.14;
+    font-size: clamp(1.85rem, 5.8vw, 4.35rem);
+    line-height: 1.15;
     font-weight: 900;
     letter-spacing: -0.03em;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .break-anywhere {
     overflow-wrap: anywhere;
     word-break: break-word;
+}
+
+.break-words {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+.break-all {
+    word-break: break-all;
 }
 
 /* Thematic Color Glow Cards */
@@ -512,3 +523,24 @@ button, input, select, textarea { font-family: inherit; }
 .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3); }
 .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); }
 .cursor-pointer { cursor: pointer; }
+
+/* Mobile Specific Refinements (max-width: 639px) */
+@media (max-width: 639px) {
+    .glow-card {
+        padding: 1.25rem !important;
+        border-radius: 1rem;
+    }
+    .role-chip {
+        font-size: 0.75rem;
+        padding: 0.45rem 0.75rem;
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+    .vip-pass-card {
+        padding: 1.25rem !important;
+        border-radius: 1.25rem;
+    }
+    .btn-cyber, .btn-cyber-outline {
+        width: 100%;
+    }
+}
