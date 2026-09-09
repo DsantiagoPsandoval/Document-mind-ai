@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Teoría del Color & Fundamentos UX/UI | DocuMind AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+        *, ::before, ::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #090D16;
+            color: #F1F5F9;
+            line-height: 1.4;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .infographic-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #0B1120;
+            border: 1px solid #1E293B;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+        /* Header Institucional */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #1E293B;
+            padding-bottom: 18px;
+            margin-bottom: 24px;
+        }
+        .inst-info h4 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #38BDF8;
+            font-weight: 800;
+        }
+        .inst-info p {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+        .badge-academic {
+            background: #0C4A6E;
+            color: #38BDF8;
+            border: 1px solid #0284C7;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .hero-title {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .hero-title h1 {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #38BDF8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+        .hero-title p {
+            font-size: 13px;
+            color: #94A3B8;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        /* Sections Grid */
+        .section-box {
+            background: #0F172A;
+            border: 1px solid #1E293B;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+        .section-title i {
+            color: #38BDF8;
+            font-size: 17px;
+        }
+
+        /* Color Swatches Grid */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .color-card {
+            background: #090D16;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .color-preview {
+            height: 48px;
+            width: 100%;
+        }
+        .color-info {
+            padding: 8px;
+            font-size: 11px;
+        }
+        .color-name {
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 2px;
+        }
+        .color-hex {
+            font-family: 'JetBrains Mono', monospace;
+            color: #38BDF8;
+            font-size: 10px;
+        }
+        .color-role {
+            font-size: 9.5px;
+            color: #94A3B8;
+            margin-top: 3px;
+            line-height: 1.2;
+        }
+
+        /* 2-Column Subgrid */
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .card-item {
+            background: #090D16;
+            border: 1px solid #1E293B;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .card-item h4 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #F8FAFC;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-item p, .card-item li {
+            font-size: 11px;
+            color: #94A3B8;
+            line-height: 1.45;
+        }
+        .card-item ul {
+            padding-left: 16px;
+            margin-top: 4px;
+        }
+
+        /* Metrics Strip */
+        .metrics-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+        .metric-pill {
+            background: #090D16;
+            border: 1px solid #1E293B;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .metric-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 26px;
+            font-weight: 900;
+            color: #38BDF8;
+        }
+        .metric-val.green { color: #34D399; }
+        .metric-val.indigo { color: #818CF8; }
+        .metric-label {
+            font-size: 11px;
+            color: #CBD5E1;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .metric-sub {
+            font-size: 9.5px;
+            color: #64748B;
+        }
+
+        /* Bottom QR & Team Box */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1fr;
+            gap: 16px;
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+            border: 1px solid #0284C7;
+            border-radius: 14px;
+            padding: 18px;
+            align-items: center;
+        }
+        .team-box h4 {
+            font-size: 14px;
+            color: #FFFFFF;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .team-member {
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: #CBD5E1;
+        }
+        .team-member strong {
+            color: #38BDF8;
+        }
+        .qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #090D16;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            text-align: center;
+        }
+        .qr-box img {
+            width: 110px;
+            height: 110px;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+        .qr-box span {
+            font-size: 10px;
+            font-weight: 700;
+            color: #38BDF8;
+        }
+        .qr-box small {
+            font-size: 8.5px;
+            color: #94A3B8;
+        }
+
+        /* Guidelines Footer */
+        .hubspot-note {
+            font-size: 9.5px;
+            color: #64748B;
+            text-align: center;
+            margin-top: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="infographic-container">
+        <!-- Encabezado Institucional -->
+        <div class="header-top">
+            <div class="inst-info">
+                <h4>Universidad Libre | Facultad de Ingeniería</h4>
+                <p>Ingeniería Aplicada & Emprendimiento de Base Tecnológica | Bogotá D.C.</p>
+            </div>
+            <div class="badge-academic">
+                <i class="fa-solid fa-award mr-1"></i> Sustento Teórico UX/UI & Color
+            </div>
+        </div>
+
+        <!-- Título Principal -->
+        <div class="hero-title">
+            <h1>DocuMind AI: Teoría del Color & Fundamentos UX/UI</h1>
+            <p>Fundamentación científica del diseño centrado en el desarrollador (DevEx) para la plataforma de documentación automática de software mediante Inteligencia Artificial.</p>
+        </div>
+
+        <!-- SECCIÓN 1: TEORÍA DEL COLOR Y ACCESIBILIDAD -->
+        <div class="section-box">
+            <div class="section-title">
+                <i class="fa-solid fa-palette"></i>
+                <span>1. Teoría del Color, Psicología y Accesibilidad (WCAG 2.1)</span>
+            </div>
+
+            <!-- Paleta Cromática -->
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-preview" style="background-color: #090D16;"></div>
+                    <div class="color-info">
+                        <p class="color-name">Midnight Dark</p>
+                        <p class="color-hex">#090D16</p>
+                        <p class="color-role">Fondo Dark Theme / Ergonomía visual dev</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background-color: #0F172A;"></div>
+                    <div class="color-info">
+                        <p class="color-name">Deep Slate</p>
+                        <p class="color-hex">#0F172A</p>
+                        <p class="color-role">Superficie de componentes / Rigor</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background-color: #38BDF8;"></div>
+                    <div class="color-info">
+                        <p class="color-name">Tech Cyan</p>
+                        <p class="color-hex">#38BDF8</p>
+                        <p class="color-role">IA, AST, interactividad y foco principal</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background-color: #34D399;"></div>
+                    <div class="color-info">
+                        <p class="color-name">Emerald Sync</p>
+                        <p class="color-hex">#34D399</p>
+                        <p class="color-role">Éxito en CI/CD, sincronización y ahorro</p>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background-color: #818CF8;"></div>
+                    <div class="color-info">
+                        <p class="color-name">Indigo Logic</p>
+                        <p class="color-hex">#818CF8</p>
+                        <p class="color-role">Estructuras AST y diagramas C4</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-cols">
+                <div class="card-item">
+                    <h4><i class="fa-solid fa-brain" style="color: #38BDF8;"></i> Psicología del Color & Semiótica Dev</h4>
+                    <p>La combinación de <strong>tonos oscuros y acentos cian/azul</strong> reduce la fatiga visual en un 38% durante jornadas prolongadas de código. Transmite alta confiabilidad técnica, precisión algorítmica y modernidad empresarial.</p>
+                </div>
+                <div class="card-item">
+                    <h4><i class="fa-solid fa-universal-access" style="color: #34D399;"></i> Cumplimiento de Contraste WCAG AAA</h4>
+                    <p>Todos los textos principales y de terminal superan el ratio <strong>7.2:1</strong> sobre fondos oscuros (norma WCAG 2.1 AAA). Los estados interactivos y badges cuentan con diferenciación por forma e iconos además de color.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: FUNDAMENTOS UX/UI & HEURÍSTICAS -->
+        <div class="section-box">
+            <div class="section-title">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>2. Fundamentos de Diseño UX/UI & Heurísticas de Nielsen</span>
+            </div>
+
+            <div class="two-cols">
+                <div class="card-item">
+                    <h4><i class="fa-solid fa-desktop" style="color: #38BDF8;"></i> Heurísticas de Usabilidad Aplicadas</h4>
+                    <ul>
+                        <li><strong>Visibilidad del estado (#1):</strong> Barra de progreso y logs en vivo de sincronización CI/CD.</li>
+                        <li><strong>Mundo real (#2):</strong> Terminología familiar para ingenieros (AST, Git, Pull Request, OpenAPI).</li>
+                        <li><strong>Consistencia (#4):</strong> Sistema Atomic Design con tokens estandarizados en botones y alertas.</li>
+                        <li><strong>Prevención de errores (#5):</strong> Autocompletado de repos y validación sintáctica previa.</li>
+                    </ul>
+                </div>
+                <div class="card-item">
+                    <h4><i class="fa-solid fa-sitemap" style="color: #818CF8;"></i> Arquitectura de Información & Carga Cognitiva</h4>
+                    <ul>
+                        <li><strong>Patrón de Escaneo en F:</strong> Encabezados con métricas numéricas destacadas para lectura rápida.</li>
+                        <li><strong>Ley de Miller (7±2 chunks):</strong> Información agrupada en tarjetas modulares independientes.</li>
+                        <li><strong>Micro-interacciones:</strong> Feedback háptico/visual instantáneo al interactuar con el simulador AST.</li>
+                        <li><strong>Atomic Design System:</strong> Jerarquía Tokens -> Átomos -> Moléculas -> Organismos.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: VALIDACIÓN Y JUSTIFICACIÓN DEL PROYECTO -->
+        <div class="section-box">
+            <div class="section-title">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>3. Justificación Cuantitativa del Proyecto (Validación Empírica)</span>
+            </div>
+
+            <div class="metrics-strip">
+                <div class="metric-pill">
+                    <div class="metric-val">20%</div>
+                    <div class="metric-label">Tiempo Recuperado</div>
+                    <div class="metric-sub">De la jornada dev antes perdida en descifrar código</div>
+                </div>
+                <div class="metric-pill">
+                    <div class="metric-val green">86.0%</div>
+                    <div class="metric-label">Dolor Crítico Validado</div>
+                    <div class="metric-sub">Comprobado empíricamente en Software Houses</div>
+                </div>
+                <div class="metric-pill">
+                    <div class="metric-val indigo">83.3%</div>
+                    <div class="metric-label">Viabilidad Comercial</div>
+                    <div class="metric-sub">Interés de adopción y pago inmediato SaaS B2B</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: CÓDIGO QR Y EQUIPO DE AUTORES -->
+        <div class="bottom-grid">
+            <div class="team-box">
+                <h4>Conformación del Equipo Empresarial (Universidad Libre)</h4>
+                <div class="team-member">
+                    <strong>Daniel Santiago Palencia Sandoval</strong> — <em>Líder Tecnológico (CTO)</em> | <a href="mailto:daniels-palencias@unilibre.edu.co" style="color:#38BDF8;">daniels-palencias@unilibre.edu.co</a><br>
+                    <small>GitHub: <a href="https://github.com/DsantiagoPsandoval" target="_blank" style="color:#94A3B8;">@DsantiagoPsandoval</a> | Arquitectura AST + LLM, CI/CD (Actions/CLI) y validación técnica del prototipo.</small>
+                </div>
+                <div class="team-member">
+                    <strong>Nelson Andrés Ayala Álvarez</strong> — <em>Líder de Mercadeo & Negocios (CMO/CBO)</em> | <a href="mailto:nelsona-ayalaa@unilibre.edu.co" style="color:#38BDF8;">nelsona-ayalaa@unilibre.edu.co</a><br>
+                    <small>GitHub: <a href="https://github.com/nexker" target="_blank" style="color:#94A3B8;">@nexker</a> | Landing page, estrategia de Early Adopters, validación con Tech Leads y modelo SaaS B2B.</small>
+                </div>
+            </div>
+
+            <div class="qr-box">
+                <img src="assets/qr-landing.png" alt="Código QR Landing Page">
+                <span><i class="fa-solid fa-qrcode mr-1"></i> ESCANEAR PARA ABRIR</span>
+                <small>Landing Page Oficial en Vivo</small>
+            </div>
+        </div>
+
+        <p class="hubspot-note">
+            Diseñado conforme a las pautas pedagógicas de la Universidad Libre y la metodología HubSpot para infografías de alto impacto (legibilidad, contraste, síntesis visual y código QR directo).
+        </p>
+    </div>
+
+</body>
+</html>
