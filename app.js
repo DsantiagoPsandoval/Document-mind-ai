@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Display VIP Pass
             if (passHolderName) passHolderName.textContent = name;
             if (passIdCode) passIdCode.textContent = passId;
-            if (passInviteLink) passInviteLink.textContent = `https://documind-ai.unilibrebog.edu.co/?pass=${passId}`;
+            if (passInviteLink) passInviteLink.textContent = `https://dsantiagopsandoval.github.io/Document-mind-ai/?pass=${passId}`;
 
             if (vipPassResult) {
                 vipPassResult.classList.remove("hidden");

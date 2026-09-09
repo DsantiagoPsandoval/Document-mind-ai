@@ -255,7 +255,8 @@ bottom_data = [
         [
             qr_img,
             Paragraph("<font color='#38BDF8'><b>ESCANEAR QR</b></font>", ParagraphStyle('QR1', fontName='Helvetica-Bold', fontSize=6.5, leading=8, alignment=1)),
-            Paragraph("Abrir Landing Page", ParagraphStyle('QR2', fontName='Helvetica', fontSize=5.5, leading=7, alignment=1, textColor=colors.HexColor('#94A3B8')))
+            Paragraph("Abrir Landing Page", ParagraphStyle('QR2', fontName='Helvetica', fontSize=5.5, leading=7, alignment=1, textColor=colors.HexColor('#94A3B8'))),
+            Paragraph("<font color='#38BDF8'>github.io/Document-mind-ai</font>", ParagraphStyle('QR3', fontName='Helvetica', fontSize=4.5, leading=6, alignment=1))
         ]
     ]
 ]

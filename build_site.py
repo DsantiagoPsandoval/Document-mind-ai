@@ -11,7 +11,7 @@ print('Iniciando construccion y verificacion de DocuMind AI...')
 os.makedirs('assets', exist_ok=True)
 
 # 1. Generar Codigos QR de alta resolucion
-url = 'https://documind-ai.github.io/launch/'
+url = 'https://dsantiagopsandoval.github.io/Document-mind-ai/'
 factory = qrcode.image.svg.SvgPathImage
 img_svg = qrcode.make(url, image_factory=factory, box_size=10, border=2)
 img_svg.save('assets/qr-landing.svg')

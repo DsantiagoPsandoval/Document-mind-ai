@@ -38,7 +38,7 @@
 - **Fundamentos de Diseño UX/UI:**
   - Heurísticas de Usabilidad de Jakob Nielsen (#1 Visibilidad de estado, #2 Correspondencia con mundo real, #4 Consistencia, #5 Prevención de errores).
   - Arquitectura de información (Patrones F & Z, Ley de Miller, Micro-interacciones, Atomic Design System).
-- **Código QR Integrado:** Código QR escaneable (`assets/qr-landing.png`) que direcciona a la Landing Page.
+- **Código QR Integrado:** Código QR escaneable (`assets/qr-landing.png` / `assets/qr-landing.svg`) que direcciona directamente a la Landing Page publicada en GitHub Pages: [https://dsantiagopsandoval.github.io/Document-mind-ai/](https://dsantiagopsandoval.github.io/Document-mind-ai/).
 - **Lineamientos Pedagógicos:** Diseñado bajo las directrices de la Universidad Libre y la metodología HubSpot para infografías efectivas.
 
 ---
