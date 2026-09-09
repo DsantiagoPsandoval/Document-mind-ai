@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Custom Design System Stylesheet -->
-    <link rel="stylesheet" href="styles.css?v=3.1">
+    <link rel="stylesheet" href="styles.css?v=3.2">
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 relative">
 
@@ -53,43 +53,14 @@
                 </div>
             </a>
 
-            <!-- Desktop Nav Links (Encuadritos / Tabs) -->
-            <nav class="hidden lg:flex items-center gap-2 text-sm font-medium">
-                <a href="#problema" class="nav-chip">Problemática</a>
-                <a href="#solucion" class="nav-chip">Solución</a>
-                <a href="#como-funciona" class="nav-chip">Cómo Funciona</a>
-                <a href="#demo" class="nav-chip">Prototipo en Vivo</a>
-                <a href="#equipo" class="nav-chip">Equipo</a>
-                <a href="#metricas" class="nav-chip">Métricas</a>
-                <a href="#infografia" class="nav-chip">Teoría & UX/UI</a>
-            </nav>
-
-            <!-- CTA Action & Mobile Toggle -->
-            <div class="flex items-center space-x-4">
-                <a href="#registro" class="btn-cyber hidden sm:inline-flex text-xs sm:text-sm font-bold">
-                    <span>Acceso VIP Beta</span>
-                    <i class="fa-solid fa-bolt ml-2 text-xs text-slate-950"></i>
+            <!-- CTA Actions (Right) -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <a href="#demo" class="btn-cyber-outline text-xs sm:text-sm font-bold py-2.5 px-4">
+                    <i class="fa-solid fa-play mr-2 text-cyan-400 text-xs"></i>
+                    <span>Probar Demo</span>
                 </a>
-                <button id="mobile-menu-btn" class="lg:hidden text-slate-400 hover:text-white p-2 text-xl focus:outline-none" aria-label="Abrir menú de navegación">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Menu Drawer -->
-        <div id="mobile-menu" class="hidden lg:hidden bg-slate-900/95 backdrop-blur-lg border-b border-slate-800 px-5 py-6 space-y-4 shadow-2xl">
-            <div class="grid grid-cols-2 gap-2 pb-2">
-                <a href="#problema" class="nav-chip justify-center py-2.5">Problemática</a>
-                <a href="#solucion" class="nav-chip justify-center py-2.5">Solución</a>
-                <a href="#como-funciona" class="nav-chip justify-center py-2.5">Cómo Funciona</a>
-                <a href="#demo" class="nav-chip justify-center py-2.5">Prototipo</a>
-                <a href="#equipo" class="nav-chip justify-center py-2.5">Equipo</a>
-                <a href="#metricas" class="nav-chip justify-center py-2.5">Métricas</a>
-                <a href="#infografia" class="nav-chip justify-center py-2.5 col-span-2">Teoría & UX/UI</a>
-            </div>
-            <div class="pt-2">
-                <a href="#registro" class="btn-cyber block text-center py-3 w-full">
-                    <span>Solicitar Acceso VIP Beta</span>
+                <a href="#registro" class="btn-cyber text-xs sm:text-sm font-bold py-2.5 px-5">
+                    <span>Acceso VIP Beta</span>
                     <i class="fa-solid fa-bolt ml-2 text-xs text-slate-950"></i>
                 </a>
             </div>
@@ -469,11 +440,11 @@
                             <label for="repo-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
                                 <i class="fa-brands fa-github text-cyan-400 mr-1.5"></i> Repositorio de prueba
                             </label>
-                            <div class="input-group-cyber">
-                                <div class="input-addon-cyber">
-                                    <i class="fa-brands fa-github text-base text-cyan-400"></i>
+                            <div class="input-group-cyber" style="display: flex; align-items: center; background-color: #020617; border: 1px solid #334155; border-radius: 0.75rem; overflow: hidden;">
+                                <div class="input-addon-cyber" style="padding: 0.85rem 1.15rem; background-color: #0f172a; border-right: 1px solid #1e293b; color: #22d3ee; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-brands fa-github" style="font-size: 1.25rem;"></i>
                                 </div>
-                                <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="w-full px-4 py-3 bg-transparent border-0 text-sm text-slate-200 focus:outline-none font-mono">
+                                <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="font-mono" style="width: 100%; padding: 0.85rem 1rem; background: transparent; border: none; outline: none; color: #f1f5f9; font-size: 0.875rem;">
                             </div>
                         </div>
                         <div>
