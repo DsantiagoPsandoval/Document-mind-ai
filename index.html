@@ -3,955 +3,688 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DocuMind - AI | Documentación Automática de Repositorios mediante AST + LLM</title>
-    <meta name="description" content="Plataforma de Inteligencia Artificial que sincroniza automáticamente documentación, arquitectura viva y contratos de API de repositorios de software en cada git push. Universidad Libre - Reto HIT 2026.">
-    <meta name="keywords" content="DocuMind AI, Documentación Automática, AST Parser, LLM, Git Push, C4 Diagrams, OpenAPI, Universidad Libre">
-    <meta name="author" content="Daniel Santiago Palencia Sandoval & Nelson Andrés Ayala Álvarez">
-    
-    <!-- Open Graph / Social Meta -->
+    <title>DocuMind AI | Documenta tus repositorios con Inteligencia Artificial</title>
+    <meta name="description" content="Plataforma de IA que sincroniza documentacion, arquitectura viva y contratos de API en cada git push. Universidad Libre - Reto HIT 2026.">
+    <meta name="keywords" content="DocuMind AI, Documentacion Automatica, AST Parser, LLM, Git Push, C4 Diagrams, OpenAPI, Universidad Libre">
+    <meta name="author" content="Daniel Santiago Palencia Sandoval &amp; Nelson Andres Ayala Alvarez">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://dsantiagopsandoval.github.io/Document-mind-ai/">
-    <meta property="og:title" content="DocuMind - AI | Tu código cambia todos los días. Tu documentación ahora también.">
-    <meta property="og:description" content="Plataforma de Inteligencia Artificial para documentación viva de software basada en análisis AST y modelos de lenguaje.">
+    <meta property="og:title" content="DocuMind AI | Tu codigo cambia todos los dias. Tu documentacion ahora tambien.">
+    <meta property="og:description" content="Plataforma de IA para documentacion viva de software basada en analisis AST y modelos de lenguaje.">
     <meta property="og:image" content="https://dsantiagopsandoval.github.io/Document-mind-ai/assets/qr-landing.png">
-    
-    <!-- Favicon (SVG Brain Tech) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23020617' stroke='%2338bdf8' stroke-width='4'/><path d='M30 45 C30 35, 45 32, 48 40 C52 32, 70 35, 70 45 C70 55, 62 65, 50 72 C38 65, 30 55, 30 45 Z' fill='%230ea5e9'/><circle cx='42' cy='48' r='4' fill='%23ffffff'/><circle cx='58' cy='48' r='4' fill='%23ffffff'/><path d='M42 48 L58 48' stroke='%23ffffff' stroke-width='2'/></svg>">
-    <meta name="theme-color" content="#020617">
-
-    <!-- Fonts & Icons -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2304051a' stroke='%2300d4ff' stroke-width='3'/%3E%3Cpath d='M30 45 C30 35,45 32,48 40 C52 32,70 35,70 45 C70 55,62 65,50 72 C38 65,30 55,30 45Z' fill='%236366f1'/%3E%3C/svg%3E">
+    <meta name="theme-color" content="#04051a">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Custom Design System Stylesheet -->
-    <link rel="stylesheet" href="styles.css?v=3.2">
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <style>
+        /* Inline responsive overrides */
+        @media(max-width:900px){
+            #solucion-grid{grid-template-columns:1fr!important}
+            #registro-grid{grid-template-columns:1fr!important}
+            #infografia-inner{grid-template-columns:1fr!important}
+        }
+        @media(max-width:700px){
+            #hero-visual{grid-template-columns:1fr!important}
+            #hero-visual .hero-panel:first-child,#hero-visual .hero-panel:last-child{display:none}
+            #sim-output{grid-template-columns:1fr!important}
+            #contacto-grid{grid-template-columns:1fr!important}
+        }
+        @media(max-width:600px){
+            #metrics-strip{grid-template-columns:1fr 1fr!important}
+            #sim-inputs{grid-template-columns:1fr!important}
+            #footer-grid{grid-template-columns:1fr!important}
+        }
+        a[aria-label]:hover{color:#fff!important;background:rgba(0,212,255,.18)!important;border-color:rgba(0,212,255,.4)!important;}
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 relative">
+<body style="background-color:#04051a;color:#e2e8f0;">
 
-    <!-- Dynamic Cursor Spotlight Glow -->
     <div id="cursor-spotlight"></div>
+    <div id="toast-container"></div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 pointer-events-none max-w-[90vw]"></div>
-
-    <!-- ======================================================================
-         1. NAVBAR
-         ====================================================================== -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo -->
-            <a href="#" class="flex items-center space-x-3 group" style="text-decoration: none;">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/25 ring-1 ring-white/20 group-hover:scale-105 group-hover:rotate-3 transition-transform shrink-0">
-                    <i class="fa-solid fa-brain text-white text-lg"></i>
-                </div>
-                <div class="brand-logo-text">
-                    <span style="color: #ffffff; font-weight: 900; font-size: 1.35rem; letter-spacing: -0.02em; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">DocuMind</span>
-                    <span style="color: #38bdf8; font-weight: 900; font-size: 1.35rem;">-</span>
-                    <span class="brand-badge-ai">AI</span>
-                </div>
+    <!-- NAVBAR -->
+    <header id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo" aria-label="DocuMind AI - Inicio">
+                <div class="nav-logo-icon"><i class="fa-solid fa-brain"></i></div>
+                <span class="nav-logo-text">DocuMind<span style="color:rgba(0,212,255,.5)">-</span><span class="ai-badge">AI</span></span>
             </a>
-
-            <!-- CTA Actions (Right) -->
-            <div class="flex items-center space-x-3 sm:space-x-4">
-                <a href="#demo" class="btn-cyber-outline text-xs sm:text-sm font-bold py-2.5 px-4">
-                    <i class="fa-solid fa-play mr-2 text-cyan-400 text-xs"></i>
-                    <span>Probar Demo</span>
-                </a>
-                <a href="#registro" class="btn-cyber text-xs sm:text-sm font-bold py-2.5 px-5">
-                    <span>Acceso VIP Beta</span>
-                    <i class="fa-solid fa-bolt ml-2 text-xs text-slate-950"></i>
-                </a>
+            <nav aria-label="Navegacion principal">
+                <ul class="nav-links">
+                    <li><a href="#como-funciona">Como Funciona</a></li>
+                    <li><a href="#solucion">Solucion</a></li>
+                    <li><a href="#demo">Demo</a></li>
+                    <li><a href="#equipo">Equipo</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <div class="nav-actions">
+                <a href="#demo" class="btn-cyber-outline" style="padding:.5rem 1.1rem;font-size:.8rem;"><i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--cyan-primary)"></i>Probar Demo</a>
+                <a href="#registro" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;"><i class="fa-solid fa-bolt" style="font-size:.65rem;margin-right:.4rem;"></i>Acceso VIP Beta</a>
+                <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
             </div>
         </div>
     </header>
 
-    <main class="pt-20">
-        <!-- ======================================================================
-             2. HERO SECTION
-             ====================================================================== -->
-        <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-16 sm:py-20 lg:py-28">
-            <!-- Background Ambient Glow Flares -->
-            <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
-            <div class="absolute bottom-10 right-10 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:28px_28px] opacity-40 pointer-events-none -z-20"></div>
+    <nav id="mobile-menu" aria-label="Menu movil">
+        <a href="#como-funciona">Como Funciona</a>
+        <a href="#solucion">Solucion</a>
+        <a href="#demo">Demo en Vivo</a>
+        <a href="#equipo">Equipo</a>
+        <a href="#registro" style="color:var(--cyan-primary);">Acceso VIP Beta</a>
+        <a href="#contacto">Contacto</a>
+    </nav>
 
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center min-w-0">
-                <!-- Product Version Pill Badge -->
-                <div class="mb-6">
-                    <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-xs sm:text-sm font-bold uppercase tracking-wider shadow-lg shadow-cyan-500/10">
-                        <i class="fa-solid fa-sparkles text-cyan-400"></i>
-                        <span>DocuMind - AI Engine • Cohorte 2026</span>
-                    </span>
+    <main style="padding-top:var(--nav-height);">
+
+    <!-- ====== HERO ====== -->
+    <section id="hero" style="position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;padding:5rem 0 4rem;">
+        <div style="position:absolute;top:-10%;left:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(99,102,241,.12) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;bottom:-10%;right:-10%;width:50%;height:50%;background:radial-gradient(ellipse,rgba(0,212,255,.08) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(99,102,241,.15) 1px,transparent 1px);background-size:30px 30px;opacity:.5;pointer-events:none;z-index:0;"></div>
+        <div class="container" style="position:relative;z-index:1;width:100%;">
+            <div style="text-align:center;max-width:900px;margin:0 auto;">
+                <div style="margin-bottom:1.5rem;" class="reveal">
+                    <span class="badge badge-cyan"><i class="fa-solid fa-microchip"></i> IA para Desarrolladores &bull; Cohorte 2026</span>
                 </div>
-
-                <!-- Hero H1: Title & Subtitle Hierarchy -->
-                <h1 class="hero-title text-white max-w-5xl mx-auto tracking-tight">
-                    Tu código cambia todos los días.
-                </h1>
-
-                <p class="hero-subtitle max-w-5xl mx-auto mt-2 sm:mt-3">
-                    Tu documentación ahora también.
+                <h1 class="hero-title reveal reveal-delay-1" style="margin-bottom:.75rem;">Documenta tus repositorios</h1>
+                <p class="hero-subtitle reveal reveal-delay-2" style="margin-bottom:1rem;">con Inteligencia Artificial</p>
+                <p style="font-size:clamp(.9rem,1.6vw,1.1rem);color:#94a3b8;max-width:600px;margin:0 auto 2rem;line-height:1.7;" class="reveal reveal-delay-2">
+                    Conecta tu repositorio &rarr; la IA entiende tu codigo &rarr; genera documentacion viva &rarr; explora tu proyecto. En cada <code style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);padding:.1rem .4rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.8em;color:#a5b4fc;">git push</code>.
                 </p>
-
-                <!-- Validation Data Strip -->
-                <div class="mt-7 flex justify-center">
-                    <div class="inline-flex items-center justify-center space-x-2 px-4 py-2 rounded-full bg-slate-900/90 border border-slate-700/80 text-[11px] sm:text-xs font-medium text-slate-400 max-w-full leading-snug">
-                        <span class="flex h-2 w-2 relative shrink-0">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <span class="break-words">Validado: <strong class="text-emerald-400">86%</strong> Dolor Crítico en Software Houses · <strong class="text-emerald-400">83.3%</strong> Disposición de Adopción</span>
-                    </div>
+                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1rem;margin-bottom:2.5rem;" class="reveal reveal-delay-3">
+                    <a href="#registro" class="btn-cyber" style="padding:.85rem 2rem;font-size:.95rem;"><i class="fa-solid fa-bolt-lightning" style="margin-right:.5rem;"></i>Unirse a la Beta Privada</a>
+                    <a href="#demo" class="btn-cyber-outline" style="padding:.85rem 2rem;font-size:.95rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;color:var(--cyan-primary);font-size:.75rem;"></i>Probar Simulador en Vivo</a>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.65rem;margin-bottom:3rem;" class="reveal reveal-delay-3">
+                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:.5rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);font-size:.75rem;color:#34d399;font-weight:600;"><i class="fa-solid fa-check" style="font-size:.65rem;"></i>0 mantenimiento manual</span>
+                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:.5rem;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:.75rem;color:var(--cyan-primary);font-weight:600;"><i class="fa-solid fa-check" style="font-size:.65rem;"></i>Sincroniza con cada commit</span>
+                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:.5rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);font-size:.75rem;color:#c4b5fd;font-weight:600;"><i class="fa-solid fa-check" style="font-size:.65rem;"></i>Arquitectura AST + LLM</span>
                 </div>
 
-                <!-- Value Proposition Description -->
-                <p class="mt-6 text-sm sm:text-base lg:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed break-words px-2">
-                    <strong class="text-white font-semibold">DocuMind - AI</strong> analiza el Árbol Sintáctico Abstracto (AST) de tus repositorios y sincroniza automáticamente diagramas de arquitectura viva, contratos de API y guías de onboarding en cada <code class="text-cyan-300 bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700 text-xs sm:text-sm font-mono inline-block">git push</code>.
-                </p>
+                <!-- 3-Panel Hero Visual -->
+                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;max-width:860px;margin:0 auto;" class="reveal reveal-delay-4" id="hero-visual">
+                    <div class="hero-panel" style="text-align:left;">
+                        <div class="hero-panel-header"><i class="fa-brands fa-github"></i> Repositorio GitHub</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#64748b;line-height:1.8;">
+                            <div style="color:#94a3b8;margin-bottom:.35rem;"><span style="color:#6366f1;">src/</span></div>
+                            <div style="padding-left:.75rem;"><span style="color:#00d4ff;">&#9670;</span> auth.service.ts</div>
+                            <div style="padding-left:.75rem;"><span style="color:#8b5cf6;">&#9670;</span> user.controller.ts</div>
+                            <div style="padding-left:.75rem;"><span style="color:#10b981;">&#9670;</span> api.routes.ts</div>
+                            <div style="padding-left:.75rem;"><span style="color:#f59e0b;">&#9670;</span> database.ts</div>
+                        </div>
+                        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid rgba(99,102,241,.15);font-family:'JetBrains Mono',monospace;font-size:.68rem;"><span style="color:#34d399;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> git push origin main</span></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:.6rem;">
+                        <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
+                            <canvas id="ai-core-canvas" width="140" height="140" style="border-radius:50%;"></canvas>
+                            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:800;color:var(--cyan-primary);letter-spacing:.1em;">AI CORE</span>
+                            </div>
+                        </div>
+                        <div style="font-size:.6rem;color:#475569;">&#9001; AST+LLM &#9002;</div>
+                    </div>
+                    <div class="hero-panel" style="text-align:left;">
+                        <div class="hero-panel-header"><i class="fa-solid fa-book-open"></i> Documentacion Viva</div>
+                        <div style="font-size:.72rem;line-height:1.75;font-family:'JetBrains Mono',monospace;">
+                            <div style="color:#34d399;margin-bottom:.35rem;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> OpenAPI 3.1 generado</div>
+                            <div style="color:#34d399;margin-bottom:.35rem;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> Diagrama C4 actualizado</div>
+                            <div style="color:#34d399;margin-bottom:.35rem;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> Wiki sincronizado</div>
+                            <div style="color:#a5b4fc;font-size:.65rem;"><i class="fa-solid fa-rotate" style="font-size:.6rem;"></i> 0 drift detectado</div>
+                        </div>
+                        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid rgba(99,102,241,.15);font-size:.68rem;"><span style="color:var(--cyan-primary);">Sync: 1.4s &bull; 100% actualizado</span></div>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Hero CTA Buttons -->
-                <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 px-2">
-                    <a href="#registro" class="btn-cyber w-full sm:w-auto px-8 py-4 text-sm sm:text-base font-bold">
-                        <i class="fa-solid fa-bolt-lightning mr-2.5 text-slate-950"></i>
-                        <span>Unirse a la Beta Privada</span>
+            <!-- Trust Metrics Strip -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:800px;margin:3rem auto 0;border-top:1px solid rgba(99,102,241,.15);padding-top:2.5rem;" class="reveal reveal-delay-5" id="metrics-strip">
+                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--cyan-primary);line-height:1;" class="neon-glow-cyan">20%</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Tiempo recuperado<br>por dev/mes</div></div>
+                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34d399;line-height:1;" class="neon-glow-emerald">86%</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Dolor validado<br>en Tech Leads</div></div>
+                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#a5b4fc;line-height:1;">83%</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Interes de pago<br>SaaS B2B</div></div>
+                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#fb923c;line-height:1;">0 min</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Manten. manual<br>requerido</div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== PROBLEMA ====== -->
+    <section id="problema" class="section-alt" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-rose" style="margin-bottom:1rem;"><i class="fa-solid fa-triangle-exclamation"></i> El Problema Reto HIT</span>
+                <h2 class="section-title">El costo invisible de la documentacion desactualizada</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Los equipos de ingenieria pierden miles de dolares y semanas enteras cuando los repositorios carecen de documentacion viva.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;" class="reveal reveal-delay-1">
+                <div class="glow-card glow-card-rose" style="padding:2rem;display:flex;flex-direction:column;gap:1.25rem;">
+                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--rose-accent);"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">20% de Jornada Improductiva</h3><p style="font-size:.83rem;color:#64748b;line-height:1.65;">Los desarrolladores invierten hasta 1 de cada 5 dias descifrando codigo ajeno y deduciendo arquitecturas no documentadas.</p></div>
+                    <div style="padding-top:.85rem;border-top:1px solid rgba(244,63,94,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--rose-accent);"><span>~32 hrs/mes por dev</span><i class="fa-solid fa-arrow-trend-up"></i></div>
+                </div>
+                <div class="glow-card glow-card-amber" style="padding:2rem;display:flex;flex-direction:column;gap:1.25rem;">
+                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--amber-accent);"><i class="fa-solid fa-user-xmark"></i></div>
+                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Onboarding Lento y Friccion</h3><p style="font-size:.83rem;color:#64748b;line-height:1.65;">Incorporar nuevos ingenieros a proyectos legados toma semanas debido a la ausencia de diagramas arquitectonicos actualizados.</p></div>
+                    <div style="padding-top:.85rem;border-top:1px solid rgba(245,158,11,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--amber-accent);"><span>4x tiempo primer PR util</span><i class="fa-solid fa-triangle-exclamation"></i></div>
+                </div>
+                <div class="glow-card glow-card-indigo" style="padding:2rem;display:flex;flex-direction:column;gap:1.25rem;">
+                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:#a5b4fc;"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Drift &amp; Deuda Tecnica</h3><p style="font-size:.83rem;color:#64748b;line-height:1.65;">La documentacion existente no coincide con la version en produccion, generando friccion, fallos de seguridad y penalizaciones.</p></div>
+                    <div style="padding-top:.85rem;border-top:1px solid rgba(99,102,241,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#a5b4fc;"><span>&gt;78% desajuste docs</span><i class="fa-solid fa-shield-halved"></i></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== COMO FUNCIONA 5 STEPS ====== -->
+    <section id="como-funciona" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Flujo SaaS Automatizado</span>
+                <h2 class="section-title">Como Funciona Document-Mind AI</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">De repositorio a documentacion viva en 5 pasos completamente automaticos integrados en tu flujo Git.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
+                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">01</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--cyan-primary);"><i class="fa-brands fa-github"></i></div></div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Conecta</h3>
+                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">Instala el webhook de GitHub Action con una sola linea de configuracion.</p>
+                    <code style="font-size:.7rem;color:var(--cyan-primary);font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(99,102,241,.12);padding-top:.75rem;margin-top:auto;">$ documind init</code>
+                </div>
+                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">02</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#a5b4fc;"><i class="fa-solid fa-code-branch"></i></div></div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Analiza</h3>
+                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">El motor AST inspecciona tipos, llamadas y dependencias de forma estatica sin compilar.</p>
+                    <code style="font-size:.7rem;color:#a5b4fc;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(99,102,241,.12);padding-top:.75rem;margin-top:auto;">ast_parser.parse()</code>
+                </div>
+                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">03</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#c4b5fd;"><i class="fa-solid fa-brain"></i></div></div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Comprende</h3>
+                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">El LLM sintetiza la topologia del sistema, extrae endpoints REST y contratos DTO.</p>
+                    <code style="font-size:.7rem;color:#c4b5fd;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(99,102,241,.12);padding-top:.75rem;margin-top:auto;">llm.generate_c4()</code>
+                </div>
+                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">04</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34d399;"><i class="fa-solid fa-book"></i></div></div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Documenta</h3>
+                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">Wiki, Swagger OpenAPI y comentarios en Pull Requests sincronizados sin intervencion manual.</p>
+                    <code style="font-size:.7rem;color:#34d399;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(16,185,129,.12);padding-top:.75rem;margin-top:auto;">sync: 100% up to date</code>
+                </div>
+                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">05</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fb923c;"><i class="fa-solid fa-magnifying-glass-chart"></i></div></div>
+                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Explora</h3>
+                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">Navega el mapa interactivo de tu arquitectura y haz preguntas en lenguaje natural con RAG.</p>
+                    <code style="font-size:.7rem;color:#fb923c;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(251,146,60,.12);padding-top:.75rem;margin-top:auto;">docs.explore()</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== SOLUCION ====== -->
+    <section id="solucion" class="section-alt" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-purple" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> La Solucion de Ingenieria</span>
+                <h2 class="section-title">Arquitectura Viva impulsada por AST + LLM</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Un motor de comprension semantica profunda que convierte codigo fuente en documentacion viva en tiempo real.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;" class="reveal reveal-delay-1" id="solucion-grid">
+                <div style="display:flex;flex-direction:column;gap:1rem;">
+                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--cyan-primary);flex-shrink:0;"><i class="fa-solid fa-diagram-project"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Parseo AST &amp; Grafo de Dependencias</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Inspeccion sintatica precisa (TypeScript, Python, Go, Java, Rust) sin compilar ni exponer secretos.</p></div>
+                    </div>
+                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#a5b4fc;flex-shrink:0;"><i class="fa-solid fa-code-commit"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Integracion Nativa GitHub Actions &amp; CLI</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Bot en tu pipeline CI/CD. Genera resumenes en PRs y actualiza el portal wiki automaticamente.</p></div>
+                    </div>
+                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#c4b5fd;flex-shrink:0;"><i class="fa-solid fa-draw-polygon"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Diagramas C4 y Mermaid Autogenerados</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Diagramas interactivos de componentes, flujo de datos y dependencias con sincronizacion bidireccional.</p></div>
+                    </div>
+                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34d399;flex-shrink:0;"><i class="fa-solid fa-comments"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">AI Assistant con Contexto de Codigo (RAG)</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Preguntale al repositorio en lenguaje natural sobre JWT, microservicios, dependencias, etc.</p></div>
+                    </div>
+                </div>
+                <div class="cyber-terminal" style="overflow:hidden;">
+                    <div style="background:rgba(14,16,52,.9);padding:.85rem 1.25rem;border-bottom:1px solid rgba(99,102,241,.15);display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:.5rem;">
+                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#f43f5e;display:inline-block;"></span>
+                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#10b981;display:inline-block;"></span>
+                            <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#475569;margin-left:.5rem;">.github/workflows/documind-sync.yml</span>
+                        </div>
+                        <span style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--cyan-primary);background:rgba(0,212,255,.08);padding:.2rem .6rem;border-radius:.35rem;border:1px solid rgba(0,212,255,.2);">CI/CD Automated</span>
+                    </div>
+                    <div style="padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#94a3b8;line-height:1.9;overflow-x:auto;">
+                        <p style="color:#475569;"># GitHub Action Workflow</p>
+                        <p><span style="color:#c4b5fd;">name:</span> <span style="color:#86efac;">DocuMind AI Continuous Sync</span></p>
+                        <p><span style="color:#c4b5fd;">on:</span> <span style="color:#7dd3fc;">[push, pull_request]</span></p>
+                        <p><span style="color:#c4b5fd;">jobs:</span></p>
+                        <p style="padding-left:1rem;"><span style="color:#c4b5fd;">analyze-architecture:</span></p>
+                        <p style="padding-left:2rem;"><span style="color:#c4b5fd;">runs-on:</span> ubuntu-latest</p>
+                        <p style="padding-left:2rem;"><span style="color:#c4b5fd;">steps:</span></p>
+                        <p style="padding-left:3rem;color:#64748b;">- uses: actions/checkout@v4</p>
+                        <p style="padding-left:3rem;color:var(--cyan-primary);">- uses: documind-ai/action@v1.2</p>
+                        <p style="padding-left:4rem;"><span style="color:#c4b5fd;">with:</span></p>
+                        <p style="padding-left:5rem;">generate_c4_diagrams: <span style="color:#34d399;">true</span></p>
+                        <p style="padding-left:5rem;">detect_drift: <span style="color:#34d399;">true</span></p>
+                        <p style="padding-left:5rem;">export_wiki_format: <span style="color:#fbbf24;">"markdown+openapi"</span></p>
+                        <div style="margin-top:1rem;padding:.85rem 1rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:.5rem;color:#34d399;display:flex;align-items:center;gap:.6rem;font-size:.72rem;">
+                            <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>Documentacion y OpenAPI sincronizados en 1.8s (0 drift).
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== DEMO / SIMULATOR ====== -->
+    <section id="demo" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:640px;margin:0 auto 3rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-terminal"></i> Prototipo en Accion</span>
+                <h2 class="section-title">Simulador de Analisis de Repositorio</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Selecciona un stack o ingresa tu repositorio para experimentar la generacion instantanea de arquitectura tecnica.</p>
+            </div>
+            <div class="glow-card reveal reveal-delay-1" style="padding:2rem 2.25rem;max-width:1000px;margin:0 auto;">
+                <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;margin-bottom:1.25rem;" id="sim-inputs">
+                    <div>
+                        <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-brands fa-github" style="color:var(--cyan-primary);margin-right:.4rem;"></i>Repositorio de prueba</label>
+                        <div class="input-group-cyber">
+                            <div class="input-addon-cyber"><i class="fa-brands fa-github" style="font-size:1.1rem;"></i></div>
+                            <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="input-cyber" autocomplete="off">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="lang-select" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-solid fa-code" style="color:var(--cyan-primary);margin-right:.4rem;"></i>Lenguaje</label>
+                        <select id="lang-select" class="input-field" style="height:3.25rem;">
+                            <option value="ts">TypeScript / Node.js</option>
+                            <option value="py">Python / FastAPI</option>
+                            <option value="go">Go / Microservices</option>
+                            <option value="java">Java / Spring Boot</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(99,102,241,.12);">
+                    <button id="btn-run-analysis" class="btn-cyber" style="padding:.75rem 1.75rem;font-size:.875rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Ejecutar Analisis AST &amp; Generar Docs</button>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#475569;"><span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#10b981;" class="animate-pulse"></span>Motor: AST-Engine v2.4 + Gemini Pro RAG</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.25rem;" id="sim-output">
+                    <div class="cyber-terminal" id="terminal-log" style="padding:1rem;font-size:.75rem;min-height:16rem;max-height:22rem;overflow-y:auto;line-height:1.8;">
+                        <p style="color:#475569;">$ documind analyze --repo github.com/organization/microservices-backend</p>
+                        <p style="color:var(--cyan-primary);">[1/4] Clonando metadata y construyendo AST...</p>
+                        <p style="color:#64748b;">&#10003; 142 archivos parseados (TypeScript AST Tree)</p>
+                        <p style="color:var(--cyan-primary);">[2/4] Mapeando grafo de llamadas y dependencias...</p>
+                        <p style="color:#64748b;">&#10003; 28 endpoints REST y 14 esquemas DTO detectados</p>
+                        <p style="color:var(--cyan-primary);">[3/4] Generando especificacion OpenAPI &amp; Diagramas C4...</p>
+                        <p style="color:#64748b;">&#10003; Diagrama de flujo de autenticacion JWT renderizado</p>
+                        <p style="color:#34d399;font-weight:600;">[4/4] Sincronizacion completa. Documentacion generada en 1.4s.</p>
+                    </div>
+                    <div id="doc-preview" style="background:rgba(4,5,26,.9);border:1px solid rgba(99,102,241,.15);border-radius:.85rem;padding:1.25rem;font-size:.78rem;min-height:16rem;max-height:22rem;overflow-y:auto;display:flex;flex-direction:column;gap:.85rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(99,102,241,.12);padding-bottom:.75rem;">
+                            <h4 style="font-weight:700;color:#fff;font-size:.85rem;display:flex;align-items:center;gap:.4rem;"><i class="fa-solid fa-book-open" style="color:var(--cyan-primary);"></i>Arquitectura: Auth &amp; User Service</h4>
+                            <span style="background:rgba(16,185,129,.1);color:#34d399;padding:.2rem .6rem;border-radius:9999px;font-size:.68rem;font-weight:700;border:1px solid rgba(16,185,129,.2);">Sincronizado</span>
+                        </div>
+                        <p style="color:#94a3b8;line-height:1.65;">Este modulo expone la API de autenticacion distribuida bajo arquitectura hexagonal. Las llamadas validan tokens firmados RSA-256 contra <code style="color:var(--cyan-light);font-family:'JetBrains Mono',monospace;">UserSecurityContext</code>.</p>
+                        <div style="background:rgba(14,16,52,.9);border:1px solid rgba(99,102,241,.12);border-radius:.5rem;padding:.85rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;line-height:1.8;">
+                            <p style="color:#c4b5fd;font-weight:700;">Endpoints detectados:</p>
+                            <p><span style="color:#34d399;font-weight:700;">POST</span> /api/v1/auth/login <span style="color:#475569;">-&gt; AuthHandler.ts:L42</span></p>
+                            <p><span style="color:#34d399;font-weight:700;">POST</span> /api/v1/auth/refresh <span style="color:#475569;">-&gt; TokenService.ts:L89</span></p>
+                            <p><span style="color:#7dd3fc;font-weight:700;">GET</span>&nbsp;&nbsp;/api/v1/user/profile <span style="color:#475569;">-&gt; Bearer Auth Protected</span></p>
+                        </div>
+                        <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:.5rem;padding:.75rem;color:#94a3b8;font-size:.75rem;">
+                            <span style="font-weight:700;color:var(--cyan-primary);">Guia de Onboarding:</span> Ejecuta <code style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;">docker compose up db redis</code> y configura <code style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;">JWT_SECRET</code>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== EQUIPO ====== -->
+    <section id="equipo" class="section-alt" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-users-gear"></i> Equipo Empresarial</span>
+                <h2 class="section-title">Quienes Somos</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Iniciativa de emprendimiento tecnologico de la <strong style="color:#94a3b8;">Universidad Libre - Facultad de Ingenieria</strong>.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.75rem;max-width:900px;margin:0 auto;" class="reveal reveal-delay-1">
+                <div class="glow-card" style="padding:2rem;">
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                        <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#00d4ff,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">DP</div>
+                        <div>
+                            <h3 style="font-size:1rem;font-weight:700;color:#fff;">Daniel Santiago Palencia Sandoval</h3>
+                            <p style="font-size:.72rem;color:var(--cyan-primary);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;">Lider Tecnologico (CTO)</p>
+                            <p style="font-size:.7rem;color:#475569;margin-top:.2rem;"><i class="fa-solid fa-graduation-cap" style="margin-right:.3rem;"></i>Universidad Libre</p>
+                        </div>
+                    </div>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(99,102,241,.12);padding-top:1.25rem;list-style:none;">
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:var(--cyan-primary);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Arquitectura tecnica del MVP con parsers AST y modelos de IA generativa.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:var(--cyan-primary);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Integracion continua GitHub Action / CLI para analisis automatico de repositorios.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:var(--cyan-primary);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Pruebas tecnicas con repositorios reales y recoleccion de feedback de usabilidad.</li>
+                    </ul>
+                    <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(99,102,241,.12);">
+                        <a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Daniel Palencia"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="LinkedIn Daniel Palencia"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="mailto:daniels-palencias@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="Email Daniel Palencia"><i class="fa-solid fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="glow-card" style="padding:2rem;">
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                        <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#8b5cf6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">NA</div>
+                        <div>
+                            <h3 style="font-size:1rem;font-weight:700;color:#fff;">Nelson Andres Ayala Alvarez</h3>
+                            <p style="font-size:.72rem;color:#c4b5fd;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;">Lider de Mercadeo &amp; Negocios (CMO/CBO)</p>
+                            <p style="font-size:.7rem;color:#475569;margin-top:.2rem;"><i class="fa-solid fa-graduation-cap" style="margin-right:.3rem;"></i>Universidad Libre</p>
+                        </div>
+                    </div>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(99,102,241,.12);padding-top:1.25rem;list-style:none;">
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:#c4b5fd;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Landing page interactiva con propuesta de valor y registro de early adopters.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:#c4b5fd;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Entrevistas de descubrimiento con CTOs, Tech Leads y analisis competitivo vs Swimm/Mintlify.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:#c4b5fd;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Modelo de precios SaaS B2B, metricas de adquisicion y proyecciones comerciales.</li>
+                    </ul>
+                    <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(99,102,241,.12);">
+                        <a href="https://github.com/nexker" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Nelson Ayala"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="LinkedIn Nelson Ayala"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="mailto:nelsona-ayalaa@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="Email Nelson Ayala"><i class="fa-solid fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== METRICAS ====== -->
+    <section id="metricas" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-emerald" style="margin-bottom:1rem;"><i class="fa-solid fa-chart-line"></i> Traccion &amp; Datos</span>
+                <h2 class="section-title">Metricas de Validacion en Vivo</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Indicadores cuantificables que sustentan la alta demanda del proyecto.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
+                <div class="glow-card" style="padding:1.75rem;text-align:center;">
+                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes Unicos</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--cyan-primary);line-height:1;" id="visitor-counter" class="neon-glow-cyan">1,250</div>
+                    <p style="font-size:.72rem;color:#34d399;margin-top:.6rem;"><i class="fa-solid fa-arrow-trend-up" style="margin-right:.25rem;"></i>+14.2% esta semana</p>
+                </div>
+                <div class="glow-card" style="padding:1.75rem;text-align:center;">
+                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Early Adopters VIP</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#7dd3fc;line-height:1;" id="registered-counter">186</div>
+                    <p style="font-size:.72rem;color:#34d399;margin-top:.6rem;"><i class="fa-solid fa-users" style="margin-right:.25rem;"></i>Lista beta activa</p>
+                </div>
+                <div class="glow-card" style="padding:1.75rem;text-align:center;">
+                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Tasa Conversion (CTR)</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34d399;line-height:1;" class="neon-glow-emerald">14.7%</div>
+                    <p style="font-size:.72rem;color:#475569;margin-top:.6rem;">Promedio SaaS B2B: ~3.5%</p>
+                </div>
+                <div class="glow-card" style="padding:1.75rem;text-align:center;">
+                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Validacion de Dolor</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#a5b4fc;line-height:1;">86.0%</div>
+                    <p style="font-size:.72rem;color:#475569;margin-top:.6rem;">Muestra en Software Houses</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== INFOGRAFIA ====== -->
+    <section id="infografia" class="section-alt" style="padding:6rem 0;">
+        <div class="container">
+            <div class="glow-card reveal" style="padding:2.5rem;display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:center;" id="infografia-inner">
+                <div>
+                    <span class="badge badge-rose" style="margin-bottom:1rem;"><i class="fa-solid fa-file-pdf"></i> Entregable Academico &amp; Tecnico</span>
+                    <h3 style="font-size:clamp(1.25rem,2.5vw,1.9rem);font-weight:800;color:#fff;margin-bottom:.85rem;line-height:1.25;">Infografia Oficial: Teoria del Color &amp; Fundamentos UX/UI</h3>
+                    <p style="font-size:.85rem;color:#64748b;line-height:1.7;max-width:520px;">Documento bajo los lineamientos de la <strong style="color:#94a3b8;">Universidad Libre</strong> y <strong style="color:#94a3b8;">HubSpot</strong>. Incluye sustentacion de paleta cromatica WCAG 2.1 AAA, heuristicas de Nielsen y jerarquia visual.</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.5rem;">
+                        <a href="infografia.html" target="_blank" class="btn-cyber" style="padding:.75rem 1.5rem;font-size:.85rem;"><i class="fa-solid fa-eye" style="margin-right:.5rem;"></i>Ver Infografia</a>
+                        <a href="DocuMind_AI_Infografia_Color_UXUI.pdf" download class="btn-cyber-outline" style="padding:.75rem 1.5rem;font-size:.85rem;"><i class="fa-solid fa-download" style="margin-right:.5rem;color:var(--rose-accent);"></i>Descargar PDF</a>
+                    </div>
+                </div>
+                <div style="text-align:center;flex-shrink:0;">
+                    <a href="https://dsantiagopsandoval.github.io/Document-mind-ai/" target="_blank" rel="noopener" style="display:inline-flex;flex-direction:column;align-items:center;gap:.6rem;">
+                        <div style="background:#fff;padding:.75rem;border-radius:.75rem;box-shadow:0 0 24px rgba(0,212,255,.2);border:2px solid rgba(0,212,255,.3);">
+                            <img src="assets/qr-landing.png" alt="QR Code acceso landing" style="width:8.5rem;height:8.5rem;object-fit:contain;">
+                        </div>
+                        <p style="font-size:.72rem;font-weight:700;color:#94a3b8;">Escanea o haz Clic</p>
+                        <p style="font-size:.68rem;color:var(--cyan-primary);font-family:'JetBrains Mono',monospace;">dsantiagopsandoval.github.io</p>
                     </a>
-                    <a href="#demo" class="btn-cyber-outline w-full sm:w-auto px-8 py-4 text-sm sm:text-base font-bold">
-                        <i class="fa-solid fa-play mr-2.5 text-cyan-400 text-sm"></i>
-                        <span>Probar Simulador en Vivo</span>
-                    </a>
-                </div>
-
-                <!-- Trust Strip / Key Metrics (Never cut off, balanced 4 cards) -->
-                <div class="mt-14 sm:mt-18 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pt-10 border-t border-slate-800/80 text-left max-w-4xl mx-auto">
-                    <div class="glow-card p-5 sm:p-6 text-center flex flex-col justify-center items-center min-w-0 gap-2">
-                        <p class="text-3xl sm:text-4xl font-extrabold text-cyan-400 font-mono leading-none">20%</p>
-                        <p class="text-xs sm:text-sm text-slate-400 font-medium leading-snug">Tiempo recuperado<br>jornada dev</p>
-                    </div>
-                    <div class="glow-card p-5 sm:p-6 text-center flex flex-col justify-center items-center min-w-0 gap-2">
-                        <p class="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono leading-none">86%</p>
-                        <p class="text-xs sm:text-sm text-slate-400 font-medium leading-snug">Dolor validado<br>en Tech Leads</p>
-                    </div>
-                    <div class="glow-card p-5 sm:p-6 text-center flex flex-col justify-center items-center min-w-0 gap-2">
-                        <p class="text-3xl sm:text-4xl font-extrabold text-indigo-400 font-mono leading-none">83.3%</p>
-                        <p class="text-xs sm:text-sm text-slate-400 font-medium leading-snug">Interés de pago<br>SaaS B2B</p>
-                    </div>
-                    <div class="glow-card p-5 sm:p-6 text-center flex flex-col justify-center items-center min-w-0 gap-2">
-                        <p class="text-3xl sm:text-4xl font-extrabold text-sky-400 font-mono leading-none">0 min</p>
-                        <p class="text-xs sm:text-sm text-slate-400 font-medium leading-snug">Mantenimiento<br>manual requerido</p>
-                    </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- ======================================================================
-             3. PROBLEMÁTICA SECTION
-             ====================================================================== -->
-        <section id="problema" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-rose-400 bg-rose-950/60 px-4 py-1.5 rounded-full border border-rose-800/50 inline-block mb-3">
-                        <i class="fa-solid fa-triangle-exclamation mr-1.5 text-rose-400"></i> El Problema Reto HIT
-                    </span>
-                    <h2 class="section-title text-white tracking-tight">El costo invisible de la documentación desactualizada</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Los equipos de ingeniería pierden miles de dólares y semanas enteras cuando los repositorios carecen de documentación viva, exacta y contextual.
-                    </p>
-                </div>
-
-                <!-- Problem Cards Grid (Balanced heights and metrics) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-                    <!-- Card 1: Tiempo perdido -->
-                    <div class="glow-card glow-card-rose p-7 sm:p-8 flex flex-col justify-between h-full group min-w-0">
-                        <div>
-                            <div class="w-14 h-14 rounded-2xl bg-rose-950/70 border border-rose-700/60 flex items-center justify-center text-rose-400 text-2xl mb-6 group-hover:scale-105 group-hover:rotate-3 transition-transform shadow-lg shadow-rose-950/50 shrink-0">
-                                <i class="fa-solid fa-clock-rotate-left"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-3 group-hover:text-rose-300 transition-colors">20% de Jornada Improductiva</h3>
-                            <p class="text-slate-400 text-sm leading-relaxed">
-                                Los desarrolladores invierten hasta 1 de cada 5 días descifrando código ajeno, preguntando en canales de chat y deduciendo arquitecturas no documentadas.
-                            </p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-rose-400 font-mono">
-                            <span>Impacto: ~32 hrs/mes por dev</span>
-                            <i class="fa-solid fa-arrow-trend-up"></i>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: Onboarding -->
-                    <div class="glow-card glow-card-amber p-7 sm:p-8 flex flex-col justify-between h-full group min-w-0">
-                        <div>
-                            <div class="w-14 h-14 rounded-2xl bg-amber-950/70 border border-amber-700/60 flex items-center justify-center text-amber-400 text-2xl mb-6 group-hover:scale-105 group-hover:rotate-3 transition-transform shadow-lg shadow-amber-950/50 shrink-0">
-                                <i class="fa-solid fa-user-xmark"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-3 group-hover:text-amber-300 transition-colors">Onboarding Lento y Fricción</h3>
-                            <p class="text-slate-400 text-sm leading-relaxed">
-                                Incorporar nuevos ingenieros a proyectos legados toma semanas debido a la ausencia de diagramas arquitectónicos y guías de contexto técnico actualizadas.
-                            </p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-amber-400 font-mono">
-                            <span>Riesgo: 4x tiempo primer PR útil</span>
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Drift -->
-                    <div class="glow-card glow-card-indigo p-7 sm:p-8 flex flex-col justify-between h-full group min-w-0">
-                        <div>
-                            <div class="w-14 h-14 rounded-2xl bg-indigo-950/70 border border-indigo-700/60 flex items-center justify-center text-indigo-400 text-2xl mb-6 group-hover:scale-105 group-hover:rotate-3 transition-transform shadow-lg shadow-indigo-950/50 shrink-0">
-                                <i class="fa-solid fa-file-circle-exclamation"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">Drift & Deuda Técnica</h3>
-                            <p class="text-slate-400 text-sm leading-relaxed">
-                                En auditorías de clientes, la documentación existente no coincide con la versión en producción, generando fricción, fallos de seguridad y penalizaciones.
-                            </p>
-                        </div>
-                        <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-semibold text-indigo-400 font-mono">
-                            <span>Frecuencia: >78% desajuste docs</span>
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </div>
-                    </div>
-                </div>
+    <!-- ====== BETA PRIVADA / REGISTRO VIP ====== -->
+    <section id="registro" style="padding:6rem 0;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:50%;left:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(0,212,255,.08) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
+        <div style="position:absolute;top:50%;right:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(139,92,246,.08) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
+        <div class="container">
+            <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Programa Exclusivo Early Adopters 2026</span>
+                <h2 class="section-title">Se parte de la <span class="gradient-text">Beta Privada</span></h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Accede antes que nadie y obtiene beneficios exclusivos para tu equipo de ingenieria.</p>
             </div>
-        </section>
-
-        <!-- ======================================================================
-             4. SOLUCIÓN SECTION (PROPUESTA DE VALOR)
-             ====================================================================== -->
-        <section id="solucion" class="py-24 relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-cyan-400 bg-cyan-950/60 px-4 py-1.5 rounded-full border border-cyan-800/50 inline-block mb-3">
-                        <i class="fa-solid fa-microchip mr-1.5 text-cyan-400"></i> La Solución de Ingeniería
-                    </span>
-                    <h2 class="section-title text-white tracking-tight">Arquitectura Viva impulsada por AST + LLM</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Un motor de comprensión semántica profunda que convierte código fuente en documentación viva y diagramas interactivos en tiempo real.
-                    </p>
+            <div style="display:grid;grid-template-columns:5fr 7fr;gap:2rem;align-items:start;" class="reveal reveal-delay-1" id="registro-grid">
+                <div class="glow-card" style="padding:2rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(4,5,26,.8);border-radius:.75rem;border:1px solid rgba(244,63,94,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+                        <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:var(--rose-accent);"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--rose-accent);" class="animate-ping"></span>Fase de Cupos Limitados</div>
+                        <span style="font-size:.7rem;font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;background:rgba(244,63,94,.1);padding:.3rem .75rem;border-radius:.45rem;border:1px solid rgba(244,63,94,.25);" id="spots-left">&#128293; 14 cupos restantes</span>
+                    </div>
+                    <h3 style="font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:1.5rem;">Beneficios para Early Adopters</h3>
+                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                        <div style="display:flex;align-items:flex-start;gap:.85rem;">
+                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--cyan-primary);flex-shrink:0;"><i class="fa-solid fa-key"></i></div>
+                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">6 Meses Enterprise Gratuito</h5><p style="font-size:.75rem;color:#64748b;line-height:1.55;">Acceso sin limites a analisis AST y sincronizacion sin costo.</p></div>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:.85rem;">
+                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#a5b4fc;flex-shrink:0;"><i class="fa-solid fa-user-gear"></i></div>
+                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Soporte Directo con Fundadores</h5><p style="font-size:.75rem;color:#64748b;line-height:1.55;">Sesiones de onboarding 1-on-1 con Daniel y Nelson.</p></div>
+                        </div>
+                        <div style="display:flex;align-items:flex-start;gap:.85rem;">
+                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#34d399;flex-shrink:0;"><i class="fa-solid fa-award"></i></div>
+                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Insignia de Early Backer en GitHub</h5><p style="font-size:.75rem;color:#64748b;line-height:1.55;">Reconocimiento oficial en la documentacion Universidad Libre.</p></div>
+                        </div>
+                    </div>
+                    <div style="margin-top:1.5rem;padding:1rem;background:rgba(4,5,26,.9);border-radius:.75rem;border:1px solid rgba(0,212,255,.12);font-family:'JetBrains Mono',monospace;">
+                        <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#475569;margin-bottom:.5rem;border-bottom:1px solid rgba(99,102,241,.1);padding-bottom:.5rem;"><span><i class="fa-solid fa-lock" style="color:var(--cyan-primary);margin-right:.3rem;"></i>TOKEN ASIGNADO:</span><span style="color:#34d399;font-weight:700;">TIER_VIP_READY</span></div>
+                        <p style="color:var(--cyan-primary);font-size:.7rem;word-break:break-all;">documind_live_9f8a2e1d7c4b0a8f</p>
+                    </div>
                 </div>
-
-                <!-- 2-Column Split: 4 Pillars (Left) + CI/CD Workflow Mockup (Right) -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                    <div class="space-y-5">
-                        <div class="glow-card p-6 flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
-                                <i class="fa-solid fa-diagram-project"></i>
+                <div class="glow-card" style="padding:2rem 2.25rem;">
+                    <div style="margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(99,102,241,.12);">
+                        <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">Solicita tu acceso anticipado</h3>
+                        <p style="font-size:.8rem;color:#64748b;margin-top:.4rem;">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
+                    </div>
+                    <form id="lead-form" style="display:flex;flex-direction:column;gap:1.25rem;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                            <div>
+                                <label for="name" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-user" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Nombre Completo *</label>
+                                <input type="text" id="name" required placeholder="Carlos Mendoza" class="input-field">
                             </div>
                             <div>
-                                <h4 class="text-base font-bold text-white">Parseo AST & Grafo de Dependencias</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                                    Inspección sintáctica precisa del código fuente (TypeScript, Python, Go, Java, Rust) sin necesidad de compilar ni exponer secretos.
-                                </p>
+                                <label for="email" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-envelope" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Correo Dev *</label>
+                                <input type="email" id="email" required placeholder="carlos@empresa.com" class="input-field">
                             </div>
                         </div>
-
-                        <div class="glow-card p-6 flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
-                                <i class="fa-solid fa-code-commit"></i>
+                        <div>
+                            <label style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem;"><i class="fa-solid fa-id-badge" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Selecciona tu Rol Principal *</label>
+                            <input type="hidden" id="selected-role" name="role" value="tech_lead" required>
+                            <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+                                <button type="button" class="role-chip" data-role="cto"><i class="fa-solid fa-crown" style="color:var(--amber-accent);"></i>CTO / VP Eng</button>
+                                <button type="button" class="role-chip active" data-role="tech_lead"><i class="fa-solid fa-cube" style="color:var(--cyan-primary);"></i>Tech Lead</button>
+                                <button type="button" class="role-chip" data-role="dev"><i class="fa-solid fa-code" style="color:#34d399;"></i>Senior Dev</button>
+                                <button type="button" class="role-chip" data-role="devops"><i class="fa-solid fa-terminal" style="color:#a5b4fc;"></i>DevOps / SRE</button>
+                                <button type="button" class="role-chip" data-role="academic"><i class="fa-solid fa-graduation-cap" style="color:#c4b5fd;"></i>Academico</button>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                            <div>
+                                <label for="repo_size" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-folder-tree" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Tamano Repos</label>
+                                <select id="repo_size" class="input-field">
+                                    <option value="1-5">1 a 5 microservicios</option>
+                                    <option value="6-20">6 a 20 repositorios</option>
+                                    <option value="20+">Monorepo / +20 repos</option>
+                                </select>
                             </div>
                             <div>
-                                <h4 class="text-base font-bold text-white">Integración Nativa GitHub Actions & CLI</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                                    Se ejecuta como un bot en tu pipeline de CI/CD. Genera resúmenes en Pull Requests y actualiza automáticamente el portal wiki.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="glow-card p-6 flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
-                                <i class="fa-solid fa-draw-polygon"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-base font-bold text-white">Diagramas C4 y Mermaid Autogenerados</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                                    Diagramas interactivos de componentes, flujo de datos y dependencias de microservicios renderizados con sincronización bidireccional.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="glow-card p-6 flex items-start space-x-4">
-                            <div class="w-12 h-12 rounded-xl bg-cyan-950/90 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-xl shadow-lg shadow-cyan-950/50">
-                                <i class="fa-solid fa-comments"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-base font-bold text-white">AI Assistant con Contexto de Código (RAG)</h4>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                                    Pregúntale al repositorio en lenguaje natural: <em>"¿Dónde se gestiona el token JWT?"</em> o <em>"¿Qué microservicios consumen este evento?"</em>.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Visual CI/CD Code Mockup -->
-                    <div class="cyber-terminal overflow-hidden">
-                        <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                            <div class="flex items-center space-x-2">
-                                <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
-                                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
-                                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
-                                <span class="text-xs font-mono text-slate-400 ml-2">.github/workflows/documind-sync.yml</span>
-                            </div>
-                            <span class="text-xs font-mono text-cyan-400 bg-cyan-950/80 px-2.5 py-0.5 rounded border border-cyan-800/60">CI/CD Automated</span>
-                        </div>
-                        <div class="p-6 font-mono text-xs sm:text-sm text-slate-300 space-y-2 overflow-x-auto">
-                            <p class="text-slate-500"># GitHub Action Workflow</p>
-                            <p><span class="text-purple-400">name:</span> <span class="text-green-300">DocuMind AI Continuous Sync</span></p>
-                            <p><span class="text-purple-400">on:</span> <span class="text-sky-300">[push, pull_request]</span></p>
-                            <p><span class="text-purple-400">jobs:</span></p>
-                            <p class="pl-4"><span class="text-purple-400">analyze-architecture:</span></p>
-                            <p class="pl-8"><span class="text-purple-400">runs-on:</span> ubuntu-latest</p>
-                            <p class="pl-8"><span class="text-purple-400">steps:</span></p>
-                            <p class="pl-12 text-slate-400">- uses: actions/checkout@v4</p>
-                            <p class="pl-12 text-cyan-300">- uses: documind-ai/action@v1.2</p>
-                            <p class="pl-16 text-slate-300"><span class="text-purple-400">with:</span></p>
-                            <p class="pl-20">generate_c4_diagrams: <span class="text-emerald-400">true</span></p>
-                            <p class="pl-20">detect_drift: <span class="text-emerald-400">true</span></p>
-                            <p class="pl-20">export_wiki_format: <span class="text-amber-300">'markdown+openapi'</span></p>
-                            <div class="mt-4 p-3.5 bg-emerald-950/60 border border-emerald-700/60 rounded-xl text-emerald-300 text-xs flex items-center space-x-2.5 shadow-inner">
-                                <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-                                <span>Documentación y OpenAPI sincronizados en 1.8s (0 drift detectado).</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================================
-             5. CÓMO FUNCIONA (SAAS PIPELINE 4-STEP FLOW)
-             ====================================================================== -->
-        <section id="como-funciona" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-sky-400 bg-sky-950/60 px-4 py-1.5 rounded-full border border-sky-800/50 inline-block mb-3">
-                        <i class="fa-solid fa-arrows-split-up-and-left mr-1.5 text-sky-400"></i> Flujo Automatizado SaaS
-                    </span>
-                    <h2 class="section-title text-white tracking-tight">Cómo Funciona Document-Mind AI</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        De repositorio a documentación viva en 4 pasos completamente automáticos integrados en tu flujo de trabajo de Git.
-                    </p>
-                </div>
-
-                <!-- 4 Steps Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-                    <!-- Step 01 -->
-                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="step-number">01</span>
-                                <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-700/60 flex items-center justify-center text-cyan-400 text-base">
-                                    <i class="fa-brands fa-github"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2">Conecta tu Repositorio</h3>
-                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                                Instala el webhook de GitHub Action o ejecuta el CLI de DocuMind en tu terminal con una sola línea de configuración.
-                            </p>
-                        </div>
-                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-cyan-300">
-                            <code>$ documind init</code>
-                        </div>
-                    </div>
-
-                    <!-- Step 02 -->
-                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="step-number">02</span>
-                                <div class="w-10 h-10 rounded-xl bg-indigo-950 border border-indigo-700/60 flex items-center justify-center text-indigo-400 text-base">
-                                    <i class="fa-solid fa-code-branch"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2">Analiza tu Código</h3>
-                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                                El motor de parseo AST inspecciona tipos, llamadas y dependencias de forma estática, sin compilar ni enviar código sensible a la nube.
-                            </p>
-                        </div>
-                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-indigo-300">
-                            <code>ast_parser.parse()</code>
-                        </div>
-                    </div>
-
-                    <!-- Step 03 -->
-                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="step-number">03</span>
-                                <div class="w-10 h-10 rounded-xl bg-purple-950 border border-purple-700/60 flex items-center justify-center text-purple-400 text-base">
-                                    <i class="fa-solid fa-brain"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2">Comprende la Arquitectura</h3>
-                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                                El LLM sintetiza la topología del sistema, extrayendo endpoints REST, contratos DTO y generando diagramas C4 y Mermaid.
-                            </p>
-                        </div>
-                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-purple-300">
-                            <code>llm.generate_c4()</code>
-                        </div>
-                    </div>
-
-                    <!-- Step 04 -->
-                    <div class="glow-card p-6 sm:p-7 step-card flex flex-col justify-between h-full">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="step-number">04</span>
-                                <div class="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 text-base">
-                                    <i class="fa-solid fa-book"></i>
-                                </div>
-                            </div>
-                            <h3 class="text-lg font-bold text-white mb-2">Genera Documentación</h3>
-                            <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
-                                Wiki interactivo, Swagger OpenAPI y comentarios automáticos en Pull Requests sincronizados en cada commit sin mantenimiento manual.
-                            </p>
-                        </div>
-                        <div class="mt-5 pt-3 border-t border-slate-800 font-mono text-[11px] text-emerald-300">
-                            <code>sync: 100% up to date</code>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================================
-             6. PROTOTIPO EN ACCIÓN (SIMULADOR EN VIVO)
-             ====================================================================== -->
-        <section id="demo" class="py-24 relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-14">
-                    <span class="text-xs uppercase tracking-widest font-bold text-indigo-400 bg-indigo-950/60 px-4 py-1.5 rounded-full border border-indigo-800/50 inline-block mb-3">
-                        <i class="fa-solid fa-terminal mr-1.5 text-indigo-400"></i> Prototipo en Acción
-                    </span>
-                    <h2 class="section-title text-white tracking-tight">Simulador de Análisis de Repositorio</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Selecciona un stack o ingresa tu repositorio para experimentar la generación instantánea de arquitectura técnica y contratos de API.
-                    </p>
-                </div>
-
-                <!-- Interactive Simulator Card -->
-                <div class="glow-card p-6 sm:p-8 lg:p-10 max-w-5xl mx-auto shadow-2xl">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                        <div class="sm:col-span-2">
-                            <label for="repo-input" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                                <i class="fa-brands fa-github text-cyan-400 mr-1.5"></i> Repositorio de prueba
-                            </label>
-                            <div class="input-group-cyber" style="display: flex; align-items: center; background-color: #020617; border: 1px solid #334155; border-radius: 0.75rem; overflow: hidden;">
-                                <div class="input-addon-cyber" style="padding: 0.85rem 1.15rem; background-color: #0f172a; border-right: 1px solid #1e293b; color: #22d3ee; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <i class="fa-brands fa-github" style="font-size: 1.25rem;"></i>
-                                </div>
-                                <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="font-mono" style="width: 100%; padding: 0.85rem 1rem; background: transparent; border: none; outline: none; color: #f1f5f9; font-size: 0.875rem;">
+                                <label for="ci_cd_tool" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-brands fa-github" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Plataforma CI/CD</label>
+                                <select id="ci_cd_tool" class="input-field">
+                                    <option value="github_actions">GitHub Actions</option>
+                                    <option value="gitlab_ci">GitLab CI/CD</option>
+                                    <option value="bitbucket">Bitbucket Pipelines</option>
+                                    <option value="jenkins">Jenkins / Azure DevOps</option>
+                                </select>
                             </div>
                         </div>
                         <div>
-                            <label for="lang-select" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                                <i class="fa-solid fa-code text-cyan-400 mr-1.5"></i> Lenguaje principal
-                            </label>
-                            <select id="lang-select" class="w-full px-4 py-3 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-200 focus:outline-none focus:border-cyan-400 transition-colors font-mono">
-                                <option value="ts">TypeScript / Node.js</option>
-                                <option value="py">Python / FastAPI</option>
-                                <option value="go">Go / Microservices</option>
-                                <option value="java">Java / Spring Boot</option>
-                            </select>
+                            <label for="comments" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-comment-dots" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Mayor dolor con la documentacion</label>
+                            <textarea id="comments" rows="3" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas quedan obsoletos..." class="input-field" style="resize:vertical;"></textarea>
                         </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800">
-                        <button id="btn-run-analysis" class="btn-cyber px-6 py-3.5 text-sm font-bold">
-                            <i class="fa-solid fa-play mr-2 text-xs text-slate-950"></i>
-                            <span>Ejecutar Análisis AST & Generar Docs</span>
+                        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.75rem;color:#64748b;">
+                            <input type="checkbox" id="terms" required style="margin-top:.15rem;accent-color:var(--cyan-primary);">
+                            <label for="terms" style="line-height:1.55;cursor:pointer;">Acepto recibir invitacion a la cohorte beta y actualizaciones del proyecto de la Universidad Libre.</label>
+                        </div>
+                        <button type="submit" id="btn-submit-lead" class="btn-cyber" style="width:100%;padding:1rem;font-size:.95rem;">
+                            <i class="fa-solid fa-bolt" style="margin-right:.5rem;"></i>Solicitar Acceso VIP &amp; Generar Pase
                         </button>
-                        <div class="flex items-center space-x-2 text-xs font-mono text-slate-400">
-                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                            <span>Motor: AST-Engine v2.4 + Gemini Pro RAG</span>
+                    </form>
+                    <div id="vip-pass-result" class="hidden vip-pass-card" style="margin-top:1.5rem;padding:1.5rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,212,255,.15);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+                            <div style="display:flex;align-items:center;gap:.75rem;">
+                                <div style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:var(--cyan-primary);display:flex;align-items:center;justify-content:center;color:#020617;font-size:.85rem;flex-shrink:0;"><i class="fa-solid fa-ticket"></i></div>
+                                <div><h4 style="font-size:.8rem;font-weight:800;color:#fff;">DOCUMIND VIP ACCESS PASS</h4><p style="font-size:.65rem;color:var(--cyan-primary);margin-top:.15rem;">COHORTE BETA 2026-1 | UNIVERSIDAD LIBRE</p></div>
+                            </div>
+                            <span class="badge badge-emerald">HABILITADO</span>
                         </div>
-                    </div>
-
-                    <!-- Split Console Log vs Generated Doc Preview -->
-                    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                        <!-- Terminal Log -->
-                        <div class="cyber-terminal p-4 text-xs text-slate-300 min-h-[18rem] max-h-[24rem] overflow-y-auto overflow-x-hidden space-y-1.5 min-w-0" id="terminal-log">
-                            <p class="text-slate-500 break-anywhere">$ documind analyze --repo github.com/organization/microservices-backend</p>
-                            <p class="text-cyan-400">[1/4] Clonando metadata y construyendo AST...</p>
-                            <p class="text-slate-400">✔ 142 archivos parseados (TypeScript AST Tree)</p>
-                            <p class="text-cyan-400">[2/4] Mapeando grafo de llamadas y dependencias...</p>
-                            <p class="text-slate-400">✔ 28 endpoints REST y 14 esquemas DTO detectados</p>
-                            <p class="text-cyan-400">[3/4] Generando especificación OpenAPI & Diagramas C4...</p>
-                            <p class="text-slate-400">✔ Diagrama de flujo de autenticación JWT renderizado</p>
-                            <p class="text-emerald-400 font-semibold">[4/4] Sincronización completa. Documentación generada en 1.4s.</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;margin-bottom:1.25rem;">
+                            <div><span style="display:block;font-size:.65rem;color:#475569;margin-bottom:.25rem;">TITULAR:</span><span style="font-weight:700;color:#fff;word-break:break-words;" id="pass-holder-name">-</span></div>
+                            <div><span style="display:block;font-size:.65rem;color:#475569;margin-bottom:.25rem;">PASAPORTE ID:</span><span style="font-weight:700;color:var(--cyan-primary);" id="pass-id-code">DOCU-2026-X89</span></div>
                         </div>
-
-                        <!-- Generated Doc Preview -->
-                        <div class="bg-slate-950 rounded-xl p-5 border border-slate-800 text-xs text-slate-300 min-h-[18rem] max-h-[24rem] overflow-y-auto space-y-4 min-w-0" id="doc-preview">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                                <h4 class="font-bold text-white text-sm flex items-center min-w-0 truncate">
-                                    <i class="fa-solid fa-book-open text-cyan-400 mr-2 shrink-0"></i>
-                                    <span class="truncate">Arquitectura: Auth & User Service</span>
-                                </h4>
-                                <span class="bg-emerald-950 text-emerald-400 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-emerald-800/60 shrink-0">Sincronizado</span>
-                            </div>
-                            <p class="text-slate-300 leading-relaxed break-words">
-                                Este módulo expone la API de autenticación distribuida bajo arquitectura hexagonal. Las llamadas entrantes validan tokens firmados con RSA-256 contra la entidad <code class="text-cyan-300 font-mono">UserSecurityContext</code>.
-                            </p>
-                            <div class="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 font-mono text-[11px] space-y-1 text-slate-300 min-w-0 overflow-x-auto">
-                                <p class="text-purple-300 font-bold">Endpoints detectados:</p>
-                                <p class="break-all"><span class="text-emerald-400 font-bold">POST</span> /api/v1/auth/login <span class="text-slate-500">-> AuthHandler.ts:L42</span></p>
-                                <p class="break-all"><span class="text-emerald-400 font-bold">POST</span> /api/v1/auth/refresh <span class="text-slate-500">-> TokenService.ts:L89</span></p>
-                                <p class="break-all"><span class="text-sky-400 font-bold">GET</span>  /api/v1/user/profile <span class="text-slate-500">-> Bearer Auth Protected</span></p>
-                            </div>
-                            <div class="p-3 bg-cyan-950/40 rounded-xl border border-cyan-800/50 text-cyan-200 break-words">
-                                <span class="font-bold">💡 Guía de Onboarding:</span> Para correr localmente, ejecuta <code class="text-white font-mono">docker compose up db redis</code> y configura la variable <code class="text-white font-mono">JWT_SECRET</code>.
-                            </div>
+                        <div style="padding:1rem;background:rgba(4,5,26,.8);border-radius:.65rem;border:1px solid rgba(99,102,241,.15);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;">
+                            <div style="min-width:0;"><p style="font-size:.65rem;color:#475569;margin-bottom:.35rem;">TU ENLACE DE INVITACION:</p><p style="font-size:.7rem;color:var(--cyan-primary);word-break:break-all;" id="pass-invite-link">https://dsantiagopsandoval.github.io/Document-mind-ai/?ref=DOCU-2026</p></div>
+                            <button type="button" id="btn-copy-pass" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.75rem;flex-shrink:0;"><i class="fa-solid fa-copy" style="margin-right:.35rem;"></i>Copiar</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- ======================================================================
-             7. EQUIPO DE EMPRENDIMIENTO & AUTORES
-             ====================================================================== -->
-        <section id="equipo" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-cyan-400 bg-cyan-950/60 px-4 py-1.5 rounded-full border border-cyan-800/50 inline-block mb-3">
-                        <i class="fa-solid fa-users-gear mr-1.5 text-cyan-400"></i> Conformación del Equipo Empresarial
-                    </span>
-                    <h2 class="section-title text-white tracking-tight">Quiénes Somos</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Iniciativa de emprendimiento de base tecnológica desarrollada en la <strong>Universidad Libre - Facultad de Ingeniería</strong>, articulando liderazgo técnico e ingeniería de producto orientada al mercado.
-                    </p>
+    <!-- ====== CONTACTO ====== -->
+    <section id="contacto" class="section-alt" style="padding:6rem 0;">
+        <div class="container">
+            <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-satellite-dish"></i> Contacto</span>
+                <h2 class="section-title">Comprende tu codigo antes de perderte en el</h2>
+                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Tienes preguntas sobre DocuMind AI o quieres colaborar? Escribenos directamente.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;max-width:900px;margin:0 auto;" class="reveal reveal-delay-1" id="contacto-grid">
+                <div style="display:flex;flex-direction:column;gap:1rem;">
+                    <a href="mailto:daniels-palencias@unilibre.edu.co" class="contact-item">
+                        <div class="contact-icon" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan-primary);"><i class="fa-solid fa-envelope"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Email</div><div style="font-size:.82rem;color:#e2e8f0;">daniels-palencias@unilibre.edu.co</div></div>
+                    </a>
+                    <a href="https://github.com/DsantiagoPsandoval/Document-mind-ai" target="_blank" rel="noopener" class="contact-item">
+                        <div class="contact-icon" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);color:#c4b5fd;"><i class="fa-brands fa-github"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">GitHub Repositorio</div><div style="font-size:.82rem;color:#e2e8f0;">DsantiagoPsandoval / Document-mind-ai</div></div>
+                    </a>
+                    <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" class="contact-item">
+                        <div class="contact-icon" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);color:#a5b4fc;"><i class="fa-brands fa-linkedin"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">LinkedIn</div><div style="font-size:.82rem;color:#e2e8f0;">Daniel Palencia Sandoval</div></div>
+                    </a>
+                    <div class="contact-item">
+                        <div class="contact-icon" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#34d399;"><i class="fa-solid fa-building-columns"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Institucion</div><div style="font-size:.82rem;color:#e2e8f0;">Universidad Libre - Facultad de Ingenieria, Bogota D.C.</div></div>
+                    </div>
                 </div>
-
-                <!-- 2-Card Founders Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
-                    <!-- Daniel Santiago Palencia Sandoval (CTO) -->
-                    <div class="glow-card p-7 sm:p-9 flex flex-col justify-between h-full group min-w-0">
-                        <div>
-                            <div class="flex items-center space-x-4 mb-6">
-                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-cyan-500/30 ring-2 ring-white/20 group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0">
-                                    DP
-                                </div>
-                                <div class="min-w-0">
-                                    <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-400 transition-colors leading-snug break-words">Daniel Santiago Palencia Sandoval</h3>
-                                    <p class="text-cyan-400 text-xs font-bold uppercase tracking-wider mt-0.5">Líder Tecnológico (CTO)</p>
-                                    <p class="text-slate-400 text-xs mt-1 break-words"><i class="fa-solid fa-graduation-cap mr-1 text-slate-500"></i> Universidad Libre - Facultad de Ingeniería</p>
-                                </div>
-                            </div>
-                            <div class="space-y-3 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-5">
-                                <p><strong class="text-white text-xs uppercase tracking-wider">Responsabilidades Clave:</strong></p>
-                                <ul class="space-y-2.5 text-slate-400 text-xs">
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Diseñar la arquitectura técnica del MVP integrando parsers AST de código y modelos de IA generativa.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Desarrollar la integración continua (GitHub Action / CLI) para análisis automático de repositorios.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-cyan-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Ejecutar pruebas técnicas con repositorios reales y recolectar feedback de usabilidad y precisión del prototipo.</span></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="mt-8 pt-5 border-t border-slate-800 flex items-center space-x-3">
-                            <a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="GitHub de Daniel Palencia" aria-label="GitHub de Daniel Palencia"><i class="fa-brands fa-github text-base"></i></a>
-                            <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="LinkedIn de Daniel Palencia" aria-label="LinkedIn de Daniel Palencia"><i class="fa-brands fa-linkedin text-base"></i></a>
-                            <a href="mailto:daniels-palencias@unilibre.edu.co" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-cyan-500 hover:text-slate-950 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Correo Institucional Daniel Palencia" aria-label="Correo Institucional Daniel Palencia"><i class="fa-solid fa-envelope text-base"></i></a>
-                        </div>
+                <div class="glow-card glow-card-purple" style="padding:2.25rem;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1.35rem;">
+                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(139,92,246,.2));border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--cyan-primary);"><i class="fa-solid fa-brain"></i></div>
+                    <div>
+                        <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Analiza tu repositorio ahora</h3>
+                        <p style="font-size:.82rem;color:#64748b;line-height:1.65;">Prueba el simulador interactivo y descubre como DocuMind AI puede transformar la documentacion de tu equipo.</p>
                     </div>
-
-                    <!-- Nelson Andrés Ayala Álvarez (CMO/CBO) -->
-                    <div class="glow-card p-7 sm:p-9 flex flex-col justify-between h-full group min-w-0">
-                        <div>
-                            <div class="flex items-center space-x-4 mb-6">
-                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-500/30 ring-2 ring-white/20 group-hover:scale-105 group-hover:rotate-2 transition-transform shrink-0">
-                                    NA
-                                </div>
-                                <div class="min-w-0">
-                                    <h3 class="text-lg sm:text-xl font-bold text-white group-hover:text-indigo-400 transition-colors leading-snug break-words">Nelson Andrés Ayala Álvarez</h3>
-                                    <p class="text-indigo-400 text-xs font-bold uppercase tracking-wider mt-0.5">Líder de Mercadeo & Negocios (CMO/CBO)</p>
-                                    <p class="text-slate-400 text-xs mt-1 break-words"><i class="fa-solid fa-graduation-cap mr-1 text-slate-500"></i> Universidad Libre - Facultad de Ingeniería</p>
-                                </div>
-                            </div>
-                            <div class="space-y-3 text-slate-300 text-sm leading-relaxed border-t border-slate-800 pt-5">
-                                <p><strong class="text-white text-xs uppercase tracking-wider">Responsabilidades Clave:</strong></p>
-                                <ul class="space-y-2.5 text-slate-400 text-xs">
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Diseñar y desplegar la landing page interactiva con propuesta de valor clara y registro de early adopters.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Conducir las entrevistas de descubrimiento y validación con CTOs, Tech Leads y análisis competitivo vs Swimm/Mintlify.</span></li>
-                                    <li class="flex items-start"><i class="fa-solid fa-check text-indigo-400 mr-2.5 mt-1 shrink-0"></i> <span class="break-words">Estructurar el modelo de precios SaaS B2B, métricas de adquisición y proyecciones comerciales.</span></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="mt-8 pt-5 border-t border-slate-800 flex items-center space-x-3">
-                            <a href="https://github.com/nexker" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="GitHub de Nelson Ayala" aria-label="GitHub de Nelson Ayala"><i class="fa-brands fa-github text-base"></i></a>
-                            <a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="LinkedIn de Nelson Ayala" aria-label="LinkedIn de Nelson Ayala"><i class="fa-brands fa-linkedin text-base"></i></a>
-                            <a href="mailto:nelsona-ayalaa@unilibre.edu.co" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-indigo-500 hover:text-white flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Correo Institucional Nelson Ayala" aria-label="Correo Institucional Nelson Ayala"><i class="fa-solid fa-envelope text-base"></i></a>
-                        </div>
-                    </div>
+                    <a href="#demo" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Analizar mi repositorio &rarr;</a>
+                    <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-bolt" style="margin-right:.5rem;font-size:.75rem;color:var(--cyan-primary);"></i>Unirse a la Beta Privada</a>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- ======================================================================
-             8. MÉTRICAS Y CONTADOR ESTADÍSTICO
-             ====================================================================== -->
-        <section id="metricas" class="py-24 relative">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-16">
-                    <span class="text-xs uppercase tracking-widest font-bold text-emerald-400 bg-emerald-950/60 px-4 py-1.5 rounded-full border border-emerald-800/50 inline-block mb-3">
-                        <i class="fa-solid fa-chart-line mr-1.5 text-emerald-400"></i> Tracción & Datos Relevantes
-                    </span>
-                    <h2 class="section-title text-white tracking-tight">Métricas de Validación en Vivo</h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Telemetría e indicadores cuantificables que sustentan la alta demanda y justificación del proyecto ante comités evaluadores.
-                    </p>
-                </div>
-
-                <!-- 4 Metrics Counter Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
-                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Visitantes Únicos</div>
-                        <div class="text-4xl font-extrabold text-cyan-400 font-mono neon-glow-cyan my-1" id="visitor-counter">1,250</div>
-                        <p class="text-xs text-emerald-400 mt-2 font-medium"><i class="fa-solid fa-arrow-trend-up mr-1"></i> +14.2% esta semana</p>
-                    </div>
-
-                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
-                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Early Adopters VIP</div>
-                        <div class="text-4xl font-extrabold text-sky-400 font-mono my-1" id="registered-counter">186</div>
-                        <p class="text-xs text-emerald-400 mt-2 font-medium"><i class="fa-solid fa-users mr-1"></i> Lista beta activa</p>
-                    </div>
-
-                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
-                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tasa de Conversión (CTR)</div>
-                        <div class="text-4xl font-extrabold text-emerald-400 font-mono neon-glow-emerald my-1">14.7%</div>
-                        <p class="text-xs text-slate-400 mt-2">Promedio SaaS B2B: ~3.5%</p>
-                    </div>
-
-                    <div class="glow-card p-6 sm:p-7 text-center flex flex-col justify-center">
-                        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Validación de Dolor</div>
-                        <div class="text-4xl font-extrabold text-indigo-400 font-mono my-1">86.0%</div>
-                        <p class="text-xs text-slate-400 mt-2">Muestra en Software Houses</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================================
-             9. INFOGRAFÍA OFICIAL & RECURSOS TÉCNICOS
-             ====================================================================== -->
-        <section id="infografia" class="py-24 bg-slate-900/40 relative border-y border-slate-800/80">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="glow-card bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/90 p-8 sm:p-12 shadow-2xl border border-cyan-900/60">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                        <div class="lg:col-span-8 space-y-4">
-                            <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-800/60 text-xs font-semibold text-cyan-300">
-                                <i class="fa-solid fa-file-pdf text-rose-400 mr-1"></i>
-                                <span>Entregable Académico & Técnico</span>
-                            </div>
-                            <h3 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-                                Infografía Oficial: Teoría del Color & Fundamentos UX/UI
-                            </h3>
-                            <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-                                Documento estructurado bajo los lineamientos de la <strong>Universidad Libre</strong> y las mejores prácticas de <strong>HubSpot</strong>. Incluye la sustentación de la paleta cromática con contraste WCAG 2.1 AAA, heurísticas de usabilidad de Nielsen, jerarquía visual y el código QR de acceso.
-                            </p>
-                            <div class="pt-4 flex flex-wrap gap-4">
-                                <a href="infografia.html" target="_blank" class="btn-cyber px-6 py-3.5 text-sm font-bold">
-                                    <i class="fa-solid fa-eye mr-2 text-xs text-slate-950"></i>
-                                    <span>Ver Infografía Interactiva</span>
-                                </a>
-                                <a href="DocuMind_AI_Infografia_Color_UXUI.pdf" download class="btn-cyber-outline px-6 py-3.5 text-sm font-bold">
-                                    <i class="fa-solid fa-download mr-2 text-rose-400 text-xs"></i>
-                                    <span>Descargar Infografía (.PDF)</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Direct QR Code Card -->
-                        <div class="lg:col-span-4 flex flex-col items-center justify-center p-6 bg-slate-950/90 rounded-2xl border border-slate-800 text-center shadow-inner">
-                            <a href="https://dsantiagopsandoval.github.io/Document-mind-ai/" target="_blank" rel="noopener noreferrer" class="group flex flex-col items-center" style="text-decoration: none;">
-                                <div class="bg-white p-3 rounded-xl shadow-lg mb-3 ring-2 ring-cyan-500/40 group-hover:scale-105 transition-transform">
-                                    <img src="assets/qr-landing.png" alt="Código QR de acceso a la Landing Page" class="w-36 h-36 object-contain">
-                                </div>
-                                <p class="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">Escanea o haz Clic</p>
-                                <p class="text-[11px] text-cyan-400 font-mono mt-0.5">dsantiagopsandoval.github.io</p>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ======================================================================
-             10. SECCIÓN BETA PRIVADA (REGISTRO VIP EARLY ADOPTERS)
-             ====================================================================== -->
-        <section id="registro" class="py-28 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 relative border-t border-slate-800/80 overflow-hidden">
-            <!-- Background Glow Flares -->
-            <div class="absolute top-1/2 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 -z-10"></div>
-            <div class="absolute top-1/2 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -translate-y-1/2 -z-10"></div>
-
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
-                <div class="text-center max-w-3xl mx-auto mb-18">
-                    <div class="inline-flex items-center space-x-2 px-5 py-2 rounded-full bg-cyan-950/80 border border-cyan-700/60 text-xs font-bold text-cyan-300 shadow-inner mb-4">
-                        <i class="fa-solid fa-shield-halved text-cyan-400 mr-1"></i>
-                        <span>PROGRAMA EXCLUSIVO EARLY ADOPTERS 2026</span>
-                    </div>
-                    <h2 class="section-title text-white tracking-tight mt-1">
-                        Sé parte de la <span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent neon-glow-cyan">Beta Privada</span>
-                    </h2>
-                    <p class="text-slate-300 mt-4 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-                        Accede antes que nadie a la plataforma de documentación automática de software y obtén beneficios exclusivos para tu equipo de ingeniería.
-                    </p>
-                </div>
-
-                <!-- 2-Column Split: Terminal Perks (Left) + Cyber Form (Right) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
-                    
-                    <!-- Left Column: VIP Perks & Dev Terminal -->
-                    <div class="lg:col-span-5 flex flex-col justify-between space-y-6">
-                        <div class="glow-card p-7 sm:p-9 flex-1 flex flex-col justify-between min-w-0">
-                            <div>
-                                <!-- Urgency Pill -->
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-slate-950/90 rounded-xl border border-rose-800/50 gap-3 mb-7">
-                                    <div class="flex items-center space-x-2 text-xs font-bold text-rose-400">
-                                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping shrink-0"></span>
-                                        <span class="break-words">Fase de Cupos Limitados</span>
-                                    </div>
-                                    <span class="text-xs font-mono font-black text-white bg-rose-950 px-3 py-1.5 rounded-lg border border-rose-800/60 shrink-0" id="spots-left">🔥 14 cupos restantes</span>
-                                </div>
-
-                                <h3 class="text-xl sm:text-2xl font-black text-white mb-6 break-words">Beneficios para Early Adopters</h3>
-
-                                <div class="space-y-5">
-                                    <div class="flex items-start space-x-4">
-                                        <div class="w-10 h-10 rounded-xl bg-cyan-950 border border-cyan-700/60 flex items-center justify-center text-cyan-400 shrink-0 text-sm mt-0.5">
-                                            <i class="fa-solid fa-key"></i>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <h5 class="text-sm font-bold text-white break-words">6 Meses Enterprise Gratuito</h5>
-                                            <p class="text-slate-400 text-xs mt-1 break-words leading-relaxed">Acceso sin límites a análisis AST y sincronización de repositorios sin costo.</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-start space-x-4">
-                                        <div class="w-10 h-10 rounded-xl bg-indigo-950 border border-indigo-700/60 flex items-center justify-center text-indigo-400 shrink-0 text-sm mt-0.5">
-                                            <i class="fa-solid fa-user-gear"></i>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <h5 class="text-sm font-bold text-white break-words">Soporte Directo con el Equipo Fundador</h5>
-                                            <p class="text-slate-400 text-xs mt-1 break-words leading-relaxed">Sesiones de onboarding 1-on-1 guiadas por Daniel Palencia y Nelson Ayala.</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-start space-x-4">
-                                        <div class="w-10 h-10 rounded-xl bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 shrink-0 text-sm mt-0.5">
-                                            <i class="fa-solid fa-award"></i>
-                                        </div>
-                                        <div class="min-w-0">
-                                            <h5 class="text-sm font-bold text-white break-words">Insignia de Early Backer en GitHub</h5>
-                                            <p class="text-slate-400 text-xs mt-1 break-words leading-relaxed">Reconocimiento oficial en la documentación de la Universidad Libre.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Simulated API Token Card -->
-                            <div class="mt-8 p-4 bg-slate-950/90 rounded-xl border border-cyan-900/60 font-mono text-xs min-w-0">
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2 border-b border-slate-800 pb-2 gap-2">
-                                    <span class="flex items-center truncate"><i class="fa-solid fa-lock text-cyan-400 mr-1.5 shrink-0"></i> TOKEN ASIGNADO:</span>
-                                    <span class="text-emerald-400 font-bold shrink-0">TIER_VIP_READY</span>
-                                </div>
-                                <p class="text-cyan-300 break-all text-[11px]">documind_live_9f8a2e1d7c4b0a8f</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column: High-End Futuristic Registration Form -->
-                    <div class="lg:col-span-7 min-w-0">
-                        <div class="glow-card p-7 sm:p-10 lg:p-11 shadow-2xl relative min-w-0" id="form-wrapper">
-                            <!-- Form Header -->
-                            <div class="mb-7 pb-5 border-b border-slate-800/80">
-                                <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">Solicita tu acceso anticipado</h3>
-                                <p class="text-slate-400 text-xs sm:text-sm mt-1.5 leading-relaxed">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
-                            </div>
-
-                            <form id="lead-form" class="space-y-6">
-                                <!-- Inputs Row 1 -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                    <div>
-                                        <label for="name" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                            <i class="fa-solid fa-user text-cyan-400 mr-1.5"></i> Nombre Completo *
-                                        </label>
-                                        <input type="text" id="name" required placeholder="Ej. Carlos Mendoza" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all font-sans">
-                                    </div>
-                                    <div>
-                                        <label for="email" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                            <i class="fa-solid fa-envelope text-cyan-400 mr-1.5"></i> Correo Corporativo / Dev *
-                                        </label>
-                                        <input type="email" id="email" required placeholder="carlos@empresa.com" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all font-sans">
-                                    </div>
-                                </div>
-
-                                <!-- Quick-Role Selector Chips -->
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">
-                                        <i class="fa-solid fa-id-badge text-cyan-400 mr-1.5"></i> Selecciona tu Rol Principal *
-                                    </label>
-                                    <input type="hidden" id="selected-role" name="role" value="tech_lead" required>
-                                    <div class="flex flex-wrap gap-2" id="role-chips-container">
-                                        <button type="button" class="role-chip" data-role="cto"><i class="fa-solid fa-crown text-amber-400"></i> CTO / VP Eng</button>
-                                        <button type="button" class="role-chip active" data-role="tech_lead"><i class="fa-solid fa-cube text-cyan-400"></i> Tech Lead</button>
-                                        <button type="button" class="role-chip" data-role="dev"><i class="fa-solid fa-code text-emerald-400"></i> Senior Dev</button>
-                                        <button type="button" class="role-chip" data-role="devops"><i class="fa-solid fa-terminal text-indigo-400"></i> DevOps / SRE</button>
-                                        <button type="button" class="role-chip" data-role="academic"><i class="fa-solid fa-graduation-cap text-purple-400"></i> Académico / Estudiante</button>
-                                    </div>
-                                </div>
-
-                                <!-- Repo Size & CI/CD Platform Selection -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                                    <div>
-                                        <label for="repo_size" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                            <i class="fa-solid fa-folder-tree text-cyan-400 mr-1.5"></i> Tamaño de Repositorios
-                                        </label>
-                                        <select id="repo_size" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 focus:outline-none transition-all font-sans">
-                                            <option value="1-5">1 a 5 microservicios / repos</option>
-                                            <option value="6-20">6 a 20 repositorios</option>
-                                            <option value="20+">Monorepo / Más de 20 repos</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="ci_cd_tool" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                            <i class="fa-brands fa-github text-cyan-400 mr-1.5"></i> Plataforma de CI/CD
-                                        </label>
-                                        <select id="ci_cd_tool" class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 focus:outline-none transition-all font-sans">
-                                            <option value="github_actions">GitHub Actions</option>
-                                            <option value="gitlab_ci">GitLab CI/CD</option>
-                                            <option value="bitbucket">Bitbucket Pipelines</option>
-                                            <option value="jenkins">Jenkins / Azure DevOps</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Feedback / Challenge -->
-                                <div>
-                                    <label for="comments" class="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                                        <i class="fa-solid fa-comment-dots text-cyan-400 mr-1.5"></i> ¿Cuál es tu mayor dolor actual con la documentación?
-                                    </label>
-                                    <textarea id="comments" rows="4" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas de arquitectura quedan obsoletos con cada sprint..." class="w-full px-4 py-3.5 bg-slate-950 rounded-xl border border-slate-700 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none transition-all font-sans"></textarea>
-                                </div>
-
-                                <!-- Terms -->
-                                <div class="flex items-start space-x-3 text-xs text-slate-400 pt-1">
-                                    <input type="checkbox" id="terms" required class="mt-1 rounded bg-slate-950 border-slate-700 text-cyan-400 focus:ring-cyan-400 shrink-0">
-                                    <label for="terms" class="break-words leading-relaxed">Acepto recibir invitación a la cohorte beta y actualizaciones del proyecto de la Universidad Libre.</label>
-                                </div>
-
-                                <!-- Cyber Submit Button -->
-                                <button type="submit" id="btn-submit-lead" class="btn-cyber w-full py-4 text-sm sm:text-base font-bold mt-2">
-                                    <i class="fa-solid fa-bolt mr-2 text-slate-950"></i>
-                                    <span>Solicitar Acceso VIP &amp; Generar Pase</span>
-                                </button>
-                            </form>
-
-                            <!-- Futuristic VIP Generated Pass Modal / Card (Shown after submit) -->
-                            <div id="vip-pass-result" class="hidden mt-8 p-6 sm:p-8 vip-pass-card text-white min-w-0">
-                                <div class="flex flex-wrap items-center justify-between border-b border-cyan-800/80 pb-4 mb-6 gap-3">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-9 h-9 rounded-lg bg-cyan-500 text-slate-950 flex items-center justify-center font-black shrink-0">
-                                            <i class="fa-solid fa-ticket"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-black text-xs sm:text-sm text-white">DOCUMIND VIP ACCESS PASS</h4>
-                                            <p class="text-[10px] text-cyan-300 mt-0.5">COHORTE BETA 2026-1 | UNIVERSIDAD LIBRE</p>
-                                        </div>
-                                    </div>
-                                    <span class="px-3 py-1.5 rounded-full bg-emerald-950 text-emerald-400 text-[10px] sm:text-xs font-bold border border-emerald-800 shrink-0">HABILITADO</span>
-                                </div>
-
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 text-xs font-mono mb-6">
-                                    <div>
-                                        <span class="text-slate-400 block text-[10px] mb-1">TITULAR:</span>
-                                        <span class="font-bold text-white break-words" id="pass-holder-name">-</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-slate-400 block text-[10px] mb-1">PASAPORTE ID:</span>
-                                        <span class="font-bold text-cyan-300 break-words" id="pass-id-code">DOCU-2026-X89</span>
-                                    </div>
-                                </div>
-
-                                <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 font-mono text-xs min-w-0">
-                                    <div class="min-w-0">
-                                        <p class="text-[10px] text-slate-400 mb-1.5">TU ENLACE DE INVITACIÓN DIRECTA:</p>
-                                        <p class="text-cyan-400 text-[11px] break-all" id="pass-invite-link">https://dsantiagopsandoval.github.io/Document-mind-ai/?ref=DOCU-2026</p>
-                                    </div>
-                                    <button type="button" id="btn-copy-pass" class="btn-cyber px-5 py-2.5 text-xs font-bold shrink-0 w-full sm:w-auto">
-                                        <i class="fa-solid fa-copy mr-1 text-slate-950"></i> Copiar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <!-- ======================================================================
-         11. FOOTER INSTITUCIONAL
-         ====================================================================== -->
-    <footer class="bg-slate-950 border-t border-slate-800 text-slate-400 py-14 text-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-                <!-- Col 1 & 2: Brand Info -->
-                <div class="md:col-span-2 space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-cyan-500/30">
-                            <i class="fa-solid fa-brain text-sm"></i>
-                        </div>
-                        <span class="text-lg font-bold text-white tracking-tight">DocuMind - AI</span>
-                    </div>
-                    <p class="text-slate-400 text-xs max-w-md leading-relaxed">
-                        Proyecto de Innovación y Emprendimiento Tecnológico. Universidad Libre, Facultad de Ingeniería, Bogotá D.C., Colombia. Reto HIT 2026.
-                    </p>
-                    <p class="text-xs text-slate-500">
-                        Desarrollado por <strong>Daniel Santiago Palencia Sandoval</strong> &amp; <strong>Nelson Andrés Ayala Álvarez</strong>.
-                    </p>
-                </div>
-
-                <!-- Col 3: Enlaces Rápidos -->
+    <!-- FOOTER -->
+    <footer style="background:rgba(4,5,26,.97);border-top:1px solid var(--border-glass);padding:3.5rem 0 2rem;">
+        <div class="container">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;" id="footer-grid">
                 <div>
-                    <h5 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-4">Navegación del Producto</h5>
-                    <ul class="space-y-2.5 text-xs">
-                        <li><a href="#problema" class="hover:text-cyan-400 transition-colors">Problemática Reto HIT</a></li>
-                        <li><a href="#solucion" class="hover:text-cyan-400 transition-colors">Arquitectura AST + LLM</a></li>
-                        <li><a href="#como-funciona" class="hover:text-cyan-400 transition-colors">Cómo Funciona (Pipeline)</a></li>
-                        <li><a href="#demo" class="hover:text-cyan-400 transition-colors">Simulador en Vivo</a></li>
-                        <li><a href="#equipo" class="hover:text-cyan-400 transition-colors">Equipo de Emprendimiento</a></li>
-                        <li><a href="#infografia" class="hover:text-cyan-400 transition-colors">Infografía Color &amp; UX/UI</a></li>
+                    <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
+                        <div style="width:2rem;height:2rem;border-radius:.55rem;background:linear-gradient(135deg,#00d4ff,#6366f1);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0;"><i class="fa-solid fa-brain"></i></div>
+                        <span style="font-size:1rem;font-weight:800;color:#fff;">DocuMind - AI</span>
+                    </div>
+                    <p style="font-size:.78rem;color:#475569;line-height:1.7;max-width:300px;">Proyecto de Innovacion y Emprendimiento Tecnologico. Universidad Libre, Facultad de Ingenieria, Bogota D.C., Colombia. Reto HIT 2026.</p>
+                    <p style="font-size:.72rem;color:#334155;margin-top:.85rem;">Desarrollado por <strong style="color:#475569;">Daniel Santiago Palencia Sandoval</strong> &amp; <strong style="color:#475569;">Nelson Andres Ayala Alvarez</strong>.</p>
+                </div>
+                <div>
+                    <h5 style="font-size:.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Navegacion</h5>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;list-style:none;">
+                        <li><a href="#problema" style="font-size:.78rem;color:#475569;transition:color .2s;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Problematica Reto HIT</a></li>
+                        <li><a href="#solucion" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Arquitectura AST + LLM</a></li>
+                        <li><a href="#como-funciona" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Como Funciona</a></li>
+                        <li><a href="#demo" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Simulador en Vivo</a></li>
+                        <li><a href="#infografia" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Infografia UX/UI</a></li>
+                        <li><a href="#contacto" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Contacto</a></li>
                     </ul>
                 </div>
-
-                <!-- Col 4: Institucional & Comunidad -->
                 <div>
-                    <h5 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-4">Institucional &amp; Comunidad</h5>
-                    <ul class="space-y-2.5 text-xs">
-                        <li><a href="https://www.unilibre.edu.co/bogota/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-solid fa-building-columns mr-2 text-cyan-400"></i> Universidad Libre</a></li>
-                        <li><a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-github mr-2 text-cyan-400"></i> GitHub Daniel Palencia</a></li>
-                        <li><a href="https://github.com/nexker" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-github mr-2 text-cyan-400"></i> GitHub Nelson Ayala</a></li>
-                        <li><a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-linkedin mr-2 text-cyan-400"></i> LinkedIn Daniel Palencia</a></li>
-                        <li><a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-linkedin mr-2 text-cyan-400"></i> LinkedIn Nelson Ayala</a></li>
+                    <h5 style="font-size:.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Institucional</h5>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;list-style:none;">
+                        <li><a href="https://www.unilibre.edu.co/bogota/" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-solid fa-building-columns" style="color:#00d4ff;font-size:.65rem;"></i>Universidad Libre</a></li>
+                        <li><a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-github" style="color:#00d4ff;font-size:.65rem;"></i>GitHub Daniel Palencia</a></li>
+                        <li><a href="https://github.com/nexker" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-github" style="color:#00d4ff;font-size:.65rem;"></i>GitHub Nelson Ayala</a></li>
+                        <li><a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-linkedin" style="color:#00d4ff;font-size:.65rem;"></i>LinkedIn Daniel</a></li>
+                        <li><a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-linkedin" style="color:#00d4ff;font-size:.65rem;"></i>LinkedIn Nelson</a></li>
                     </ul>
                 </div>
             </div>
-
-            <div class="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-                <p>© 2026 DocuMind AI. Todos los derechos reservados. Universidad Libre - Facultad de Ingeniería.</p>
-                <p class="mt-2 sm:mt-0">Diseñado con principios de accesibilidad WCAG 2.1 AAA &amp; Heurísticas de Nielsen.</p>
+            <div style="padding-top:1.75rem;border-top:1px solid rgba(99,102,241,.1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;font-size:.72rem;color:#334155;">
+                <p>&copy; 2026 DocuMind AI. Todos los derechos reservados. Universidad Libre - Facultad de Ingenieria.</p>
+                <p>Disenado con principios de accesibilidad WCAG 2.1 AAA &amp; Heuristicas de Nielsen.</p>
             </div>
         </div>
     </footer>
 
-    <!-- Interactive Logic Script -->
     <script src="app.js"></script>
+    <script>
+    (function(){
+        // Navbar scroll
+        var nav = document.getElementById('navbar');
+        window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>30);},{passive:true});
+        // Mobile menu
+        var btn=document.getElementById('mobile-menu-btn'),menu=document.getElementById('mobile-menu');
+        if(btn&&menu){btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.setAttribute('aria-expanded',o);btn.innerHTML=o?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>';});menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.innerHTML='<i class="fa-solid fa-bars"></i>';});});}
+        // Reveal observer
+        var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('revealed');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+        document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+        // AI Core Canvas
+        var canvas=document.getElementById('ai-core-canvas');
+        if(canvas&&!window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+            var ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,R=58;
+            var particles=[];for(var i=0;i<28;i++){particles.push({angle:Math.random()*Math.PI*2,speed:(Math.random()*.4+.2)*(Math.random()>.5?1:-1),orbitR:Math.random()*22+8,size:Math.random()*2+.8,alpha:Math.random()*.7+.3});}
+            function draw(ts){
+                ctx.clearRect(0,0,W,H);
+                var t=ts*.001;
+                var g=ctx.createRadialGradient(cx,cy,R*.4,cx,cy,R*1.1);g.addColorStop(0,'rgba(0,212,255,.18)');g.addColorStop(.7,'rgba(99,102,241,.08)');g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+                [.55,.78,1].forEach(function(sc,idx){ctx.save();ctx.translate(cx,cy);ctx.rotate(t*(idx%2===0?.3:-.2)+idx);ctx.beginPath();ctx.ellipse(0,0,R*sc,R*sc*.35,0,0,Math.PI*2);ctx.strokeStyle='rgba('+(idx===0?'0,212,255':idx===1?'139,92,246':'99,102,241')+','+(0.18-idx*.04)+')';ctx.lineWidth=.8;ctx.stroke();ctx.restore();});
+                var cg=ctx.createRadialGradient(cx,cy,0,cx,cy,24);cg.addColorStop(0,'rgba(0,212,255,.9)');cg.addColorStop(.5,'rgba(99,102,241,.6)');cg.addColorStop(1,'rgba(139,92,246,0)');ctx.beginPath();ctx.arc(cx,cy,22,0,Math.PI*2);ctx.fillStyle=cg;ctx.fill();
+                particles.forEach(function(p){p.angle+=p.speed*.012;var px=cx+Math.cos(p.angle)*p.orbitR*(R/22),py=cy+Math.sin(p.angle)*p.orbitR*(R/22)*.4;ctx.beginPath();ctx.arc(px,py,p.size,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,'+(p.alpha*(.6+.4*Math.sin(t*2+p.angle)))+')';ctx.fill();});
+                ctx.save();ctx.strokeStyle='rgba(0,212,255,.1)';ctx.lineWidth=.6;for(var i=0;i<6;i++){var a=(i/6)*Math.PI*2+t*.25;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R*.95,cy+Math.sin(a)*R*.95*.5);ctx.stroke();}ctx.restore();
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+        }
+    })();
+    </script>
 </body>
 </html>
