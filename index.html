@@ -12,45 +12,28 @@
     <meta property="og:title" content="DocuMind AI | Tu codigo cambia todos los dias. Tu documentacion ahora tambien.">
     <meta property="og:description" content="Plataforma de IA para documentacion viva de software basada en analisis AST y modelos de lenguaje.">
     <meta property="og:image" content="https://dsantiagopsandoval.github.io/Document-mind-ai/assets/qr-landing.png">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%2304051a' stroke='%2300d4ff' stroke-width='3'/%3E%3Cpath d='M30 45 C30 35,45 32,48 40 C52 32,70 35,70 45 C70 55,62 65,50 72 C38 65,30 55,30 45Z' fill='%236366f1'/%3E%3C/svg%3E">
-    <meta name="theme-color" content="#04051a">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23090D16' stroke='%2338BDF8' stroke-width='3'/%3E%3Cpath d='M30 45 C30 35,45 32,48 40 C52 32,70 35,70 45 C70 55,62 65,50 72 C38 65,30 55,30 45Z' fill='%23818CF8'/%3E%3C/svg%3E">
+    <meta name="theme-color" content="#090D16">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=4.0">
-    <style>
-        /* Inline responsive overrides */
-        @media(max-width:900px){
-            #solucion-grid{grid-template-columns:1fr!important}
-            #registro-grid{grid-template-columns:1fr!important}
-            #infografia-inner{grid-template-columns:1fr!important}
-        }
-        @media(max-width:700px){
-            #hero-visual{grid-template-columns:1fr!important}
-            #hero-visual .hero-panel:first-child,#hero-visual .hero-panel:last-child{display:none}
-            #sim-output{grid-template-columns:1fr!important}
-            #contacto-grid{grid-template-columns:1fr!important}
-        }
-        @media(max-width:600px){
-            #metrics-strip{grid-template-columns:1fr 1fr!important}
-            #sim-inputs{grid-template-columns:1fr!important}
-            #footer-grid{grid-template-columns:1fr!important}
-        }
-        a[aria-label]:hover{color:#fff!important;background:rgba(0,212,255,.18)!important;border-color:rgba(0,212,255,.4)!important;}
-    </style>
+    <link rel="stylesheet" href="styles.css?v=4.1">
 </head>
-<body style="background-color:#04051a;color:#e2e8f0;">
+<body style="background-color:#090D16;color:#E2E8F0;">
 
     <div id="cursor-spotlight"></div>
     <div id="toast-container"></div>
 
-    <!-- NAVBAR -->
+    <!-- ============================================================
+         NAVBAR
+    ============================================================ -->
     <header id="navbar">
         <div class="nav-inner">
             <a href="#" class="nav-logo" aria-label="DocuMind AI - Inicio">
                 <div class="nav-logo-icon"><i class="fa-solid fa-brain"></i></div>
-                <span class="nav-logo-text">DocuMind<span style="color:rgba(0,212,255,.5)">-</span><span class="ai-badge">AI</span></span>
+                <span class="nav-logo-text">DocuMind<span style="color:rgba(56,189,248,.5)">-</span><span class="ai-badge">AI</span></span>
             </a>
             <nav aria-label="Navegacion principal">
                 <ul class="nav-links">
@@ -62,8 +45,12 @@
                 </ul>
             </nav>
             <div class="nav-actions">
-                <a href="#demo" class="btn-cyber-outline" style="padding:.5rem 1.1rem;font-size:.8rem;"><i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--cyan-primary)"></i>Probar Demo</a>
-                <a href="#registro" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;"><i class="fa-solid fa-bolt" style="font-size:.65rem;margin-right:.4rem;"></i>Acceso VIP Beta</a>
+                <a href="#demo" class="btn-cyber-outline" style="padding:.5rem 1.1rem;font-size:.8rem;">
+                    <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Probar Demo
+                </a>
+                <a href="#registro" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;">
+                    <i class="fa-solid fa-bolt" style="font-size:.65rem;margin-right:.4rem;"></i>Acceso VIP Beta
+                </a>
                 <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
             </div>
         </div>
@@ -74,206 +61,241 @@
         <a href="#solucion">Solucion</a>
         <a href="#demo">Demo en Vivo</a>
         <a href="#equipo">Equipo</a>
-        <a href="#registro" style="color:var(--cyan-primary);">Acceso VIP Beta</a>
+        <a href="#registro" style="color:var(--tech-cyan);">Acceso VIP Beta</a>
         <a href="#contacto">Contacto</a>
     </nav>
 
     <main style="padding-top:var(--nav-height);">
 
-    <!-- ====== HERO ====== -->
-    <section id="hero" style="position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;padding:5rem 0 4rem;">
-        <div style="position:absolute;top:-10%;left:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(99,102,241,.12) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-        <div style="position:absolute;bottom:-10%;right:-10%;width:50%;height:50%;background:radial-gradient(ellipse,rgba(0,212,255,.08) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(99,102,241,.15) 1px,transparent 1px);background-size:30px 30px;opacity:.5;pointer-events:none;z-index:0;"></div>
+    <!-- ============================================================
+         1. HERO SECTION (2-COLUMN: TEXT LEFT | AI CORE RIGHT)
+    ============================================================ -->
+    <section id="hero" style="position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;padding:3.5rem 0 3rem;">
+        <!-- Background Ambient Lighting -->
+        <div style="position:absolute;top:-15%;left:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(129,140,248,.12) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;bottom:-10%;right:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(56,189,248,.09) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(129,140,248,.12) 1px,transparent 1px);background-size:32px 32px;opacity:.45;pointer-events:none;z-index:0;"></div>
+
         <div class="container" style="position:relative;z-index:1;width:100%;">
-            <div style="text-align:center;max-width:900px;margin:0 auto;">
-                <div style="margin-bottom:1.5rem;" class="reveal">
-                    <span class="badge badge-cyan"><i class="fa-solid fa-microchip"></i> IA para Desarrolladores &bull; Cohorte 2026</span>
-                </div>
-                <h1 class="hero-title reveal reveal-delay-1" style="margin-bottom:.75rem;">Documenta tus repositorios</h1>
-                <p class="hero-subtitle reveal reveal-delay-2" style="margin-bottom:1rem;">con Inteligencia Artificial</p>
-                <p style="font-size:clamp(.9rem,1.6vw,1.1rem);color:#94a3b8;max-width:600px;margin:0 auto 2rem;line-height:1.7;" class="reveal reveal-delay-2">
-                    Conecta tu repositorio &rarr; la IA entiende tu codigo &rarr; genera documentacion viva &rarr; explora tu proyecto. En cada <code style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);padding:.1rem .4rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.8em;color:#a5b4fc;">git push</code>.
-                </p>
-                <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1rem;margin-bottom:2.5rem;" class="reveal reveal-delay-3">
-                    <a href="#registro" class="btn-cyber" style="padding:.85rem 2rem;font-size:.95rem;"><i class="fa-solid fa-bolt-lightning" style="margin-right:.5rem;"></i>Unirse a la Beta Privada</a>
-                    <a href="#demo" class="btn-cyber-outline" style="padding:.85rem 2rem;font-size:.95rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;color:var(--cyan-primary);font-size:.75rem;"></i>Probar Simulador en Vivo</a>
-                </div>
-                <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.65rem;margin-bottom:3rem;" class="reveal reveal-delay-3">
-                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:.5rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);font-size:.75rem;color:#34d399;font-weight:600;"><i class="fa-solid fa-check" style="font-size:.65rem;"></i>0 mantenimiento manual</span>
-                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:.5rem;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:.75rem;color:var(--cyan-primary);font-weight:600;"><i class="fa-solid fa-check" style="font-size:.65rem;"></i>Sincroniza con cada commit</span>
-                    <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:.5rem;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);font-size:.75rem;color:#c4b5fd;font-weight:600;"><i class="fa-solid fa-check" style="font-size:.65rem;"></i>Arquitectura AST + LLM</span>
+            <!-- 2-COLUMN HERO GRID -->
+            <div class="hero-grid">
+                
+                <!-- LEFT COLUMN: Value Proposition & CTAs (45-55%) -->
+                <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">
+                    
+                    <div style="margin-bottom:1.25rem;" class="reveal">
+                        <span class="badge badge-cyan">
+                            <i class="fa-solid fa-microchip"></i>
+                            IA para Desarrolladores &bull; Cohorte 2026
+                        </span>
+                    </div>
+
+                    <h1 class="hero-title reveal reveal-delay-1" style="margin-bottom:.5rem;">
+                        Documenta tus repositorios
+                    </h1>
+
+                    <p class="hero-subtitle reveal reveal-delay-2" style="margin-bottom:1.25rem;">
+                        con Inteligencia Artificial
+                    </p>
+
+                    <p style="font-size:clamp(.92rem,1.4vw,1.08rem);color:#94A3B8;line-height:1.75;max-width:540px;margin-bottom:2rem;" class="reveal reveal-delay-2">
+                        Conecta tu repositorio &rarr; la IA entiende tu c&oacute;digo &rarr; genera documentaci&oacute;n viva &rarr; explora y comprende tu proyecto. En cada <code style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);padding:.15rem .45rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#818CF8;">git push</code>.
+                    </p>
+
+                    <!-- CTAs -->
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
+                        <a href="#registro" class="btn-cyber" style="padding:.85rem 1.85rem;font-size:.92rem;">
+                            <i class="fa-solid fa-bolt-lightning" style="margin-right:.5rem;"></i>
+                            Unirse a la Beta Privada
+                        </a>
+                        <a href="#demo" class="btn-cyber-outline" style="padding:.85rem 1.85rem;font-size:.92rem;">
+                            <i class="fa-solid fa-play" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
+                            Probar Simulador en Vivo
+                        </a>
+                    </div>
+
+                    <!-- Benefit Chips -->
+                    <div style="display:flex;flex-wrap:wrap;gap:.65rem;" class="reveal reveal-delay-4">
+                        <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:.55rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);font-size:.76rem;color:#34D399;font-weight:600;">
+                            <i class="fa-solid fa-check" style="font-size:.65rem;"></i>0 mantenimiento manual
+                        </span>
+                        <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:.55rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);font-size:.76rem;color:var(--tech-cyan);font-weight:600;">
+                            <i class="fa-solid fa-check" style="font-size:.65rem;"></i>Sincroniza con cada commit
+                        </span>
+                        <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:.55rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);font-size:.76rem;color:#818CF8;font-weight:600;">
+                            <i class="fa-solid fa-check" style="font-size:.65rem;"></i>Arquitectura AST + LLM
+                        </span>
+                    </div>
                 </div>
 
-                <!-- 3-Panel Hero Visual -->
-                <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;max-width:860px;margin:0 auto;" class="reveal reveal-delay-4" id="hero-visual">
-                    <div class="hero-panel" style="text-align:left;">
-                        <div class="hero-panel-header"><i class="fa-brands fa-github"></i> Repositorio GitHub</div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#64748b;line-height:1.8;">
-                            <div style="color:#94a3b8;margin-bottom:.35rem;"><span style="color:#6366f1;">src/</span></div>
-                            <div style="padding-left:.75rem;"><span style="color:#00d4ff;">&#9670;</span> auth.service.ts</div>
-                            <div style="padding-left:.75rem;"><span style="color:#8b5cf6;">&#9670;</span> user.controller.ts</div>
-                            <div style="padding-left:.75rem;"><span style="color:#10b981;">&#9670;</span> api.routes.ts</div>
-                            <div style="padding-left:.75rem;"><span style="color:#f59e0b;">&#9670;</span> database.ts</div>
+                <!-- RIGHT COLUMN: AI CORE 3D VISUAL (45-55%) -->
+                <div style="display:flex;align-items:center;justify-content:center;" class="reveal reveal-delay-2">
+                    <div id="ai-core-wrapper">
+                        <!-- 3D Futuristic AI CORE Canvas -->
+                        <canvas id="ai-core-canvas" width="560" height="560"></canvas>
+                        
+                        <!-- Interactive Node Hover Tooltip -->
+                        <div id="ai-tooltip">
+                            <span id="ai-tooltip-tag" style="font-family:'JetBrains Mono',monospace;margin-right:.4rem;">AST</span>
+                            <span id="ai-tooltip-desc" style="color:#E2E8F0;">Abstract Syntax Tree</span>
                         </div>
-                        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid rgba(99,102,241,.15);font-family:'JetBrains Mono',monospace;font-size:.68rem;"><span style="color:#34d399;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> git push origin main</span></div>
-                    </div>
-                    <div style="display:flex;flex-direction:column;align-items:center;gap:.6rem;">
-                        <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
-                            <canvas id="ai-core-canvas" width="140" height="140" style="border-radius:50%;"></canvas>
-                            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
-                                <span style="font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:800;color:var(--cyan-primary);letter-spacing:.1em;">AI CORE</span>
-                            </div>
-                        </div>
-                        <div style="font-size:.6rem;color:#475569;">&#9001; AST+LLM &#9002;</div>
-                    </div>
-                    <div class="hero-panel" style="text-align:left;">
-                        <div class="hero-panel-header"><i class="fa-solid fa-book-open"></i> Documentacion Viva</div>
-                        <div style="font-size:.72rem;line-height:1.75;font-family:'JetBrains Mono',monospace;">
-                            <div style="color:#34d399;margin-bottom:.35rem;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> OpenAPI 3.1 generado</div>
-                            <div style="color:#34d399;margin-bottom:.35rem;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> Diagrama C4 actualizado</div>
-                            <div style="color:#34d399;margin-bottom:.35rem;"><i class="fa-solid fa-circle-check" style="font-size:.6rem;"></i> Wiki sincronizado</div>
-                            <div style="color:#a5b4fc;font-size:.65rem;"><i class="fa-solid fa-rotate" style="font-size:.6rem;"></i> 0 drift detectado</div>
-                        </div>
-                        <div style="margin-top:.85rem;padding-top:.75rem;border-top:1px solid rgba(99,102,241,.15);font-size:.68rem;"><span style="color:var(--cyan-primary);">Sync: 1.4s &bull; 100% actualizado</span></div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Trust Metrics Strip -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:800px;margin:3rem auto 0;border-top:1px solid rgba(99,102,241,.15);padding-top:2.5rem;" class="reveal reveal-delay-5" id="metrics-strip">
-                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--cyan-primary);line-height:1;" class="neon-glow-cyan">20%</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Tiempo recuperado<br>por dev/mes</div></div>
-                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34d399;line-height:1;" class="neon-glow-emerald">86%</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Dolor validado<br>en Tech Leads</div></div>
-                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#a5b4fc;line-height:1;">83%</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Interes de pago<br>SaaS B2B</div></div>
-                <div style="text-align:center;"><div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#fb923c;line-height:1;">0 min</div><div style="font-size:.72rem;color:#64748b;margin-top:.35rem;line-height:1.4;">Manten. manual<br>requerido</div></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;max-width:920px;margin:3.5rem auto 0;border-top:1px solid rgba(129,140,248,.15);padding-top:2.5rem;" class="reveal reveal-delay-5" id="metrics-strip">
+                <div style="text-align:center;">
+                    <div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);line-height:1;" class="neon-glow-cyan">20%</div>
+                    <div style="font-size:.72rem;color:#64748B;margin-top:.45rem;line-height:1.4;">Tiempo recuperado<br>por dev/mes</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34D399;line-height:1;" class="neon-glow-emerald">86%</div>
+                    <div style="font-size:.72rem;color:#64748B;margin-top:.45rem;line-height:1.4;">Dolor validado<br>en Tech Leads</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#818CF8;line-height:1;">83%</div>
+                    <div style="font-size:.72rem;color:#64748B;margin-top:.45rem;line-height:1.4;">Interes de pago<br>SaaS B2B</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#F59E0B;line-height:1;">0 min</div>
+                    <div style="font-size:.72rem;color:#64748B;margin-top:.45rem;line-height:1.4;">Manten. manual<br>requerido</div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== PROBLEMA ====== -->
+    <!-- ============================================================
+         2. PROBLEMA SECTION
+    ============================================================ -->
     <section id="problema" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-rose" style="margin-bottom:1rem;"><i class="fa-solid fa-triangle-exclamation"></i> El Problema Reto HIT</span>
                 <h2 class="section-title">El costo invisible de la documentacion desactualizada</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Los equipos de ingenieria pierden miles de dolares y semanas enteras cuando los repositorios carecen de documentacion viva.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Los equipos de ingenieria pierden miles de dolares y semanas enteras cuando los repositorios carecen de documentacion viva.</p>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;" class="reveal reveal-delay-1">
                 <div class="glow-card glow-card-rose" style="padding:2rem;display:flex;flex-direction:column;gap:1.25rem;">
                     <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--rose-accent);"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">20% de Jornada Improductiva</h3><p style="font-size:.83rem;color:#64748b;line-height:1.65;">Los desarrolladores invierten hasta 1 de cada 5 dias descifrando codigo ajeno y deduciendo arquitecturas no documentadas.</p></div>
+                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">20% de Jornada Improductiva</h3><p style="font-size:.83rem;color:#64748B;line-height:1.65;">Los desarrolladores invierten hasta 1 de cada 5 dias descifrando codigo ajeno y deduciendo arquitecturas no documentadas.</p></div>
                     <div style="padding-top:.85rem;border-top:1px solid rgba(244,63,94,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--rose-accent);"><span>~32 hrs/mes por dev</span><i class="fa-solid fa-arrow-trend-up"></i></div>
                 </div>
                 <div class="glow-card glow-card-amber" style="padding:2rem;display:flex;flex-direction:column;gap:1.25rem;">
                     <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--amber-accent);"><i class="fa-solid fa-user-xmark"></i></div>
-                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Onboarding Lento y Friccion</h3><p style="font-size:.83rem;color:#64748b;line-height:1.65;">Incorporar nuevos ingenieros a proyectos legados toma semanas debido a la ausencia de diagramas arquitectonicos actualizados.</p></div>
+                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Onboarding Lento y Friccion</h3><p style="font-size:.83rem;color:#64748B;line-height:1.65;">Incorporar nuevos ingenieros a proyectos legados toma semanas debido a la ausencia de diagramas arquitectonicos actualizados.</p></div>
                     <div style="padding-top:.85rem;border-top:1px solid rgba(245,158,11,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--amber-accent);"><span>4x tiempo primer PR util</span><i class="fa-solid fa-triangle-exclamation"></i></div>
                 </div>
                 <div class="glow-card glow-card-indigo" style="padding:2rem;display:flex;flex-direction:column;gap:1.25rem;">
-                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:#a5b4fc;"><i class="fa-solid fa-file-circle-exclamation"></i></div>
-                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Drift &amp; Deuda Tecnica</h3><p style="font-size:.83rem;color:#64748b;line-height:1.65;">La documentacion existente no coincide con la version en produccion, generando friccion, fallos de seguridad y penalizaciones.</p></div>
-                    <div style="padding-top:.85rem;border-top:1px solid rgba(99,102,241,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#a5b4fc;"><span>&gt;78% desajuste docs</span><i class="fa-solid fa-shield-halved"></i></div>
+                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:#818CF8;"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+                    <div><h3 style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Drift &amp; Deuda Tecnica</h3><p style="font-size:.83rem;color:#64748B;line-height:1.65;">La documentacion existente no coincide con la version en produccion, generando friccion, fallos de seguridad y penalizaciones.</p></div>
+                    <div style="padding-top:.85rem;border-top:1px solid rgba(129,140,248,.12);display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#818CF8;"><span>&gt;78% desajuste docs</span><i class="fa-solid fa-shield-halved"></i></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== COMO FUNCIONA 5 STEPS ====== -->
+    <!-- ============================================================
+         3. COMO FUNCIONA (5 STEPS)
+    ============================================================ -->
     <section id="como-funciona" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Flujo SaaS Automatizado</span>
                 <h2 class="section-title">Como Funciona Document-Mind AI</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">De repositorio a documentacion viva en 5 pasos completamente automaticos integrados en tu flujo Git.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">De repositorio a documentacion viva en 5 pasos completamente automaticos integrados en tu flujo Git.</p>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
                 <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">01</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--cyan-primary);"><i class="fa-brands fa-github"></i></div></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">01</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tech-cyan);"><i class="fa-brands fa-github"></i></div></div>
                     <h3 style="font-size:1rem;font-weight:700;color:#fff;">Conecta</h3>
-                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">Instala el webhook de GitHub Action con una sola linea de configuracion.</p>
-                    <code style="font-size:.7rem;color:var(--cyan-primary);font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(99,102,241,.12);padding-top:.75rem;margin-top:auto;">$ documind init</code>
+                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">Instala el webhook de GitHub Action con una sola linea de configuracion.</p>
+                    <code style="font-size:.7rem;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(129,140,248,.12);padding-top:.75rem;margin-top:auto;">$ documind init</code>
                 </div>
                 <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">02</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#a5b4fc;"><i class="fa-solid fa-code-branch"></i></div></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">02</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;"><i class="fa-solid fa-code-branch"></i></div></div>
                     <h3 style="font-size:1rem;font-weight:700;color:#fff;">Analiza</h3>
-                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">El motor AST inspecciona tipos, llamadas y dependencias de forma estatica sin compilar.</p>
-                    <code style="font-size:.7rem;color:#a5b4fc;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(99,102,241,.12);padding-top:.75rem;margin-top:auto;">ast_parser.parse()</code>
+                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">El motor AST inspecciona tipos, llamadas y dependencias de forma estatica sin compilar.</p>
+                    <code style="font-size:.7rem;color:#818CF8;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(129,140,248,.12);padding-top:.75rem;margin-top:auto;">ast_parser.parse()</code>
                 </div>
                 <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">03</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#c4b5fd;"><i class="fa-solid fa-brain"></i></div></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">03</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;"><i class="fa-solid fa-brain"></i></div></div>
                     <h3 style="font-size:1rem;font-weight:700;color:#fff;">Comprende</h3>
-                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">El LLM sintetiza la topologia del sistema, extrae endpoints REST y contratos DTO.</p>
-                    <code style="font-size:.7rem;color:#c4b5fd;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(99,102,241,.12);padding-top:.75rem;margin-top:auto;">llm.generate_c4()</code>
+                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">El LLM sintetiza la topologia del sistema, extrae endpoints REST y contratos DTO.</p>
+                    <code style="font-size:.7rem;color:#818CF8;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(129,140,248,.12);padding-top:.75rem;margin-top:auto;">llm.generate_c4()</code>
                 </div>
                 <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">04</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34d399;"><i class="fa-solid fa-book"></i></div></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">04</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34D399;"><i class="fa-solid fa-book"></i></div></div>
                     <h3 style="font-size:1rem;font-weight:700;color:#fff;">Documenta</h3>
-                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">Wiki, Swagger OpenAPI y comentarios en Pull Requests sincronizados sin intervencion manual.</p>
-                    <code style="font-size:.7rem;color:#34d399;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(16,185,129,.12);padding-top:.75rem;margin-top:auto;">sync: 100% up to date</code>
+                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">Wiki, Swagger OpenAPI y comentarios en Pull Requests sincronizados sin intervencion manual.</p>
+                    <code style="font-size:.7rem;color:#34D399;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(52,211,153,.12);padding-top:.75rem;margin-top:auto;">sync: 100% up to date</code>
                 </div>
                 <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">05</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(251,146,60,.1);border:1px solid rgba(251,146,60,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fb923c;"><i class="fa-solid fa-magnifying-glass-chart"></i></div></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">05</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#F59E0B;"><i class="fa-solid fa-magnifying-glass-chart"></i></div></div>
                     <h3 style="font-size:1rem;font-weight:700;color:#fff;">Explora</h3>
-                    <p style="font-size:.8rem;color:#64748b;line-height:1.6;">Navega el mapa interactivo de tu arquitectura y haz preguntas en lenguaje natural con RAG.</p>
-                    <code style="font-size:.7rem;color:#fb923c;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(251,146,60,.12);padding-top:.75rem;margin-top:auto;">docs.explore()</code>
+                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">Navega el mapa interactivo de tu arquitectura y haz preguntas en lenguaje natural con RAG.</p>
+                    <code style="font-size:.7rem;color:#F59E0B;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(245,158,11,.12);padding-top:.75rem;margin-top:auto;">docs.explore()</code>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== SOLUCION ====== -->
+    <!-- ============================================================
+         4. SOLUCION (FEATURE PILLARS + CI/CD TERMINAL)
+    ============================================================ -->
     <section id="solucion" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-purple" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> La Solucion de Ingenieria</span>
                 <h2 class="section-title">Arquitectura Viva impulsada por AST + LLM</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Un motor de comprension semantica profunda que convierte codigo fuente en documentacion viva en tiempo real.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Un motor de comprension semantica profunda que convierte codigo fuente en documentacion viva en tiempo real.</p>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;" class="reveal reveal-delay-1" id="solucion-grid">
                 <div style="display:flex;flex-direction:column;gap:1rem;">
                     <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--cyan-primary);flex-shrink:0;"><i class="fa-solid fa-diagram-project"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Parseo AST &amp; Grafo de Dependencias</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Inspeccion sintatica precisa (TypeScript, Python, Go, Java, Rust) sin compilar ni exponer secretos.</p></div>
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tech-cyan);flex-shrink:0;"><i class="fa-solid fa-diagram-project"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Parseo AST &amp; Grafo de Dependencias</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Inspeccion sintatica precisa (TypeScript, Python, Go, Java, Rust) sin compilar ni exponer secretos.</p></div>
                     </div>
                     <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#a5b4fc;flex-shrink:0;"><i class="fa-solid fa-code-commit"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Integracion Nativa GitHub Actions &amp; CLI</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Bot en tu pipeline CI/CD. Genera resumenes en PRs y actualiza el portal wiki automaticamente.</p></div>
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;flex-shrink:0;"><i class="fa-solid fa-code-commit"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Integracion Nativa GitHub Actions &amp; CLI</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Bot en tu pipeline CI/CD. Genera resumenes en PRs y actualiza el portal wiki automaticamente.</p></div>
                     </div>
                     <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#c4b5fd;flex-shrink:0;"><i class="fa-solid fa-draw-polygon"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Diagramas C4 y Mermaid Autogenerados</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Diagramas interactivos de componentes, flujo de datos y dependencias con sincronizacion bidireccional.</p></div>
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;flex-shrink:0;"><i class="fa-solid fa-draw-polygon"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Diagramas C4 y Mermaid Autogenerados</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Diagramas interactivos de componentes, flujo de datos y dependencias con sincronizacion bidireccional.</p></div>
                     </div>
                     <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34d399;flex-shrink:0;"><i class="fa-solid fa-comments"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">AI Assistant con Contexto de Codigo (RAG)</h4><p style="font-size:.78rem;color:#64748b;line-height:1.55;">Preguntale al repositorio en lenguaje natural sobre JWT, microservicios, dependencias, etc.</p></div>
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34D399;flex-shrink:0;"><i class="fa-solid fa-comments"></i></div>
+                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">AI Assistant con Contexto de Codigo (RAG)</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Preguntale al repositorio en lenguaje natural sobre JWT, microservicios, dependencias, etc.</p></div>
                     </div>
                 </div>
                 <div class="cyber-terminal" style="overflow:hidden;">
-                    <div style="background:rgba(14,16,52,.9);padding:.85rem 1.25rem;border-bottom:1px solid rgba(99,102,241,.15);display:flex;align-items:center;justify-content:space-between;">
+                    <div style="background:rgba(15,23,42,.9);padding:.85rem 1.25rem;border-bottom:1px solid rgba(129,140,248,.18);display:flex;align-items:center;justify-content:space-between;">
                         <div style="display:flex;align-items:center;gap:.5rem;">
-                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#f43f5e;display:inline-block;"></span>
-                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
-                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#10b981;display:inline-block;"></span>
-                            <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#475569;margin-left:.5rem;">.github/workflows/documind-sync.yml</span>
+                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F43F5E;display:inline-block;"></span>
+                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F59E0B;display:inline-block;"></span>
+                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#34D399;display:inline-block;"></span>
+                            <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;margin-left:.5rem;">.github/workflows/documind-sync.yml</span>
                         </div>
-                        <span style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--cyan-primary);background:rgba(0,212,255,.08);padding:.2rem .6rem;border-radius:.35rem;border:1px solid rgba(0,212,255,.2);">CI/CD Automated</span>
+                        <span style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);background:rgba(56,189,248,.08);padding:.2rem .6rem;border-radius:.35rem;border:1px solid rgba(56,189,248,.2);">CI/CD Automated</span>
                     </div>
-                    <div style="padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#94a3b8;line-height:1.9;overflow-x:auto;">
+                    <div style="padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#94A3B8;line-height:1.9;overflow-x:auto;">
                         <p style="color:#475569;"># GitHub Action Workflow</p>
-                        <p><span style="color:#c4b5fd;">name:</span> <span style="color:#86efac;">DocuMind AI Continuous Sync</span></p>
-                        <p><span style="color:#c4b5fd;">on:</span> <span style="color:#7dd3fc;">[push, pull_request]</span></p>
-                        <p><span style="color:#c4b5fd;">jobs:</span></p>
-                        <p style="padding-left:1rem;"><span style="color:#c4b5fd;">analyze-architecture:</span></p>
-                        <p style="padding-left:2rem;"><span style="color:#c4b5fd;">runs-on:</span> ubuntu-latest</p>
-                        <p style="padding-left:2rem;"><span style="color:#c4b5fd;">steps:</span></p>
+                        <p><span style="color:#818CF8;">name:</span> <span style="color:#86efac;">DocuMind AI Continuous Sync</span></p>
+                        <p><span style="color:#818CF8;">on:</span> <span style="color:#7dd3fc;">[push, pull_request]</span></p>
+                        <p><span style="color:#818CF8;">jobs:</span></p>
+                        <p style="padding-left:1rem;"><span style="color:#818CF8;">analyze-architecture:</span></p>
+                        <p style="padding-left:2rem;"><span style="color:#818CF8;">runs-on:</span> ubuntu-latest</p>
+                        <p style="padding-left:2rem;"><span style="color:#818CF8;">steps:</span></p>
                         <p style="padding-left:3rem;color:#64748b;">- uses: actions/checkout@v4</p>
-                        <p style="padding-left:3rem;color:var(--cyan-primary);">- uses: documind-ai/action@v1.2</p>
-                        <p style="padding-left:4rem;"><span style="color:#c4b5fd;">with:</span></p>
-                        <p style="padding-left:5rem;">generate_c4_diagrams: <span style="color:#34d399;">true</span></p>
-                        <p style="padding-left:5rem;">detect_drift: <span style="color:#34d399;">true</span></p>
-                        <p style="padding-left:5rem;">export_wiki_format: <span style="color:#fbbf24;">"markdown+openapi"</span></p>
-                        <div style="margin-top:1rem;padding:.85rem 1rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:.5rem;color:#34d399;display:flex;align-items:center;gap:.6rem;font-size:.72rem;">
-                            <i class="fa-solid fa-circle-check" style="color:#10b981;"></i>Documentacion y OpenAPI sincronizados en 1.8s (0 drift).
+                        <p style="padding-left:3rem;color:var(--tech-cyan);">- uses: documind-ai/action@v1.2</p>
+                        <p style="padding-left:4rem;"><span style="color:#818CF8;">with:</span></p>
+                        <p style="padding-left:5rem;">generate_c4_diagrams: <span style="color:#34D399;">true</span></p>
+                        <p style="padding-left:5rem;">detect_drift: <span style="color:#34D399;">true</span></p>
+                        <p style="padding-left:5rem;">export_wiki_format: <span style="color:#F59E0B;">"markdown+openapi"</span></p>
+                        <div style="margin-top:1rem;padding:.85rem 1rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.5rem;color:#34D399;display:flex;align-items:center;gap:.6rem;font-size:.72rem;">
+                            <i class="fa-solid fa-circle-check" style="color:#34D399;"></i>Documentacion y OpenAPI sincronizados en 1.8s (0 drift).
                         </div>
                     </div>
                 </div>
@@ -281,25 +303,27 @@
         </div>
     </section>
 
-    <!-- ====== DEMO / SIMULATOR ====== -->
+    <!-- ============================================================
+         5. DEMO / SIMULATOR SECTION
+    ============================================================ -->
     <section id="demo" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-terminal"></i> Prototipo en Accion</span>
                 <h2 class="section-title">Simulador de Analisis de Repositorio</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Selecciona un stack o ingresa tu repositorio para experimentar la generacion instantanea de arquitectura tecnica.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Selecciona un stack o ingresa tu repositorio para experimentar la generacion instantanea de arquitectura tecnica.</p>
             </div>
             <div class="glow-card reveal reveal-delay-1" style="padding:2rem 2.25rem;max-width:1000px;margin:0 auto;">
                 <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;margin-bottom:1.25rem;" id="sim-inputs">
                     <div>
-                        <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-brands fa-github" style="color:var(--cyan-primary);margin-right:.4rem;"></i>Repositorio de prueba</label>
+                        <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Repositorio de prueba</label>
                         <div class="input-group-cyber">
                             <div class="input-addon-cyber"><i class="fa-brands fa-github" style="font-size:1.1rem;"></i></div>
                             <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="input-cyber" autocomplete="off">
                         </div>
                     </div>
                     <div>
-                        <label for="lang-select" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-solid fa-code" style="color:var(--cyan-primary);margin-right:.4rem;"></i>Lenguaje</label>
+                        <label for="lang-select" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-solid fa-code" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Lenguaje</label>
                         <select id="lang-select" class="input-field" style="height:3.25rem;">
                             <option value="ts">TypeScript / Node.js</option>
                             <option value="py">Python / FastAPI</option>
@@ -308,35 +332,35 @@
                         </select>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(99,102,241,.12);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,.12);">
                     <button id="btn-run-analysis" class="btn-cyber" style="padding:.75rem 1.75rem;font-size:.875rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Ejecutar Analisis AST &amp; Generar Docs</button>
-                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#475569;"><span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#10b981;" class="animate-pulse"></span>Motor: AST-Engine v2.4 + Gemini Pro RAG</div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;"><span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#34D399;" class="animate-pulse"></span>Motor: AST-Engine v2.4 + Gemini Pro RAG</div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.25rem;" id="sim-output">
                     <div class="cyber-terminal" id="terminal-log" style="padding:1rem;font-size:.75rem;min-height:16rem;max-height:22rem;overflow-y:auto;line-height:1.8;">
                         <p style="color:#475569;">$ documind analyze --repo github.com/organization/microservices-backend</p>
-                        <p style="color:var(--cyan-primary);">[1/4] Clonando metadata y construyendo AST...</p>
-                        <p style="color:#64748b;">&#10003; 142 archivos parseados (TypeScript AST Tree)</p>
-                        <p style="color:var(--cyan-primary);">[2/4] Mapeando grafo de llamadas y dependencias...</p>
-                        <p style="color:#64748b;">&#10003; 28 endpoints REST y 14 esquemas DTO detectados</p>
-                        <p style="color:var(--cyan-primary);">[3/4] Generando especificacion OpenAPI &amp; Diagramas C4...</p>
-                        <p style="color:#64748b;">&#10003; Diagrama de flujo de autenticacion JWT renderizado</p>
-                        <p style="color:#34d399;font-weight:600;">[4/4] Sincronizacion completa. Documentacion generada en 1.4s.</p>
+                        <p style="color:var(--tech-cyan);">[1/4] Clonando metadata y construyendo AST...</p>
+                        <p style="color:#64748B;">&#10003; 142 archivos parseados (TypeScript AST Tree)</p>
+                        <p style="color:var(--tech-cyan);">[2/4] Mapeando grafo de llamadas y dependencias...</p>
+                        <p style="color:#64748B;">&#10003; 28 endpoints REST y 14 esquemas DTO detectados</p>
+                        <p style="color:var(--tech-cyan);">[3/4] Generando especificacion OpenAPI &amp; Diagramas C4...</p>
+                        <p style="color:#64748B;">&#10003; Diagrama de flujo de autenticacion JWT renderizado</p>
+                        <p style="color:#34D399;font-weight:600;">[4/4] Sincronizacion completa. Documentacion generada en 1.4s.</p>
                     </div>
-                    <div id="doc-preview" style="background:rgba(4,5,26,.9);border:1px solid rgba(99,102,241,.15);border-radius:.85rem;padding:1.25rem;font-size:.78rem;min-height:16rem;max-height:22rem;overflow-y:auto;display:flex;flex-direction:column;gap:.85rem;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(99,102,241,.12);padding-bottom:.75rem;">
-                            <h4 style="font-weight:700;color:#fff;font-size:.85rem;display:flex;align-items:center;gap:.4rem;"><i class="fa-solid fa-book-open" style="color:var(--cyan-primary);"></i>Arquitectura: Auth &amp; User Service</h4>
-                            <span style="background:rgba(16,185,129,.1);color:#34d399;padding:.2rem .6rem;border-radius:9999px;font-size:.68rem;font-weight:700;border:1px solid rgba(16,185,129,.2);">Sincronizado</span>
+                    <div id="doc-preview" style="background:rgba(9,13,22,.9);border:1px solid rgba(129,140,248,.18);border-radius:.85rem;padding:1.25rem;font-size:.78rem;min-height:16rem;max-height:22rem;overflow-y:auto;display:flex;flex-direction:column;gap:.85rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.12);padding-bottom:.75rem;">
+                            <h4 style="font-weight:700;color:#fff;font-size:.85rem;display:flex;align-items:center;gap:.4rem;"><i class="fa-solid fa-book-open" style="color:var(--tech-cyan);"></i>Arquitectura: Auth &amp; User Service</h4>
+                            <span style="background:rgba(52,211,153,.1);color:#34D399;padding:.2rem .6rem;border-radius:9999px;font-size:.68rem;font-weight:700;border:1px solid rgba(52,211,153,.25);">Sincronizado</span>
                         </div>
-                        <p style="color:#94a3b8;line-height:1.65;">Este modulo expone la API de autenticacion distribuida bajo arquitectura hexagonal. Las llamadas validan tokens firmados RSA-256 contra <code style="color:var(--cyan-light);font-family:'JetBrains Mono',monospace;">UserSecurityContext</code>.</p>
-                        <div style="background:rgba(14,16,52,.9);border:1px solid rgba(99,102,241,.12);border-radius:.5rem;padding:.85rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;line-height:1.8;">
-                            <p style="color:#c4b5fd;font-weight:700;">Endpoints detectados:</p>
-                            <p><span style="color:#34d399;font-weight:700;">POST</span> /api/v1/auth/login <span style="color:#475569;">-&gt; AuthHandler.ts:L42</span></p>
-                            <p><span style="color:#34d399;font-weight:700;">POST</span> /api/v1/auth/refresh <span style="color:#475569;">-&gt; TokenService.ts:L89</span></p>
-                            <p><span style="color:#7dd3fc;font-weight:700;">GET</span>&nbsp;&nbsp;/api/v1/user/profile <span style="color:#475569;">-&gt; Bearer Auth Protected</span></p>
+                        <p style="color:#94A3B8;line-height:1.65;">Este modulo expone la API de autenticacion distribuida bajo arquitectura hexagonal. Las llamadas validan tokens firmados RSA-256 contra <code style="color:var(--cyan-light);font-family:'JetBrains Mono',monospace;">UserSecurityContext</code>.</p>
+                        <div style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.15);border-radius:.5rem;padding:.85rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;line-height:1.8;">
+                            <p style="color:#818CF8;font-weight:700;">Endpoints detectados:</p>
+                            <p><span style="color:#34D399;font-weight:700;">POST</span> /api/v1/auth/login <span style="color:#475569;">-&gt; AuthHandler.ts:L42</span></p>
+                            <p><span style="color:#34D399;font-weight:700;">POST</span> /api/v1/auth/refresh <span style="color:#475569;">-&gt; TokenService.ts:L89</span></p>
+                            <p><span style="color:#38BDF8;font-weight:700;">GET</span>&nbsp;&nbsp;/api/v1/user/profile <span style="color:#475569;">-&gt; Bearer Auth Protected</span></p>
                         </div>
-                        <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:.5rem;padding:.75rem;color:#94a3b8;font-size:.75rem;">
-                            <span style="font-weight:700;color:var(--cyan-primary);">Guia de Onboarding:</span> Ejecuta <code style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;">docker compose up db redis</code> y configura <code style="font-family:'JetBrains Mono',monospace;color:#e2e8f0;">JWT_SECRET</code>.
+                        <div style="background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.18);border-radius:.5rem;padding:.75rem;color:#94A3B8;font-size:.75rem;">
+                            <span style="font-weight:700;color:var(--tech-cyan);">Guia de Onboarding:</span> Ejecuta <code style="font-family:'JetBrains Mono',monospace;color:#E2E8F0;">docker compose up db redis</code> y configura <code style="font-family:'JetBrains Mono',monospace;color:#E2E8F0;">JWT_SECRET</code>.
                         </div>
                     </div>
                 </div>
@@ -344,100 +368,106 @@
         </div>
     </section>
 
-    <!-- ====== EQUIPO ====== -->
+    <!-- ============================================================
+         6. EQUIPO
+    ============================================================ -->
     <section id="equipo" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-users-gear"></i> Equipo Empresarial</span>
                 <h2 class="section-title">Quienes Somos</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Iniciativa de emprendimiento tecnologico de la <strong style="color:#94a3b8;">Universidad Libre - Facultad de Ingenieria</strong>.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Iniciativa de emprendimiento tecnologico de la <strong style="color:#94A3B8;">Universidad Libre - Facultad de Ingenieria</strong>.</p>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.75rem;max-width:900px;margin:0 auto;" class="reveal reveal-delay-1">
                 <div class="glow-card" style="padding:2rem;">
                     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
-                        <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#00d4ff,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">DP</div>
+                        <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">DP</div>
                         <div>
                             <h3 style="font-size:1rem;font-weight:700;color:#fff;">Daniel Santiago Palencia Sandoval</h3>
-                            <p style="font-size:.72rem;color:var(--cyan-primary);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;">Lider Tecnologico (CTO)</p>
-                            <p style="font-size:.7rem;color:#475569;margin-top:.2rem;"><i class="fa-solid fa-graduation-cap" style="margin-right:.3rem;"></i>Universidad Libre</p>
+                            <p style="font-size:.72rem;color:var(--tech-cyan);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;">Lider Tecnologico (CTO)</p>
+                            <p style="font-size:.7rem;color:#64748B;margin-top:.2rem;"><i class="fa-solid fa-graduation-cap" style="margin-right:.3rem;"></i>Universidad Libre</p>
                         </div>
                     </div>
-                    <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(99,102,241,.12);padding-top:1.25rem;list-style:none;">
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:var(--cyan-primary);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Arquitectura tecnica del MVP con parsers AST y modelos de IA generativa.</li>
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:var(--cyan-primary);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Integracion continua GitHub Action / CLI para analisis automatico de repositorios.</li>
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:var(--cyan-primary);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Pruebas tecnicas con repositorios reales y recoleccion de feedback de usabilidad.</li>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(129,140,248,.12);padding-top:1.25rem;list-style:none;">
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:var(--tech-cyan);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Arquitectura tecnica del MVP con parsers AST y modelos de IA generativa.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:var(--tech-cyan);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Integracion continua GitHub Action / CLI para analisis automatico de repositorios.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:var(--tech-cyan);margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Pruebas tecnicas con repositorios reales y recoleccion de feedback de usabilidad.</li>
                     </ul>
-                    <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(99,102,241,.12);">
-                        <a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Daniel Palencia"><i class="fa-brands fa-github"></i></a>
-                        <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="LinkedIn Daniel Palencia"><i class="fa-brands fa-linkedin"></i></a>
-                        <a href="mailto:daniels-palencias@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="Email Daniel Palencia"><i class="fa-solid fa-envelope"></i></a>
+                    <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.12);">
+                        <a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Daniel Palencia"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="LinkedIn Daniel Palencia"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="mailto:daniels-palencias@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="Email Daniel Palencia"><i class="fa-solid fa-envelope"></i></a>
                     </div>
                 </div>
                 <div class="glow-card" style="padding:2rem;">
                     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
-                        <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#8b5cf6,#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">NA</div>
+                        <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#818CF8,#38BDF8);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">NA</div>
                         <div>
                             <h3 style="font-size:1rem;font-weight:700;color:#fff;">Nelson Andres Ayala Alvarez</h3>
-                            <p style="font-size:.72rem;color:#c4b5fd;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;">Lider de Mercadeo &amp; Negocios (CMO/CBO)</p>
-                            <p style="font-size:.7rem;color:#475569;margin-top:.2rem;"><i class="fa-solid fa-graduation-cap" style="margin-right:.3rem;"></i>Universidad Libre</p>
+                            <p style="font-size:.72rem;color:#818CF8;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem;">Lider de Mercadeo &amp; Negocios (CMO/CBO)</p>
+                            <p style="font-size:.7rem;color:#64748B;margin-top:.2rem;"><i class="fa-solid fa-graduation-cap" style="margin-right:.3rem;"></i>Universidad Libre</p>
                         </div>
                     </div>
-                    <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(99,102,241,.12);padding-top:1.25rem;list-style:none;">
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:#c4b5fd;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Landing page interactiva con propuesta de valor y registro de early adopters.</li>
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:#c4b5fd;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Entrevistas de descubrimiento con CTOs, Tech Leads y analisis competitivo vs Swimm/Mintlify.</li>
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748b;"><i class="fa-solid fa-check" style="color:#c4b5fd;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Modelo de precios SaaS B2B, metricas de adquisicion y proyecciones comerciales.</li>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(129,140,248,.12);padding-top:1.25rem;list-style:none;">
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Landing page interactiva con propuesta de valor y registro de early adopters.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Entrevistas de descubrimiento con CTOs, Tech Leads y analisis competitivo vs Swimm/Mintlify.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Modelo de precios SaaS B2B, metricas de adquisicion y proyecciones comerciales.</li>
                     </ul>
-                    <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(99,102,241,.12);">
-                        <a href="https://github.com/nexker" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Nelson Ayala"><i class="fa-brands fa-github"></i></a>
-                        <a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="LinkedIn Nelson Ayala"><i class="fa-brands fa-linkedin"></i></a>
-                        <a href="mailto:nelsona-ayalaa@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.85rem;transition:all .2s;" aria-label="Email Nelson Ayala"><i class="fa-solid fa-envelope"></i></a>
+                    <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.12);">
+                        <a href="https://github.com/nexker" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Nelson Ayala"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="LinkedIn Nelson Ayala"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="mailto:nelsona-ayalaa@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="Email Nelson Ayala"><i class="fa-solid fa-envelope"></i></a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== METRICAS ====== -->
+    <!-- ============================================================
+         7. METRICAS
+    ============================================================ -->
     <section id="metricas" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-emerald" style="margin-bottom:1rem;"><i class="fa-solid fa-chart-line"></i> Traccion &amp; Datos</span>
                 <h2 class="section-title">Metricas de Validacion en Vivo</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Indicadores cuantificables que sustentan la alta demanda del proyecto.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Indicadores cuantificables que sustentan la alta demanda del proyecto.</p>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes Unicos</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--cyan-primary);line-height:1;" id="visitor-counter" class="neon-glow-cyan">1,250</div>
-                    <p style="font-size:.72rem;color:#34d399;margin-top:.6rem;"><i class="fa-solid fa-arrow-trend-up" style="margin-right:.25rem;"></i>+14.2% esta semana</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes Unicos</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);line-height:1;" id="visitor-counter" class="neon-glow-cyan">1,250</div>
+                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-arrow-trend-up" style="margin-right:.25rem;"></i>+14.2% esta semana</p>
                 </div>
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Early Adopters VIP</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#7dd3fc;line-height:1;" id="registered-counter">186</div>
-                    <p style="font-size:.72rem;color:#34d399;margin-top:.6rem;"><i class="fa-solid fa-users" style="margin-right:.25rem;"></i>Lista beta activa</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Early Adopters VIP</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#7DD3FC;line-height:1;" id="registered-counter">186</div>
+                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-users" style="margin-right:.25rem;"></i>Lista beta activa</p>
                 </div>
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Tasa Conversion (CTR)</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34d399;line-height:1;" class="neon-glow-emerald">14.7%</div>
-                    <p style="font-size:.72rem;color:#475569;margin-top:.6rem;">Promedio SaaS B2B: ~3.5%</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Tasa Conversion (CTR)</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34D399;line-height:1;" class="neon-glow-emerald">14.7%</div>
+                    <p style="font-size:.72rem;color:#64748B;margin-top:.6rem;">Promedio SaaS B2B: ~3.5%</p>
                 </div>
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Validacion de Dolor</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#a5b4fc;line-height:1;">86.0%</div>
-                    <p style="font-size:.72rem;color:#475569;margin-top:.6rem;">Muestra en Software Houses</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Validacion de Dolor</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#818CF8;line-height:1;">86.0%</div>
+                    <p style="font-size:.72rem;color:#64748B;margin-top:.6rem;">Muestra en Software Houses</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== INFOGRAFIA ====== -->
+    <!-- ============================================================
+         8. INFOGRAFIA
+    ============================================================ -->
     <section id="infografia" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div class="glow-card reveal" style="padding:2.5rem;display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:center;" id="infografia-inner">
                 <div>
                     <span class="badge badge-rose" style="margin-bottom:1rem;"><i class="fa-solid fa-file-pdf"></i> Entregable Academico &amp; Tecnico</span>
                     <h3 style="font-size:clamp(1.25rem,2.5vw,1.9rem);font-weight:800;color:#fff;margin-bottom:.85rem;line-height:1.25;">Infografia Oficial: Teoria del Color &amp; Fundamentos UX/UI</h3>
-                    <p style="font-size:.85rem;color:#64748b;line-height:1.7;max-width:520px;">Documento bajo los lineamientos de la <strong style="color:#94a3b8;">Universidad Libre</strong> y <strong style="color:#94a3b8;">HubSpot</strong>. Incluye sustentacion de paleta cromatica WCAG 2.1 AAA, heuristicas de Nielsen y jerarquia visual.</p>
+                    <p style="font-size:.85rem;color:#64748B;line-height:1.7;max-width:520px;">Documento bajo los lineamientos de la <strong style="color:#94A3B8;">Universidad Libre</strong> y <strong style="color:#94A3B8;">HubSpot</strong>. Incluye sustentacion de paleta cromatica WCAG 2.1 AAA, heuristicas de Nielsen y jerarquia visual.</p>
                     <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.5rem;">
                         <a href="infografia.html" target="_blank" class="btn-cyber" style="padding:.75rem 1.5rem;font-size:.85rem;"><i class="fa-solid fa-eye" style="margin-right:.5rem;"></i>Ver Infografia</a>
                         <a href="DocuMind_AI_Infografia_Color_UXUI.pdf" download class="btn-cyber-outline" style="padding:.75rem 1.5rem;font-size:.85rem;"><i class="fa-solid fa-download" style="margin-right:.5rem;color:var(--rose-accent);"></i>Descargar PDF</a>
@@ -445,83 +475,85 @@
                 </div>
                 <div style="text-align:center;flex-shrink:0;">
                     <a href="https://dsantiagopsandoval.github.io/Document-mind-ai/" target="_blank" rel="noopener" style="display:inline-flex;flex-direction:column;align-items:center;gap:.6rem;">
-                        <div style="background:#fff;padding:.75rem;border-radius:.75rem;box-shadow:0 0 24px rgba(0,212,255,.2);border:2px solid rgba(0,212,255,.3);">
+                        <div style="background:#fff;padding:.75rem;border-radius:.75rem;box-shadow:0 0 24px rgba(56,189,248,.2);border:2px solid rgba(56,189,248,.3);">
                             <img src="assets/qr-landing.png" alt="QR Code acceso landing" style="width:8.5rem;height:8.5rem;object-fit:contain;">
                         </div>
-                        <p style="font-size:.72rem;font-weight:700;color:#94a3b8;">Escanea o haz Clic</p>
-                        <p style="font-size:.68rem;color:var(--cyan-primary);font-family:'JetBrains Mono',monospace;">dsantiagopsandoval.github.io</p>
+                        <p style="font-size:.72rem;font-weight:700;color:#94A3B8;">Escanea o haz Clic</p>
+                        <p style="font-size:.68rem;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">dsantiagopsandoval.github.io</p>
                     </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ====== BETA PRIVADA / REGISTRO VIP ====== -->
+    <!-- ============================================================
+         9. BETA PRIVADA / REGISTRO VIP
+    ============================================================ -->
     <section id="registro" style="padding:6rem 0;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:50%;left:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(0,212,255,.08) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
-        <div style="position:absolute;top:50%;right:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(139,92,246,.08) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
+        <div style="position:absolute;top:50%;left:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(56,189,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
+        <div style="position:absolute;top:50%;right:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(129,140,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Programa Exclusivo Early Adopters 2026</span>
                 <h2 class="section-title">Se parte de la <span class="gradient-text">Beta Privada</span></h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Accede antes que nadie y obtiene beneficios exclusivos para tu equipo de ingenieria.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Accede antes que nadie y obtiene beneficios exclusivos para tu equipo de ingenieria.</p>
             </div>
             <div style="display:grid;grid-template-columns:5fr 7fr;gap:2rem;align-items:start;" class="reveal reveal-delay-1" id="registro-grid">
                 <div class="glow-card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(4,5,26,.8);border-radius:.75rem;border:1px solid rgba(244,63,94,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(9,13,22,.85);border-radius:.75rem;border:1px solid rgba(244,63,94,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
                         <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:var(--rose-accent);"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--rose-accent);" class="animate-ping"></span>Fase de Cupos Limitados</div>
                         <span style="font-size:.7rem;font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;background:rgba(244,63,94,.1);padding:.3rem .75rem;border-radius:.45rem;border:1px solid rgba(244,63,94,.25);" id="spots-left">&#128293; 14 cupos restantes</span>
                     </div>
                     <h3 style="font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:1.5rem;">Beneficios para Early Adopters</h3>
                     <div style="display:flex;flex-direction:column;gap:1.25rem;">
                         <div style="display:flex;align-items:flex-start;gap:.85rem;">
-                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--cyan-primary);flex-shrink:0;"><i class="fa-solid fa-key"></i></div>
-                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">6 Meses Enterprise Gratuito</h5><p style="font-size:.75rem;color:#64748b;line-height:1.55;">Acceso sin limites a analisis AST y sincronizacion sin costo.</p></div>
+                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--tech-cyan);flex-shrink:0;"><i class="fa-solid fa-key"></i></div>
+                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">6 Meses Enterprise Gratuito</h5><p style="font-size:.75rem;color:#64748B;line-height:1.55;">Acceso sin limites a analisis AST y sincronizacion sin costo.</p></div>
                         </div>
                         <div style="display:flex;align-items:flex-start;gap:.85rem;">
-                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#a5b4fc;flex-shrink:0;"><i class="fa-solid fa-user-gear"></i></div>
-                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Soporte Directo con Fundadores</h5><p style="font-size:.75rem;color:#64748b;line-height:1.55;">Sesiones de onboarding 1-on-1 con Daniel y Nelson.</p></div>
+                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#818CF8;flex-shrink:0;"><i class="fa-solid fa-user-gear"></i></div>
+                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Soporte Directo con Fundadores</h5><p style="font-size:.75rem;color:#64748B;line-height:1.55;">Sesiones de onboarding 1-on-1 con Daniel y Nelson.</p></div>
                         </div>
                         <div style="display:flex;align-items:flex-start;gap:.85rem;">
-                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#34d399;flex-shrink:0;"><i class="fa-solid fa-award"></i></div>
-                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Insignia de Early Backer en GitHub</h5><p style="font-size:.75rem;color:#64748b;line-height:1.55;">Reconocimiento oficial en la documentacion Universidad Libre.</p></div>
+                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#34D399;flex-shrink:0;"><i class="fa-solid fa-award"></i></div>
+                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Insignia de Early Backer en GitHub</h5><p style="font-size:.75rem;color:#64748B;line-height:1.55;">Reconocimiento oficial en la documentacion Universidad Libre.</p></div>
                         </div>
                     </div>
-                    <div style="margin-top:1.5rem;padding:1rem;background:rgba(4,5,26,.9);border-radius:.75rem;border:1px solid rgba(0,212,255,.12);font-family:'JetBrains Mono',monospace;">
-                        <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#475569;margin-bottom:.5rem;border-bottom:1px solid rgba(99,102,241,.1);padding-bottom:.5rem;"><span><i class="fa-solid fa-lock" style="color:var(--cyan-primary);margin-right:.3rem;"></i>TOKEN ASIGNADO:</span><span style="color:#34d399;font-weight:700;">TIER_VIP_READY</span></div>
-                        <p style="color:var(--cyan-primary);font-size:.7rem;word-break:break-all;">documind_live_9f8a2e1d7c4b0a8f</p>
+                    <div style="margin-top:1.5rem;padding:1rem;background:rgba(9,13,22,.95);border-radius:.75rem;border:1px solid rgba(56,189,248,.15);font-family:'JetBrains Mono',monospace;">
+                        <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#64748B;margin-bottom:.5rem;border-bottom:1px solid rgba(129,140,248,.1);padding-bottom:.5rem;"><span><i class="fa-solid fa-lock" style="color:var(--tech-cyan);margin-right:.3rem;"></i>TOKEN ASIGNADO:</span><span style="color:#34D399;font-weight:700;">TIER_VIP_READY</span></div>
+                        <p style="color:var(--tech-cyan);font-size:.7rem;word-break:break-all;">documind_live_9f8a2e1d7c4b0a8f</p>
                     </div>
                 </div>
                 <div class="glow-card" style="padding:2rem 2.25rem;">
-                    <div style="margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(99,102,241,.12);">
+                    <div style="margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,.12);">
                         <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">Solicita tu acceso anticipado</h3>
-                        <p style="font-size:.8rem;color:#64748b;margin-top:.4rem;">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
+                        <p style="font-size:.8rem;color:#64748B;margin-top:.4rem;">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
                     </div>
                     <form id="lead-form" style="display:flex;flex-direction:column;gap:1.25rem;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                             <div>
-                                <label for="name" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-user" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Nombre Completo *</label>
+                                <label for="name" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-user" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Nombre Completo *</label>
                                 <input type="text" id="name" required placeholder="Carlos Mendoza" class="input-field">
                             </div>
                             <div>
-                                <label for="email" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-envelope" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Correo Dev *</label>
+                                <label for="email" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-envelope" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Correo Dev *</label>
                                 <input type="email" id="email" required placeholder="carlos@empresa.com" class="input-field">
                             </div>
                         </div>
                         <div>
-                            <label style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem;"><i class="fa-solid fa-id-badge" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Selecciona tu Rol Principal *</label>
+                            <label style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem;"><i class="fa-solid fa-id-badge" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Selecciona tu Rol Principal *</label>
                             <input type="hidden" id="selected-role" name="role" value="tech_lead" required>
                             <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
                                 <button type="button" class="role-chip" data-role="cto"><i class="fa-solid fa-crown" style="color:var(--amber-accent);"></i>CTO / VP Eng</button>
-                                <button type="button" class="role-chip active" data-role="tech_lead"><i class="fa-solid fa-cube" style="color:var(--cyan-primary);"></i>Tech Lead</button>
-                                <button type="button" class="role-chip" data-role="dev"><i class="fa-solid fa-code" style="color:#34d399;"></i>Senior Dev</button>
-                                <button type="button" class="role-chip" data-role="devops"><i class="fa-solid fa-terminal" style="color:#a5b4fc;"></i>DevOps / SRE</button>
-                                <button type="button" class="role-chip" data-role="academic"><i class="fa-solid fa-graduation-cap" style="color:#c4b5fd;"></i>Academico</button>
+                                <button type="button" class="role-chip active" data-role="tech_lead"><i class="fa-solid fa-cube" style="color:var(--tech-cyan);"></i>Tech Lead</button>
+                                <button type="button" class="role-chip" data-role="dev"><i class="fa-solid fa-code" style="color:#34D399;"></i>Senior Dev</button>
+                                <button type="button" class="role-chip" data-role="devops"><i class="fa-solid fa-terminal" style="color:#818CF8;"></i>DevOps / SRE</button>
+                                <button type="button" class="role-chip" data-role="academic"><i class="fa-solid fa-graduation-cap" style="color:#818CF8;"></i>Academico</button>
                             </div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                             <div>
-                                <label for="repo_size" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-folder-tree" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Tamano Repos</label>
+                                <label for="repo_size" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-folder-tree" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Tamano Repos</label>
                                 <select id="repo_size" class="input-field">
                                     <option value="1-5">1 a 5 microservicios</option>
                                     <option value="6-20">6 a 20 repositorios</option>
@@ -529,7 +561,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="ci_cd_tool" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-brands fa-github" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Plataforma CI/CD</label>
+                                <label for="ci_cd_tool" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Plataforma CI/CD</label>
                                 <select id="ci_cd_tool" class="input-field">
                                     <option value="github_actions">GitHub Actions</option>
                                     <option value="gitlab_ci">GitLab CI/CD</option>
@@ -539,11 +571,11 @@
                             </div>
                         </div>
                         <div>
-                            <label for="comments" style="display:block;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-comment-dots" style="color:var(--cyan-primary);margin-right:.35rem;"></i>Mayor dolor con la documentacion</label>
-                            <textarea id="comments" rows="3" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas quedan obsoletos..." class="input-field" style="resize:vertical;"></textarea>
+                            <label for="comments" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-comment-dots" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Mayor dolor con la documentacion</label>
+                            <textarea id="comments" rows="3" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas quedan obsoletos..." class="input-field"></textarea>
                         </div>
-                        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.75rem;color:#64748b;">
-                            <input type="checkbox" id="terms" required style="margin-top:.15rem;accent-color:var(--cyan-primary);">
+                        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.75rem;color:#64748B;">
+                            <input type="checkbox" id="terms" required style="margin-top:.15rem;accent-color:var(--tech-cyan);">
                             <label for="terms" style="line-height:1.55;cursor:pointer;">Acepto recibir invitacion a la cohorte beta y actualizaciones del proyecto de la Universidad Libre.</label>
                         </div>
                         <button type="submit" id="btn-submit-lead" class="btn-cyber" style="width:100%;padding:1rem;font-size:.95rem;">
@@ -551,19 +583,19 @@
                         </button>
                     </form>
                     <div id="vip-pass-result" class="hidden vip-pass-card" style="margin-top:1.5rem;padding:1.5rem;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,212,255,.15);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(56,189,248,.18);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
                             <div style="display:flex;align-items:center;gap:.75rem;">
-                                <div style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:var(--cyan-primary);display:flex;align-items:center;justify-content:center;color:#020617;font-size:.85rem;flex-shrink:0;"><i class="fa-solid fa-ticket"></i></div>
-                                <div><h4 style="font-size:.8rem;font-weight:800;color:#fff;">DOCUMIND VIP ACCESS PASS</h4><p style="font-size:.65rem;color:var(--cyan-primary);margin-top:.15rem;">COHORTE BETA 2026-1 | UNIVERSIDAD LIBRE</p></div>
+                                <div style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:var(--tech-cyan);display:flex;align-items:center;justify-content:center;color:#040810;font-size:.85rem;flex-shrink:0;"><i class="fa-solid fa-ticket"></i></div>
+                                <div><h4 style="font-size:.8rem;font-weight:800;color:#fff;">DOCUMIND VIP ACCESS PASS</h4><p style="font-size:.65rem;color:var(--tech-cyan);margin-top:.15rem;">COHORTE BETA 2026-1 | UNIVERSIDAD LIBRE</p></div>
                             </div>
                             <span class="badge badge-emerald">HABILITADO</span>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;margin-bottom:1.25rem;">
-                            <div><span style="display:block;font-size:.65rem;color:#475569;margin-bottom:.25rem;">TITULAR:</span><span style="font-weight:700;color:#fff;word-break:break-words;" id="pass-holder-name">-</span></div>
-                            <div><span style="display:block;font-size:.65rem;color:#475569;margin-bottom:.25rem;">PASAPORTE ID:</span><span style="font-weight:700;color:var(--cyan-primary);" id="pass-id-code">DOCU-2026-X89</span></div>
+                            <div><span style="display:block;font-size:.65rem;color:#64748B;margin-bottom:.25rem;">TITULAR:</span><span style="font-weight:700;color:#fff;word-break:break-words;" id="pass-holder-name">-</span></div>
+                            <div><span style="display:block;font-size:.65rem;color:#64748B;margin-bottom:.25rem;">PASAPORTE ID:</span><span style="font-weight:700;color:var(--tech-cyan);" id="pass-id-code">DOCU-2026-X89</span></div>
                         </div>
-                        <div style="padding:1rem;background:rgba(4,5,26,.8);border-radius:.65rem;border:1px solid rgba(99,102,241,.15);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;">
-                            <div style="min-width:0;"><p style="font-size:.65rem;color:#475569;margin-bottom:.35rem;">TU ENLACE DE INVITACION:</p><p style="font-size:.7rem;color:var(--cyan-primary);word-break:break-all;" id="pass-invite-link">https://dsantiagopsandoval.github.io/Document-mind-ai/?ref=DOCU-2026</p></div>
+                        <div style="padding:1rem;background:rgba(9,13,22,.85);border-radius:.65rem;border:1px solid rgba(129,140,248,.18);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;">
+                            <div style="min-width:0;"><p style="font-size:.65rem;color:#64748B;margin-bottom:.35rem;">TU ENLACE DE INVITACION:</p><p style="font-size:.7rem;color:var(--tech-cyan);word-break:break-all;" id="pass-invite-link">https://dsantiagopsandoval.github.io/Document-mind-ai/?ref=DOCU-2026</p></div>
                             <button type="button" id="btn-copy-pass" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.75rem;flex-shrink:0;"><i class="fa-solid fa-copy" style="margin-right:.35rem;"></i>Copiar</button>
                         </div>
                     </div>
@@ -572,41 +604,43 @@
         </div>
     </section>
 
-    <!-- ====== CONTACTO ====== -->
+    <!-- ============================================================
+         10. CONTACTO (FINAL SECTION)
+    ============================================================ -->
     <section id="contacto" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-satellite-dish"></i> Contacto</span>
                 <h2 class="section-title">Comprende tu codigo antes de perderte en el</h2>
-                <p style="color:#64748b;margin-top:1rem;line-height:1.7;">Tienes preguntas sobre DocuMind AI o quieres colaborar? Escribenos directamente.</p>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Tienes preguntas sobre DocuMind AI o quieres colaborar? Escribenos directamente.</p>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;max-width:900px;margin:0 auto;" class="reveal reveal-delay-1" id="contacto-grid">
                 <div style="display:flex;flex-direction:column;gap:1rem;">
                     <a href="mailto:daniels-palencias@unilibre.edu.co" class="contact-item">
-                        <div class="contact-icon" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan-primary);"><i class="fa-solid fa-envelope"></i></div>
-                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Email</div><div style="font-size:.82rem;color:#e2e8f0;">daniels-palencias@unilibre.edu.co</div></div>
+                        <div class="contact-icon" style="background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);color:var(--tech-cyan);"><i class="fa-solid fa-envelope"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Email</div><div style="font-size:.82rem;color:#E2E8F0;">daniels-palencias@unilibre.edu.co</div></div>
                     </a>
                     <a href="https://github.com/DsantiagoPsandoval/Document-mind-ai" target="_blank" rel="noopener" class="contact-item">
-                        <div class="contact-icon" style="background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);color:#c4b5fd;"><i class="fa-brands fa-github"></i></div>
-                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">GitHub Repositorio</div><div style="font-size:.82rem;color:#e2e8f0;">DsantiagoPsandoval / Document-mind-ai</div></div>
+                        <div class="contact-icon" style="background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);color:#818CF8;"><i class="fa-brands fa-github"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">GitHub Repositorio</div><div style="font-size:.82rem;color:#E2E8F0;">DsantiagoPsandoval / Document-mind-ai</div></div>
                     </a>
                     <a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" class="contact-item">
-                        <div class="contact-icon" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);color:#a5b4fc;"><i class="fa-brands fa-linkedin"></i></div>
-                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">LinkedIn</div><div style="font-size:.82rem;color:#e2e8f0;">Daniel Palencia Sandoval</div></div>
+                        <div class="contact-icon" style="background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);color:#818CF8;"><i class="fa-brands fa-linkedin"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">LinkedIn</div><div style="font-size:.82rem;color:#E2E8F0;">Daniel Palencia Sandoval</div></div>
                     </a>
                     <div class="contact-item">
-                        <div class="contact-icon" style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);color:#34d399;"><i class="fa-solid fa-building-columns"></i></div>
-                        <div><div style="font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Institucion</div><div style="font-size:.82rem;color:#e2e8f0;">Universidad Libre - Facultad de Ingenieria, Bogota D.C.</div></div>
+                        <div class="contact-icon" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34D399;"><i class="fa-solid fa-building-columns"></i></div>
+                        <div><div style="font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem;">Institucion</div><div style="font-size:.82rem;color:#E2E8F0;">Universidad Libre - Facultad de Ingenieria, Bogota D.C.</div></div>
                     </div>
                 </div>
                 <div class="glow-card glow-card-purple" style="padding:2.25rem;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1.35rem;">
-                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(139,92,246,.2));border:1px solid rgba(139,92,246,.3);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--cyan-primary);"><i class="fa-solid fa-brain"></i></div>
+                    <div style="width:3rem;height:3rem;border-radius:.75rem;background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(129,140,248,.2));border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--tech-cyan);"><i class="fa-solid fa-brain"></i></div>
                     <div>
                         <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Analiza tu repositorio ahora</h3>
-                        <p style="font-size:.82rem;color:#64748b;line-height:1.65;">Prueba el simulador interactivo y descubre como DocuMind AI puede transformar la documentacion de tu equipo.</p>
+                        <p style="font-size:.82rem;color:#64748B;line-height:1.65;">Prueba el simulador interactivo y descubre como DocuMind AI puede transformar la documentacion de tu equipo.</p>
                     </div>
                     <a href="#demo" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Analizar mi repositorio &rarr;</a>
-                    <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-bolt" style="margin-right:.5rem;font-size:.75rem;color:var(--cyan-primary);"></i>Unirse a la Beta Privada</a>
+                    <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-bolt" style="margin-right:.5rem;font-size:.75rem;color:var(--tech-cyan);"></i>Unirse a la Beta Privada</a>
                 </div>
             </div>
         </div>
@@ -614,76 +648,590 @@
 
     </main>
 
-    <!-- FOOTER -->
-    <footer style="background:rgba(4,5,26,.97);border-top:1px solid var(--border-glass);padding:3.5rem 0 2rem;">
+    <!-- ============================================================
+         FOOTER
+    ============================================================ -->
+    <footer style="background:rgba(9,13,22,.98);border-top:1px solid var(--border-glass);padding:3.5rem 0 2rem;">
         <div class="container">
             <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;" id="footer-grid">
                 <div>
                     <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
-                        <div style="width:2rem;height:2rem;border-radius:.55rem;background:linear-gradient(135deg,#00d4ff,#6366f1);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0;"><i class="fa-solid fa-brain"></i></div>
+                        <div style="width:2rem;height:2rem;border-radius:.55rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0;"><i class="fa-solid fa-brain"></i></div>
                         <span style="font-size:1rem;font-weight:800;color:#fff;">DocuMind - AI</span>
                     </div>
-                    <p style="font-size:.78rem;color:#475569;line-height:1.7;max-width:300px;">Proyecto de Innovacion y Emprendimiento Tecnologico. Universidad Libre, Facultad de Ingenieria, Bogota D.C., Colombia. Reto HIT 2026.</p>
-                    <p style="font-size:.72rem;color:#334155;margin-top:.85rem;">Desarrollado por <strong style="color:#475569;">Daniel Santiago Palencia Sandoval</strong> &amp; <strong style="color:#475569;">Nelson Andres Ayala Alvarez</strong>.</p>
+                    <p style="font-size:.78rem;color:#64748B;line-height:1.7;max-width:300px;">Proyecto de Innovacion y Emprendimiento Tecnologico. Universidad Libre, Facultad de Ingenieria, Bogota D.C., Colombia. Reto HIT 2026.</p>
+                    <p style="font-size:.72rem;color:#475569;margin-top:.85rem;">Desarrollado por <strong style="color:#64748B;">Daniel Santiago Palencia Sandoval</strong> &amp; <strong style="color:#64748B;">Nelson Andres Ayala Alvarez</strong>.</p>
                 </div>
                 <div>
-                    <h5 style="font-size:.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Navegacion</h5>
+                    <h5 style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Navegacion</h5>
                     <ul style="display:flex;flex-direction:column;gap:.6rem;list-style:none;">
-                        <li><a href="#problema" style="font-size:.78rem;color:#475569;transition:color .2s;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Problematica Reto HIT</a></li>
-                        <li><a href="#solucion" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Arquitectura AST + LLM</a></li>
-                        <li><a href="#como-funciona" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Como Funciona</a></li>
-                        <li><a href="#demo" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Simulador en Vivo</a></li>
-                        <li><a href="#infografia" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Infografia UX/UI</a></li>
-                        <li><a href="#contacto" style="font-size:.78rem;color:#475569;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'">Contacto</a></li>
+                        <li><a href="#problema" style="font-size:.78rem;color:#64748B;transition:color .2s;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Problematica Reto HIT</a></li>
+                        <li><a href="#solucion" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Arquitectura AST + LLM</a></li>
+                        <li><a href="#como-funciona" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Como Funciona</a></li>
+                        <li><a href="#demo" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Simulador en Vivo</a></li>
+                        <li><a href="#infografia" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Infografia UX/UI</a></li>
+                        <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h5 style="font-size:.7rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Institucional</h5>
+                    <h5 style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Institucional</h5>
                     <ul style="display:flex;flex-direction:column;gap:.6rem;list-style:none;">
-                        <li><a href="https://www.unilibre.edu.co/bogota/" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-solid fa-building-columns" style="color:#00d4ff;font-size:.65rem;"></i>Universidad Libre</a></li>
-                        <li><a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-github" style="color:#00d4ff;font-size:.65rem;"></i>GitHub Daniel Palencia</a></li>
-                        <li><a href="https://github.com/nexker" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-github" style="color:#00d4ff;font-size:.65rem;"></i>GitHub Nelson Ayala</a></li>
-                        <li><a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-linkedin" style="color:#00d4ff;font-size:.65rem;"></i>LinkedIn Daniel</a></li>
-                        <li><a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener" style="font-size:.78rem;color:#475569;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#00d4ff'" onmouseout="this.style.color='#475569'"><i class="fa-brands fa-linkedin" style="color:#00d4ff;font-size:.65rem;"></i>LinkedIn Nelson</a></li>
+                        <li><a href="https://www.unilibre.edu.co/bogota/" target="_blank" rel="noopener" style="font-size:.78rem;color:#64748B;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'"><i class="fa-solid fa-building-columns" style="color:#38BDF8;font-size:.65rem;"></i>Universidad Libre</a></li>
+                        <li><a href="https://github.com/DsantiagoPsandoval" target="_blank" rel="noopener" style="font-size:.78rem;color:#64748B;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'"><i class="fa-brands fa-github" style="color:#38BDF8;font-size:.65rem;"></i>GitHub Daniel Palencia</a></li>
+                        <li><a href="https://github.com/nexker" target="_blank" rel="noopener" style="font-size:.78rem;color:#64748B;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'"><i class="fa-brands fa-github" style="color:#38BDF8;font-size:.65rem;"></i>GitHub Nelson Ayala</a></li>
+                        <li><a href="https://www.linkedin.com/in/daniel-palencia-palencia-sandoval-b49279351/" target="_blank" rel="noopener" style="font-size:.78rem;color:#64748B;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'"><i class="fa-brands fa-linkedin" style="color:#38BDF8;font-size:.65rem;"></i>LinkedIn Daniel</a></li>
+                        <li><a href="https://www.linkedin.com/in/nelson-ayala-11719a352" target="_blank" rel="noopener" style="font-size:.78rem;color:#64748B;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'"><i class="fa-brands fa-linkedin" style="color:#38BDF8;font-size:.65rem;"></i>LinkedIn Nelson</a></li>
                     </ul>
                 </div>
             </div>
-            <div style="padding-top:1.75rem;border-top:1px solid rgba(99,102,241,.1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;font-size:.72rem;color:#334155;">
+            <div style="padding-top:1.75rem;border-top:1px solid rgba(129,140,248,.1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;font-size:.72rem;color:#475569;">
                 <p>&copy; 2026 DocuMind AI. Todos los derechos reservados. Universidad Libre - Facultad de Ingenieria.</p>
                 <p>Disenado con principios de accesibilidad WCAG 2.1 AAA &amp; Heuristicas de Nielsen.</p>
             </div>
         </div>
     </footer>
 
+    <!-- Interactive Base Logic (Simulation, counters, VIP pass, toast) -->
     <script src="app.js"></script>
+
+    <!-- ============================================================
+         3D AI CORE COMPONENT & PAGE INTERACTIONS SCRIPT
+    ============================================================ -->
     <script>
-    (function(){
-        // Navbar scroll
+    (function() {
+        // --- 1. Navbar Scroll & Mobile Menu ---
         var nav = document.getElementById('navbar');
-        window.addEventListener('scroll',function(){nav.classList.toggle('scrolled',window.scrollY>30);},{passive:true});
-        // Mobile menu
-        var btn=document.getElementById('mobile-menu-btn'),menu=document.getElementById('mobile-menu');
-        if(btn&&menu){btn.addEventListener('click',function(){var o=menu.classList.toggle('open');btn.setAttribute('aria-expanded',o);btn.innerHTML=o?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>';});menu.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){menu.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.innerHTML='<i class="fa-solid fa-bars"></i>';});});}
-        // Reveal observer
-        var obs=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('revealed');obs.unobserve(e.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
-        document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
-        // AI Core Canvas
-        var canvas=document.getElementById('ai-core-canvas');
-        if(canvas&&!window.matchMedia('(prefers-reduced-motion:reduce)').matches){
-            var ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,R=58;
-            var particles=[];for(var i=0;i<28;i++){particles.push({angle:Math.random()*Math.PI*2,speed:(Math.random()*.4+.2)*(Math.random()>.5?1:-1),orbitR:Math.random()*22+8,size:Math.random()*2+.8,alpha:Math.random()*.7+.3});}
-            function draw(ts){
-                ctx.clearRect(0,0,W,H);
-                var t=ts*.001;
-                var g=ctx.createRadialGradient(cx,cy,R*.4,cx,cy,R*1.1);g.addColorStop(0,'rgba(0,212,255,.18)');g.addColorStop(.7,'rgba(99,102,241,.08)');g.addColorStop(1,'transparent');ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-                [.55,.78,1].forEach(function(sc,idx){ctx.save();ctx.translate(cx,cy);ctx.rotate(t*(idx%2===0?.3:-.2)+idx);ctx.beginPath();ctx.ellipse(0,0,R*sc,R*sc*.35,0,0,Math.PI*2);ctx.strokeStyle='rgba('+(idx===0?'0,212,255':idx===1?'139,92,246':'99,102,241')+','+(0.18-idx*.04)+')';ctx.lineWidth=.8;ctx.stroke();ctx.restore();});
-                var cg=ctx.createRadialGradient(cx,cy,0,cx,cy,24);cg.addColorStop(0,'rgba(0,212,255,.9)');cg.addColorStop(.5,'rgba(99,102,241,.6)');cg.addColorStop(1,'rgba(139,92,246,0)');ctx.beginPath();ctx.arc(cx,cy,22,0,Math.PI*2);ctx.fillStyle=cg;ctx.fill();
-                particles.forEach(function(p){p.angle+=p.speed*.012;var px=cx+Math.cos(p.angle)*p.orbitR*(R/22),py=cy+Math.sin(p.angle)*p.orbitR*(R/22)*.4;ctx.beginPath();ctx.arc(px,py,p.size,0,Math.PI*2);ctx.fillStyle='rgba(0,212,255,'+(p.alpha*(.6+.4*Math.sin(t*2+p.angle)))+')';ctx.fill();});
-                ctx.save();ctx.strokeStyle='rgba(0,212,255,.1)';ctx.lineWidth=.6;for(var i=0;i<6;i++){var a=(i/6)*Math.PI*2+t*.25;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*R*.95,cy+Math.sin(a)*R*.95*.5);ctx.stroke();}ctx.restore();
-                requestAnimationFrame(draw);
-            }
-            requestAnimationFrame(draw);
+        window.addEventListener('scroll', function() {
+            if (nav) nav.classList.toggle('scrolled', window.scrollY > 30);
+        }, { passive: true });
+
+        var menuBtn = document.getElementById('mobile-menu-btn');
+        var mobileMenu = document.getElementById('mobile-menu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', function() {
+                var isOpen = mobileMenu.classList.toggle('open');
+                menuBtn.setAttribute('aria-expanded', isOpen);
+                menuBtn.innerHTML = isOpen ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+            });
+            mobileMenu.querySelectorAll('a').forEach(function(a) {
+                a.addEventListener('click', function() {
+                    mobileMenu.classList.remove('open');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                    menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                });
+            });
         }
+
+        // --- 2. Scroll Reveal Observer ---
+        var revealObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) {
+                if (e.isIntersecting) {
+                    e.target.classList.add('revealed');
+                    revealObs.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.reveal').forEach(function(el) { revealObs.observe(el); });
+
+        // --- 3. 3D AI CORE VISUAL COMPONENT ---
+        // Canvas roundRect Polyfill for universal browser compatibility
+        if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                this.closePath();
+                return this;
+            };
+        }
+        var canvas = document.getElementById('ai-core-canvas');
+        if (!canvas) return;
+
+        var ctx = canvas.getContext('2d');
+        var tooltip = document.getElementById('ai-tooltip');
+        var tooltipTag = document.getElementById('ai-tooltip-tag');
+        var tooltipDesc = document.getElementById('ai-tooltip-desc');
+        var wrapper = document.getElementById('ai-core-wrapper');
+
+        // Color Constants (Official Palette)
+        var COLOR_CYAN = '#38BDF8';
+        var COLOR_INDIGO = '#818CF8';
+        var COLOR_EMERALD = '#34D399';
+        var COLOR_BG_DARK = '#090D16';
+        var COLOR_DEEP_SLATE = '#0F172A';
+
+        // 3D Nodes Configuration
+        var nodes = [
+            { id: 'ast',  tag: 'AST',  desc: 'Abstract Syntax Tree',      color: COLOR_INDIGO,  x: 50,   y: -175, z: 45,  phase: 0.2 },
+            { id: 'code', tag: 'CODE', desc: 'Source Code Repository',    color: COLOR_CYAN,    x: -210, y: -30,  z: 55,  phase: 1.5 },
+            { id: 'docs', tag: 'DOCS', desc: 'Generated Documentation',   color: COLOR_CYAN,    x: 215,  y: 15,   z: 50,  phase: 2.8 },
+            { id: 'c4',   tag: 'C4',   desc: 'Software Architecture',     color: COLOR_INDIGO,  x: -160, y: 145,  z: -30, phase: 4.1 },
+            { id: 'api',  tag: 'API',  desc: 'API Structure',             color: COLOR_CYAN,    x: 165,  y: 135,  z: -25, phase: 5.4 },
+            { id: 'db',   tag: 'DATABASE', desc: 'Schema & Models',       color: COLOR_INDIGO,  x: -70,  y: 215,  z: -55, phase: 3.3 },
+            { id: 'sync', tag: 'SYNC', desc: 'Continuous Git Sync',       color: COLOR_EMERALD, x: 75,   y: 205,  z: 35,  phase: 0.9 }
+        ];
+
+        // 4 3D Elliptical Orbits around Core
+        var orbits = [
+            { rx: 95,  ry: 44, rotX: 0.52, rotY: 0.26,  speed: 0.40,  color: COLOR_CYAN,    pts: 64 },
+            { rx: 140, ry: 62, rotX: -0.65, rotY: 0.40, speed: -0.30, color: COLOR_INDIGO,  pts: 64 },
+            { rx: 180, ry: 78, rotX: 0.90, rotY: -0.32, speed: 0.24,  color: COLOR_EMERALD, pts: 64 },
+            { rx: 225, ry: 95, rotX: -0.45, rotY: -0.75, speed: -0.18, color: COLOR_CYAN,   pts: 64 }
+        ];
+
+        // Data Packets (Energy Pulses between Nodes and AI CORE)
+        var packets = [
+            { from: 'code', to: 'core', color: COLOR_CYAN,    speed: 0.35, offset: 0.00 },
+            { from: 'ast',  to: 'core', color: COLOR_INDIGO,  speed: 0.32, offset: 0.33 },
+            { from: 'db',   to: 'core', color: COLOR_INDIGO,  speed: 0.28, offset: 0.66 },
+            { from: 'core', to: 'docs', color: COLOR_CYAN,    speed: 0.38, offset: 0.15 },
+            { from: 'core', to: 'c4',   color: COLOR_INDIGO,  speed: 0.30, offset: 0.45 },
+            { from: 'core', to: 'api',  color: COLOR_CYAN,    speed: 0.34, offset: 0.75 },
+            { from: 'core', to: 'sync', color: COLOR_EMERALD, speed: 0.42, offset: 0.55 }
+        ];
+
+        // Ambient floating dust particles
+        var dust = [];
+        for (var i = 0; i < 36; i++) {
+            dust.push({
+                x: (Math.random() - 0.5) * 440,
+                y: (Math.random() - 0.5) * 440,
+                z: (Math.random() - 0.5) * 200,
+                size: Math.random() * 1.5 + 0.5,
+                color: Math.random() > 0.6 ? COLOR_CYAN : (Math.random() > 0.5 ? COLOR_INDIGO : COLOR_EMERALD),
+                speed: Math.random() * 0.2 + 0.1,
+                phase: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Camera & Interaction
+        var mouseX = 0, mouseY = 0;
+        var rotX = 0, rotY = 0;
+        var targetRotX = 0, targetRotY = 0;
+        var hoveredNode = null;
+        var fov = 420;
+
+        // Mouse move over wrapper
+        if (wrapper) {
+            wrapper.addEventListener('mousemove', function(e) {
+                var rect = wrapper.getBoundingClientRect();
+                var cx = rect.left + rect.width / 2;
+                var cy = rect.top + rect.height / 2;
+                mouseX = e.clientX - cx;
+                mouseY = e.clientY - cy;
+                targetRotY = (mouseX / (rect.width / 2)) * 0.22; // max ~12.5 deg
+                targetRotX = -(mouseY / (rect.height / 2)) * 0.18;
+            });
+
+            wrapper.addEventListener('mouseleave', function() {
+                targetRotX = 0;
+                targetRotY = 0;
+                if (tooltip) tooltip.style.display = 'none';
+                hoveredNode = null;
+            });
+        }
+
+        // 3D Math Helper: Rotate point around X and Y axes
+        function rotate3D(p, rx, ry) {
+            // Rotate around Y
+            var cosY = Math.cos(ry), sinY = Math.sin(ry);
+            var x1 = p.x * cosY + p.z * sinY;
+            var z1 = -p.x * sinY + p.z * cosY;
+            // Rotate around X
+            var cosX = Math.cos(rx), sinX = Math.sin(rx);
+            var y2 = p.y * cosX - z1 * sinX;
+            var z2 = p.y * sinX + z1 * cosX;
+            return { x: x1, y: y2, z: z2 };
+        }
+
+        // Project 3D point to 2D canvas screen
+        function project(p, cx, cy, scaleFactor) {
+            var scale = fov / (fov + p.z);
+            return {
+                x: cx + p.x * scale * scaleFactor,
+                y: cy + p.y * scale * scaleFactor,
+                scale: scale * scaleFactor,
+                z: p.z
+            };
+        }
+
+        // Main Animation Loop
+        var startTime = performance.now();
+
+        function render(now) {
+            var t = (now - startTime) * 0.001; // elapsed in seconds
+
+            // Smooth camera easing (lerp)
+            rotX += (targetRotX - rotX) * 0.06;
+            rotY += (targetRotY - rotY) * 0.06;
+
+            // Handle High-DPI Canvas resolution
+            var dpr = Math.min(window.devicePixelRatio || 1, 2);
+            var rect = canvas.getBoundingClientRect();
+            var displayW = rect.width || 560;
+            var displayH = rect.height || 560;
+
+            if (canvas.width !== Math.round(displayW * dpr) || canvas.height !== Math.round(displayH * dpr)) {
+                canvas.width = Math.round(displayW * dpr);
+                canvas.height = Math.round(displayH * dpr);
+            }
+
+            ctx.save();
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, displayW, displayH);
+
+            var cx = displayW / 2;
+            var cy = displayH / 2;
+            // Responsive scale factor based on 560px baseline
+            var scaleFactor = Math.min(displayW / 560, 1.0);
+
+            // --- A. Draw Ambient Dust ---
+            dust.forEach(function(d) {
+                var floatY = d.y + Math.sin(t * d.speed + d.phase) * 12;
+                var p3d = rotate3D({ x: d.x, y: floatY, z: d.z }, rotX, rotY);
+                var p2d = project(p3d, cx, cy, scaleFactor);
+                var alpha = Math.max(0.1, Math.min(0.65, (p3d.z + 100) / 200));
+                ctx.beginPath();
+                ctx.arc(p2d.x, p2d.y, d.size * p2d.scale, 0, Math.PI * 2);
+                ctx.fillStyle = d.color;
+                ctx.globalAlpha = alpha * 0.4;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // --- B. Draw 3D Orbits & Satellites ---
+            orbits.forEach(function(orb, idx) {
+                var currentAngle = t * orb.speed;
+                var orbitPoints = [];
+
+                for (var j = 0; j <= orb.pts; j++) {
+                    var theta = (j / orb.pts) * Math.PI * 2;
+                    // Point on local ellipse
+                    var lx = Math.cos(theta) * orb.rx;
+                    var ly = Math.sin(theta) * orb.ry;
+                    // Tilt the orbit plane in 3D
+                    var cosOX = Math.cos(orb.rotX), sinOX = Math.sin(orb.rotX);
+                    var cosOY = Math.cos(orb.rotY), sinOY = Math.sin(orb.rotY);
+                    // Local rotation
+                    var ox1 = lx * cosOY;
+                    var oz1 = -lx * sinOY;
+                    var oy2 = ly * cosOX - oz1 * sinOX;
+                    var oz2 = ly * sinOX + oz1 * cosOX;
+                    // Camera rotation
+                    var p3d = rotate3D({ x: ox1, y: oy2, z: oz2 }, rotX, rotY);
+                    var p2d = project(p3d, cx, cy, scaleFactor);
+                    orbitPoints.push(p2d);
+                }
+
+                // Draw orbit ellipse path with depth fading
+                for (var k = 0; k < orbitPoints.length - 1; k++) {
+                    var ptA = orbitPoints[k];
+                    var ptB = orbitPoints[k + 1];
+                    var avgZ = (ptA.z + ptB.z) / 2;
+                    var alpha = avgZ > 0 ? 0.24 : 0.09;
+
+                    ctx.beginPath();
+                    ctx.moveTo(ptA.x, ptA.y);
+                    ctx.lineTo(ptB.x, ptB.y);
+                    ctx.strokeStyle = orb.color;
+                    ctx.globalAlpha = alpha;
+                    ctx.lineWidth = avgZ > 0 ? 1.0 : 0.6;
+                    ctx.stroke();
+                }
+
+                // Orbiting satellite (light point traveling along orbit)
+                var satTheta = currentAngle;
+                var slx = Math.cos(satTheta) * orb.rx;
+                var sly = Math.sin(satTheta) * orb.ry;
+                var cosOX = Math.cos(orb.rotX), sinOX = Math.sin(orb.rotX);
+                var cosOY = Math.cos(orb.rotY), sinOY = Math.sin(orb.rotY);
+                var sox1 = slx * cosOY;
+                var soz1 = -slx * sinOY;
+                var soy2 = sly * cosOX - soz1 * sinOX;
+                var soz2 = sly * sinOX + soz1 * cosOX;
+                var sp3d = rotate3D({ x: sox1, y: soy2, z: soz2 }, rotX, rotY);
+                var sp2d = project(sp3d, cx, cy, scaleFactor);
+
+                // Satellite glow
+                var satAlpha = sp3d.z > 0 ? 0.95 : 0.35;
+                ctx.beginPath();
+                ctx.arc(sp2d.x, sp2d.y, 4.5 * sp2d.scale, 0, Math.PI * 2);
+                ctx.fillStyle = orb.color;
+                ctx.globalAlpha = satAlpha;
+                ctx.shadowColor = orb.color;
+                ctx.shadowBlur = 10;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+            ctx.globalAlpha = 1.0;
+
+            // --- C. Update Node Positions (Floating in 3D) ---
+            var projectedNodes = {};
+            nodes.forEach(function(node) {
+                var floatY = node.y + Math.sin(t * 1.3 + node.phase) * 6;
+                var floatX = node.x + Math.cos(t * 0.9 + node.phase) * 4;
+                var floatZ = node.z + Math.sin(t * 1.1 + node.phase) * 5;
+                var p3d = rotate3D({ x: floatX, y: floatY, z: floatZ }, rotX, rotY);
+                var p2d = project(p3d, cx, cy, scaleFactor);
+                projectedNodes[node.id] = { node: node, p3d: p3d, p2d: p2d };
+            });
+
+            // Center core projected point
+            var coreP3D = rotate3D({ x: 0, y: 0, z: 0 }, rotX, rotY);
+            var coreP2D = project(coreP3D, cx, cy, scaleFactor);
+
+            // --- D. Draw Connection Lines ---
+            nodes.forEach(function(node) {
+                var pNode = projectedNodes[node.id].p2d;
+                ctx.beginPath();
+                ctx.moveTo(coreP2D.x, coreP2D.y);
+                ctx.lineTo(pNode.x, pNode.y);
+
+                var grad = ctx.createLinearGradient(coreP2D.x, coreP2D.y, pNode.x, pNode.y);
+                grad.addColorStop(0, 'rgba(56, 189, 248, 0.28)');
+                grad.addColorStop(1, node.color === COLOR_CYAN ? 'rgba(56, 189, 248, 0.16)' : 'rgba(129, 140, 248, 0.16)');
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1.1;
+                ctx.globalAlpha = 0.65;
+                ctx.stroke();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // --- E. Draw Data Packets (Light Pulses Traveling Along Lines) ---
+            packets.forEach(function(pkt) {
+                var nodeData = projectedNodes[pkt.from === 'core' ? pkt.to : pkt.from];
+                if (!nodeData) return;
+
+                var nPos = nodeData.p2d;
+                var cPos = coreP2D;
+
+                // Progress 0.0 to 1.0
+                var progress = ((t * pkt.speed + pkt.offset) % 1.0);
+                var startX, startY, endX, endY;
+
+                if (pkt.from === 'core') {
+                    // Outward: Core -> Node
+                    startX = cPos.x; startY = cPos.y;
+                    endX = nPos.x;   endY = nPos.y;
+                } else {
+                    // Inward: Node -> Core
+                    startX = nPos.x; startY = nPos.y;
+                    endX = cPos.x;   endY = cPos.y;
+                }
+
+                var px = startX + (endX - startX) * progress;
+                var py = startY + (endY - startY) * progress;
+
+                // Draw packet with trailing comet tail
+                for (var tr = 0; tr < 4; tr++) {
+                    var tailProgress = Math.max(0, progress - (tr * 0.035));
+                    var tx = startX + (endX - startX) * tailProgress;
+                    var ty = startY + (endY - startY) * tailProgress;
+                    var trAlpha = (1.0 - tr * 0.25) * 0.75;
+                    var trRadius = (3.5 - tr * 0.6) * scaleFactor;
+
+                    ctx.beginPath();
+                    ctx.arc(tx, ty, Math.max(1, trRadius), 0, Math.PI * 2);
+                    ctx.fillStyle = pkt.color;
+                    ctx.globalAlpha = trAlpha;
+                    ctx.shadowColor = pkt.color;
+                    ctx.shadowBlur = tr === 0 ? 8 : 0;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            });
+            ctx.globalAlpha = 1.0;
+
+            // --- F. Draw AI CORE (Futuristic Technological 3D Core) ---
+            var baseRadius = 48 * scaleFactor;
+            var breathing = 1.0 + 0.02 * Math.sin(t * 1.8);
+            var coreR = baseRadius * breathing * coreP2D.scale;
+
+            // 1. Outer Diffuse Halo / Atmosphere
+            var haloGrad = ctx.createRadialGradient(coreP2D.x, coreP2D.y, coreR * 0.4, coreP2D.x, coreP2D.y, coreR * 2.3);
+            haloGrad.addColorStop(0, 'rgba(56, 189, 248, 0.24)');
+            haloGrad.addColorStop(0.5, 'rgba(129, 140, 248, 0.10)');
+            haloGrad.addColorStop(1, 'transparent');
+            ctx.beginPath();
+            ctx.arc(coreP2D.x, coreP2D.y, coreR * 2.3, 0, Math.PI * 2);
+            ctx.fillStyle = haloGrad;
+            ctx.fill();
+
+            // 2. Glowing Concentric Energy Waves (Pulse rings)
+            var pulseR1 = coreR * (1.1 + 0.25 * ((t * 0.6) % 1.0));
+            var pulseAlpha1 = Math.max(0, 0.4 * (1.0 - ((t * 0.6) % 1.0)));
+            ctx.beginPath();
+            ctx.arc(coreP2D.x, coreP2D.y, pulseR1, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(56, 189, 248, ' + pulseAlpha1 + ')';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            // 3. Dark Technological Spherical Body
+            var sphereGrad = ctx.createRadialGradient(
+                coreP2D.x - coreR * 0.3, coreP2D.y - coreR * 0.35, coreR * 0.05,
+                coreP2D.x, coreP2D.y, coreR
+            );
+            sphereGrad.addColorStop(0, '#00e5ff');
+            sphereGrad.addColorStop(0.2, '#0c2238');
+            sphereGrad.addColorStop(0.65, '#0F172A');
+            sphereGrad.addColorStop(1, '#090D16');
+
+            ctx.beginPath();
+            ctx.arc(coreP2D.x, coreP2D.y, coreR, 0, Math.PI * 2);
+            ctx.fillStyle = sphereGrad;
+            ctx.shadowColor = COLOR_CYAN;
+            ctx.shadowBlur = 24 * scaleFactor;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // 4. Core Outer Border / Glowing Ring
+            ctx.beginPath();
+            ctx.arc(coreP2D.x, coreP2D.y, coreR, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
+            ctx.lineWidth = 1.8 * scaleFactor;
+            ctx.stroke();
+
+            // 5. Rotating Internal Latitude / Wireframe Rings on Sphere Surface
+            for (var ri = 0; ri < 3; ri++) {
+                ctx.save();
+                ctx.translate(coreP2D.x, coreP2D.y);
+                ctx.rotate(t * (ri === 1 ? -0.35 : 0.25) + ri * 1.1 + rotY);
+                ctx.beginPath();
+                ctx.ellipse(0, 0, coreR * 0.88, coreR * (0.3 + ri * 0.2), 0, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(56, 189, 248, ' + (0.16 + ri * 0.05) + ')';
+                ctx.lineWidth = 0.8 * scaleFactor;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 6. Central Tech Typography ("AI" & "CORE")
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // "AI" Text
+            var fontSizeAI = Math.round(14 * scaleFactor);
+            ctx.font = '800 ' + fontSizeAI + 'px "JetBrains Mono", monospace';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = COLOR_CYAN;
+            ctx.shadowBlur = 12;
+            ctx.fillText('AI', coreP2D.x, coreP2D.y - 7 * scaleFactor);
+
+            // Dividing horizontal line
+            ctx.beginPath();
+            ctx.moveTo(coreP2D.x - 14 * scaleFactor, coreP2D.y + 1 * scaleFactor);
+            ctx.lineTo(coreP2D.x + 14 * scaleFactor, coreP2D.y + 1 * scaleFactor);
+            ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+            ctx.lineWidth = 1.0;
+            ctx.stroke();
+
+            // "CORE" Text
+            var fontSizeCore = Math.round(10 * scaleFactor);
+            ctx.font = '700 ' + fontSizeCore + 'px "JetBrains Mono", monospace';
+            ctx.fillStyle = COLOR_CYAN;
+            ctx.fillText('CORE', coreP2D.x, coreP2D.y + 9 * scaleFactor);
+            ctx.shadowBlur = 0;
+            ctx.restore();
+
+            // --- G. Draw Floating Nodes & Handle Hover ---
+            var closestNode = null;
+            var minDistance = 34 * scaleFactor;
+
+            nodes.forEach(function(node) {
+                var pData = projectedNodes[node.id];
+                var p2d = pData.p2d;
+                var p3d = pData.p3d;
+
+                // Mouse Hit Test
+                var distToMouse = Math.hypot(p2d.x - (cx + mouseX), p2d.y - (cy + mouseY));
+                var isHovered = distToMouse < minDistance;
+                if (isHovered) closestNode = node;
+
+                // Node Badge Dimension
+                var pillH = Math.round(24 * scaleFactor * p2d.scale);
+                var text = node.tag;
+                var fontSize = Math.round(10.5 * scaleFactor * p2d.scale);
+                ctx.font = '700 ' + fontSize + 'px "JetBrains Mono", monospace';
+                var textW = ctx.measureText(text).width;
+                var pillW = Math.round(textW + 30 * scaleFactor * p2d.scale);
+
+                var pillX = p2d.x - pillW / 2;
+                var pillY = p2d.y - pillH / 2;
+                var radius = pillH / 2;
+
+                // Node Depth Opacity
+                var nodeAlpha = isHovered ? 1.0 : (p3d.z > 0 ? 0.95 : 0.72);
+
+                // Background Pill (Deep Slate Glass)
+                ctx.beginPath();
+                ctx.roundRect(pillX, pillY, pillW, pillH, radius);
+                ctx.fillStyle = 'rgba(15, 23, 42, ' + (isHovered ? 0.98 : 0.86) + ')';
+                ctx.fill();
+
+                // Border with colored glow
+                ctx.beginPath();
+                ctx.roundRect(pillX, pillY, pillW, pillH, radius);
+                ctx.strokeStyle = isHovered ? node.color : (node.color === COLOR_CYAN ? 'rgba(56, 189, 248, 0.45)' : (node.color === COLOR_EMERALD ? 'rgba(52, 211, 153, 0.45)' : 'rgba(129, 140, 248, 0.45)'));
+                ctx.lineWidth = isHovered ? 1.6 : 1.0;
+                ctx.shadowColor = node.color;
+                ctx.shadowBlur = isHovered ? 16 : 8;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Left Status Light Dot
+                var dotX = pillX + 11 * scaleFactor * p2d.scale;
+                var dotY = p2d.y;
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 3.2 * scaleFactor * p2d.scale, 0, Math.PI * 2);
+                ctx.fillStyle = node.color;
+                ctx.shadowColor = node.color;
+                ctx.shadowBlur = 6;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Node Monospace Text Label
+                ctx.font = '700 ' + fontSize + 'px "JetBrains Mono", monospace';
+                ctx.fillStyle = isHovered ? '#FFFFFF' : '#E2E8F0';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, dotX + 7 * scaleFactor * p2d.scale, dotY);
+            });
+
+            // Update Tooltip based on hover
+            if (closestNode) {
+                hoveredNode = closestNode;
+                var hp = projectedNodes[closestNode.id].p2d;
+                if (tooltip && tooltipTag && tooltipDesc) {
+                    tooltipTag.textContent = closestNode.tag;
+                    tooltipTag.style.color = closestNode.color;
+                    tooltipDesc.textContent = closestNode.desc;
+                    tooltip.style.left = hp.x + 'px';
+                    tooltip.style.top = (hp.y - 28 * scaleFactor) + 'px';
+                    tooltip.style.display = 'block';
+                    tooltip.style.borderColor = closestNode.color;
+                }
+                canvas.style.cursor = 'pointer';
+            } else {
+                if (tooltip && hoveredNode) tooltip.style.display = 'none';
+                hoveredNode = null;
+                canvas.style.cursor = 'default';
+            }
+
+            ctx.restore();
+
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                requestAnimationFrame(render);
+            }
+        }
+
+        // Start render loop
+        requestAnimationFrame(render);
+
     })();
     </script>
 </body>
