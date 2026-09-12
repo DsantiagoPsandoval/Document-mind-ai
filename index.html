@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=4.1">
+    <link rel="stylesheet" href="styles.css?v=4.3">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body style="background-color:#090D16;color:#E2E8F0;">
@@ -73,8 +73,8 @@
     ============================================================ -->
     <section id="hero" style="position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;padding:3.5rem 0 3rem;">
         <!-- Background Ambient Lighting -->
-        <div style="position:absolute;top:-15%;left:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(129,140,248,.12) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-        <div style="position:absolute;bottom:-10%;right:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(56,189,248,.09) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;top:0;left:0;width:50%;height:50%;background:radial-gradient(ellipse at 0% 0%,rgba(129,140,248,.12) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;bottom:0;right:0;width:50%;height:50%;background:radial-gradient(ellipse at 100% 100%,rgba(56,189,248,.09) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
         <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(129,140,248,.12) 1px,transparent 1px);background-size:32px 32px;opacity:.45;pointer-events:none;z-index:0;"></div>
 
         <div class="container" style="position:relative;z-index:1;width:100%;">
@@ -183,7 +183,7 @@
             </div>
 
             <!-- Trust Metrics Strip -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;max-width:920px;margin:3.5rem auto 0;border-top:1px solid rgba(129,140,248,.15);padding-top:2.5rem;" class="reveal reveal-delay-5" id="metrics-strip">
+            <div class="metrics-strip-grid reveal reveal-delay-5" id="metrics-strip">
                 <div style="text-align:center;">
                     <div style="font-size:2.2rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);line-height:1;" class="neon-glow-cyan">20%</div>
                     <div style="font-size:.72rem;color:#64748B;margin-top:.45rem;line-height:1.4;">Tiempo recuperado<br>por dev/mes</div>
@@ -303,7 +303,7 @@
                 <h2 class="section-title">Arquitectura Viva impulsada por AST + LLM</h2>
                 <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Un motor de comprension semantica profunda que convierte codigo fuente en documentacion viva en tiempo real.</p>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;" class="reveal reveal-delay-1" id="solucion-grid">
+            <div class="solucion-grid-container reveal reveal-delay-1" id="solucion-grid">
                 <div style="display:flex;flex-direction:column;gap:1rem;">
                     <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
                         <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tech-cyan);flex-shrink:0;"><i class="fa-solid fa-diagram-project"></i></div>
@@ -328,7 +328,7 @@
                             <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F43F5E;display:inline-block;"></span>
                             <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F59E0B;display:inline-block;"></span>
                             <span style="width:.7rem;height:.7rem;border-radius:50%;background:#34D399;display:inline-block;"></span>
-                            <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;margin-left:.5rem;">.github/workflows/documind-sync.yml</span>
+                            <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;margin-left:.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(180px,50vw);display:inline-block;vertical-align:middle;">documind-sync.yml</span>
                         </div>
                         <span style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);background:rgba(56,189,248,.08);padding:.2rem .6rem;border-radius:.35rem;border:1px solid rgba(56,189,248,.2);">CI/CD Automated</span>
                     </div>
@@ -366,7 +366,7 @@
                 <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Selecciona un stack o ingresa tu repositorio para experimentar la generacion instantanea de arquitectura tecnica.</p>
             </div>
             <div class="glow-card reveal reveal-delay-1" style="padding:2rem 2.25rem;max-width:1000px;margin:0 auto;">
-                <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;margin-bottom:1.25rem;" id="sim-inputs">
+                <div class="sim-inputs-grid" id="sim-inputs">
                     <div>
                         <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Repositorio de prueba</label>
                         <div class="input-group-cyber">
@@ -388,7 +388,7 @@
                     <button id="btn-run-analysis" class="btn-cyber" style="padding:.75rem 1.75rem;font-size:.875rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Ejecutar Analisis AST &amp; Generar Docs</button>
                     <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;"><span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#34D399;" class="animate-pulse"></span>Motor: AST-Engine v2.4 + Gemini Pro RAG</div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:1.25rem;" id="sim-output">
+                <div class="sim-output-grid" id="sim-output">
                     <div class="cyber-terminal" id="terminal-log" style="padding:1rem;font-size:.75rem;min-height:16rem;max-height:22rem;overflow-y:auto;line-height:1.8;">
                         <p style="color:#475569;">$ documind analyze --repo github.com/organization/microservices-backend</p>
                         <p style="color:var(--tech-cyan);">[1/4] Clonando metadata y construyendo AST...</p>
@@ -430,7 +430,7 @@
                 <h2 class="section-title">Quienes Somos</h2>
                 <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Iniciativa de emprendimiento tecnologico de la <strong style="color:#94A3B8;">Universidad Libre - Facultad de Ingenieria</strong>.</p>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.75rem;max-width:900px;margin:0 auto;" class="reveal reveal-delay-1">
+            <div class="team-cards-grid reveal reveal-delay-1">
                 <div class="glow-card" style="padding:2rem;">
                     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
                         <div style="width:3.5rem;height:3.5rem;border-radius:.85rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;">DP</div>
@@ -515,7 +515,7 @@
     ============================================================ -->
     <section id="infografia" class="section-alt" style="padding:6rem 0;">
         <div class="container">
-            <div class="glow-card reveal" style="padding:2.5rem;display:grid;grid-template-columns:1fr auto;gap:2.5rem;align-items:center;" id="infografia-inner">
+            <div class="glow-card infografia-grid-inner reveal" id="infografia-inner">
                 <div>
                     <span class="badge badge-rose" style="margin-bottom:1rem;"><i class="fa-solid fa-file-pdf"></i> Entregable Academico &amp; Tecnico</span>
                     <h3 style="font-size:clamp(1.25rem,2.5vw,1.9rem);font-weight:800;color:#fff;margin-bottom:.85rem;line-height:1.25;">Infografia Oficial: Teoria del Color &amp; Fundamentos UX/UI</h3>
@@ -542,15 +542,15 @@
          9. BETA PRIVADA / REGISTRO VIP
     ============================================================ -->
     <section id="registro" style="padding:6rem 0;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:50%;left:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(56,189,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
-        <div style="position:absolute;top:50%;right:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(129,140,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
+        <div style="position:absolute;top:50%;left:0;width:300px;height:300px;background:radial-gradient(ellipse at 0% 50%,rgba(56,189,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
+        <div style="position:absolute;top:50%;right:0;width:300px;height:300px;background:radial-gradient(ellipse at 100% 50%,rgba(129,140,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Programa Exclusivo Early Adopters 2026</span>
                 <h2 class="section-title">Se parte de la <span class="gradient-text">Beta Privada</span></h2>
                 <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Accede antes que nadie y obtiene beneficios exclusivos para tu equipo de ingenieria.</p>
             </div>
-            <div style="display:grid;grid-template-columns:5fr 7fr;gap:2rem;align-items:start;" class="reveal reveal-delay-1" id="registro-grid">
+            <div class="registro-grid-container reveal reveal-delay-1" id="registro-grid">
                 <div class="glow-card" style="padding:2rem;">
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(9,13,22,.85);border-radius:.75rem;border:1px solid rgba(244,63,94,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
                         <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:var(--rose-accent);"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--rose-accent);" class="animate-ping"></span>Fase de Cupos Limitados</div>
@@ -582,7 +582,7 @@
                         <p style="font-size:.8rem;color:#64748B;margin-top:.4rem;">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
                     </div>
                     <form id="lead-form" style="display:flex;flex-direction:column;gap:1.25rem;">
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="form-grid-row">
                             <div>
                                 <label for="name" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-user" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Nombre Completo *</label>
                                 <input type="text" id="name" required placeholder="Carlos Mendoza" class="input-field">
@@ -603,7 +603,7 @@
                                 <button type="button" class="role-chip" data-role="academic"><i class="fa-solid fa-graduation-cap" style="color:#818CF8;"></i>Academico</button>
                             </div>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div class="form-grid-row">
                             <div>
                                 <label for="repo_size" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-folder-tree" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Tamano Repos</label>
                                 <select id="repo_size" class="input-field">
@@ -642,7 +642,7 @@
                             </div>
                             <span class="badge badge-emerald">HABILITADO</span>
                         </div>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;margin-bottom:1.25rem;">
+                        <div class="form-grid-row" style="font-family:'JetBrains Mono',monospace;font-size:.75rem;margin-bottom:1.25rem;">
                             <div><span style="display:block;font-size:.65rem;color:#64748B;margin-bottom:.25rem;">TITULAR:</span><span style="font-weight:700;color:#fff;word-break:break-words;" id="pass-holder-name">-</span></div>
                             <div><span style="display:block;font-size:.65rem;color:#64748B;margin-bottom:.25rem;">PASAPORTE ID:</span><span style="font-weight:700;color:var(--tech-cyan);" id="pass-id-code">DOCU-2026-X89</span></div>
                         </div>
@@ -666,7 +666,7 @@
                 <h2 class="section-title">Comprende tu codigo antes de perderte en el</h2>
                 <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Tienes preguntas sobre DocuMind AI o quieres colaborar? Contacta directamente a los fundadores.</p>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;max-width:920px;margin:0 auto;" class="reveal reveal-delay-1" id="contacto-grid">
+            <div class="contacto-grid-container reveal reveal-delay-1" id="contacto-grid">
                 
                 <!-- Left: Team Contacts & Institutional Links -->
                 <div style="display:flex;flex-direction:column;gap:1rem;">
@@ -770,7 +770,7 @@
     ============================================================ -->
     <footer style="background:rgba(9,13,22,.98);border-top:1px solid var(--border-glass);padding:3.5rem 0 2rem;">
         <div class="container">
-            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;" id="footer-grid">
+            <div class="footer-grid-container" id="footer-grid">
                 <div>
                     <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
                         <div style="width:2rem;height:2rem;border-radius:.55rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;flex-shrink:0;"><i class="fa-solid fa-brain"></i></div>
@@ -812,7 +812,7 @@
     <script src="app.js"></script>
 
     <!-- Three.js Real 3D AI CORE Engine -->
-    <script src="js/ai-core-3d.js"></script>
+    <script src="js/ai-core-3d.js?v=4.3"></script>
 
     <!-- General UI Helpers (Navbar, Mobile Menu, Scroll reveals) -->
     <script>
