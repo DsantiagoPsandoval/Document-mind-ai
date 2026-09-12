@@ -100,18 +100,22 @@
                     </p>
 
                     <p style="font-size:clamp(.92rem,1.4vw,1.08rem);color:#94A3B8;line-height:1.75;max-width:540px;margin-bottom:2rem;" class="reveal reveal-delay-2">
-                        Conecta tu repositorio &rarr; la IA entiende tu c&oacute;digo &rarr; genera documentaci&oacute;n viva &rarr; explora y comprende tu proyecto. En cada <code style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);padding:.15rem .45rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#818CF8;">git push</code>.
+                        Transforma cualquier repositorio en documentaci&oacute;n t&eacute;cnica inteligente, estructurada y siempre actualizada. En cada <code style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);padding:.15rem .45rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#818CF8;">git push</code>.
                     </p>
 
-                    <!-- CTAs -->
+                    <!-- CTAs with Analyze Repository sequence trigger -->
                     <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
-                        <a href="#registro" class="btn-cyber" style="padding:.85rem 1.85rem;font-size:.92rem;">
-                            <i class="fa-solid fa-bolt-lightning" style="margin-right:.5rem;"></i>
-                            Unirse a la Beta Privada
+                        <button type="button" id="btn-hero-analyze" class="btn-cyber" style="padding:.85rem 1.85rem;font-size:.92rem;">
+                            <i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>
+                            Analizar Repositorio
+                        </button>
+                        <a href="#como-funciona" class="btn-cyber-outline" style="padding:.85rem 1.85rem;font-size:.92rem;">
+                            <i class="fa-solid fa-compass" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
+                            Ver Como Funciona
                         </a>
-                        <a href="#demo" class="btn-cyber-outline" style="padding:.85rem 1.85rem;font-size:.92rem;">
-                            <i class="fa-solid fa-play" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
-                            Probar Simulador en Vivo
+                        <a href="#registro" class="btn-ghost" style="padding:.85rem 1.35rem;font-size:.85rem;">
+                            <i class="fa-solid fa-bolt" style="margin-right:.4rem;color:var(--tech-cyan);"></i>
+                            Acceso VIP Beta
                         </a>
                     </div>
 
@@ -129,28 +133,51 @@
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: AI CORE 3D VISUAL (45-55%) -->
-                <div style="display:flex;align-items:center;justify-content:center;" class="reveal reveal-delay-2">
-                    <div id="ai-core-wrapper" style="position:relative;width:100%;max-width:540px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;">
-                        <!-- 3D Futuristic AI CORE WebGL Canvas -->
-                        <canvas id="ai-core-canvas" style="width:100%;height:100%;display:block;outline:none;cursor:default;"></canvas>
+                <!-- RIGHT COLUMN: 3D AI CORE HERO COMPONENT (45-55%) -->
+                <div style="display:flex;align-items:center;justify-content:center;width:100%;" class="reveal reveal-delay-2">
+                    <div id="ai-core-container" style="position:relative;width:100%;max-width:540px;display:flex;flex-direction:column;align-items:center;">
                         
-                        <!-- Center AI CORE Badge overlay -->
-                        <div id="ai-core-label">
-                            <div style="font-family:'JetBrains Mono',monospace;font-weight:900;font-size:14px;color:#F8FAFC;letter-spacing:0.14em;text-shadow:0 0 12px rgba(56,189,248,0.95);line-height:1;">AI</div>
-                            <div style="width:24px;height:1px;background:rgba(56,189,248,0.85);margin:4px auto;box-shadow:0 0 8px #38BDF8;"></div>
-                            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10px;color:#38BDF8;letter-spacing:0.18em;line-height:1;">CORE</div>
+                        <!-- HUD Control Bar -->
+                        <div class="ai-hud-header" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:.55rem 1rem;background:rgba(15,23,42,0.92);border:1px solid rgba(129,140,248,0.25);border-radius:.75rem .75rem 0 0;backdrop-filter:blur(14px);font-family:'JetBrains Mono',monospace;font-size:.68rem;">
+                            <div style="display:flex;align-items:center;gap:.5rem;">
+                                <span id="ai-hud-dot" style="width:.55rem;height:.55rem;border-radius:50%;background:#38BDF8;box-shadow:0 0 10px #38BDF8;" class="animate-pulse"></span>
+                                <span style="color:#64748B;font-weight:700;">SYSTEM:</span>
+                                <span id="ai-hud-status-label" style="color:#38BDF8;font-weight:800;letter-spacing:.05em;">ANALYZING REPOSITORY</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:.5rem;">
+                                <button type="button" id="ai-btn-reset" class="btn-ghost" style="padding:.2rem .55rem;font-size:.62rem;border-radius:.35rem;" title="Restablecer vista 3D"><i class="fa-solid fa-crosshairs" style="margin-right:.25rem;"></i>RESET VIEW</button>
+                                <button type="button" id="ai-btn-pause" class="btn-ghost" style="padding:.2rem .55rem;font-size:.62rem;border-radius:.35rem;" title="Pausar o reanudar simulación"><i class="fa-solid fa-pause" style="margin-right:.25rem;"></i>PAUSE</button>
+                            </div>
                         </div>
 
-                        <!-- 3D Node Labels Overlay -->
-                        <div id="ai-nodes-overlay"></div>
+                        <!-- Main 3D AI CORE Canvas Wrapper -->
+                        <div id="ai-core-wrapper" style="position:relative;width:100%;aspect-ratio:1/1;background:radial-gradient(circle at 50% 50%, rgba(15,23,42,0.7) 0%, rgba(9,13,22,0.95) 75%);border-left:1px solid rgba(129,140,248,0.25);border-right:1px solid rgba(129,140,248,0.25);border-bottom:1px solid rgba(129,140,248,0.25);border-radius:0 0 .75rem .75rem;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.5);">
+                            <!-- 3D WebGL Canvas -->
+                            <canvas id="ai-core-canvas" style="width:100%;height:100%;display:block;outline:none;cursor:default;"></canvas>
+                            
+                            <!-- Center AI CORE Badge overlay -->
+                            <div id="ai-core-label">
+                                <div style="font-family:'JetBrains Mono',monospace;font-weight:900;font-size:13px;color:#F8FAFC;letter-spacing:0.16em;text-shadow:0 0 12px rgba(56,189,248,0.95);line-height:1;">AI</div>
+                                <div style="width:22px;height:1px;background:rgba(56,189,248,0.85);margin:3px auto;box-shadow:0 0 8px #38BDF8;"></div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:9.5px;color:#38BDF8;letter-spacing:0.18em;line-height:1;">CORE</div>
+                            </div>
 
-                        <!-- Interactive Node Hover Tooltip -->
-                        <div id="ai-tooltip" style="position:absolute;top:0;left:0;pointer-events:none;display:none;z-index:20;">
-                            <span id="ai-tooltip-tag" style="font-family:'JetBrains Mono',monospace;margin-right:.4rem;font-weight:800;">AST</span>
-                            <span id="ai-tooltip-desc" style="color:#E2E8F0;">Abstract Syntax Tree</span>
+                            <!-- 3D Node Labels Overlay -->
+                            <div id="ai-nodes-overlay"></div>
+
+                            <!-- Interactive Node Hover Tooltip -->
+                            <div id="ai-tooltip" style="position:absolute;top:0;left:0;pointer-events:none;display:none;z-index:25;">
+                                <span id="ai-tooltip-tag" style="font-family:'JetBrains Mono',monospace;margin-right:.4rem;font-weight:800;">AST</span>
+                                <span id="ai-tooltip-desc" style="color:#E2E8F0;">Abstract Syntax Tree</span>
+                            </div>
                         </div>
-                    </div></div>
+
+                        <!-- Subtle bottom HUD caption -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:.55rem;padding:0 .25rem;font-size:.66rem;font-family:'JetBrains Mono',monospace;color:#64748B;">
+                            <span><i class="fa-solid fa-hand-pointer" style="color:var(--tech-cyan);margin-right:.3rem;"></i>Haz click en un nodo 3D</span>
+                            <span style="color:#475569;">Three.js WebGL Engine</span>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -177,9 +204,23 @@
         </div>
     </section>
 
-    <!-- ============================================================
-         2. PROBLEMA SECTION
-    ============================================================ -->
+    <!-- Contextual Node Click Modal -->
+    <div id="ai-node-modal" style="display:none;position:fixed;inset:0;background:rgba(4,8,16,0.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;">
+        <div class="glow-card" style="max-width:480px;width:100%;padding:2rem;position:relative;background:#0F172A;border:1px solid rgba(56,189,248,0.35);box-shadow:0 0 35px rgba(56,189,248,0.2);">
+            <button type="button" id="ai-modal-close" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:#64748B;font-size:1.4rem;cursor:pointer;line-height:1;" aria-label="Cerrar modal">&times;</button>
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+                <span id="ai-modal-tag" style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:.75rem;padding:.2rem .65rem;border-radius:.4rem;background:rgba(56,189,248,0.12);border:1px solid #38BDF8;color:#38BDF8;">AST</span>
+                <h3 id="ai-modal-title" style="font-size:1.15rem;font-weight:800;color:#fff;">Abstract Syntax Tree</h3>
+            </div>
+            <p id="ai-modal-desc" style="font-size:.85rem;color:#94A3B8;line-height:1.7;margin-bottom:1.5rem;">
+                Representación estructural del código utilizada para comprender clases, funciones, variables y relaciones.
+            </p>
+            <div style="display:flex;justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('ai-node-modal').style.display='none'" class="btn-cyber" style="padding:.55rem 1.35rem;font-size:.8rem;">Entendido</button>
+            </div>
+        </div>
+    </div>
+
     <section id="problema" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
@@ -705,12 +746,12 @@
     <!-- Interactive Base Logic (Simulation, counters, VIP pass, toast) -->
     <script src="app.js"></script>
 
-    <!-- ============================================================
-         REAL THREE.JS WEBGL 3D AI CORE COMPONENT & PAGE INTERACTIONS
-    ============================================================ -->
+    <!-- Three.js Real 3D AI CORE Engine -->
+    <script src="js/ai-core-3d.js"></script>
+
+    <!-- General UI Helpers (Navbar, Mobile Menu, Scroll reveals) -->
     <script>
     (function() {
-        // --- 1. Navbar Scroll & Mobile Menu ---
         var nav = document.getElementById('navbar');
         window.addEventListener('scroll', function() {
             if (nav) nav.classList.toggle('scrolled', window.scrollY > 30);
@@ -733,7 +774,6 @@
             });
         }
 
-        // --- 2. Scroll Reveal Observer ---
         var revealObs = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
                 if (e.isIntersecting) {
@@ -743,424 +783,6 @@
             });
         }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
         document.querySelectorAll('.reveal').forEach(function(el) { revealObs.observe(el); });
-
-        // --- 3. THREE.JS REAL 3D WEBGL AI CORE ---
-        var canvas = document.getElementById('ai-core-canvas');
-        var wrapper = document.getElementById('ai-core-wrapper');
-        var overlay = document.getElementById('ai-nodes-overlay');
-        var tooltip = document.getElementById('ai-tooltip');
-        var tooltipTag = document.getElementById('ai-tooltip-tag');
-        var tooltipDesc = document.getElementById('ai-tooltip-desc');
-
-        if (!canvas || !wrapper || typeof THREE === 'undefined') {
-            console.warn('[DocuMind AI] Three.js or canvas wrapper missing, aborting 3D initialization.');
-            return;
-        }
-
-        // Color Palette Constants
-        var COLOR_CYAN = 0x38bdf8;
-        var COLOR_INDIGO = 0x818cf8;
-        var COLOR_EMERALD = 0x34d399;
-        var COLOR_DARK = 0x090d16;
-        var COLOR_DEEP_SLATE = 0x0f172a;
-
-        // 1. WebGL Renderer
-        var renderer = new THREE.WebGLRenderer({
-            canvas: canvas,
-            alpha: true,
-            antialias: true,
-            powerPreference: 'high-performance'
-        });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        renderer.setClearColor(0x000000, 0);
-
-        // 2. Scene & Camera
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        camera.position.set(0, 0, 20);
-
-        function updateDimensions() {
-            var width = wrapper.clientWidth || 540;
-            var height = wrapper.clientHeight || 540;
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(width, height, false);
-            return { width: width, height: height };
-        }
-        var curDims = updateDimensions();
-        window.addEventListener('resize', function() { curDims = updateDimensions(); }, { passive: true });
-
-        // 3. Dynamic Lighting
-        var ambientLight = new THREE.AmbientLight(0x0f172a, 3.2);
-        scene.add(ambientLight);
-
-        var coreLight = new THREE.PointLight(COLOR_CYAN, 4.2, 35);
-        coreLight.position.set(0, 0, 0);
-        scene.add(coreLight);
-
-        var lightTop = new THREE.DirectionalLight(0xffffff, 0.75);
-        lightTop.position.set(12, 16, 14);
-        scene.add(lightTop);
-
-        var lightFill = new THREE.DirectionalLight(COLOR_INDIGO, 0.85);
-        lightFill.position.set(-12, -10, 10);
-        scene.add(lightFill);
-
-        // 4. Central Computational Core Group
-        var coreGroup = new THREE.Group();
-
-        // 4.1 Dark Spherical Body
-        var coreGeo = new THREE.SphereGeometry(1.65, 36, 36);
-        var coreMat = new THREE.MeshStandardMaterial({
-            color: COLOR_DARK,
-            emissive: 0x071b2d,
-            roughness: 0.25,
-            metalness: 0.85,
-            transparent: true,
-            opacity: 0.95
-        });
-        var coreMesh = new THREE.Mesh(coreGeo, coreMat);
-        coreGroup.add(coreMesh);
-
-        // 4.2 Inner Geometric Wireframe
-        var innerWireGeo = new THREE.IcosahedronGeometry(1.78, 2);
-        var innerWireMat = new THREE.MeshBasicMaterial({
-            color: COLOR_CYAN,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.30
-        });
-        var innerWire = new THREE.Mesh(innerWireGeo, innerWireMat);
-        coreGroup.add(innerWire);
-
-        // 4.3 Outer Energy Lattice
-        var outerWireGeo = new THREE.IcosahedronGeometry(1.98, 1);
-        var outerWireMat = new THREE.MeshBasicMaterial({
-            color: COLOR_INDIGO,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.20
-        });
-        var outerWire = new THREE.Mesh(outerWireGeo, outerWireMat);
-        coreGroup.add(outerWire);
-
-        // 4.4 Glowing Equator Ring
-        var ringGeo = new THREE.RingGeometry(1.68, 2.05, 36);
-        var ringMat = new THREE.MeshBasicMaterial({
-            color: COLOR_CYAN,
-            side: THREE.DoubleSide,
-            transparent: true,
-            opacity: 0.28
-        });
-        var equatorRing = new THREE.Mesh(ringGeo, ringMat);
-        equatorRing.rotation.x = Math.PI / 2;
-        coreGroup.add(equatorRing);
-
-        scene.add(coreGroup);
-
-        // 5. Ambient 3D Particle Cloud
-        var particleCount = 120;
-        var particleGeo = new THREE.BufferGeometry();
-        var particlePositions = new Float32Array(particleCount * 3);
-        for (var p = 0; p < particleCount; p++) {
-            particlePositions[p * 3] = (Math.random() - 0.5) * 22;
-            particlePositions[p * 3 + 1] = (Math.random() - 0.5) * 22;
-            particlePositions[p * 3 + 2] = (Math.random() - 0.5) * 16;
-        }
-        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-        var particleMat = new THREE.PointsMaterial({
-            size: 0.12,
-            color: COLOR_CYAN,
-            transparent: true,
-            opacity: 0.45
-        });
-        var particleCloud = new THREE.Points(particleGeo, particleMat);
-        scene.add(particleCloud);
-
-        // 6. 5 Elliptical 3D Orbits with Traveling Satellites
-        var orbitConfigs = [
-            { rx: 3.8, ry: 2.1, rot: [0.65, 0.25, 0.35], color: COLOR_CYAN, speed: 0.32 },
-            { rx: 4.8, ry: 2.7, rot: [-0.75, 0.55, -0.40], color: COLOR_INDIGO, speed: -0.26 },
-            { rx: 5.8, ry: 3.3, rot: [1.10, -0.35, 0.80], color: COLOR_EMERALD, speed: 0.20 },
-            { rx: 6.8, ry: 3.8, rot: [-0.50, -0.80, -0.55], color: COLOR_CYAN, speed: -0.16 },
-            { rx: 7.8, ry: 4.3, rot: [0.30, 0.90, 0.20], color: COLOR_INDIGO, speed: 0.14 }
-        ];
-
-        var orbits = [];
-        orbitConfigs.forEach(function(cfg) {
-            var curve = new THREE.EllipseCurve(0, 0, cfg.rx, cfg.ry, 0, 2 * Math.PI, false, 0);
-            var pts = curve.getPoints(96);
-            var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
-            var lineMat = new THREE.LineBasicMaterial({
-                color: cfg.color,
-                transparent: true,
-                opacity: 0.28
-            });
-            var lineMesh = new THREE.LineLoop(lineGeo, lineMat);
-            lineMesh.rotation.set(cfg.rot[0], cfg.rot[1], cfg.rot[2]);
-            scene.add(lineMesh);
-
-            // Satellite point mesh
-            var satGeo = new THREE.SphereGeometry(0.12, 16, 16);
-            var satMat = new THREE.MeshBasicMaterial({ color: cfg.color });
-            var satMesh = new THREE.Mesh(satGeo, satMat);
-            lineMesh.add(satMesh);
-
-            orbits.push({
-                curve: curve,
-                line: lineMesh,
-                satellite: satMesh,
-                speed: cfg.speed,
-                offset: Math.random()
-            });
-        });
-
-        // 7. 3D Nodes Setup
-        var nodesData = [
-            { id: 'code', tag: 'CODE', desc: 'Source Code Repository', color: '#38BDF8', hex: COLOR_CYAN, pos: [-6.6, -1.0, 2.0], phase: 0.5, flow: 'in' },
-            { id: 'ast', tag: 'AST', desc: 'Abstract Syntax Tree', color: '#818CF8', hex: COLOR_INDIGO, pos: [1.8, 5.6, 1.8], phase: 1.8, flow: 'out' },
-            { id: 'docs', tag: 'DOCS', desc: 'Generated Documentation', color: '#38BDF8', hex: COLOR_CYAN, pos: [6.8, 1.0, 2.0], phase: 3.1, flow: 'out' },
-            { id: 'c4', tag: 'C4', desc: 'Software Architecture', color: '#818CF8', hex: COLOR_INDIGO, pos: [-4.8, 4.0, -2.0], phase: 4.4, flow: 'out' },
-            { id: 'api', tag: 'API', desc: 'API Structure', color: '#38BDF8', hex: COLOR_CYAN, pos: [5.0, 3.8, -1.8], phase: 5.7, flow: 'out' },
-            { id: 'db', tag: 'DATABASE', desc: 'Data Layer', color: '#818CF8', hex: COLOR_INDIGO, pos: [-2.6, -5.2, -2.2], phase: 2.4, flow: 'out' },
-            { id: 'sync', tag: 'SYNC', desc: 'Repository Synchronization', color: '#34D399', hex: COLOR_EMERALD, pos: [3.6, -4.6, 1.6], phase: 0.9, flow: 'out' }
-        ];
-
-        var nodes = [];
-        var hitMeshes = [];
-
-        nodesData.forEach(function(n, idx) {
-            var group = new THREE.Group();
-            group.position.set(n.pos[0], n.pos[1], n.pos[2]);
-
-            // Inner Sphere
-            var sGeo = new THREE.SphereGeometry(0.32, 24, 24);
-            var sMat = new THREE.MeshStandardMaterial({
-                color: COLOR_DEEP_SLATE,
-                emissive: n.hex,
-                emissiveIntensity: 0.70,
-                roughness: 0.25,
-                metalness: 0.8
-            });
-            var sMesh = new THREE.Mesh(sGeo, sMat);
-            group.add(sMesh);
-
-            // Orbiting Ring
-            var tGeo = new THREE.TorusGeometry(0.48, 0.03, 16, 32);
-            var tMat = new THREE.MeshBasicMaterial({ color: n.hex, transparent: true, opacity: 0.65 });
-            var tMesh = new THREE.Mesh(tGeo, tMat);
-            group.add(tMesh);
-
-            // Raycaster Hit Mesh (Invisible larger hit area)
-            var hGeo = new THREE.SphereGeometry(0.9, 16, 16);
-            var hMat = new THREE.MeshBasicMaterial({ visible: false });
-            var hMesh = new THREE.Mesh(hGeo, hMat);
-            hMesh.userData = { nodeIndex: idx };
-            group.add(hMesh);
-            hitMeshes.push(hMesh);
-
-            scene.add(group);
-
-            // 3D Connection Line
-            var lineGeo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(0, 0, 0),
-                new THREE.Vector3(n.pos[0], n.pos[1], n.pos[2])
-            ]);
-            var lineMat = new THREE.LineBasicMaterial({
-                color: n.hex,
-                transparent: true,
-                opacity: 0.24,
-                linewidth: 1
-            });
-            var line = new THREE.Line(lineGeo, lineMat);
-            scene.add(line);
-
-            // 2 Flowing Light Packets
-            var packets = [];
-            for (var p = 0; p < 2; p++) {
-                var pMesh = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.09, 12, 12),
-                    new THREE.MeshBasicMaterial({ color: n.hex })
-                );
-                scene.add(pMesh);
-                packets.push({ mesh: pMesh, offset: p * 0.5 });
-            }
-
-            // HTML Node Badge in Overlay
-            var labelEl = document.createElement('div');
-            labelEl.className = 'ai-3d-node-label';
-            labelEl.innerHTML = '<span class="node-dot" style="background:' + n.color + ';box-shadow:0 0 8px ' + n.color + ';"></span>' +
-                                '<span class="node-name">' + n.tag + '</span>';
-            overlay.appendChild(labelEl);
-
-            labelEl.addEventListener('mouseenter', function() { setHoveredNode(idx); });
-            labelEl.addEventListener('mouseleave', function() { clearHoveredNode(); });
-
-            nodes.push({
-                data: n,
-                basePos: new THREE.Vector3(n.pos[0], n.pos[1], n.pos[2]),
-                group: group,
-                sphere: sMesh,
-                torus: tMesh,
-                line: line,
-                packets: packets,
-                labelEl: labelEl
-            });
-        });
-
-        // 8. Interaction & Raycaster
-        var raycaster = new THREE.Raycaster();
-        var mouse = new THREE.Vector2(-999, -999);
-        var targetCam = new THREE.Vector2(0, 0);
-        var hoveredIndex = -1;
-
-        function updateMouse(e) {
-            var rect = wrapper.getBoundingClientRect();
-            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-            targetCam.x = mouse.x * 1.5;
-            targetCam.y = mouse.y * 1.2;
-        }
-
-        wrapper.addEventListener('mousemove', updateMouse, { passive: true });
-        wrapper.addEventListener('mouseleave', function() {
-            mouse.x = -999;
-            mouse.y = -999;
-            targetCam.x = 0;
-            targetCam.y = 0;
-            clearHoveredNode();
-        });
-
-        function setHoveredNode(idx) {
-            if (hoveredIndex === idx) return;
-            hoveredIndex = idx;
-            var n = nodes[idx];
-            canvas.style.cursor = 'pointer';
-
-            if (tooltip && tooltipTag && tooltipDesc) {
-                tooltipTag.textContent = n.data.tag;
-                tooltipTag.style.color = n.data.color;
-                tooltipDesc.textContent = n.data.desc;
-                tooltip.style.borderColor = n.data.color;
-                tooltip.style.display = 'block';
-            }
-            n.labelEl.classList.add('active');
-        }
-
-        function clearHoveredNode() {
-            if (hoveredIndex === -1) return;
-            var prevNode = nodes[hoveredIndex];
-            if (prevNode) prevNode.labelEl.classList.remove('active');
-            hoveredIndex = -1;
-            canvas.style.cursor = 'default';
-            if (tooltip) tooltip.style.display = 'none';
-        }
-
-        // 9. Animation Loop
-        var startTime = performance.now();
-
-        function animate(now) {
-            var t = (now - startTime) * 0.001;
-
-            // Camera Parallax
-            camera.position.x += (targetCam.x - camera.position.x) * 0.05;
-            camera.position.y += (targetCam.y - camera.position.y) * 0.05;
-            camera.lookAt(0, 0, 0);
-
-            // Raycaster Interaction
-            if (mouse.x > -900) {
-                raycaster.setFromCamera(mouse, camera);
-                var intersects = raycaster.intersectObjects(hitMeshes);
-                if (intersects.length > 0) {
-                    setHoveredNode(intersects[0].object.userData.nodeIndex);
-                } else {
-                    clearHoveredNode();
-                }
-            }
-
-            // Core Rotation & Breathing
-            coreGroup.rotation.y = t * 0.22;
-            innerWire.rotation.x = -t * 0.35;
-            innerWire.rotation.y = t * 0.45;
-            outerWire.rotation.y = -t * 0.18;
-            outerWire.rotation.z = t * 0.14;
-
-            var pulseScale = 1.0 + 0.02 * Math.sin(t * 1.8);
-            coreGroup.scale.set(pulseScale, pulseScale, pulseScale);
-
-            // Ambient Particle Cloud Rotation
-            particleCloud.rotation.y = t * 0.04;
-            particleCloud.rotation.x = t * 0.02;
-
-            // Orbits Satellites Update
-            orbits.forEach(function(orb) {
-                var progress = (t * orb.speed + orb.offset) % 1.0;
-                if (progress < 0) progress += 1.0;
-                var pt = orb.curve.getPointAt(progress);
-                orb.satellite.position.set(pt.x, pt.y, 0);
-            });
-
-            // Dimensions for HTML Label Projections
-            var w = curDims.width;
-            var h = curDims.height;
-            var coreOrigin = new THREE.Vector3(0, 0, 0);
-
-            // Nodes, Connections, and Packets Update
-            nodes.forEach(function(node, idx) {
-                var isHovered = (hoveredIndex === idx);
-
-                // Subtle organic 3D float
-                var fy = node.basePos.y + Math.sin(t * 1.2 + node.data.phase) * 0.18;
-                var fz = node.basePos.z + Math.cos(t * 1.0 + node.data.phase) * 0.15;
-                node.group.position.set(node.basePos.x, fy, fz);
-
-                // Node ring spin
-                node.torus.rotation.x = t * 0.8 + idx;
-                node.torus.rotation.y = t * 0.6;
-
-                // Scale & Emissive Lerp
-                var targetScale = isHovered ? 1.25 : 1.0;
-                node.group.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
-                var targetEmissive = isHovered ? 1.6 : 0.70;
-                node.sphere.material.emissiveIntensity += (targetEmissive - node.sphere.material.emissiveIntensity) * 0.1;
-
-                // Update Line Geometry
-                var linePosAttr = node.line.geometry.attributes.position;
-                linePosAttr.setXYZ(0, 0, 0, 0);
-                linePosAttr.setXYZ(1, node.group.position.x, node.group.position.y, node.group.position.z);
-                linePosAttr.needsUpdate = true;
-                node.line.material.opacity += ((isHovered ? 0.80 : 0.24) - node.line.material.opacity) * 0.1;
-
-                // Update Traveling Data Packets
-                node.packets.forEach(function(pkt) {
-                    var prog = (t * 0.35 + pkt.offset) % 1.0;
-                    var startPos = (node.data.flow === 'in') ? node.group.position : coreOrigin;
-                    var endPos   = (node.data.flow === 'in') ? coreOrigin : node.group.position;
-                    pkt.mesh.position.copy(startPos).lerp(endPos, prog);
-                });
-
-                // Project 3D Node Position to 2D HTML Label
-                var screenPos = node.group.position.clone().project(camera);
-                var lx = (screenPos.x * 0.5 + 0.5) * w;
-                var ly = (-(screenPos.y * 0.5) + 0.5) * h;
-                node.labelEl.style.transform = 'translate(-50%, -50%) translate(' + lx.toFixed(1) + 'px, ' + ly.toFixed(1) + 'px)';
-                node.labelEl.style.opacity = (screenPos.z > 1.0) ? '0' : '1';
-
-                // Position Tooltip if hovered
-                if (isHovered && tooltip) {
-                    tooltip.style.transform = 'translate(-50%, -100%) translate(' + lx.toFixed(1) + 'px, ' + (ly - 22).toFixed(1) + 'px)';
-                }
-            });
-
-            // Render 3D Scene
-            renderer.render(scene, camera);
-
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                requestAnimationFrame(animate);
-            }
-        }
-
-        requestAnimationFrame(animate);
     })();
     </script>
 </body>
