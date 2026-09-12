@@ -20,6 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css?v=4.1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body style="background-color:#090D16;color:#E2E8F0;">
 
@@ -130,16 +131,26 @@
 
                 <!-- RIGHT COLUMN: AI CORE 3D VISUAL (45-55%) -->
                 <div style="display:flex;align-items:center;justify-content:center;" class="reveal reveal-delay-2">
-                    <div id="ai-core-wrapper">
-                        <!-- 3D Futuristic AI CORE Canvas -->
-                        <canvas id="ai-core-canvas" width="560" height="560"></canvas>
+                    <div id="ai-core-wrapper" style="position:relative;width:100%;max-width:540px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;">
+                        <!-- 3D Futuristic AI CORE WebGL Canvas -->
+                        <canvas id="ai-core-canvas" style="width:100%;height:100%;display:block;outline:none;cursor:default;"></canvas>
                         
+                        <!-- Center AI CORE Badge overlay -->
+                        <div id="ai-core-label">
+                            <div style="font-family:'JetBrains Mono',monospace;font-weight:900;font-size:14px;color:#F8FAFC;letter-spacing:0.14em;text-shadow:0 0 12px rgba(56,189,248,0.95);line-height:1;">AI</div>
+                            <div style="width:24px;height:1px;background:rgba(56,189,248,0.85);margin:4px auto;box-shadow:0 0 8px #38BDF8;"></div>
+                            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10px;color:#38BDF8;letter-spacing:0.18em;line-height:1;">CORE</div>
+                        </div>
+
+                        <!-- 3D Node Labels Overlay -->
+                        <div id="ai-nodes-overlay"></div>
+
                         <!-- Interactive Node Hover Tooltip -->
-                        <div id="ai-tooltip">
-                            <span id="ai-tooltip-tag" style="font-family:'JetBrains Mono',monospace;margin-right:.4rem;">AST</span>
+                        <div id="ai-tooltip" style="position:absolute;top:0;left:0;pointer-events:none;display:none;z-index:20;">
+                            <span id="ai-tooltip-tag" style="font-family:'JetBrains Mono',monospace;margin-right:.4rem;font-weight:800;">AST</span>
                             <span id="ai-tooltip-desc" style="color:#E2E8F0;">Abstract Syntax Tree</span>
                         </div>
-                    </div>
+                    </div></div>
                 </div>
 
             </div>
@@ -695,7 +706,7 @@
     <script src="app.js"></script>
 
     <!-- ============================================================
-         3D AI CORE COMPONENT & PAGE INTERACTIONS SCRIPT
+         REAL THREE.JS WEBGL 3D AI CORE COMPONENT & PAGE INTERACTIONS
     ============================================================ -->
     <script>
     (function() {
@@ -733,505 +744,423 @@
         }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
         document.querySelectorAll('.reveal').forEach(function(el) { revealObs.observe(el); });
 
-        // --- 3. 3D AI CORE VISUAL COMPONENT ---
-        // Canvas roundRect Polyfill for universal browser compatibility
-        if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
-            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-                if (w < 2 * r) r = w / 2;
-                if (h < 2 * r) r = h / 2;
-                this.beginPath();
-                this.moveTo(x + r, y);
-                this.arcTo(x + w, y, x + w, y + h, r);
-                this.arcTo(x + w, y + h, x, y + h, r);
-                this.arcTo(x, y + h, x, y, r);
-                this.arcTo(x, y, x + w, y, r);
-                this.closePath();
-                return this;
-            };
-        }
+        // --- 3. THREE.JS REAL 3D WEBGL AI CORE ---
         var canvas = document.getElementById('ai-core-canvas');
-        if (!canvas) return;
-
-        var ctx = canvas.getContext('2d');
+        var wrapper = document.getElementById('ai-core-wrapper');
+        var overlay = document.getElementById('ai-nodes-overlay');
         var tooltip = document.getElementById('ai-tooltip');
         var tooltipTag = document.getElementById('ai-tooltip-tag');
         var tooltipDesc = document.getElementById('ai-tooltip-desc');
-        var wrapper = document.getElementById('ai-core-wrapper');
 
-        // Color Constants (Official Palette)
-        var COLOR_CYAN = '#38BDF8';
-        var COLOR_INDIGO = '#818CF8';
-        var COLOR_EMERALD = '#34D399';
-        var COLOR_BG_DARK = '#090D16';
-        var COLOR_DEEP_SLATE = '#0F172A';
+        if (!canvas || !wrapper || typeof THREE === 'undefined') {
+            console.warn('[DocuMind AI] Three.js or canvas wrapper missing, aborting 3D initialization.');
+            return;
+        }
 
-        // 3D Nodes Configuration
-        var nodes = [
-            { id: 'ast',  tag: 'AST',  desc: 'Abstract Syntax Tree',      color: COLOR_INDIGO,  x: 50,   y: -175, z: 45,  phase: 0.2 },
-            { id: 'code', tag: 'CODE', desc: 'Source Code Repository',    color: COLOR_CYAN,    x: -210, y: -30,  z: 55,  phase: 1.5 },
-            { id: 'docs', tag: 'DOCS', desc: 'Generated Documentation',   color: COLOR_CYAN,    x: 215,  y: 15,   z: 50,  phase: 2.8 },
-            { id: 'c4',   tag: 'C4',   desc: 'Software Architecture',     color: COLOR_INDIGO,  x: -160, y: 145,  z: -30, phase: 4.1 },
-            { id: 'api',  tag: 'API',  desc: 'API Structure',             color: COLOR_CYAN,    x: 165,  y: 135,  z: -25, phase: 5.4 },
-            { id: 'db',   tag: 'DATABASE', desc: 'Schema & Models',       color: COLOR_INDIGO,  x: -70,  y: 215,  z: -55, phase: 3.3 },
-            { id: 'sync', tag: 'SYNC', desc: 'Continuous Git Sync',       color: COLOR_EMERALD, x: 75,   y: 205,  z: 35,  phase: 0.9 }
+        // Color Palette Constants
+        var COLOR_CYAN = 0x38bdf8;
+        var COLOR_INDIGO = 0x818cf8;
+        var COLOR_EMERALD = 0x34d399;
+        var COLOR_DARK = 0x090d16;
+        var COLOR_DEEP_SLATE = 0x0f172a;
+
+        // 1. WebGL Renderer
+        var renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true,
+            powerPreference: 'high-performance'
+        });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setClearColor(0x000000, 0);
+
+        // 2. Scene & Camera
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+        camera.position.set(0, 0, 20);
+
+        function updateDimensions() {
+            var width = wrapper.clientWidth || 540;
+            var height = wrapper.clientHeight || 540;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height, false);
+            return { width: width, height: height };
+        }
+        var curDims = updateDimensions();
+        window.addEventListener('resize', function() { curDims = updateDimensions(); }, { passive: true });
+
+        // 3. Dynamic Lighting
+        var ambientLight = new THREE.AmbientLight(0x0f172a, 3.2);
+        scene.add(ambientLight);
+
+        var coreLight = new THREE.PointLight(COLOR_CYAN, 4.2, 35);
+        coreLight.position.set(0, 0, 0);
+        scene.add(coreLight);
+
+        var lightTop = new THREE.DirectionalLight(0xffffff, 0.75);
+        lightTop.position.set(12, 16, 14);
+        scene.add(lightTop);
+
+        var lightFill = new THREE.DirectionalLight(COLOR_INDIGO, 0.85);
+        lightFill.position.set(-12, -10, 10);
+        scene.add(lightFill);
+
+        // 4. Central Computational Core Group
+        var coreGroup = new THREE.Group();
+
+        // 4.1 Dark Spherical Body
+        var coreGeo = new THREE.SphereGeometry(1.65, 36, 36);
+        var coreMat = new THREE.MeshStandardMaterial({
+            color: COLOR_DARK,
+            emissive: 0x071b2d,
+            roughness: 0.25,
+            metalness: 0.85,
+            transparent: true,
+            opacity: 0.95
+        });
+        var coreMesh = new THREE.Mesh(coreGeo, coreMat);
+        coreGroup.add(coreMesh);
+
+        // 4.2 Inner Geometric Wireframe
+        var innerWireGeo = new THREE.IcosahedronGeometry(1.78, 2);
+        var innerWireMat = new THREE.MeshBasicMaterial({
+            color: COLOR_CYAN,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.30
+        });
+        var innerWire = new THREE.Mesh(innerWireGeo, innerWireMat);
+        coreGroup.add(innerWire);
+
+        // 4.3 Outer Energy Lattice
+        var outerWireGeo = new THREE.IcosahedronGeometry(1.98, 1);
+        var outerWireMat = new THREE.MeshBasicMaterial({
+            color: COLOR_INDIGO,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.20
+        });
+        var outerWire = new THREE.Mesh(outerWireGeo, outerWireMat);
+        coreGroup.add(outerWire);
+
+        // 4.4 Glowing Equator Ring
+        var ringGeo = new THREE.RingGeometry(1.68, 2.05, 36);
+        var ringMat = new THREE.MeshBasicMaterial({
+            color: COLOR_CYAN,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.28
+        });
+        var equatorRing = new THREE.Mesh(ringGeo, ringMat);
+        equatorRing.rotation.x = Math.PI / 2;
+        coreGroup.add(equatorRing);
+
+        scene.add(coreGroup);
+
+        // 5. Ambient 3D Particle Cloud
+        var particleCount = 120;
+        var particleGeo = new THREE.BufferGeometry();
+        var particlePositions = new Float32Array(particleCount * 3);
+        for (var p = 0; p < particleCount; p++) {
+            particlePositions[p * 3] = (Math.random() - 0.5) * 22;
+            particlePositions[p * 3 + 1] = (Math.random() - 0.5) * 22;
+            particlePositions[p * 3 + 2] = (Math.random() - 0.5) * 16;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        var particleMat = new THREE.PointsMaterial({
+            size: 0.12,
+            color: COLOR_CYAN,
+            transparent: true,
+            opacity: 0.45
+        });
+        var particleCloud = new THREE.Points(particleGeo, particleMat);
+        scene.add(particleCloud);
+
+        // 6. 5 Elliptical 3D Orbits with Traveling Satellites
+        var orbitConfigs = [
+            { rx: 3.8, ry: 2.1, rot: [0.65, 0.25, 0.35], color: COLOR_CYAN, speed: 0.32 },
+            { rx: 4.8, ry: 2.7, rot: [-0.75, 0.55, -0.40], color: COLOR_INDIGO, speed: -0.26 },
+            { rx: 5.8, ry: 3.3, rot: [1.10, -0.35, 0.80], color: COLOR_EMERALD, speed: 0.20 },
+            { rx: 6.8, ry: 3.8, rot: [-0.50, -0.80, -0.55], color: COLOR_CYAN, speed: -0.16 },
+            { rx: 7.8, ry: 4.3, rot: [0.30, 0.90, 0.20], color: COLOR_INDIGO, speed: 0.14 }
         ];
 
-        // 4 3D Elliptical Orbits around Core
-        var orbits = [
-            { rx: 95,  ry: 44, rotX: 0.52, rotY: 0.26,  speed: 0.40,  color: COLOR_CYAN,    pts: 64 },
-            { rx: 140, ry: 62, rotX: -0.65, rotY: 0.40, speed: -0.30, color: COLOR_INDIGO,  pts: 64 },
-            { rx: 180, ry: 78, rotX: 0.90, rotY: -0.32, speed: 0.24,  color: COLOR_EMERALD, pts: 64 },
-            { rx: 225, ry: 95, rotX: -0.45, rotY: -0.75, speed: -0.18, color: COLOR_CYAN,   pts: 64 }
+        var orbits = [];
+        orbitConfigs.forEach(function(cfg) {
+            var curve = new THREE.EllipseCurve(0, 0, cfg.rx, cfg.ry, 0, 2 * Math.PI, false, 0);
+            var pts = curve.getPoints(96);
+            var lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+            var lineMat = new THREE.LineBasicMaterial({
+                color: cfg.color,
+                transparent: true,
+                opacity: 0.28
+            });
+            var lineMesh = new THREE.LineLoop(lineGeo, lineMat);
+            lineMesh.rotation.set(cfg.rot[0], cfg.rot[1], cfg.rot[2]);
+            scene.add(lineMesh);
+
+            // Satellite point mesh
+            var satGeo = new THREE.SphereGeometry(0.12, 16, 16);
+            var satMat = new THREE.MeshBasicMaterial({ color: cfg.color });
+            var satMesh = new THREE.Mesh(satGeo, satMat);
+            lineMesh.add(satMesh);
+
+            orbits.push({
+                curve: curve,
+                line: lineMesh,
+                satellite: satMesh,
+                speed: cfg.speed,
+                offset: Math.random()
+            });
+        });
+
+        // 7. 3D Nodes Setup
+        var nodesData = [
+            { id: 'code', tag: 'CODE', desc: 'Source Code Repository', color: '#38BDF8', hex: COLOR_CYAN, pos: [-6.6, -1.0, 2.0], phase: 0.5, flow: 'in' },
+            { id: 'ast', tag: 'AST', desc: 'Abstract Syntax Tree', color: '#818CF8', hex: COLOR_INDIGO, pos: [1.8, 5.6, 1.8], phase: 1.8, flow: 'out' },
+            { id: 'docs', tag: 'DOCS', desc: 'Generated Documentation', color: '#38BDF8', hex: COLOR_CYAN, pos: [6.8, 1.0, 2.0], phase: 3.1, flow: 'out' },
+            { id: 'c4', tag: 'C4', desc: 'Software Architecture', color: '#818CF8', hex: COLOR_INDIGO, pos: [-4.8, 4.0, -2.0], phase: 4.4, flow: 'out' },
+            { id: 'api', tag: 'API', desc: 'API Structure', color: '#38BDF8', hex: COLOR_CYAN, pos: [5.0, 3.8, -1.8], phase: 5.7, flow: 'out' },
+            { id: 'db', tag: 'DATABASE', desc: 'Data Layer', color: '#818CF8', hex: COLOR_INDIGO, pos: [-2.6, -5.2, -2.2], phase: 2.4, flow: 'out' },
+            { id: 'sync', tag: 'SYNC', desc: 'Repository Synchronization', color: '#34D399', hex: COLOR_EMERALD, pos: [3.6, -4.6, 1.6], phase: 0.9, flow: 'out' }
         ];
 
-        // Data Packets (Energy Pulses between Nodes and AI CORE)
-        var packets = [
-            { from: 'code', to: 'core', color: COLOR_CYAN,    speed: 0.35, offset: 0.00 },
-            { from: 'ast',  to: 'core', color: COLOR_INDIGO,  speed: 0.32, offset: 0.33 },
-            { from: 'db',   to: 'core', color: COLOR_INDIGO,  speed: 0.28, offset: 0.66 },
-            { from: 'core', to: 'docs', color: COLOR_CYAN,    speed: 0.38, offset: 0.15 },
-            { from: 'core', to: 'c4',   color: COLOR_INDIGO,  speed: 0.30, offset: 0.45 },
-            { from: 'core', to: 'api',  color: COLOR_CYAN,    speed: 0.34, offset: 0.75 },
-            { from: 'core', to: 'sync', color: COLOR_EMERALD, speed: 0.42, offset: 0.55 }
-        ];
+        var nodes = [];
+        var hitMeshes = [];
 
-        // Ambient floating dust particles
-        var dust = [];
-        for (var i = 0; i < 36; i++) {
-            dust.push({
-                x: (Math.random() - 0.5) * 440,
-                y: (Math.random() - 0.5) * 440,
-                z: (Math.random() - 0.5) * 200,
-                size: Math.random() * 1.5 + 0.5,
-                color: Math.random() > 0.6 ? COLOR_CYAN : (Math.random() > 0.5 ? COLOR_INDIGO : COLOR_EMERALD),
-                speed: Math.random() * 0.2 + 0.1,
-                phase: Math.random() * Math.PI * 2
+        nodesData.forEach(function(n, idx) {
+            var group = new THREE.Group();
+            group.position.set(n.pos[0], n.pos[1], n.pos[2]);
+
+            // Inner Sphere
+            var sGeo = new THREE.SphereGeometry(0.32, 24, 24);
+            var sMat = new THREE.MeshStandardMaterial({
+                color: COLOR_DEEP_SLATE,
+                emissive: n.hex,
+                emissiveIntensity: 0.70,
+                roughness: 0.25,
+                metalness: 0.8
             });
-        }
+            var sMesh = new THREE.Mesh(sGeo, sMat);
+            group.add(sMesh);
 
-        // Camera & Interaction
-        var mouseX = 0, mouseY = 0;
-        var rotX = 0, rotY = 0;
-        var targetRotX = 0, targetRotY = 0;
-        var hoveredNode = null;
-        var fov = 420;
+            // Orbiting Ring
+            var tGeo = new THREE.TorusGeometry(0.48, 0.03, 16, 32);
+            var tMat = new THREE.MeshBasicMaterial({ color: n.hex, transparent: true, opacity: 0.65 });
+            var tMesh = new THREE.Mesh(tGeo, tMat);
+            group.add(tMesh);
 
-        // Mouse move over wrapper
-        if (wrapper) {
-            wrapper.addEventListener('mousemove', function(e) {
-                var rect = wrapper.getBoundingClientRect();
-                var cx = rect.left + rect.width / 2;
-                var cy = rect.top + rect.height / 2;
-                mouseX = e.clientX - cx;
-                mouseY = e.clientY - cy;
-                targetRotY = (mouseX / (rect.width / 2)) * 0.22; // max ~12.5 deg
-                targetRotX = -(mouseY / (rect.height / 2)) * 0.18;
+            // Raycaster Hit Mesh (Invisible larger hit area)
+            var hGeo = new THREE.SphereGeometry(0.9, 16, 16);
+            var hMat = new THREE.MeshBasicMaterial({ visible: false });
+            var hMesh = new THREE.Mesh(hGeo, hMat);
+            hMesh.userData = { nodeIndex: idx };
+            group.add(hMesh);
+            hitMeshes.push(hMesh);
+
+            scene.add(group);
+
+            // 3D Connection Line
+            var lineGeo = new THREE.BufferGeometry().setFromPoints([
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(n.pos[0], n.pos[1], n.pos[2])
+            ]);
+            var lineMat = new THREE.LineBasicMaterial({
+                color: n.hex,
+                transparent: true,
+                opacity: 0.24,
+                linewidth: 1
             });
+            var line = new THREE.Line(lineGeo, lineMat);
+            scene.add(line);
 
-            wrapper.addEventListener('mouseleave', function() {
-                targetRotX = 0;
-                targetRotY = 0;
-                if (tooltip) tooltip.style.display = 'none';
-                hoveredNode = null;
+            // 2 Flowing Light Packets
+            var packets = [];
+            for (var p = 0; p < 2; p++) {
+                var pMesh = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.09, 12, 12),
+                    new THREE.MeshBasicMaterial({ color: n.hex })
+                );
+                scene.add(pMesh);
+                packets.push({ mesh: pMesh, offset: p * 0.5 });
+            }
+
+            // HTML Node Badge in Overlay
+            var labelEl = document.createElement('div');
+            labelEl.className = 'ai-3d-node-label';
+            labelEl.innerHTML = '<span class="node-dot" style="background:' + n.color + ';box-shadow:0 0 8px ' + n.color + ';"></span>' +
+                                '<span class="node-name">' + n.tag + '</span>';
+            overlay.appendChild(labelEl);
+
+            labelEl.addEventListener('mouseenter', function() { setHoveredNode(idx); });
+            labelEl.addEventListener('mouseleave', function() { clearHoveredNode(); });
+
+            nodes.push({
+                data: n,
+                basePos: new THREE.Vector3(n.pos[0], n.pos[1], n.pos[2]),
+                group: group,
+                sphere: sMesh,
+                torus: tMesh,
+                line: line,
+                packets: packets,
+                labelEl: labelEl
             });
+        });
+
+        // 8. Interaction & Raycaster
+        var raycaster = new THREE.Raycaster();
+        var mouse = new THREE.Vector2(-999, -999);
+        var targetCam = new THREE.Vector2(0, 0);
+        var hoveredIndex = -1;
+
+        function updateMouse(e) {
+            var rect = wrapper.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+            targetCam.x = mouse.x * 1.5;
+            targetCam.y = mouse.y * 1.2;
         }
 
-        // 3D Math Helper: Rotate point around X and Y axes
-        function rotate3D(p, rx, ry) {
-            // Rotate around Y
-            var cosY = Math.cos(ry), sinY = Math.sin(ry);
-            var x1 = p.x * cosY + p.z * sinY;
-            var z1 = -p.x * sinY + p.z * cosY;
-            // Rotate around X
-            var cosX = Math.cos(rx), sinX = Math.sin(rx);
-            var y2 = p.y * cosX - z1 * sinX;
-            var z2 = p.y * sinX + z1 * cosX;
-            return { x: x1, y: y2, z: z2 };
+        wrapper.addEventListener('mousemove', updateMouse, { passive: true });
+        wrapper.addEventListener('mouseleave', function() {
+            mouse.x = -999;
+            mouse.y = -999;
+            targetCam.x = 0;
+            targetCam.y = 0;
+            clearHoveredNode();
+        });
+
+        function setHoveredNode(idx) {
+            if (hoveredIndex === idx) return;
+            hoveredIndex = idx;
+            var n = nodes[idx];
+            canvas.style.cursor = 'pointer';
+
+            if (tooltip && tooltipTag && tooltipDesc) {
+                tooltipTag.textContent = n.data.tag;
+                tooltipTag.style.color = n.data.color;
+                tooltipDesc.textContent = n.data.desc;
+                tooltip.style.borderColor = n.data.color;
+                tooltip.style.display = 'block';
+            }
+            n.labelEl.classList.add('active');
         }
 
-        // Project 3D point to 2D canvas screen
-        function project(p, cx, cy, scaleFactor) {
-            var scale = fov / (fov + p.z);
-            return {
-                x: cx + p.x * scale * scaleFactor,
-                y: cy + p.y * scale * scaleFactor,
-                scale: scale * scaleFactor,
-                z: p.z
-            };
+        function clearHoveredNode() {
+            if (hoveredIndex === -1) return;
+            var prevNode = nodes[hoveredIndex];
+            if (prevNode) prevNode.labelEl.classList.remove('active');
+            hoveredIndex = -1;
+            canvas.style.cursor = 'default';
+            if (tooltip) tooltip.style.display = 'none';
         }
 
-        // Main Animation Loop
+        // 9. Animation Loop
         var startTime = performance.now();
 
-        function render(now) {
-            var t = (now - startTime) * 0.001; // elapsed in seconds
+        function animate(now) {
+            var t = (now - startTime) * 0.001;
 
-            // Smooth camera easing (lerp)
-            rotX += (targetRotX - rotX) * 0.06;
-            rotY += (targetRotY - rotY) * 0.06;
+            // Camera Parallax
+            camera.position.x += (targetCam.x - camera.position.x) * 0.05;
+            camera.position.y += (targetCam.y - camera.position.y) * 0.05;
+            camera.lookAt(0, 0, 0);
 
-            // Handle High-DPI Canvas resolution
-            var dpr = Math.min(window.devicePixelRatio || 1, 2);
-            var rect = canvas.getBoundingClientRect();
-            var displayW = rect.width || 560;
-            var displayH = rect.height || 560;
-
-            if (canvas.width !== Math.round(displayW * dpr) || canvas.height !== Math.round(displayH * dpr)) {
-                canvas.width = Math.round(displayW * dpr);
-                canvas.height = Math.round(displayH * dpr);
-            }
-
-            ctx.save();
-            ctx.scale(dpr, dpr);
-            ctx.clearRect(0, 0, displayW, displayH);
-
-            var cx = displayW / 2;
-            var cy = displayH / 2;
-            // Responsive scale factor based on 560px baseline
-            var scaleFactor = Math.min(displayW / 560, 1.0);
-
-            // --- A. Draw Ambient Dust ---
-            dust.forEach(function(d) {
-                var floatY = d.y + Math.sin(t * d.speed + d.phase) * 12;
-                var p3d = rotate3D({ x: d.x, y: floatY, z: d.z }, rotX, rotY);
-                var p2d = project(p3d, cx, cy, scaleFactor);
-                var alpha = Math.max(0.1, Math.min(0.65, (p3d.z + 100) / 200));
-                ctx.beginPath();
-                ctx.arc(p2d.x, p2d.y, d.size * p2d.scale, 0, Math.PI * 2);
-                ctx.fillStyle = d.color;
-                ctx.globalAlpha = alpha * 0.4;
-                ctx.fill();
-            });
-            ctx.globalAlpha = 1.0;
-
-            // --- B. Draw 3D Orbits & Satellites ---
-            orbits.forEach(function(orb, idx) {
-                var currentAngle = t * orb.speed;
-                var orbitPoints = [];
-
-                for (var j = 0; j <= orb.pts; j++) {
-                    var theta = (j / orb.pts) * Math.PI * 2;
-                    // Point on local ellipse
-                    var lx = Math.cos(theta) * orb.rx;
-                    var ly = Math.sin(theta) * orb.ry;
-                    // Tilt the orbit plane in 3D
-                    var cosOX = Math.cos(orb.rotX), sinOX = Math.sin(orb.rotX);
-                    var cosOY = Math.cos(orb.rotY), sinOY = Math.sin(orb.rotY);
-                    // Local rotation
-                    var ox1 = lx * cosOY;
-                    var oz1 = -lx * sinOY;
-                    var oy2 = ly * cosOX - oz1 * sinOX;
-                    var oz2 = ly * sinOX + oz1 * cosOX;
-                    // Camera rotation
-                    var p3d = rotate3D({ x: ox1, y: oy2, z: oz2 }, rotX, rotY);
-                    var p2d = project(p3d, cx, cy, scaleFactor);
-                    orbitPoints.push(p2d);
-                }
-
-                // Draw orbit ellipse path with depth fading
-                for (var k = 0; k < orbitPoints.length - 1; k++) {
-                    var ptA = orbitPoints[k];
-                    var ptB = orbitPoints[k + 1];
-                    var avgZ = (ptA.z + ptB.z) / 2;
-                    var alpha = avgZ > 0 ? 0.24 : 0.09;
-
-                    ctx.beginPath();
-                    ctx.moveTo(ptA.x, ptA.y);
-                    ctx.lineTo(ptB.x, ptB.y);
-                    ctx.strokeStyle = orb.color;
-                    ctx.globalAlpha = alpha;
-                    ctx.lineWidth = avgZ > 0 ? 1.0 : 0.6;
-                    ctx.stroke();
-                }
-
-                // Orbiting satellite (light point traveling along orbit)
-                var satTheta = currentAngle;
-                var slx = Math.cos(satTheta) * orb.rx;
-                var sly = Math.sin(satTheta) * orb.ry;
-                var cosOX = Math.cos(orb.rotX), sinOX = Math.sin(orb.rotX);
-                var cosOY = Math.cos(orb.rotY), sinOY = Math.sin(orb.rotY);
-                var sox1 = slx * cosOY;
-                var soz1 = -slx * sinOY;
-                var soy2 = sly * cosOX - soz1 * sinOX;
-                var soz2 = sly * sinOX + soz1 * cosOX;
-                var sp3d = rotate3D({ x: sox1, y: soy2, z: soz2 }, rotX, rotY);
-                var sp2d = project(sp3d, cx, cy, scaleFactor);
-
-                // Satellite glow
-                var satAlpha = sp3d.z > 0 ? 0.95 : 0.35;
-                ctx.beginPath();
-                ctx.arc(sp2d.x, sp2d.y, 4.5 * sp2d.scale, 0, Math.PI * 2);
-                ctx.fillStyle = orb.color;
-                ctx.globalAlpha = satAlpha;
-                ctx.shadowColor = orb.color;
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            });
-            ctx.globalAlpha = 1.0;
-
-            // --- C. Update Node Positions (Floating in 3D) ---
-            var projectedNodes = {};
-            nodes.forEach(function(node) {
-                var floatY = node.y + Math.sin(t * 1.3 + node.phase) * 6;
-                var floatX = node.x + Math.cos(t * 0.9 + node.phase) * 4;
-                var floatZ = node.z + Math.sin(t * 1.1 + node.phase) * 5;
-                var p3d = rotate3D({ x: floatX, y: floatY, z: floatZ }, rotX, rotY);
-                var p2d = project(p3d, cx, cy, scaleFactor);
-                projectedNodes[node.id] = { node: node, p3d: p3d, p2d: p2d };
-            });
-
-            // Center core projected point
-            var coreP3D = rotate3D({ x: 0, y: 0, z: 0 }, rotX, rotY);
-            var coreP2D = project(coreP3D, cx, cy, scaleFactor);
-
-            // --- D. Draw Connection Lines ---
-            nodes.forEach(function(node) {
-                var pNode = projectedNodes[node.id].p2d;
-                ctx.beginPath();
-                ctx.moveTo(coreP2D.x, coreP2D.y);
-                ctx.lineTo(pNode.x, pNode.y);
-
-                var grad = ctx.createLinearGradient(coreP2D.x, coreP2D.y, pNode.x, pNode.y);
-                grad.addColorStop(0, 'rgba(56, 189, 248, 0.28)');
-                grad.addColorStop(1, node.color === COLOR_CYAN ? 'rgba(56, 189, 248, 0.16)' : 'rgba(129, 140, 248, 0.16)');
-                ctx.strokeStyle = grad;
-                ctx.lineWidth = 1.1;
-                ctx.globalAlpha = 0.65;
-                ctx.stroke();
-            });
-            ctx.globalAlpha = 1.0;
-
-            // --- E. Draw Data Packets (Light Pulses Traveling Along Lines) ---
-            packets.forEach(function(pkt) {
-                var nodeData = projectedNodes[pkt.from === 'core' ? pkt.to : pkt.from];
-                if (!nodeData) return;
-
-                var nPos = nodeData.p2d;
-                var cPos = coreP2D;
-
-                // Progress 0.0 to 1.0
-                var progress = ((t * pkt.speed + pkt.offset) % 1.0);
-                var startX, startY, endX, endY;
-
-                if (pkt.from === 'core') {
-                    // Outward: Core -> Node
-                    startX = cPos.x; startY = cPos.y;
-                    endX = nPos.x;   endY = nPos.y;
+            // Raycaster Interaction
+            if (mouse.x > -900) {
+                raycaster.setFromCamera(mouse, camera);
+                var intersects = raycaster.intersectObjects(hitMeshes);
+                if (intersects.length > 0) {
+                    setHoveredNode(intersects[0].object.userData.nodeIndex);
                 } else {
-                    // Inward: Node -> Core
-                    startX = nPos.x; startY = nPos.y;
-                    endX = cPos.x;   endY = cPos.y;
+                    clearHoveredNode();
                 }
-
-                var px = startX + (endX - startX) * progress;
-                var py = startY + (endY - startY) * progress;
-
-                // Draw packet with trailing comet tail
-                for (var tr = 0; tr < 4; tr++) {
-                    var tailProgress = Math.max(0, progress - (tr * 0.035));
-                    var tx = startX + (endX - startX) * tailProgress;
-                    var ty = startY + (endY - startY) * tailProgress;
-                    var trAlpha = (1.0 - tr * 0.25) * 0.75;
-                    var trRadius = (3.5 - tr * 0.6) * scaleFactor;
-
-                    ctx.beginPath();
-                    ctx.arc(tx, ty, Math.max(1, trRadius), 0, Math.PI * 2);
-                    ctx.fillStyle = pkt.color;
-                    ctx.globalAlpha = trAlpha;
-                    ctx.shadowColor = pkt.color;
-                    ctx.shadowBlur = tr === 0 ? 8 : 0;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                }
-            });
-            ctx.globalAlpha = 1.0;
-
-            // --- F. Draw AI CORE (Futuristic Technological 3D Core) ---
-            var baseRadius = 48 * scaleFactor;
-            var breathing = 1.0 + 0.02 * Math.sin(t * 1.8);
-            var coreR = baseRadius * breathing * coreP2D.scale;
-
-            // 1. Outer Diffuse Halo / Atmosphere
-            var haloGrad = ctx.createRadialGradient(coreP2D.x, coreP2D.y, coreR * 0.4, coreP2D.x, coreP2D.y, coreR * 2.3);
-            haloGrad.addColorStop(0, 'rgba(56, 189, 248, 0.24)');
-            haloGrad.addColorStop(0.5, 'rgba(129, 140, 248, 0.10)');
-            haloGrad.addColorStop(1, 'transparent');
-            ctx.beginPath();
-            ctx.arc(coreP2D.x, coreP2D.y, coreR * 2.3, 0, Math.PI * 2);
-            ctx.fillStyle = haloGrad;
-            ctx.fill();
-
-            // 2. Glowing Concentric Energy Waves (Pulse rings)
-            var pulseR1 = coreR * (1.1 + 0.25 * ((t * 0.6) % 1.0));
-            var pulseAlpha1 = Math.max(0, 0.4 * (1.0 - ((t * 0.6) % 1.0)));
-            ctx.beginPath();
-            ctx.arc(coreP2D.x, coreP2D.y, pulseR1, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(56, 189, 248, ' + pulseAlpha1 + ')';
-            ctx.lineWidth = 1.2;
-            ctx.stroke();
-
-            // 3. Dark Technological Spherical Body
-            var sphereGrad = ctx.createRadialGradient(
-                coreP2D.x - coreR * 0.3, coreP2D.y - coreR * 0.35, coreR * 0.05,
-                coreP2D.x, coreP2D.y, coreR
-            );
-            sphereGrad.addColorStop(0, '#00e5ff');
-            sphereGrad.addColorStop(0.2, '#0c2238');
-            sphereGrad.addColorStop(0.65, '#0F172A');
-            sphereGrad.addColorStop(1, '#090D16');
-
-            ctx.beginPath();
-            ctx.arc(coreP2D.x, coreP2D.y, coreR, 0, Math.PI * 2);
-            ctx.fillStyle = sphereGrad;
-            ctx.shadowColor = COLOR_CYAN;
-            ctx.shadowBlur = 24 * scaleFactor;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // 4. Core Outer Border / Glowing Ring
-            ctx.beginPath();
-            ctx.arc(coreP2D.x, coreP2D.y, coreR, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.75)';
-            ctx.lineWidth = 1.8 * scaleFactor;
-            ctx.stroke();
-
-            // 5. Rotating Internal Latitude / Wireframe Rings on Sphere Surface
-            for (var ri = 0; ri < 3; ri++) {
-                ctx.save();
-                ctx.translate(coreP2D.x, coreP2D.y);
-                ctx.rotate(t * (ri === 1 ? -0.35 : 0.25) + ri * 1.1 + rotY);
-                ctx.beginPath();
-                ctx.ellipse(0, 0, coreR * 0.88, coreR * (0.3 + ri * 0.2), 0, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(56, 189, 248, ' + (0.16 + ri * 0.05) + ')';
-                ctx.lineWidth = 0.8 * scaleFactor;
-                ctx.stroke();
-                ctx.restore();
             }
 
-            // 6. Central Tech Typography ("AI" & "CORE")
-            ctx.save();
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            // Core Rotation & Breathing
+            coreGroup.rotation.y = t * 0.22;
+            innerWire.rotation.x = -t * 0.35;
+            innerWire.rotation.y = t * 0.45;
+            outerWire.rotation.y = -t * 0.18;
+            outerWire.rotation.z = t * 0.14;
 
-            // "AI" Text
-            var fontSizeAI = Math.round(14 * scaleFactor);
-            ctx.font = '800 ' + fontSizeAI + 'px "JetBrains Mono", monospace';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.shadowColor = COLOR_CYAN;
-            ctx.shadowBlur = 12;
-            ctx.fillText('AI', coreP2D.x, coreP2D.y - 7 * scaleFactor);
+            var pulseScale = 1.0 + 0.02 * Math.sin(t * 1.8);
+            coreGroup.scale.set(pulseScale, pulseScale, pulseScale);
 
-            // Dividing horizontal line
-            ctx.beginPath();
-            ctx.moveTo(coreP2D.x - 14 * scaleFactor, coreP2D.y + 1 * scaleFactor);
-            ctx.lineTo(coreP2D.x + 14 * scaleFactor, coreP2D.y + 1 * scaleFactor);
-            ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
-            ctx.lineWidth = 1.0;
-            ctx.stroke();
+            // Ambient Particle Cloud Rotation
+            particleCloud.rotation.y = t * 0.04;
+            particleCloud.rotation.x = t * 0.02;
 
-            // "CORE" Text
-            var fontSizeCore = Math.round(10 * scaleFactor);
-            ctx.font = '700 ' + fontSizeCore + 'px "JetBrains Mono", monospace';
-            ctx.fillStyle = COLOR_CYAN;
-            ctx.fillText('CORE', coreP2D.x, coreP2D.y + 9 * scaleFactor);
-            ctx.shadowBlur = 0;
-            ctx.restore();
-
-            // --- G. Draw Floating Nodes & Handle Hover ---
-            var closestNode = null;
-            var minDistance = 34 * scaleFactor;
-
-            nodes.forEach(function(node) {
-                var pData = projectedNodes[node.id];
-                var p2d = pData.p2d;
-                var p3d = pData.p3d;
-
-                // Mouse Hit Test
-                var distToMouse = Math.hypot(p2d.x - (cx + mouseX), p2d.y - (cy + mouseY));
-                var isHovered = distToMouse < minDistance;
-                if (isHovered) closestNode = node;
-
-                // Node Badge Dimension
-                var pillH = Math.round(24 * scaleFactor * p2d.scale);
-                var text = node.tag;
-                var fontSize = Math.round(10.5 * scaleFactor * p2d.scale);
-                ctx.font = '700 ' + fontSize + 'px "JetBrains Mono", monospace';
-                var textW = ctx.measureText(text).width;
-                var pillW = Math.round(textW + 30 * scaleFactor * p2d.scale);
-
-                var pillX = p2d.x - pillW / 2;
-                var pillY = p2d.y - pillH / 2;
-                var radius = pillH / 2;
-
-                // Node Depth Opacity
-                var nodeAlpha = isHovered ? 1.0 : (p3d.z > 0 ? 0.95 : 0.72);
-
-                // Background Pill (Deep Slate Glass)
-                ctx.beginPath();
-                ctx.roundRect(pillX, pillY, pillW, pillH, radius);
-                ctx.fillStyle = 'rgba(15, 23, 42, ' + (isHovered ? 0.98 : 0.86) + ')';
-                ctx.fill();
-
-                // Border with colored glow
-                ctx.beginPath();
-                ctx.roundRect(pillX, pillY, pillW, pillH, radius);
-                ctx.strokeStyle = isHovered ? node.color : (node.color === COLOR_CYAN ? 'rgba(56, 189, 248, 0.45)' : (node.color === COLOR_EMERALD ? 'rgba(52, 211, 153, 0.45)' : 'rgba(129, 140, 248, 0.45)'));
-                ctx.lineWidth = isHovered ? 1.6 : 1.0;
-                ctx.shadowColor = node.color;
-                ctx.shadowBlur = isHovered ? 16 : 8;
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-
-                // Left Status Light Dot
-                var dotX = pillX + 11 * scaleFactor * p2d.scale;
-                var dotY = p2d.y;
-                ctx.beginPath();
-                ctx.arc(dotX, dotY, 3.2 * scaleFactor * p2d.scale, 0, Math.PI * 2);
-                ctx.fillStyle = node.color;
-                ctx.shadowColor = node.color;
-                ctx.shadowBlur = 6;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-
-                // Node Monospace Text Label
-                ctx.font = '700 ' + fontSize + 'px "JetBrains Mono", monospace';
-                ctx.fillStyle = isHovered ? '#FFFFFF' : '#E2E8F0';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(text, dotX + 7 * scaleFactor * p2d.scale, dotY);
+            // Orbits Satellites Update
+            orbits.forEach(function(orb) {
+                var progress = (t * orb.speed + orb.offset) % 1.0;
+                if (progress < 0) progress += 1.0;
+                var pt = orb.curve.getPointAt(progress);
+                orb.satellite.position.set(pt.x, pt.y, 0);
             });
 
-            // Update Tooltip based on hover
-            if (closestNode) {
-                hoveredNode = closestNode;
-                var hp = projectedNodes[closestNode.id].p2d;
-                if (tooltip && tooltipTag && tooltipDesc) {
-                    tooltipTag.textContent = closestNode.tag;
-                    tooltipTag.style.color = closestNode.color;
-                    tooltipDesc.textContent = closestNode.desc;
-                    tooltip.style.left = hp.x + 'px';
-                    tooltip.style.top = (hp.y - 28 * scaleFactor) + 'px';
-                    tooltip.style.display = 'block';
-                    tooltip.style.borderColor = closestNode.color;
-                }
-                canvas.style.cursor = 'pointer';
-            } else {
-                if (tooltip && hoveredNode) tooltip.style.display = 'none';
-                hoveredNode = null;
-                canvas.style.cursor = 'default';
-            }
+            // Dimensions for HTML Label Projections
+            var w = curDims.width;
+            var h = curDims.height;
+            var coreOrigin = new THREE.Vector3(0, 0, 0);
 
-            ctx.restore();
+            // Nodes, Connections, and Packets Update
+            nodes.forEach(function(node, idx) {
+                var isHovered = (hoveredIndex === idx);
+
+                // Subtle organic 3D float
+                var fy = node.basePos.y + Math.sin(t * 1.2 + node.data.phase) * 0.18;
+                var fz = node.basePos.z + Math.cos(t * 1.0 + node.data.phase) * 0.15;
+                node.group.position.set(node.basePos.x, fy, fz);
+
+                // Node ring spin
+                node.torus.rotation.x = t * 0.8 + idx;
+                node.torus.rotation.y = t * 0.6;
+
+                // Scale & Emissive Lerp
+                var targetScale = isHovered ? 1.25 : 1.0;
+                node.group.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+                var targetEmissive = isHovered ? 1.6 : 0.70;
+                node.sphere.material.emissiveIntensity += (targetEmissive - node.sphere.material.emissiveIntensity) * 0.1;
+
+                // Update Line Geometry
+                var linePosAttr = node.line.geometry.attributes.position;
+                linePosAttr.setXYZ(0, 0, 0, 0);
+                linePosAttr.setXYZ(1, node.group.position.x, node.group.position.y, node.group.position.z);
+                linePosAttr.needsUpdate = true;
+                node.line.material.opacity += ((isHovered ? 0.80 : 0.24) - node.line.material.opacity) * 0.1;
+
+                // Update Traveling Data Packets
+                node.packets.forEach(function(pkt) {
+                    var prog = (t * 0.35 + pkt.offset) % 1.0;
+                    var startPos = (node.data.flow === 'in') ? node.group.position : coreOrigin;
+                    var endPos   = (node.data.flow === 'in') ? coreOrigin : node.group.position;
+                    pkt.mesh.position.copy(startPos).lerp(endPos, prog);
+                });
+
+                // Project 3D Node Position to 2D HTML Label
+                var screenPos = node.group.position.clone().project(camera);
+                var lx = (screenPos.x * 0.5 + 0.5) * w;
+                var ly = (-(screenPos.y * 0.5) + 0.5) * h;
+                node.labelEl.style.transform = 'translate(-50%, -50%) translate(' + lx.toFixed(1) + 'px, ' + ly.toFixed(1) + 'px)';
+                node.labelEl.style.opacity = (screenPos.z > 1.0) ? '0' : '1';
+
+                // Position Tooltip if hovered
+                if (isHovered && tooltip) {
+                    tooltip.style.transform = 'translate(-50%, -100%) translate(' + lx.toFixed(1) + 'px, ' + (ly - 22).toFixed(1) + 'px)';
+                }
+            });
+
+            // Render 3D Scene
+            renderer.render(scene, camera);
 
             if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                requestAnimationFrame(render);
+                requestAnimationFrame(animate);
             }
         }
 
-        // Start render loop
-        requestAnimationFrame(render);
-
+        requestAnimationFrame(animate);
     })();
     </script>
 </body>

@@ -476,3 +476,59 @@ textarea.input-field { resize: vertical; }
     *,::before,::after { animation-duration:.001ms!important; transition-duration:.001ms!important; }
     .reveal { opacity:1!important; transform:none!important; }
 }
+
+/* ===== 3D AI CORE LABELS & OVERLAY ===== */
+#ai-nodes-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 10;
+}
+.ai-3d-node-label {
+    position: absolute;
+    top: 0; left: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding: 0.22rem 0.65rem;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(129, 140, 248, 0.32);
+    color: #E2E8F0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: auto;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s, box-shadow 0.2s, color 0.2s;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    will-change: transform;
+}
+.ai-3d-node-label:hover, .ai-3d-node-label.active {
+    color: #FFFFFF;
+    border-color: #38BDF8;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+    transform: translate(-50%, -50%) scale(1.08) !important;
+}
+.ai-3d-node-label .node-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+#ai-core-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    text-align: center;
+    z-index: 6;
+    user-select: none;
+}
