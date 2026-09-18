@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="styles.css?v=5.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="js/ai-core-3d.js?v=5.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body style="background-color:#090D16;color:#E2E8F0;">
 
@@ -47,12 +48,45 @@
                 </ul>
             </nav>
             <div class="nav-actions">
-                <a href="#analizador" class="btn-cyber-outline" style="padding:.5rem 1.1rem;font-size:.8rem;">
-                    <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Analizar Ahora
+                <a href="#analizador" class="btn-cyber-outline" style="padding:.5rem 1rem;font-size:.8rem;">
+                    <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Analizador
                 </a>
-                <a href="#analizador" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;">
-                    <i class="fa-solid fa-bolt" style="font-size:.65rem;margin-right:.4rem;"></i>Comenzar Análisis
-                </a>
+
+                <!-- Guest State: Iniciar Sesión Button -->
+                <div id="nav-auth-guest" style="display:inline-flex;align-items:center;">
+                    <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.5rem 1.15rem;font-size:.8rem;">
+                        <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.45rem;"></i>Iniciar Sesión
+                    </button>
+                </div>
+
+                <!-- Authenticated State: User Capsule with Dropdown -->
+                <div id="nav-auth-user" class="user-nav-capsule" style="display:none;position:relative;">
+                    <button type="button" id="user-menu-btn" class="user-menu-trigger" aria-haspopup="true" aria-expanded="false">
+                        <div class="user-avatar-badge" id="nav-user-avatar">US</div>
+                        <span class="user-email-text" id="nav-user-email">usuario@correo.com</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:.65rem;color:#94A3B8;margin-left:.25rem;"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="user-dropdown-menu" class="user-dropdown-cyber hidden">
+                        <div class="user-dropdown-header">
+                            <span style="font-size:.68rem;color:#64748B;text-transform:uppercase;letter-spacing:.05em;">Conectado como</span>
+                            <strong id="dropdown-user-email" style="display:block;font-size:.78rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">usuario@correo.com</strong>
+                            <div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.35rem;font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 8px #34D399;"></span>
+                                Supabase DB Sync
+                            </div>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <a href="#analizador" id="btn-user-history" class="user-dropdown-item">
+                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis Análisis Guardados
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <button type="button" id="btn-logout" class="user-dropdown-item" style="color:#FB7185;">
+                            <i class="fa-solid fa-right-from-bracket" style="color:#FB7185;"></i>Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+
                 <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
             </div>
         </div>
@@ -65,6 +99,22 @@
         <a href="#equipo">Equipo</a>
         <a href="#registro" style="color:var(--tech-cyan);">Acceso a la Plataforma</a>
         <a href="#contacto">Contacto</a>
+        <!-- Mobile Auth Actions -->
+        <div style="border-top:1px solid rgba(129,140,248,.2);margin:0.75rem 0;padding-top:0.75rem;">
+            <div id="mobile-auth-guest">
+                <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.65rem 1rem;">
+                    <i class="fa-solid fa-user-lock" style="margin-right:.45rem;"></i>Iniciar Sesión / Registro
+                </button>
+            </div>
+            <div id="mobile-auth-user" style="display:none;flex-direction:column;gap:0.6rem;">
+                <div style="font-size:.75rem;color:#94A3B8;padding:.25rem 0;word-break:break-all;">
+                    <i class="fa-solid fa-user-check" style="color:#34D399;margin-right:.4rem;"></i><span id="mobile-user-email">usuario@correo.com</span>
+                </div>
+                <button type="button" id="btn-mobile-logout" class="btn-ghost" style="width:100%;justify-content:center;color:#FB7185;border:1px solid rgba(244,63,94,.3);">
+                    <i class="fa-solid fa-right-from-bracket" style="margin-right:.45rem;"></i>Cerrar Sesión
+                </button>
+            </div>
+        </div>
     </nav>
 
     <main style="padding-top:var(--nav-height);">
@@ -1250,5 +1300,116 @@
         document.querySelectorAll('.reveal').forEach(function(el) { revealObs.observe(el); });
     })();
     </script>
+
+    <!-- ============================================================
+         CYBERPUNK AUTH MODAL (SUPABASE LOGIN / REGISTRO / RECUPERACIÓN)
+    ============================================================ -->
+    <div id="auth-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+        <div class="auth-modal-backdrop" id="auth-modal-backdrop"></div>
+        <div class="auth-card-cyber">
+            <!-- Modal Header -->
+            <div class="auth-modal-header">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div class="nav-logo-icon" style="width:2.2rem;height:2.2rem;font-size:1rem;border-radius:.6rem;background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(129,140,248,.25));border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div>
+                        <h3 id="auth-modal-title" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">Acceso a la Plataforma</h3>
+                        <span style="font-size:.68rem;color:#64748B;font-family:'JetBrains Mono',monospace;">Autenticación Segura &bull; Supabase Cloud</span>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-auth-modal" class="auth-modal-close" aria-label="Cerrar modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Supabase Unconfigured Alert (shows only if keys missing) -->
+            <div id="auth-unconfigured-alert" style="display:none;margin-top:1.15rem;padding:.85rem 1rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:.65rem;font-size:.74rem;color:#FBBF24;line-height:1.5;">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right:.4rem;"></i>
+                <strong>Supabase pendiente de configuración:</strong> Agrega <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> a tu archivo <code>.env</code> para habilitar la sincronización en la nube.
+            </div>
+
+            <!-- Auth Mode Switcher Tabs -->
+            <div class="auth-tabs" role="tablist" style="margin-top:1.25rem;">
+                <button type="button" id="auth-tab-login" class="auth-tab-btn active" role="tab" aria-selected="true">
+                    <i class="fa-solid fa-right-to-bracket" style="margin-right:.35rem;"></i>Iniciar Sesión
+                </button>
+                <button type="button" id="auth-tab-signup" class="auth-tab-btn" role="tab" aria-selected="false">
+                    <i class="fa-solid fa-user-plus" style="margin-right:.35rem;"></i>Crear Cuenta
+                </button>
+            </div>
+
+            <!-- Form Message / Alert Container -->
+            <div id="auth-alert-box" style="display:none;margin:1rem 0;padding:.75rem 1rem;border-radius:.6rem;font-size:.78rem;line-height:1.5;"></div>
+
+            <!-- Form: Iniciar Sesión / Registro -->
+            <form id="auth-form" style="margin-top:1rem;">
+                <!-- Full Name (Only for Signup) -->
+                <div id="auth-field-fullname" class="auth-field-group" style="display:none;margin-bottom:1rem;">
+                    <label for="auth-fullname" class="auth-label">Nombre Completo</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fa-solid fa-user auth-input-icon"></i>
+                        <input type="text" id="auth-fullname" class="auth-input" placeholder="Ej. Daniel Palencia" autocomplete="name">
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="auth-field-group" style="margin-bottom:1rem;">
+                    <label for="auth-email" class="auth-label">Correo Electrónico</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fa-solid fa-envelope auth-input-icon"></i>
+                        <input type="email" id="auth-email" class="auth-input" placeholder="tu@correo.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="auth-field-group" style="margin-bottom:1.25rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
+                        <label for="auth-password" class="auth-label" style="margin-bottom:0;">Contraseña</label>
+                        <button type="button" id="btn-toggle-forgot" style="background:none;border:none;color:var(--tech-cyan);font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;">¿Olvidaste tu clave?</button>
+                    </div>
+                    <div class="auth-input-wrapper">
+                        <i class="fa-solid fa-lock auth-input-icon"></i>
+                        <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required autocomplete="current-password" minlength="6">
+                        <button type="button" id="btn-toggle-pwd" class="auth-pwd-toggle" aria-label="Mostrar contraseña">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="btn-auth-submit" class="btn-cyber" style="width:100%;padding:.8rem 1.25rem;font-size:.88rem;justify-content:center;">
+                    <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:.45rem;"></i>
+                    <span id="auth-submit-label">Iniciar Sesión</span>
+                </button>
+            </form>
+
+            <!-- Forgot Password Mini-Form -->
+            <form id="forgot-form" style="display:none;margin-top:1.25rem;">
+                <p style="font-size:.8rem;color:#94A3B8;margin-bottom:1rem;line-height:1.6;">Ingresa tu correo registrado y te enviaremos un enlace seguro vía Supabase Auth para restablecer tu contraseña.</p>
+                <div class="auth-field-group" style="margin-bottom:1.25rem;">
+                    <label for="forgot-email" class="auth-label">Correo Registrado</label>
+                    <div class="auth-input-wrapper">
+                        <i class="fa-solid fa-envelope auth-input-icon"></i>
+                        <input type="email" id="forgot-email" class="auth-input" placeholder="tu@correo.com" required>
+                    </div>
+                </div>
+                <div style="display:flex;gap:.75rem;">
+                    <button type="button" id="btn-cancel-forgot" class="btn-ghost" style="flex:1;justify-content:center;">Volver</button>
+                    <button type="submit" id="btn-forgot-submit" class="btn-cyber" style="flex:2;justify-content:center;">
+                        <i class="fa-solid fa-paper-plane" style="margin-right:.4rem;"></i>Enviar Enlace
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-modal-footer">
+                <i class="fa-solid fa-shield-halved" style="color:var(--tech-cyan);margin-right:.35rem;"></i>
+                Seguridad criptográfica JWT con políticas Row Level Security (RLS) en PostgreSQL.
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Controller Application -->
+    <script src="app.js?v=5.0"></script>
 </body>
 </html>

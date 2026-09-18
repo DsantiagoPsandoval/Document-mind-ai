@@ -93,7 +93,7 @@ flowchart TD
 
 - **Node.js:** Versión 18.0.0 o superior instalada.
 - **NPM:** Incluido con Node.js.
-- *(Opcional pero recomendado)* **Clave de API de Google Gemini:** Obtén una clave gratuita en [Google AI Studio](https://aistudio.google.com/).
+- *(Opcional pero recomendado)* **Cuenta y Proyecto en Supabase:** Crea un proyecto gratuito en [Supabase](https://supabase.com) para autenticación y base de datos PostgreSQL.
 - *(Opcional)* **Personal Access Token de GitHub:** Para repositorios con alto volumen o para incrementar los límites de tasa de GitHub API.
 
 ---
@@ -113,7 +113,17 @@ npm install
 ```
 *(En Windows PowerShell, si tienes restricciones de script, usa `npm.cmd install`)*.
 
-### Paso 3: Configurar variables de entorno
+### Paso 3: Configurar la Base de Datos en Supabase
+1. Ingresa a tu panel en [Supabase Dashboard](https://supabase.com/dashboard) y crea o selecciona tu proyecto.
+2. Dirígete a la sección **SQL Editor** (en el menú lateral izquierdo).
+3. Haz clic en **"New query"** y copia el contenido íntegro del archivo:
+   👉 **[`supabase/schema.sql`](supabase/schema.sql)**
+4. Presiona **"Run"** para ejecutarlo. Esto creará:
+   - Tabla `profiles` vinculada con `auth.users` mediante triggers automáticos.
+   - Tabla `analyses` con soporte para documentos y repositorios.
+   - Políticas de seguridad **Row Level Security (RLS)** para aislar la información de cada usuario.
+
+### Paso 4: Configurar variables de entorno
 Copia la plantilla de entorno `.env.example` a un archivo `.env`:
 ```bash
 copy .env.example .env
@@ -124,28 +134,32 @@ PORT=3000
 GEMINI_API_KEY=tu_clave_de_gemini_aqui
 AI_MODEL=gemini-2.5-flash
 GITHUB_TOKEN=
+
+# Credenciales de Supabase (Project Settings -> API):
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_ANON_KEY=tu_supabase_anon_key_aqui
 ```
 > [!NOTE]
-> Si dejas `GEMINI_API_KEY` vacío, el sistema funcionará automáticamente en **Modo Heurístico Determinista**, extrayendo el contenido real de los documentos y repositorios sin detenerse.
+> - Si dejas `GEMINI_API_KEY` vacío, el sistema funcionará en **Modo Heurístico Determinista**, extrayendo el contenido real de los documentos y repositorios sin detenerse.
+> - Si dejas `SUPABASE_URL` vacío, la aplicación continúa operativa en modo invitado guardando el historial de forma local en `localStorage`.
 
-### Paso 4: Iniciar el servidor
+### Paso 5: Iniciar el servidor
 Inicia el servidor Express en producción local:
 ```bash
 npm start
 ```
 Verás la confirmación en la consola:
 ```
-==================================================
-  DOCUMENT-MIND AI — SERVIDOR EN LÍNEA
-==================================================
-  URL Local:          http://localhost:3000
-  Proveedor IA:       Google Gemini
-  Modelo Configurado: gemini-2.5-flash
-  Estado de API Key:  CONFIGURADA (o MODO HEURÍSTICO)
-==================================================
+====================================================
+🚀 DOCUMENT-MIND AI — Servidor Activo
+🌐 URL Local: http://localhost:3000
+🤖 Proveedor IA: Google Gemini (gemini-2.5-flash)
+🔑 Clave API: Configurada ✔
+⚡ Supabase DB/Auth: Configurada ✔
+====================================================
 ```
 
-### Paso 5: Abrir la aplicación
+### Paso 6: Abrir la aplicación
 Abre tu navegador web e ingresa a:
 👉 **[http://localhost:3000](http://localhost:3000)**
 
@@ -153,12 +167,12 @@ Abre tu navegador web e ingresa a:
 
 ## 🧪 Ejecución de Pruebas Automatizadas
 
-El proyecto incluye una suite de pruebas unitarias y de integración end-to-end con 12 verificaciones rigurosas:
+El proyecto incluye una suite de pruebas unitarias y de integración end-to-end con 13 verificaciones rigurosas:
 - Validación de archivos nulos, formatos inválidos y límites de tamaño.
 - Extracción textual real y conteo de palabras/caracteres.
 - Parseo de URLs de GitHub y detección heurística de stack técnico.
 - Respuestas del servicio cognitivo y chat contextual fundamentado.
-- Endpoints de Express (`/api/health`, `/api/documents/*`, `/api/github/*`).
+- Endpoints de Express (`/api/health`, `/api/documents/*`, `/api/github/*`, `/api/config/supabase`).
 
 Para ejecutar las pruebas:
 ```bash

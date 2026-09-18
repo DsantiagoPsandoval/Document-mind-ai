@@ -71,6 +71,27 @@ app.get('/api/health', (req, res) => {
 });
 
 /**
+ * Supabase Public Configuration Endpoint
+ * Safely provides public client configuration for Auth & Postgres RLS.
+ */
+app.get('/api/config/supabase', (req, res) => {
+    const supabaseUrl = process.env.SUPABASE_URL ? process.env.SUPABASE_URL.trim() : '';
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ? process.env.SUPABASE_ANON_KEY.trim() : '';
+    const isConfigured = Boolean(
+        supabaseUrl &&
+        supabaseAnonKey &&
+        !supabaseUrl.includes('tu-proyecto') &&
+        !supabaseAnonKey.startsWith('tu_')
+    );
+
+    res.json({
+        configured: isConfigured,
+        supabaseUrl: isConfigured ? supabaseUrl : '',
+        supabaseAnonKey: isConfigured ? supabaseAnonKey : ''
+    });
+});
+
+/**
  * 1. Document Analysis Endpoint (POST /api/documents/analyze)
  */
 app.post('/api/documents/analyze', upload.single('document'), async (req, res, next) => {
@@ -250,6 +271,7 @@ if (require.main === module) {
         console.log(`🌐 URL Local: http://localhost:${PORT}`);
         console.log(`🤖 Proveedor IA: Google Gemini (${process.env.AI_MODEL || 'gemini-2.5-flash'})`);
         console.log(`🔑 Clave API: ${process.env.GEMINI_API_KEY ? 'Configurada ✔' : 'Modo Heurístico / Sin clave (Definir en .env para IA completa)'}`);
+        console.log(`⚡ Supabase DB/Auth: ${process.env.SUPABASE_URL ? 'Configurada ✔' : 'Sin configurar (Definir SUPABASE_URL en .env para sincronizar en la nube)'}`);
         console.log(`====================================================`);
     });
 }

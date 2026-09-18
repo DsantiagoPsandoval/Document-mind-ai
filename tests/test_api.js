@@ -171,6 +171,22 @@ async function runTests() {
         }
     });
 
+    await test('Servidor Express: responde a /api/config/supabase con estructura válida', async () => {
+        const server = http.createServer(app);
+        await new Promise((resolve) => server.listen(3096, resolve));
+
+        try {
+            const res = await fetch('http://localhost:3096/api/config/supabase');
+            assert.strictEqual(res.status, 200);
+            const data = await res.json();
+            assert.ok(typeof data.configured === 'boolean');
+            assert.ok(typeof data.supabaseUrl === 'string');
+            assert.ok(typeof data.supabaseAnonKey === 'string');
+        } finally {
+            server.close();
+        }
+    });
+
     console.log('='.repeat(50));
     console.log(`RESULTADOS: ${passed} pruebas exitosas, ${failed} pruebas fallidas.\n`);
     if (failed > 0) {
