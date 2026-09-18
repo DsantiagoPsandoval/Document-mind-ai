@@ -10,7 +10,7 @@ const { GoogleGenAI } = require('@google/genai');
  */
 function getGenAIClient() {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey.trim() === '' || apiKey.trim() === 'tu_clave_aqui') {
+    if (!apiKey || apiKey.trim() === '' || apiKey.trim().startsWith('tu_clave')) {
         return null;
     }
     return new GoogleGenAI({ apiKey: apiKey.trim() });
