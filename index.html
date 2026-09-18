@@ -19,8 +19,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=4.3">
+    <link rel="stylesheet" href="styles.css?v=5.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/ai-core-3d.js?v=5.0"></script>
 </head>
 <body style="background-color:#090D16;color:#E2E8F0;">
 
@@ -40,17 +41,17 @@
                 <ul class="nav-links">
                     <li><a href="#como-funciona">Como Funciona</a></li>
                     <li><a href="#solucion">Solucion</a></li>
-                    <li><a href="#demo">Demo</a></li>
+                    <li><a href="#analizador">Analizador</a></li>
                     <li><a href="#equipo">Equipo</a></li>
                     <li><a href="#contacto">Contacto</a></li>
                 </ul>
             </nav>
             <div class="nav-actions">
-                <a href="#demo" class="btn-cyber-outline" style="padding:.5rem 1.1rem;font-size:.8rem;">
-                    <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Probar Demo
+                <a href="#analizador" class="btn-cyber-outline" style="padding:.5rem 1.1rem;font-size:.8rem;">
+                    <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Analizar Ahora
                 </a>
-                <a href="#registro" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;">
-                    <i class="fa-solid fa-bolt" style="font-size:.65rem;margin-right:.4rem;"></i>Acceso VIP Beta
+                <a href="#analizador" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;">
+                    <i class="fa-solid fa-bolt" style="font-size:.65rem;margin-right:.4rem;"></i>Comenzar Análisis
                 </a>
                 <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
             </div>
@@ -60,9 +61,9 @@
     <nav id="mobile-menu" aria-label="Menu movil">
         <a href="#como-funciona">Como Funciona</a>
         <a href="#solucion">Solucion</a>
-        <a href="#demo">Demo en Vivo</a>
+        <a href="#analizador">Analizador de IA</a>
         <a href="#equipo">Equipo</a>
-        <a href="#registro" style="color:var(--tech-cyan);">Acceso VIP Beta</a>
+        <a href="#registro" style="color:var(--tech-cyan);">Acceso a la Plataforma</a>
         <a href="#contacto">Contacto</a>
     </nav>
 
@@ -115,7 +116,7 @@
                         </a>
                         <a href="#registro" class="btn-ghost" style="padding:.85rem 1.35rem;font-size:.85rem;">
                             <i class="fa-solid fa-bolt" style="margin-right:.4rem;color:var(--tech-cyan);"></i>
-                            Acceso VIP Beta
+                            Obtener Acceso
                         </a>
                     </div>
 
@@ -356,66 +357,465 @@
     </section>
 
     <!-- ============================================================
-         5. DEMO / SIMULATOR SECTION
+         5. CENTRO DE ANÁLISIS DE DOCUMENTOS Y REPOSITORIOS (DUAL SUITE)
     ============================================================ -->
-    <section id="demo" style="padding:6rem 0;">
+    <section id="analizador" style="padding:6rem 0;position:relative;">
+        <a id="demo" style="position:absolute;top:-80px;left:0;opacity:0;pointer-events:none;"></a>
         <div class="container">
-            <div style="text-align:center;max-width:640px;margin:0 auto 3rem;" class="reveal">
-                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-terminal"></i> Prototipo en Accion</span>
-                <h2 class="section-title">Simulador de Analisis de Repositorio</h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Selecciona un stack o ingresa tu repositorio para experimentar la generacion instantanea de arquitectura tecnica.</p>
+            <div style="text-align:center;max-width:680px;margin:0 auto 3rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> Motor de Análisis Cognitivo</span>
+                <h2 class="section-title">Centro de Análisis Inteligente</h2>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Elige el modo de análisis para procesar documentos técnicos o inspeccionar repositorios públicos de GitHub con inteligencia artificial en tiempo real.</p>
             </div>
-            <div class="glow-card reveal reveal-delay-1" style="padding:2rem 2.25rem;max-width:1000px;margin:0 auto;">
-                <div class="sim-inputs-grid" id="sim-inputs">
-                    <div>
-                        <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Repositorio de prueba</label>
-                        <div class="input-group-cyber">
-                            <div class="input-addon-cyber"><i class="fa-brands fa-github" style="font-size:1.1rem;"></i></div>
-                            <input type="text" id="repo-input" value="github.com/organization/microservices-backend" class="input-cyber" autocomplete="off">
+
+            <div class="glow-card reveal reveal-delay-1" style="padding:2.25rem;max-width:1080px;margin:0 auto;">
+                
+                <!-- Dual Tab Group -->
+                <div class="analyzer-tab-group" role="tablist">
+                    <button type="button" id="tab-doc-btn" class="analyzer-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-doc">
+                        <i class="fa-solid fa-file-lines" style="color:var(--tech-cyan);"></i>
+                        <span>Analizar Documento</span>
+                        <span class="tab-badge">PDF &bull; DOCX &bull; TXT</span>
+                    </button>
+                    <button type="button" id="tab-gh-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-gh">
+                        <i class="fa-brands fa-github" style="color:#818CF8;"></i>
+                        <span>Analizar GitHub</span>
+                        <span class="tab-badge">Repo Público</span>
+                    </button>
+                    <button type="button" id="tab-history-btn" class="analyzer-tab-btn" style="margin-left:auto;" role="tab" aria-selected="false" aria-controls="panel-history">
+                        <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>
+                        <span>Historial</span>
+                        <span class="tab-badge" id="history-badge-count">0</span>
+                    </button>
+                </div>
+
+                <!-- ============================================================
+                     PANEL A: ANÁLISIS DE DOCUMENTOS
+                ============================================================ -->
+                <div id="panel-doc">
+                    
+                    <!-- Dropzone Section -->
+                    <div id="doc-upload-section">
+                        <input type="file" id="doc-file-input" accept=".pdf,.docx,.txt,.md" style="display:none;">
+                        
+                        <div id="doc-dropzone" class="dropzone-cyber">
+                            <div class="dropzone-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <h3 style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Arrastra y suelta tu documento aquí</h3>
+                            <p style="font-size:.85rem;color:#94A3B8;margin-bottom:1.25rem;">O haz clic para explorar tus archivos desde tu dispositivo</p>
+                            <button type="button" id="btn-browse-file" class="btn-cyber" style="padding:.65rem 1.4rem;font-size:.82rem;">
+                                <i class="fa-solid fa-folder-open" style="margin-right:.45rem;"></i>Examinar Archivo
+                            </button>
+                            <p style="font-size:.72rem;color:#64748B;margin-top:1.25rem;font-family:'JetBrains Mono',monospace;">Formatos admitidos: PDF, Word (.docx), Texto plano (.txt, .md) &bull; Máx: 10 MB</p>
+                        </div>
+
+                        <!-- Selected File Info Card -->
+                        <div id="doc-file-card" class="file-card-cyber" style="display:none;">
+                            <div style="display:flex;align-items:center;gap:1rem;min-width:0;">
+                                <div style="width:3rem;height:3rem;border-radius:.65rem;background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:1.25rem;flex-shrink:0;">
+                                    <i id="doc-file-icon" class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div style="min-width:0;">
+                                    <h4 id="doc-file-name" style="font-size:.9rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">documento.pdf</h4>
+                                    <div style="display:flex;gap:.75rem;align-items:center;margin-top:.25rem;font-size:.72rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
+                                        <span id="doc-file-size">1.2 MB</span>
+                                        <span style="color:#64748B;">&bull;</span>
+                                        <span id="doc-file-ext" style="color:var(--tech-cyan);text-transform:uppercase;">PDF</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0;">
+                                <button type="button" id="btn-remove-doc" class="btn-ghost" style="padding:.5rem .9rem;font-size:.78rem;color:#FB7185;">
+                                    <i class="fa-solid fa-trash-can" style="margin-right:.35rem;"></i>Quitar
+                                </button>
+                                <button type="button" id="btn-analyze-doc" class="btn-cyber" style="padding:.65rem 1.4rem;font-size:.85rem;">
+                                    <i class="fa-solid fa-brain" style="margin-right:.45rem;"></i>Iniciar Análisis
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar Container -->
+                        <div id="doc-progress-container" class="cyber-progress-container" style="display:none;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;">
+                                <span id="doc-progress-status" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:.45rem;"></i>Preparando documento...</span>
+                                <span id="doc-progress-pct" style="color:#94A3B8;font-family:'JetBrains Mono',monospace;">15%</span>
+                            </div>
+                            <div class="cyber-progress-bar">
+                                <div id="doc-progress-fill" class="cyber-progress-fill" style="width:15%;"></div>
+                            </div>
+                            <p style="font-size:.7rem;color:#64748B;font-family:'JetBrains Mono',monospace;margin-top:.4rem;">Extracción textual &bull; Sanitización de tokens &bull; Modelo Gemini 2.5 Flash</p>
                         </div>
                     </div>
-                    <div>
-                        <label for="lang-select" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;"><i class="fa-solid fa-code" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Lenguaje</label>
-                        <select id="lang-select" class="input-field" style="height:3.25rem;">
-                            <option value="ts">TypeScript / Node.js</option>
-                            <option value="py">Python / FastAPI</option>
-                            <option value="go">Go / Microservices</option>
-                            <option value="java">Java / Spring Boot</option>
-                        </select>
+
+                    <!-- Document Analysis Results View -->
+                    <div id="doc-results" style="display:none;">
+                        <!-- Results Header Bar -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1.25rem;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
+                            <div>
+                                <div style="display:flex;align-items:center;gap:.65rem;">
+                                    <span class="badge badge-emerald"><i class="fa-solid fa-circle-check"></i> Análisis Finalizado</span>
+                                    <span id="doc-res-mode-badge" class="badge badge-cyan" style="font-size:.65rem;">Gemini AI</span>
+                                </div>
+                                <h3 id="doc-res-filename" style="font-size:1.25rem;font-weight:800;color:#fff;margin-top:.4rem;">nombre_documento.pdf</h3>
+                                <div id="doc-res-meta" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.35rem;font-size:.74rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
+                                    <span><i class="fa-solid fa-file" style="color:var(--tech-cyan);margin-right:.3rem;"></i><span id="doc-res-pages">1</span> página(s)</span>
+                                    <span><i class="fa-solid fa-font" style="color:#818CF8;margin-right:.3rem;"></i><span id="doc-res-words">0</span> palabras</span>
+                                    <span><i class="fa-solid fa-hard-drive" style="color:#34D399;margin-right:.3rem;"></i><span id="doc-res-size">0 KB</span></span>
+                                </div>
+                            </div>
+                            <button type="button" id="btn-new-doc-analysis" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
+                                <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.4rem;"></i>Nuevo Análisis
+                            </button>
+                        </div>
+
+                        <!-- Results Grid -->
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            
+                            <!-- Executive Summary Card -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <h4 style="font-size:.9rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                    <i class="fa-solid fa-file-contract" style="color:var(--tech-cyan);"></i>Resumen Ejecutivo
+                                </h4>
+                                <p id="doc-res-summary" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</p>
+                            </div>
+
+                            <!-- Main Ideas & Conclusions Grid -->
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+                                <!-- Main Ideas -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-lightbulb" style="color:#FBBF24;"></i>Ideas Principales
+                                    </h4>
+                                    <ul id="doc-res-main-ideas" style="display:flex;flex-direction:column;gap:.65rem;padding-left:1.1rem;font-size:.82rem;color:#94A3B8;line-height:1.6;">
+                                    </ul>
+                                </div>
+
+                                <!-- Conclusions -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-circle-check" style="color:#34D399;"></i>Conclusiones Fundamentadas
+                                    </h4>
+                                    <ul id="doc-res-conclusions" style="display:flex;flex-direction:column;gap:.65rem;padding-left:1.1rem;font-size:.82rem;color:#94A3B8;line-height:1.6;">
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Key Concepts & Keywords -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                    <i class="fa-solid fa-tags" style="color:#818CF8;"></i>Conceptos Clave &amp; Palabras Clave
+                                </h4>
+                                <div id="doc-res-concepts" style="display:flex;flex-wrap:wrap;gap:.5rem;">
+                                </div>
+                            </div>
+
+                            <!-- Multi-Level Explanations -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
+                                        <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i>Explicación Multinivel
+                                    </h4>
+                                    <div class="level-selector-group">
+                                        <button type="button" class="level-chip active" data-level="basic">Básico</button>
+                                        <button type="button" class="level-chip" data-level="intermediate">Intermedio</button>
+                                        <button type="button" class="level-chip" data-level="advanced">Avanzado</button>
+                                    </div>
+                                </div>
+                                <p id="doc-res-explanation" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;background:rgba(9,13,22,.6);padding:1.1rem;border-radius:.65rem;border:1px solid rgba(129,140,248,.14);">
+                                    ...
+                                </p>
+                            </div>
+
+                            <!-- Study Questions & Entities Grid -->
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+                                <!-- Study Questions -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-circle-question" style="color:var(--tech-cyan);"></i>Preguntas de Estudio
+                                    </h4>
+                                    <ul id="doc-res-questions" style="display:flex;flex-direction:column;gap:.65rem;padding-left:1.1rem;font-size:.82rem;color:#94A3B8;line-height:1.6;">
+                                    </ul>
+                                </div>
+
+                                <!-- Key Entities, Dates & Metrics -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-calendar-check" style="color:#818CF8;"></i>Datos, Fechas &amp; Métricas
+                                    </h4>
+                                    <div id="doc-res-entities" style="display:flex;flex-direction:column;gap:.75rem;font-size:.8rem;color:#94A3B8;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Document Contextual Chat -->
+                            <div class="chat-container-cyber" id="doc-chat-container">
+                                <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:.85rem;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+                                    <div style="display:flex;align-items:center;gap:.6rem;">
+                                        <div style="width:2rem;height:2rem;border-radius:.5rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;"><i class="fa-solid fa-comments"></i></div>
+                                        <div>
+                                            <h4 style="font-size:.85rem;font-weight:800;color:#fff;">Chat Contextual con el Documento</h4>
+                                            <p style="font-size:.68rem;color:#64748B;">Respuestas fundamentadas exclusivamente en el documento analizado</p>
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-cyan" style="font-size:.65rem;"><i class="fa-solid fa-shield-halved"></i> 100% Grounded</span>
+                                </div>
+
+                                <!-- Quick Questions Chips -->
+                                <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
+                                    <button type="button" class="doc-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">¿Cuál es la idea principal?</button>
+                                    <button type="button" class="doc-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">Resume las conclusiones</button>
+                                    <button type="button" class="doc-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">¿Qué conceptos debo estudiar?</button>
+                                </div>
+
+                                <!-- Messages Scroll Area -->
+                                <div id="doc-chat-messages" class="chat-messages-area">
+                                    <div class="chat-bubble chat-bubble-ai">
+                                        ¡Hola! He analizado tu documento. Puedes hacerme cualquier pregunta técnica sobre su contenido y te responderé con base exclusiva en el texto analizado.
+                                    </div>
+                                </div>
+
+                                <!-- Input Box -->
+                                <div class="chat-input-wrapper">
+                                    <input type="text" id="doc-chat-input" class="input-cyber" placeholder="Pregunta sobre este documento..." autocomplete="off">
+                                    <button type="button" id="btn-doc-chat-send" class="btn-cyber" style="padding:0 1.25rem;flex-shrink:0;">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ============================================================
+                     PANEL B: ANÁLISIS DE REPOSITORIO GITHUB
+                ============================================================ -->
+                <div id="panel-gh" style="display:none;">
+                    
+                    <div id="gh-input-section">
+                        <div class="sim-inputs-grid" id="sim-inputs">
+                            <div style="flex:1;">
+                                <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">
+                                    <i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.4rem;"></i>URL del Repositorio Público
+                                </label>
+                                <div class="input-group-cyber">
+                                    <div class="input-addon-cyber"><i class="fa-brands fa-github" style="font-size:1.1rem;"></i></div>
+                                    <input type="text" id="repo-input" value="https://github.com/octocat/Hello-World" class="input-cyber" placeholder="https://github.com/usuario/repositorio" autocomplete="off">
+                                </div>
+                            </div>
+                            <div style="width:200px;">
+                                <label for="lang-select" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">
+                                    <i class="fa-solid fa-sliders" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Profundidad
+                                </label>
+                                <select id="lang-select" class="input-field" style="height:3.25rem;">
+                                    <option value="auto">Auto-detección completa</option>
+                                    <option value="arch">Enfoque Arquitectura</option>
+                                    <option value="security">Enfoque Seguridad</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Examples Chips -->
+                        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:1rem 0 1.5rem;font-size:.74rem;color:#64748B;">
+                            <span>Ejemplos rápidos:</span>
+                            <button type="button" class="gh-example-chip btn-ghost" style="padding:.2rem .6rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:.4rem;color:var(--tech-cyan);" data-repo="https://github.com/octocat/Hello-World">octocat/Hello-World</button>
+                            <button type="button" class="gh-example-chip btn-ghost" style="padding:.2rem .6rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);border-radius:.4rem;color:#818CF8;" data-repo="https://github.com/facebook/react">facebook/react</button>
+                            <button type="button" class="gh-example-chip btn-ghost" style="padding:.2rem .6rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:.4rem;color:#34D399;" data-repo="https://github.com/expressjs/express">expressjs/express</button>
+                        </div>
+
+                        <!-- Action Bar -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,.12);">
+                            <button id="btn-run-analysis" class="btn-cyber" style="padding:.75rem 1.75rem;font-size:.875rem;">
+                                <i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Analizar Repositorio GitHub
+                            </button>
+                            <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;">
+                                <span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#34D399;" class="animate-pulse"></span>
+                                Motor: GitHub API v3 + AST &bull; Gemini 2.5 Flash
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar Container -->
+                        <div id="gh-progress-container" class="cyber-progress-container" style="display:none;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;">
+                                <span id="gh-progress-status" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:.45rem;"></i>Validando repositorio...</span>
+                                <span id="gh-progress-pct" style="color:#94A3B8;font-family:'JetBrains Mono',monospace;">20%</span>
+                            </div>
+                            <div class="cyber-progress-bar">
+                                <div id="gh-progress-fill" class="cyber-progress-fill" style="width:20%;"></div>
+                            </div>
+                            <p style="font-size:.7rem;color:#64748B;font-family:'JetBrains Mono',monospace;margin-top:.4rem;">Descarga de árbol git &bull; Filtrado de archivos fuente &bull; Análisis de arquitectura</p>
+                        </div>
+                    </div>
+
+                    <!-- GitHub Analysis Results View -->
+                    <div id="gh-results" style="display:none;">
+                        <!-- Results Header Bar -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1.25rem;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
+                            <div>
+                                <div style="display:flex;align-items:center;gap:.65rem;">
+                                    <span class="badge badge-emerald"><i class="fa-solid fa-circle-check"></i> Repositorio Analizado</span>
+                                    <span id="gh-res-mode-badge" class="badge badge-cyan" style="font-size:.65rem;">Gemini AI</span>
+                                </div>
+                                <h3 id="gh-res-name" style="font-size:1.25rem;font-weight:800;color:#fff;margin-top:.4rem;">usuario/repositorio</h3>
+                                <p id="gh-res-desc" style="font-size:.82rem;color:#94A3B8;margin-top:.25rem;max-width:650px;">Descripción...</p>
+                                <div id="gh-res-meta" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem;font-size:.74rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
+                                    <span><i class="fa-solid fa-code" style="color:var(--tech-cyan);margin-right:.3rem;"></i><span id="gh-res-lang">JavaScript</span></span>
+                                    <span><i class="fa-solid fa-star" style="color:#FBBF24;margin-right:.3rem;"></i><span id="gh-res-stars">0</span> estrellas</span>
+                                    <span><i class="fa-solid fa-code-fork" style="color:#818CF8;margin-right:.3rem;"></i><span id="gh-res-forks">0</span> forks</span>
+                                    <span><i class="fa-solid fa-file-code" style="color:#34D399;margin-right:.3rem;"></i><span id="gh-res-files-count">0</span> archivos analizados</span>
+                                </div>
+                            </div>
+                            <button type="button" id="btn-new-gh-analysis" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
+                                <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.4rem;"></i>Nuevo Análisis
+                            </button>
+                        </div>
+
+                        <!-- Results Stack -->
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            
+                            <!-- Detected Technologies -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                    <i class="fa-solid fa-microchip" style="color:var(--tech-cyan);"></i>Tecnologías y Dependencias Detectadas
+                                </h4>
+                                <div id="gh-tech-chips" style="display:flex;flex-wrap:wrap;gap:.5rem;">
+                                </div>
+                            </div>
+
+                            <!-- Overview & Architecture Grid -->
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+                                <!-- Overview -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-compass" style="color:var(--tech-cyan);"></i>Visión General del Proyecto
+                                    </h4>
+                                    <p id="gh-res-overview" style="font-size:.82rem;color:#CBD5E1;line-height:1.7;">...</p>
+                                </div>
+
+                                <!-- Architecture -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-sitemap" style="color:#818CF8;"></i>Estructura Arquitectónica
+                                    </h4>
+                                    <p id="gh-res-architecture" style="font-size:.82rem;color:#CBD5E1;line-height:1.7;">...</p>
+                                </div>
+                            </div>
+
+                            <!-- Directory Tree Explorer -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
+                                        <i class="fa-solid fa-folder-tree" style="color:var(--tech-cyan);"></i>Árbol de Directorios del Código Fuente
+                                    </h4>
+                                    <span style="font-size:.7rem;color:#64748B;font-family:'JetBrains Mono',monospace;">Excluye node_modules y binarios</span>
+                                </div>
+                                <pre id="gh-tree-diagram" class="cyber-tree-box">...</pre>
+                            </div>
+
+                            <!-- Key Files & Flow Grid -->
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+                                <!-- Key Files -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-file-code" style="color:var(--tech-cyan);"></i>Archivos Clave Analizados
+                                    </h4>
+                                    <div id="gh-key-files-container" style="display:flex;flex-direction:column;gap:.65rem;font-size:.8rem;">
+                                    </div>
+                                </div>
+
+                                <!-- Communication Flow -->
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                        <i class="fa-solid fa-arrow-right-arrow-left" style="color:#34D399;"></i>Flujo de Comunicación y Datos
+                                    </h4>
+                                    <p id="gh-res-flow" style="font-size:.82rem;color:#CBD5E1;line-height:1.7;">...</p>
+                                </div>
+                            </div>
+
+                            <!-- Findings & Security Recommendations -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;">
+                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i>Hallazgos Técnicos &amp; Seguridad
+                                </h4>
+                                <div id="gh-findings-container" style="display:flex;flex-direction:column;gap:.85rem;">
+                                </div>
+                            </div>
+
+                            <!-- Onboarding Guide -->
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
+                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
+                                    <i class="fa-solid fa-person-chalkboard" style="color:var(--tech-cyan);"></i>Guía de Onboarding para Desarrolladores
+                                </h4>
+                                <pre id="gh-res-onboarding" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#CBD5E1;background:rgba(9,13,22,.6);padding:1rem;border-radius:.6rem;border:1px solid rgba(129,140,248,.15);white-space:pre-wrap;line-height:1.7;">...</pre>
+                            </div>
+
+                            <!-- GitHub Contextual Chat -->
+                            <div class="chat-container-cyber" id="gh-chat-container">
+                                <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:.85rem;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+                                    <div style="display:flex;align-items:center;gap:.6rem;">
+                                        <div style="width:2rem;height:2rem;border-radius:.5rem;background:linear-gradient(135deg,#818CF8,#34D399);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;"><i class="fa-solid fa-terminal"></i></div>
+                                        <div>
+                                            <h4 style="font-size:.85rem;font-weight:800;color:#fff;">Chat Técnico con el Repositorio</h4>
+                                            <p style="font-size:.68rem;color:#64748B;">Pregunta sobre la arquitectura, archivos analizados o implementación</p>
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-emerald" style="font-size:.65rem;"><i class="fa-solid fa-code-commit"></i> Repositorio Vivo</span>
+                                </div>
+
+                                <!-- Quick Questions Chips -->
+                                <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
+                                    <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">¿Cómo funciona la arquitectura?</button>
+                                    <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">¿Qué dependencias son críticas?</button>
+                                    <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">Explícame los archivos clave</button>
+                                </div>
+
+                                <!-- Messages Scroll Area -->
+                                <div id="gh-chat-messages" class="chat-messages-area">
+                                    <div class="chat-bubble chat-bubble-ai">
+                                        ¡Hola! He analizado el repositorio. Puedes consultarme sobre su arquitectura, organización de carpetas o funcionamiento de los archivos analizados.
+                                    </div>
+                                </div>
+
+                                <!-- Input Box -->
+                                <div class="chat-input-wrapper">
+                                    <input type="text" id="gh-chat-input" class="input-cyber" placeholder="Pregunta sobre este repositorio..." autocomplete="off">
+                                    <button type="button" id="btn-gh-chat-send" class="btn-cyber" style="padding:0 1.25rem;flex-shrink:0;">
+                                        <i class="fa-solid fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Hidden elements for legacy script safety -->
+                    <div id="sim-output" style="display:none;">
+                        <div id="terminal-log"></div>
+                        <div id="doc-preview"></div>
+                    </div>
+
+                </div>
+
+                <!-- ============================================================
+                     PANEL C: HISTORIAL DE ANÁLISIS
+                ============================================================ -->
+                <div id="panel-history" style="display:none;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+                        <div>
+                            <h3 style="font-size:1.1rem;font-weight:800;color:#fff;">Historial de Análisis Guardados</h3>
+                            <p style="font-size:.76rem;color:#94A3B8;">Tus análisis recientes se guardan localmente para consulta instantánea.</p>
+                        </div>
+                        <button type="button" id="btn-clear-history" class="btn-ghost" style="font-size:.76rem;color:#FB7185;padding:.4rem .8rem;">
+                            <i class="fa-solid fa-trash-can" style="margin-right:.3rem;"></i>Vaciar Historial
+                        </button>
+                    </div>
+                    <div id="history-list" style="display:flex;flex-direction:column;gap:.75rem;">
+                        <p style="font-size:.82rem;color:#64748B;text-align:center;padding:2rem 0;">Aún no tienes análisis registrados. Analiza un documento o repositorio para verlo reflejado aquí.</p>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,.12);">
-                    <button id="btn-run-analysis" class="btn-cyber" style="padding:.75rem 1.75rem;font-size:.875rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Ejecutar Analisis AST &amp; Generar Docs</button>
-                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;"><span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#34D399;" class="animate-pulse"></span>Motor: AST-Engine v2.4 + Gemini Pro RAG</div>
-                </div>
-                <div class="sim-output-grid" id="sim-output">
-                    <div class="cyber-terminal" id="terminal-log" style="padding:1rem;font-size:.75rem;min-height:16rem;max-height:22rem;overflow-y:auto;line-height:1.8;">
-                        <p style="color:#475569;">$ documind analyze --repo github.com/organization/microservices-backend</p>
-                        <p style="color:var(--tech-cyan);">[1/4] Clonando metadata y construyendo AST...</p>
-                        <p style="color:#64748B;">&#10003; 142 archivos parseados (TypeScript AST Tree)</p>
-                        <p style="color:var(--tech-cyan);">[2/4] Mapeando grafo de llamadas y dependencias...</p>
-                        <p style="color:#64748B;">&#10003; 28 endpoints REST y 14 esquemas DTO detectados</p>
-                        <p style="color:var(--tech-cyan);">[3/4] Generando especificacion OpenAPI &amp; Diagramas C4...</p>
-                        <p style="color:#64748B;">&#10003; Diagrama de flujo de autenticacion JWT renderizado</p>
-                        <p style="color:#34D399;font-weight:600;">[4/4] Sincronizacion completa. Documentacion generada en 1.4s.</p>
-                    </div>
-                    <div id="doc-preview" style="background:rgba(9,13,22,.9);border:1px solid rgba(129,140,248,.18);border-radius:.85rem;padding:1.25rem;font-size:.78rem;min-height:16rem;max-height:22rem;overflow-y:auto;display:flex;flex-direction:column;gap:.85rem;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.12);padding-bottom:.75rem;">
-                            <h4 style="font-weight:700;color:#fff;font-size:.85rem;display:flex;align-items:center;gap:.4rem;"><i class="fa-solid fa-book-open" style="color:var(--tech-cyan);"></i>Arquitectura: Auth &amp; User Service</h4>
-                            <span style="background:rgba(52,211,153,.1);color:#34D399;padding:.2rem .6rem;border-radius:9999px;font-size:.68rem;font-weight:700;border:1px solid rgba(52,211,153,.25);">Sincronizado</span>
-                        </div>
-                        <p style="color:#94A3B8;line-height:1.65;">Este modulo expone la API de autenticacion distribuida bajo arquitectura hexagonal. Las llamadas validan tokens firmados RSA-256 contra <code style="color:var(--cyan-light);font-family:'JetBrains Mono',monospace;">UserSecurityContext</code>.</p>
-                        <div style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.15);border-radius:.5rem;padding:.85rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;line-height:1.8;">
-                            <p style="color:#818CF8;font-weight:700;">Endpoints detectados:</p>
-                            <p><span style="color:#34D399;font-weight:700;">POST</span> /api/v1/auth/login <span style="color:#475569;">-&gt; AuthHandler.ts:L42</span></p>
-                            <p><span style="color:#34D399;font-weight:700;">POST</span> /api/v1/auth/refresh <span style="color:#475569;">-&gt; TokenService.ts:L89</span></p>
-                            <p><span style="color:#38BDF8;font-weight:700;">GET</span>&nbsp;&nbsp;/api/v1/user/profile <span style="color:#475569;">-&gt; Bearer Auth Protected</span></p>
-                        </div>
-                        <div style="background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.18);border-radius:.5rem;padding:.75rem;color:#94A3B8;font-size:.75rem;">
-                            <span style="font-weight:700;color:var(--tech-cyan);">Guia de Onboarding:</span> Ejecuta <code style="font-family:'JetBrains Mono',monospace;color:#E2E8F0;">docker compose up db redis</code> y configura <code style="font-family:'JetBrains Mono',monospace;color:#E2E8F0;">JWT_SECRET</code>.
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
     </section>
@@ -492,9 +892,9 @@
                     <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-arrow-trend-up" style="margin-right:.25rem;"></i>+14.2% esta semana</p>
                 </div>
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Early Adopters VIP</div>
+                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Usuarios Registrados</div>
                     <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#7DD3FC;line-height:1;" id="registered-counter">186</div>
-                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-users" style="margin-right:.25rem;"></i>Lista beta activa</p>
+                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-users" style="margin-right:.25rem;"></i>Comunidad activa</p>
                 </div>
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
                     <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Tasa Conversion (CTR)</div>
@@ -539,24 +939,24 @@
     </section>
 
     <!-- ============================================================
-         9. BETA PRIVADA / REGISTRO VIP
+         9. REGISTRO Y LLAVE DE ACCESO
     ============================================================ -->
     <section id="registro" style="padding:6rem 0;position:relative;overflow:hidden;">
         <div style="position:absolute;top:50%;left:0;width:300px;height:300px;background:radial-gradient(ellipse at 0% 50%,rgba(56,189,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
         <div style="position:absolute;top:50%;right:0;width:300px;height:300px;background:radial-gradient(ellipse at 100% 50%,rgba(129,140,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
-                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Programa Exclusivo Early Adopters 2026</span>
-                <h2 class="section-title">Se parte de la <span class="gradient-text">Beta Privada</span></h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Accede antes que nadie y obtiene beneficios exclusivos para tu equipo de ingenieria.</p>
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Acceso y Licenciamiento Institucional</span>
+                <h2 class="section-title">Obtén tu <span class="gradient-text">Llave de Acceso</span></h2>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Genera tu credencial de acceso oficial a Document-Mind AI para tu equipo de ingeniería.</p>
             </div>
             <div class="registro-grid-container reveal reveal-delay-1" id="registro-grid">
                 <div class="glow-card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(9,13,22,.85);border-radius:.75rem;border:1px solid rgba(244,63,94,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
-                        <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:var(--rose-accent);"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--rose-accent);" class="animate-ping"></span>Fase de Cupos Limitados</div>
-                        <span style="font-size:.7rem;font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;background:rgba(244,63,94,.1);padding:.3rem .75rem;border-radius:.45rem;border:1px solid rgba(244,63,94,.25);" id="spots-left">&#128293; 14 cupos restantes</span>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(9,13,22,.85);border-radius:.75rem;border:1px solid rgba(56,189,248,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
+                        <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:var(--tech-cyan);"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--tech-cyan);" class="animate-pulse"></span>Acceso Habilitado</div>
+                        <span style="font-size:.7rem;font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;background:rgba(56,189,248,.1);padding:.3rem .75rem;border-radius:.45rem;border:1px solid rgba(56,189,248,.25);" id="spots-left">&#128293; 14 cupos restantes</span>
                     </div>
-                    <h3 style="font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:1.5rem;">Beneficios para Early Adopters</h3>
+                    <h3 style="font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:1.5rem;">Beneficios para Desarrolladores</h3>
                     <div style="display:flex;flex-direction:column;gap:1.25rem;">
                         <div style="display:flex;align-items:flex-start;gap:.85rem;">
                             <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--tech-cyan);flex-shrink:0;"><i class="fa-solid fa-key"></i></div>
@@ -628,17 +1028,17 @@
                         </div>
                         <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.75rem;color:#64748B;">
                             <input type="checkbox" id="terms" required style="margin-top:.15rem;accent-color:var(--tech-cyan);">
-                            <label for="terms" style="line-height:1.55;cursor:pointer;">Acepto recibir invitacion a la cohorte beta y actualizaciones del proyecto de la Universidad Libre.</label>
+                            <label for="terms" style="line-height:1.55;cursor:pointer;">Acepto recibir notificaciones de acceso y actualizaciones de la plataforma de la Universidad Libre.</label>
                         </div>
                         <button type="submit" id="btn-submit-lead" class="btn-cyber" style="width:100%;padding:1rem;font-size:.95rem;">
-                            <i class="fa-solid fa-bolt" style="margin-right:.5rem;"></i>Solicitar Acceso VIP &amp; Generar Pase
+                            <i class="fa-solid fa-bolt" style="margin-right:.5rem;"></i>Generar Llave de Acceso &amp; Pase
                         </button>
                     </form>
                     <div id="vip-pass-result" class="hidden vip-pass-card" style="margin-top:1.5rem;padding:1.5rem;">
                         <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(56,189,248,.18);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
                             <div style="display:flex;align-items:center;gap:.75rem;">
                                 <div style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:var(--tech-cyan);display:flex;align-items:center;justify-content:center;color:#040810;font-size:.85rem;flex-shrink:0;"><i class="fa-solid fa-ticket"></i></div>
-                                <div><h4 style="font-size:.8rem;font-weight:800;color:#fff;">DOCUMIND VIP ACCESS PASS</h4><p style="font-size:.65rem;color:var(--tech-cyan);margin-top:.15rem;">COHORTE BETA 2026-1 | UNIVERSIDAD LIBRE</p></div>
+                                <div><h4 style="font-size:.8rem;font-weight:800;color:#fff;">DOCUMIND OFFICIAL ACCESS PASS</h4><p style="font-size:.65rem;color:var(--tech-cyan);margin-top:.15rem;">ACCESO PROFESIONAL | UNIVERSIDAD LIBRE</p></div>
                             </div>
                             <span class="badge badge-emerald">HABILITADO</span>
                         </div>
@@ -753,11 +1153,11 @@
                 <div class="glow-card glow-card-purple" style="padding:2.25rem;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1.35rem;">
                     <div style="width:3rem;height:3rem;border-radius:.75rem;background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(129,140,248,.2));border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--tech-cyan);"><i class="fa-solid fa-brain"></i></div>
                     <div>
-                        <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Analiza tu repositorio ahora</h3>
-                        <p style="font-size:.82rem;color:#64748B;line-height:1.65;">Prueba el simulador interactivo y descubre como DocuMind AI puede transformar la documentacion de tu equipo.</p>
+                        <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Analiza tu código y documentos ahora</h3>
+                        <p style="font-size:.82rem;color:#64748B;line-height:1.65;">Analiza documentos técnicos o repositorios GitHub y descubre cómo Document-Mind AI transforma la documentación de tu equipo.</p>
                     </div>
-                    <a href="#demo" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Analizar mi repositorio &rarr;</a>
-                    <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-bolt" style="margin-right:.5rem;font-size:.75rem;color:var(--tech-cyan);"></i>Unirse a la Beta Privada</a>
+                    <a href="#analizador" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Comenzar Análisis Ahora &rarr;</a>
+                    <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-key" style="margin-right:.5rem;font-size:.75rem;color:var(--tech-cyan);"></i>Obtener Llave de Acceso</a>
                 </div>
             </div>
         </div>
@@ -785,7 +1185,7 @@
                         <li><a href="#problema" style="font-size:.78rem;color:#64748B;transition:color .2s;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Problematica Reto HIT</a></li>
                         <li><a href="#solucion" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Arquitectura AST + LLM</a></li>
                         <li><a href="#como-funciona" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Como Funciona</a></li>
-                        <li><a href="#demo" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Simulador en Vivo</a></li>
+                        <li><a href="#analizador" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Analizador de IA</a></li>
                         <li><a href="#infografia" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Infografia UX/UI</a></li>
                         <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto</a></li>
                     </ul>

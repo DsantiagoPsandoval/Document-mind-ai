@@ -745,11 +745,43 @@
     }
 
     function triggerAnalysisSequence() {
+        AICoreApp.manualState = null;
         AICoreApp.currentStageIndex = 0;
         AICoreApp.stageTimer = performance.now();
         updateHUDStatus(STAGES[0]);
         corePointLight.intensity = 8.0;
         setTimeout(function() { corePointLight.intensity = 4.5; }, 1200);
+    }
+
+    var PROCESSING_STATES = {
+        IDLE: { label: 'AI CORE • LISTO PARA ANÁLISIS', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code', 'docs'], speed: 1.0, light: 4.5 },
+        LOADING: { label: 'PREPARANDO FUENTE DE DATOS...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.4, light: 5.5 },
+        PROCESSING: { label: 'EXTRAYENDO Y PROCESANDO CONTENIDO...', color: '#818CF8', hex: PALETTE.indigo, active: ['ast', 'c4'], speed: 1.8, light: 6.5 },
+        ANALYZING: { label: 'ANALIZANDO CON INTELIGENCIA ARTIFICIAL...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['ast', 'docs', 'api'], speed: 2.2, light: 8.0 },
+        SUCCESS: { label: 'ANÁLISIS COMPLETADO CON ÉXITO', color: '#34D399', hex: PALETTE.emerald, active: ['sync', 'docs'], speed: 1.2, light: 5.5 },
+        ERROR: { label: 'ERROR EN EL PROCESAMIENTO', color: '#F43F5E', hex: 0xF43F5E, active: ['code'], speed: 0.8, light: 4.0 }
+    };
+
+    function setProcessingState(stateName, customLabel) {
+        var stateConfig = PROCESSING_STATES[stateName] || PROCESSING_STATES.IDLE;
+        AICoreApp.manualState = {
+            id: stateName,
+            label: customLabel || stateConfig.label,
+            color: stateConfig.color,
+            hex: stateConfig.hex,
+            active: stateConfig.active,
+            speed: stateConfig.speed
+        };
+        updateHUDStatus(AICoreApp.manualState);
+        corePointLight.color.setHex(stateConfig.hex);
+        corePointLight.intensity = stateConfig.light;
+
+        if (stateName === 'SUCCESS') {
+            setTimeout(function() {
+                corePointLight.color.setHex(PALETTE.techCyan);
+                corePointLight.intensity = 4.5;
+            }, 4000);
+        }
     }
 
     // ==========================================
@@ -766,15 +798,15 @@
         var delta = clock.getDelta();
         var t = clock.getElapsedTime();
 
-        // 9.1 Cycle Stages Every 4.2 Seconds
+        // 9.1 Cycle Stages (unless manual state is active)
         var now = performance.now();
-        if (now - lastStageSwitch > 4200) {
+        if (!AICoreApp.manualState && now - lastStageSwitch > 4200) {
             AICoreApp.currentStageIndex = (AICoreApp.currentStageIndex + 1) % STAGES.length;
             lastStageSwitch = now;
             updateHUDStatus(STAGES[AICoreApp.currentStageIndex]);
         }
 
-        var currentStage = STAGES[AICoreApp.currentStageIndex];
+        var currentStage = AICoreApp.manualState || STAGES[AICoreApp.currentStageIndex];
 
         // 9.2 Camera Parallax
         if (!AICoreApp.isTouchDevice) {
@@ -907,6 +939,7 @@
     window.AICore3D = {
         app: AICoreApp,
         triggerAnalysis: triggerAnalysisSequence,
+        setProcessingState: setProcessingState,
         openNode: openNodeModal,
         stages: STAGES
     };
