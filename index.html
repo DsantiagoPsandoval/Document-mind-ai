@@ -21,8 +21,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css?v=5.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="js/ai-core-3d.js?v=5.0"></script>
+    <!-- ai-core-3d deferred to body end -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body style="background-color:#090D16;color:#E2E8F0;">
 
@@ -43,6 +45,7 @@
                     <li><a href="#como-funciona">Como Funciona</a></li>
                     <li><a href="#solucion">Solucion</a></li>
                     <li><a href="#analizador">Analizador</a></li>
+                    <li><a href="#simulador-arquitectura" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.3rem;font-size:.75rem;"></i>Simulador</a></li>
                     <li><a href="#equipo">Equipo</a></li>
                     <li><a href="#contacto">Contacto</a></li>
                 </ul>
@@ -96,6 +99,7 @@
         <a href="#como-funciona">Como Funciona</a>
         <a href="#solucion">Solucion</a>
         <a href="#analizador">Analizador de IA</a>
+        <a href="#simulador-arquitectura" style="color:#34D399;font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.4rem;"></i>Simulador de Arquitectura (Act. 9)</a>
         <a href="#equipo">Equipo</a>
         <a href="#registro" style="color:var(--tech-cyan);">Acceso a la Plataforma</a>
         <a href="#contacto">Contacto</a>
@@ -407,470 +411,1313 @@
     </section>
 
     <!-- ============================================================
-         5. CENTRO DE ANÁLISIS DE DOCUMENTOS Y REPOSITORIOS (DUAL SUITE)
+         5. CENTRO DE GENERACIÓN Y ANÁLISIS DE DOCUMENTACIÓN TÉCNICA
     ============================================================ -->
     <section id="analizador" style="padding:6rem 0;position:relative;">
-        <a id="demo" style="position:absolute;top:-80px;left:0;opacity:0;pointer-events:none;"></a>
         <div class="container">
-            <div style="text-align:center;max-width:680px;margin:0 auto 3rem;" class="reveal">
-                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> Motor de Análisis Cognitivo</span>
-                <h2 class="section-title">Centro de Análisis Inteligente</h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Elige el modo de análisis para procesar documentos técnicos o inspeccionar repositorios públicos de GitHub con inteligencia artificial en tiempo real.</p>
+            <div style="text-align:center;max-width:760px;margin:0 auto 3rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> Plataforma de Ingeniería de Software</span>
+                <h2 class="section-title">Generador y Analizador de Documentación Viva</h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;">Analiza repositorios de GitHub, archivos y proyectos de software para generar automáticamente documentación técnica profesional, diagramas C4, contratos de API, modelos de datos, DevOps y suites de QA.</p>
             </div>
 
-            <div class="glow-card reveal reveal-delay-1" style="padding:2.25rem;max-width:1080px;margin:0 auto;">
+            <div class="glow-card reveal reveal-delay-1" style="padding:2.25rem;max-width:1120px;margin:0 auto;">
                 
-                <!-- Dual Tab Group -->
+                <!-- Main Mode Selector Tabs -->
                 <div class="analyzer-tab-group" role="tablist">
-                    <button type="button" id="tab-doc-btn" class="analyzer-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-doc">
-                        <i class="fa-solid fa-file-lines" style="color:var(--tech-cyan);"></i>
-                        <span>Analizar Documento</span>
-                        <span class="tab-badge">PDF &bull; DOCX &bull; TXT</span>
-                    </button>
-                    <button type="button" id="tab-gh-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-gh">
+                    <button type="button" id="tab-gh-btn" class="analyzer-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-gh">
                         <i class="fa-brands fa-github" style="color:#818CF8;"></i>
-                        <span>Analizar GitHub</span>
-                        <span class="tab-badge">Repo Público</span>
+                        <span>Repositorio GitHub</span>
+                        <span class="tab-badge">URL Pública</span>
+                    </button>
+                    <button type="button" id="tab-doc-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-doc">
+                        <i class="fa-solid fa-folder-open" style="color:var(--tech-cyan);"></i>
+                        <span>Subir Archivos / Proyecto</span>
+                        <span class="tab-badge">Código &bull; Docs &bull; ZIP</span>
+                    </button>
+                    <button type="button" id="tab-manual-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-manual">
+                        <i class="fa-solid fa-file-code" style="color:#34D399;"></i>
+                        <span>Especificación Manual</span>
+                        <span class="tab-badge">Prompt / Contexto</span>
                     </button>
                     <button type="button" id="tab-history-btn" class="analyzer-tab-btn" style="margin-left:auto;" role="tab" aria-selected="false" aria-controls="panel-history">
                         <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>
-                        <span>Historial</span>
+                        <span>Mis Proyectos</span>
                         <span class="tab-badge" id="history-badge-count">0</span>
                     </button>
                 </div>
 
                 <!-- ============================================================
-                     PANEL A: ANÁLISIS DE DOCUMENTOS
+                     INPUT CONTAINER (Configuración del Análisis)
                 ============================================================ -->
-                <div id="panel-doc">
+                <div id="project-input-container">
                     
-                    <!-- Dropzone Section -->
-                    <div id="doc-upload-section">
-                        <input type="file" id="doc-file-input" accept=".pdf,.docx,.txt,.md" style="display:none;">
-                        
-                        <div id="doc-dropzone" class="dropzone-cyber">
-                            <div class="dropzone-icon">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                            </div>
-                            <h3 style="font-size:1.15rem;font-weight:700;color:#fff;margin-bottom:.5rem;">Arrastra y suelta tu documento aquí</h3>
-                            <p style="font-size:.85rem;color:#94A3B8;margin-bottom:1.25rem;">O haz clic para explorar tus archivos desde tu dispositivo</p>
-                            <button type="button" id="btn-browse-file" class="btn-cyber" style="padding:.65rem 1.4rem;font-size:.82rem;">
-                                <i class="fa-solid fa-folder-open" style="margin-right:.45rem;"></i>Examinar Archivo
-                            </button>
-                            <p style="font-size:.72rem;color:#64748B;margin-top:1.25rem;font-family:'JetBrains Mono',monospace;">Formatos admitidos: PDF, Word (.docx), Texto plano (.txt, .md) &bull; Máx: 10 MB</p>
-                        </div>
-
-                        <!-- Selected File Info Card -->
-                        <div id="doc-file-card" class="file-card-cyber" style="display:none;">
-                            <div style="display:flex;align-items:center;gap:1rem;min-width:0;">
-                                <div style="width:3rem;height:3rem;border-radius:.65rem;background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:1.25rem;flex-shrink:0;">
-                                    <i id="doc-file-icon" class="fa-solid fa-file-pdf"></i>
-                                </div>
-                                <div style="min-width:0;">
-                                    <h4 id="doc-file-name" style="font-size:.9rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">documento.pdf</h4>
-                                    <div style="display:flex;gap:.75rem;align-items:center;margin-top:.25rem;font-size:.72rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
-                                        <span id="doc-file-size">1.2 MB</span>
-                                        <span style="color:#64748B;">&bull;</span>
-                                        <span id="doc-file-ext" style="color:var(--tech-cyan);text-transform:uppercase;">PDF</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="display:flex;align-items:center;gap:.75rem;flex-shrink:0;">
-                                <button type="button" id="btn-remove-doc" class="btn-ghost" style="padding:.5rem .9rem;font-size:.78rem;color:#FB7185;">
-                                    <i class="fa-solid fa-trash-can" style="margin-right:.35rem;"></i>Quitar
-                                </button>
-                                <button type="button" id="btn-analyze-doc" class="btn-cyber" style="padding:.65rem 1.4rem;font-size:.85rem;">
-                                    <i class="fa-solid fa-brain" style="margin-right:.45rem;"></i>Iniciar Análisis
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar Container -->
-                        <div id="doc-progress-container" class="cyber-progress-container" style="display:none;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;">
-                                <span id="doc-progress-status" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:.45rem;"></i>Preparando documento...</span>
-                                <span id="doc-progress-pct" style="color:#94A3B8;font-family:'JetBrains Mono',monospace;">15%</span>
-                            </div>
-                            <div class="cyber-progress-bar">
-                                <div id="doc-progress-fill" class="cyber-progress-fill" style="width:15%;"></div>
-                            </div>
-                            <p style="font-size:.7rem;color:#64748B;font-family:'JetBrains Mono',monospace;margin-top:.4rem;">Extracción textual &bull; Sanitización de tokens &bull; Modelo Gemini 2.5 Flash</p>
-                        </div>
-                    </div>
-
-                    <!-- Document Analysis Results View -->
-                    <div id="doc-results" style="display:none;">
-                        <!-- Results Header Bar -->
-                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1.25rem;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
-                            <div>
-                                <div style="display:flex;align-items:center;gap:.65rem;">
-                                    <span class="badge badge-emerald"><i class="fa-solid fa-circle-check"></i> Análisis Finalizado</span>
-                                    <span id="doc-res-mode-badge" class="badge badge-cyan" style="font-size:.65rem;">Gemini AI</span>
-                                </div>
-                                <h3 id="doc-res-filename" style="font-size:1.25rem;font-weight:800;color:#fff;margin-top:.4rem;">nombre_documento.pdf</h3>
-                                <div id="doc-res-meta" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.35rem;font-size:.74rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
-                                    <span><i class="fa-solid fa-file" style="color:var(--tech-cyan);margin-right:.3rem;"></i><span id="doc-res-pages">1</span> página(s)</span>
-                                    <span><i class="fa-solid fa-font" style="color:#818CF8;margin-right:.3rem;"></i><span id="doc-res-words">0</span> palabras</span>
-                                    <span><i class="fa-solid fa-hard-drive" style="color:#34D399;margin-right:.3rem;"></i><span id="doc-res-size">0 KB</span></span>
-                                </div>
-                            </div>
-                            <button type="button" id="btn-new-doc-analysis" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
-                                <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.4rem;"></i>Nuevo Análisis
-                            </button>
-                        </div>
-
-                        <!-- Results Grid -->
-                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
-                            
-                            <!-- Executive Summary Card -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <h4 style="font-size:.9rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                    <i class="fa-solid fa-file-contract" style="color:var(--tech-cyan);"></i>Resumen Ejecutivo
-                                </h4>
-                                <p id="doc-res-summary" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</p>
-                            </div>
-
-                            <!-- Main Ideas & Conclusions Grid -->
-                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-                                <!-- Main Ideas -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-lightbulb" style="color:#FBBF24;"></i>Ideas Principales
-                                    </h4>
-                                    <ul id="doc-res-main-ideas" style="display:flex;flex-direction:column;gap:.65rem;padding-left:1.1rem;font-size:.82rem;color:#94A3B8;line-height:1.6;">
-                                    </ul>
-                                </div>
-
-                                <!-- Conclusions -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-circle-check" style="color:#34D399;"></i>Conclusiones Fundamentadas
-                                    </h4>
-                                    <ul id="doc-res-conclusions" style="display:flex;flex-direction:column;gap:.65rem;padding-left:1.1rem;font-size:.82rem;color:#94A3B8;line-height:1.6;">
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <!-- Key Concepts & Keywords -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                    <i class="fa-solid fa-tags" style="color:#818CF8;"></i>Conceptos Clave &amp; Palabras Clave
-                                </h4>
-                                <div id="doc-res-concepts" style="display:flex;flex-wrap:wrap;gap:.5rem;">
-                                </div>
-                            </div>
-
-                            <!-- Multi-Level Explanations -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
-                                        <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i>Explicación Multinivel
-                                    </h4>
-                                    <div class="level-selector-group">
-                                        <button type="button" class="level-chip active" data-level="basic">Básico</button>
-                                        <button type="button" class="level-chip" data-level="intermediate">Intermedio</button>
-                                        <button type="button" class="level-chip" data-level="advanced">Avanzado</button>
-                                    </div>
-                                </div>
-                                <p id="doc-res-explanation" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;background:rgba(9,13,22,.6);padding:1.1rem;border-radius:.65rem;border:1px solid rgba(129,140,248,.14);">
-                                    ...
-                                </p>
-                            </div>
-
-                            <!-- Study Questions & Entities Grid -->
-                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-                                <!-- Study Questions -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-circle-question" style="color:var(--tech-cyan);"></i>Preguntas de Estudio
-                                    </h4>
-                                    <ul id="doc-res-questions" style="display:flex;flex-direction:column;gap:.65rem;padding-left:1.1rem;font-size:.82rem;color:#94A3B8;line-height:1.6;">
-                                    </ul>
-                                </div>
-
-                                <!-- Key Entities, Dates & Metrics -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-calendar-check" style="color:#818CF8;"></i>Datos, Fechas &amp; Métricas
-                                    </h4>
-                                    <div id="doc-res-entities" style="display:flex;flex-direction:column;gap:.75rem;font-size:.8rem;color:#94A3B8;">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Document Contextual Chat -->
-                            <div class="chat-container-cyber" id="doc-chat-container">
-                                <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:.85rem;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
-                                    <div style="display:flex;align-items:center;gap:.6rem;">
-                                        <div style="width:2rem;height:2rem;border-radius:.5rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;"><i class="fa-solid fa-comments"></i></div>
-                                        <div>
-                                            <h4 style="font-size:.85rem;font-weight:800;color:#fff;">Chat Contextual con el Documento</h4>
-                                            <p style="font-size:.68rem;color:#64748B;">Respuestas fundamentadas exclusivamente en el documento analizado</p>
-                                        </div>
-                                    </div>
-                                    <span class="badge badge-cyan" style="font-size:.65rem;"><i class="fa-solid fa-shield-halved"></i> 100% Grounded</span>
-                                </div>
-
-                                <!-- Quick Questions Chips -->
-                                <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
-                                    <button type="button" class="doc-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">¿Cuál es la idea principal?</button>
-                                    <button type="button" class="doc-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">Resume las conclusiones</button>
-                                    <button type="button" class="doc-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">¿Qué conceptos debo estudiar?</button>
-                                </div>
-
-                                <!-- Messages Scroll Area -->
-                                <div id="doc-chat-messages" class="chat-messages-area">
-                                    <div class="chat-bubble chat-bubble-ai">
-                                        ¡Hola! He analizado tu documento. Puedes hacerme cualquier pregunta técnica sobre su contenido y te responderé con base exclusiva en el texto analizado.
-                                    </div>
-                                </div>
-
-                                <!-- Input Box -->
-                                <div class="chat-input-wrapper">
-                                    <input type="text" id="doc-chat-input" class="input-cyber" placeholder="Pregunta sobre este documento..." autocomplete="off">
-                                    <button type="button" id="btn-doc-chat-send" class="btn-cyber" style="padding:0 1.25rem;flex-shrink:0;">
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- ============================================================
-                     PANEL B: ANÁLISIS DE REPOSITORIO GITHUB
-                ============================================================ -->
-                <div id="panel-gh" style="display:none;">
-                    
-                    <div id="gh-input-section">
-                        <div class="sim-inputs-grid" id="sim-inputs">
-                            <div style="flex:1;">
-                                <label for="repo-input" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">
-                                    <i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.4rem;"></i>URL del Repositorio Público
+                    <!-- 1. GitHub Panel -->
+                    <div id="panel-gh">
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+                            <div style="flex:1;min-width:280px;">
+                                <label for="repo-input" style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.55rem;">
+                                    <i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.4rem;"></i>URL del Repositorio de GitHub
                                 </label>
                                 <div class="input-group-cyber">
                                     <div class="input-addon-cyber"><i class="fa-brands fa-github" style="font-size:1.1rem;"></i></div>
-                                    <input type="text" id="repo-input" value="https://github.com/octocat/Hello-World" class="input-cyber" placeholder="https://github.com/usuario/repositorio" autocomplete="off">
+                                    <input type="text" id="repo-input" value="https://github.com/facebook/react" class="input-cyber" placeholder="https://github.com/usuario/repositorio" autocomplete="off">
                                 </div>
                             </div>
-                            <div style="width:200px;">
-                                <label for="lang-select" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;">
-                                    <i class="fa-solid fa-sliders" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Profundidad
-                                </label>
-                                <select id="lang-select" class="input-field" style="height:3.25rem;">
-                                    <option value="auto">Auto-detección completa</option>
-                                    <option value="arch">Enfoque Arquitectura</option>
-                                    <option value="security">Enfoque Seguridad</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Examples Chips -->
-                        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:1rem 0 1.5rem;font-size:.74rem;color:#64748B;">
-                            <span>Ejemplos rápidos:</span>
-                            <button type="button" class="gh-example-chip btn-ghost" style="padding:.2rem .6rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:.4rem;color:var(--tech-cyan);" data-repo="https://github.com/octocat/Hello-World">octocat/Hello-World</button>
-                            <button type="button" class="gh-example-chip btn-ghost" style="padding:.2rem .6rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);border-radius:.4rem;color:#818CF8;" data-repo="https://github.com/facebook/react">facebook/react</button>
-                            <button type="button" class="gh-example-chip btn-ghost" style="padding:.2rem .6rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:.4rem;color:#34D399;" data-repo="https://github.com/expressjs/express">expressjs/express</button>
-                        </div>
-
-                        <!-- Action Bar -->
-                        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,.12);">
-                            <button id="btn-run-analysis" class="btn-cyber" style="padding:.75rem 1.75rem;font-size:.875rem;">
-                                <i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Analizar Repositorio GitHub
-                            </button>
-                            <div style="display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;">
-                                <span style="display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:#34D399;" class="animate-pulse"></span>
-                                Motor: GitHub API v3 + AST &bull; Gemini 2.5 Flash
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar Container -->
-                        <div id="gh-progress-container" class="cyber-progress-container" style="display:none;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;">
-                                <span id="gh-progress-status" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-spinner fa-spin" style="margin-right:.45rem;"></i>Validando repositorio...</span>
-                                <span id="gh-progress-pct" style="color:#94A3B8;font-family:'JetBrains Mono',monospace;">20%</span>
-                            </div>
-                            <div class="cyber-progress-bar">
-                                <div id="gh-progress-fill" class="cyber-progress-fill" style="width:20%;"></div>
-                            </div>
-                            <p style="font-size:.7rem;color:#64748B;font-family:'JetBrains Mono',monospace;margin-top:.4rem;">Descarga de árbol git &bull; Filtrado de archivos fuente &bull; Análisis de arquitectura</p>
                         </div>
                     </div>
 
-                    <!-- GitHub Analysis Results View -->
-                    <div id="gh-results" style="display:none;">
-                        <!-- Results Header Bar -->
-                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1.25rem;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;">
-                            <div>
-                                <div style="display:flex;align-items:center;gap:.65rem;">
-                                    <span class="badge badge-emerald"><i class="fa-solid fa-circle-check"></i> Repositorio Analizado</span>
-                                    <span id="gh-res-mode-badge" class="badge badge-cyan" style="font-size:.65rem;">Gemini AI</span>
-                                </div>
-                                <h3 id="gh-res-name" style="font-size:1.25rem;font-weight:800;color:#fff;margin-top:.4rem;">usuario/repositorio</h3>
-                                <p id="gh-res-desc" style="font-size:.82rem;color:#94A3B8;margin-top:.25rem;max-width:650px;">Descripción...</p>
-                                <div id="gh-res-meta" style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem;font-size:.74rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
-                                    <span><i class="fa-solid fa-code" style="color:var(--tech-cyan);margin-right:.3rem;"></i><span id="gh-res-lang">JavaScript</span></span>
-                                    <span><i class="fa-solid fa-star" style="color:#FBBF24;margin-right:.3rem;"></i><span id="gh-res-stars">0</span> estrellas</span>
-                                    <span><i class="fa-solid fa-code-fork" style="color:#818CF8;margin-right:.3rem;"></i><span id="gh-res-forks">0</span> forks</span>
-                                    <span><i class="fa-solid fa-file-code" style="color:#34D399;margin-right:.3rem;"></i><span id="gh-res-files-count">0</span> archivos analizados</span>
-                                </div>
-                            </div>
-                            <button type="button" id="btn-new-gh-analysis" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
-                                <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.4rem;"></i>Nuevo Análisis
+                    <!-- 2. Files / ZIP Upload Panel -->
+                    <div id="panel-doc" style="display:none;">
+                        <input type="file" id="doc-file-input" multiple accept=".pdf,.docx,.txt,.md,.js,.ts,.py,.json,.zip" style="display:none;">
+                        <div id="doc-dropzone" class="dropzone-cyber" style="margin-bottom:1.25rem;">
+                            <div class="dropzone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                            <h3 style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.4rem;">Arrastra y suelta archivos de tu proyecto o un archivo comprimido (.ZIP)</h3>
+                            <p style="font-size:.82rem;color:#94A3B8;margin-bottom:1rem;">Admite código fuente, scripts, documentación (.md, .pdf, .docx, .txt) o el proyecto completo</p>
+                            <button type="button" id="btn-browse-file" class="btn-cyber" style="padding:.6rem 1.35rem;font-size:.82rem;">
+                                <i class="fa-solid fa-folder-open" style="margin-right:.45rem;"></i>Seleccionar Archivos
                             </button>
-                        </div>
-
-                        <!-- Results Stack -->
-                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
-                            
-                            <!-- Detected Technologies -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                    <i class="fa-solid fa-microchip" style="color:var(--tech-cyan);"></i>Tecnologías y Dependencias Detectadas
-                                </h4>
-                                <div id="gh-tech-chips" style="display:flex;flex-wrap:wrap;gap:.5rem;">
-                                </div>
-                            </div>
-
-                            <!-- Overview & Architecture Grid -->
-                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-                                <!-- Overview -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-compass" style="color:var(--tech-cyan);"></i>Visión General del Proyecto
-                                    </h4>
-                                    <p id="gh-res-overview" style="font-size:.82rem;color:#CBD5E1;line-height:1.7;">...</p>
-                                </div>
-
-                                <!-- Architecture -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-sitemap" style="color:#818CF8;"></i>Estructura Arquitectónica
-                                    </h4>
-                                    <p id="gh-res-architecture" style="font-size:.82rem;color:#CBD5E1;line-height:1.7;">...</p>
-                                </div>
-                            </div>
-
-                            <!-- Directory Tree Explorer -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
-                                        <i class="fa-solid fa-folder-tree" style="color:var(--tech-cyan);"></i>Árbol de Directorios del Código Fuente
-                                    </h4>
-                                    <span style="font-size:.7rem;color:#64748B;font-family:'JetBrains Mono',monospace;">Excluye node_modules y binarios</span>
-                                </div>
-                                <pre id="gh-tree-diagram" class="cyber-tree-box">...</pre>
-                            </div>
-
-                            <!-- Key Files & Flow Grid -->
-                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-                                <!-- Key Files -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-file-code" style="color:var(--tech-cyan);"></i>Archivos Clave Analizados
-                                    </h4>
-                                    <div id="gh-key-files-container" style="display:flex;flex-direction:column;gap:.65rem;font-size:.8rem;">
-                                    </div>
-                                </div>
-
-                                <!-- Communication Flow -->
-                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                        <i class="fa-solid fa-arrow-right-arrow-left" style="color:#34D399;"></i>Flujo de Comunicación y Datos
-                                    </h4>
-                                    <p id="gh-res-flow" style="font-size:.82rem;color:#CBD5E1;line-height:1.7;">...</p>
-                                </div>
-                            </div>
-
-                            <!-- Findings & Security Recommendations -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;">
-                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i>Hallazgos Técnicos &amp; Seguridad
-                                </h4>
-                                <div id="gh-findings-container" style="display:flex;flex-direction:column;gap:.85rem;">
-                                </div>
-                            </div>
-
-                            <!-- Onboarding Guide -->
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.4rem;">
-                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem;">
-                                    <i class="fa-solid fa-person-chalkboard" style="color:var(--tech-cyan);"></i>Guía de Onboarding para Desarrolladores
-                                </h4>
-                                <pre id="gh-res-onboarding" style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#CBD5E1;background:rgba(9,13,22,.6);padding:1rem;border-radius:.6rem;border:1px solid rgba(129,140,248,.15);white-space:pre-wrap;line-height:1.7;">...</pre>
-                            </div>
-
-                            <!-- GitHub Contextual Chat -->
-                            <div class="chat-container-cyber" id="gh-chat-container">
-                                <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:.85rem;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
-                                    <div style="display:flex;align-items:center;gap:.6rem;">
-                                        <div style="width:2rem;height:2rem;border-radius:.5rem;background:linear-gradient(135deg,#818CF8,#34D399);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;"><i class="fa-solid fa-terminal"></i></div>
-                                        <div>
-                                            <h4 style="font-size:.85rem;font-weight:800;color:#fff;">Chat Técnico con el Repositorio</h4>
-                                            <p style="font-size:.68rem;color:#64748B;">Pregunta sobre la arquitectura, archivos analizados o implementación</p>
-                                        </div>
-                                    </div>
-                                    <span class="badge badge-emerald" style="font-size:.65rem;"><i class="fa-solid fa-code-commit"></i> Repositorio Vivo</span>
-                                </div>
-
-                                <!-- Quick Questions Chips -->
-                                <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
-                                    <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">¿Cómo funciona la arquitectura?</button>
-                                    <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">¿Qué dependencias son críticas?</button>
-                                    <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">Explícame los archivos clave</button>
-                                </div>
-
-                                <!-- Messages Scroll Area -->
-                                <div id="gh-chat-messages" class="chat-messages-area">
-                                    <div class="chat-bubble chat-bubble-ai">
-                                        ¡Hola! He analizado el repositorio. Puedes consultarme sobre su arquitectura, organización de carpetas o funcionamiento de los archivos analizados.
-                                    </div>
-                                </div>
-
-                                <!-- Input Box -->
-                                <div class="chat-input-wrapper">
-                                    <input type="text" id="gh-chat-input" class="input-cyber" placeholder="Pregunta sobre este repositorio..." autocomplete="off">
-                                    <button type="button" id="btn-gh-chat-send" class="btn-cyber" style="padding:0 1.25rem;flex-shrink:0;">
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </div>
-
+                            <div id="selected-files-list" style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;"></div>
                         </div>
                     </div>
 
-                    <!-- Hidden elements for legacy script safety -->
-                    <div id="sim-output" style="display:none;">
-                        <div id="terminal-log"></div>
-                        <div id="doc-preview"></div>
+                    <!-- 3. Manual Specification Panel -->
+                    <div id="panel-manual" style="display:none;">
+                        <div style="margin-bottom:1.25rem;">
+                            <label for="manual-text-input" style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.55rem;">
+                                <i class="fa-solid fa-keyboard" style="color:#34D399;margin-right:.4rem;"></i>Descripción Técnica o Requisitos del Proyecto
+                            </label>
+                            <textarea id="manual-text-input" class="input-cyber" rows="4" style="height:auto;padding:.85rem;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.82rem;" placeholder="Escribe o pega aquí la descripción del software, requisitos, capas arquitectónicas, modelos de datos y endpoints para generar su documentación..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Category Selection Checklist ("¿Qué quieres generar?") -->
+                    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.16);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
+                            <h4 style="font-size:.84rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.45rem;">
+                                <i class="fa-solid fa-list-check" style="color:var(--tech-cyan);"></i> ¿Qué quieres generar?
+                            </h4>
+                            <span style="font-size:.72rem;color:#64748B;">Selecciona los módulos requeridos para la suite documental</span>
+                        </div>
+
+                        <div class="category-selector-grid">
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-product" checked>
+                                <span><i class="fa-solid fa-file-contract" style="color:#38BDF8;margin-right:.3rem;"></i> Producto (PRD/SRS)</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-architecture" checked>
+                                <span><i class="fa-solid fa-sitemap" style="color:#818CF8;margin-right:.3rem;"></i> Arquitectura (C4)</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-diagrams" checked>
+                                <span><i class="fa-solid fa-diagram-project" style="color:#34D399;margin-right:.3rem;"></i> Diagramas UML/ERD</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-database" checked>
+                                <span><i class="fa-solid fa-database" style="color:#F59E0B;margin-right:.3rem;"></i> Base de Datos</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-api" checked>
+                                <span><i class="fa-solid fa-network-wired" style="color:#38BDF8;margin-right:.3rem;"></i> API &amp; OpenAPI 3.0</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-development" checked>
+                                <span><i class="fa-solid fa-code" style="color:#818CF8;margin-right:.3rem;"></i> Desarrollo &amp; README</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-devops" checked>
+                                <span><i class="fa-solid fa-gears" style="color:#34D399;margin-right:.3rem;"></i> DevOps &amp; CI/CD</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-qa" checked>
+                                <span><i class="fa-solid fa-vial-circle-check" style="color:#A855F7;margin-right:.3rem;"></i> QA &amp; Test Cases</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-security" checked>
+                                <span><i class="fa-solid fa-shield-halved" style="color:#FB7185;margin-right:.3rem;"></i> Auditoría Seguridad</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-adr" checked>
+                                <span><i class="fa-solid fa-scale-balanced" style="color:#FBBF24;margin-right:.3rem;"></i> Decisiones (ADR)</span>
+                            </label>
+                            <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-user" checked>
+                                <span><i class="fa-solid fa-users" style="color:#38BDF8;margin-right:.3rem;"></i> Guía Usuario &amp; FAQ</span>
+                            </label>
+                        </div>
+
+                        <!-- Main Action Button -->
+                        <button type="button" id="btn-run-analysis" class="btn-cyber-primary" style="width:100%;padding:1.1rem;font-size:.95rem;font-weight:800;letter-spacing:.06em;margin-top:1.25rem;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.5rem;"></i> GENERAR DOCUMENTACIÓN
+                        </button>
                     </div>
 
                 </div>
 
                 <!-- ============================================================
-                     PANEL C: HISTORIAL DE ANÁLISIS
+                     REAL-TIME 8-STAGE PROGRESS STEPPER
+                ============================================================ -->
+                <div id="project-progress-container" style="display:none;margin-top:2rem;padding-top:1.75rem;border-top:1px solid rgba(129,140,248,.16);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+                        <span id="project-progress-status" style="font-size:.85rem;font-weight:700;color:var(--tech-cyan);display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-circle-notch fa-spin"></i> Analizando proyecto...
+                        </span>
+                        <span id="project-progress-pct" style="font-size:.85rem;font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;">0%</span>
+                    </div>
+                    <div style="height:6px;border-radius:999px;background:rgba(15,23,42,.8);overflow:hidden;border:1px solid rgba(129,140,248,.2);">
+                        <div id="project-progress-fill" style="height:100%;width:0%;background:linear-gradient(90deg,var(--tech-cyan),#818CF8,var(--emerald-sync));border-radius:999px;transition:width .4s ease;"></div>
+                    </div>
+
+                    <!-- 8 Steps Indicator Grid -->
+                    <div class="stage-stepper-grid">
+                        <div class="stage-step-pill active" id="step-1">
+                            <span class="stage-step-num">ETAPA 1</span>
+                            <span class="stage-step-title">Iniciando Ingestión</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-2">
+                            <span class="stage-step-num">ETAPA 2</span>
+                            <span class="stage-step-title">Estructura &amp; Deps</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-3">
+                            <span class="stage-step-num">ETAPA 3</span>
+                            <span class="stage-step-title">Arquitectura</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-4">
+                            <span class="stage-step-num">ETAPA 4</span>
+                            <span class="stage-step-title">Componentes</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-5">
+                            <span class="stage-step-num">ETAPA 5</span>
+                            <span class="stage-step-title">Modelo de Datos</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-6">
+                            <span class="stage-step-num">ETAPA 6</span>
+                            <span class="stage-step-title">Contratos API</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-7">
+                            <span class="stage-step-num">ETAPA 7</span>
+                            <span class="stage-step-title">Diagramas</span>
+                        </div>
+                        <div class="stage-step-pill" id="step-8">
+                            <span class="stage-step-num">ETAPA 8</span>
+                            <span class="stage-step-title">Documentación</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     COMPLETE RESULTS DASHBOARD
+                ============================================================ -->
+                <div id="project-results" style="display:none;margin-top:2.5rem;padding-top:2rem;border-top:1px solid rgba(129,140,248,.18);">
+                    
+                    <!-- Dashboard Header & Export Actions -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;background:rgba(15,23,42,.8);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.25rem 1.5rem;">
+                        <div>
+                            <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                <h3 id="res-project-name" style="font-size:1.35rem;font-weight:900;color:#fff;">Nombre del Proyecto</h3>
+                                <span id="res-mode-badge" class="badge badge-cyan" style="font-size:.68rem;">Gemini 2.5 Flash Cognition</span>
+                            </div>
+                            <div id="res-meta-chips" style="display:flex;gap:.85rem;flex-wrap:wrap;margin-top:.45rem;font-size:.76rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
+                                <span><i class="fa-solid fa-code-branch" style="color:var(--tech-cyan);margin-right:.3rem;"></i><span id="res-branch">main</span></span>
+                                <span><i class="fa-solid fa-code" style="color:#818CF8;margin-right:.3rem;"></i><span id="res-lang">JavaScript</span></span>
+                                <span><i class="fa-solid fa-file-code" style="color:#34D399;margin-right:.3rem;"></i><span id="res-files-count">0</span> archivos</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
+                            <button type="button" id="btn-download-zip" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.82rem;">
+                                <i class="fa-solid fa-file-zipper" style="margin-right:.4rem;"></i>Descargar Documentación (.ZIP)
+                            </button>
+                            <button type="button" id="btn-export-pdf" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
+                                <i class="fa-solid fa-file-pdf" style="margin-right:.4rem;"></i>Exportar PDF
+                            </button>
+                            <button type="button" id="btn-new-analysis" class="btn-ghost" style="padding:.6rem 1rem;font-size:.82rem;">
+                                <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.35rem;"></i>Nuevo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Project Summary KPI Cards (Section 38) -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));gap:.85rem;margin-bottom:2rem;">
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Lenguaje Principal</span>
+                            <strong id="kpi-lang" style="font-size:.92rem;color:#fff;">-</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Frameworks</span>
+                            <strong id="kpi-frameworks" style="font-size:.92rem;color:var(--tech-cyan);">-</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Base de Datos</span>
+                            <strong id="kpi-db" style="font-size:.92rem;color:#34D399;">-</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Arquitectura</span>
+                            <strong id="kpi-arch" style="font-size:.92rem;color:#818CF8;">Modular</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Endpoints API</span>
+                            <strong id="kpi-api" style="font-size:.92rem;color:#fff;">0</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Autenticación</span>
+                            <strong id="kpi-auth" style="font-size:.92rem;color:#FB7185;">-</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Tests / QA</span>
+                            <strong id="kpi-qa" style="font-size:.92rem;color:#A855F7;">-</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">DevOps</span>
+                            <strong id="kpi-devops" style="font-size:.92rem;color:#F59E0B;">-</strong>
+                        </div>
+                    </div>
+
+                    <!-- Project Map (Section 39) -->
+                    <div class="project-map-container" id="project-map-section">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+                            <h4 style="font-size:.9rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
+                                <i class="fa-solid fa-network-wired" style="color:var(--tech-cyan);"></i> Mapa Visual del Proyecto (Project Map)
+                            </h4>
+                            <span style="font-size:.72rem;color:#64748B;">Capas del sistema detectadas estáticamente</span>
+                        </div>
+                        <div class="project-map-grid" id="project-map-grid">
+                            <!-- Injected dynamically by app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Interactive File Explorer (Section 8) -->
+                    <div class="file-tree-wrapper" id="file-explorer-section">
+                        <div class="file-tree-header">
+                            <div style="display:flex;align-items:center;gap:.6rem;">
+                                <i class="fa-solid fa-folder-tree" style="color:var(--tech-cyan);"></i>
+                                <span style="font-size:.85rem;font-weight:800;color:#fff;">Explorador de Archivos Clasificados</span>
+                                <span class="badge badge-cyan" id="files-count-badge" style="font-size:.65rem;">0 archivos</span>
+                            </div>
+                            <div style="display:flex;gap:.6rem;align-items:center;">
+                                <input type="text" id="file-search-input" class="input-cyber" placeholder="Buscar archivo..." style="height:2rem;padding:0 .75rem;font-size:.74rem;width:180px;">
+                                <select id="file-cat-filter" class="input-field" style="height:2rem;padding:0 .5rem;font-size:.74rem;">
+                                    <option value="ALL">Todas las Categorías</option>
+                                    <option value="SOURCE_CODE">Código Fuente</option>
+                                    <option value="API">API / Rutas</option>
+                                    <option value="DATABASE">Base de Datos / Modelos</option>
+                                    <option value="AUTHENTICATION">Autenticación</option>
+                                    <option value="CONFIGURATION">Configuración</option>
+                                    <option value="DEVOPS">DevOps</option>
+                                    <option value="TEST">Tests</option>
+                                    <option value="DOCUMENTATION">Documentación</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="file-tree-list" id="file-tree-list">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Documentation Tabs Navigation (Section 38) -->
+                    <div class="doc-suite-nav" role="tablist">
+                        <button type="button" class="doc-nav-tab active" data-doc-tab="product">
+                            <i class="fa-solid fa-file-contract"></i> Producto
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="architecture">
+                            <i class="fa-solid fa-sitemap"></i> Arquitectura
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="diagrams">
+                            <i class="fa-solid fa-diagram-project"></i> Diagramas
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="database">
+                            <i class="fa-solid fa-database"></i> Base de Datos
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="api">
+                            <i class="fa-solid fa-network-wired"></i> API &amp; OpenAPI
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="development">
+                            <i class="fa-solid fa-code"></i> Desarrollo
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="devops">
+                            <i class="fa-solid fa-gears"></i> DevOps &amp; CI/CD
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="qa">
+                            <i class="fa-solid fa-vial-circle-check"></i> QA &amp; Tests
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="security">
+                            <i class="fa-solid fa-shield-halved"></i> Seguridad
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="adr">
+                            <i class="fa-solid fa-scale-balanced"></i> ADRs
+                        </button>
+                        <button type="button" class="doc-nav-tab" data-doc-tab="user">
+                            <i class="fa-solid fa-users"></i> Guía Usuario
+                        </button>
+                    </div>
+
+                    <!-- ============================================================
+                         DOCUMENTATION PANELS
+                    ============================================================ -->
+                    
+                    <!-- 1. Producto (PRD, SRS, User Stories) -->
+                    <div id="doc-panel-product" class="doc-tab-panel active">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
+                                        <i class="fa-solid fa-file-contract" style="color:var(--tech-cyan);"></i> PRD (Product Requirements Document)
+                                    </h4>
+                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-prd" style="font-size:.74rem;">
+                                        <i class="fa-solid fa-copy"></i> Copiar
+                                    </button>
+                                </div>
+                                <div id="content-prd" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
+                                        <i class="fa-solid fa-list-check" style="color:#818CF8;"></i> SRS (Software Requirements Specification)
+                                    </h4>
+                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-srs" style="font-size:.74rem;">
+                                        <i class="fa-solid fa-copy"></i> Copiar
+                                    </button>
+                                </div>
+                                <div id="content-srs" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+                                    <i class="fa-solid fa-user-check" style="color:#34D399;"></i> Historias de Usuario &amp; Criterios de Aceptación
+                                </h4>
+                                <div id="content-user-stories" style="display:flex;flex-direction:column;gap:1rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Arquitectura (C4, Capas) -->
+                    <div id="doc-panel-architecture" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Visión General de Arquitectura</h4>
+                                <p id="content-arch-overview" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
+                            </div>
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:1.25rem;">
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.25rem;">
+                                    <h5 style="font-size:.85rem;font-weight:800;color:var(--tech-cyan);margin-bottom:.65rem;">C4: Nivel 1 - Contexto del Sistema</h5>
+                                    <p id="content-c4-context" style="font-size:.82rem;color:#94A3B8;line-height:1.65;">...</p>
+                                </div>
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.25rem;">
+                                    <h5 style="font-size:.85rem;font-weight:800;color:#818CF8;margin-bottom:.65rem;">C4: Nivel 2 - Contenedores</h5>
+                                    <p id="content-c4-container" style="font-size:.82rem;color:#94A3B8;line-height:1.65;">...</p>
+                                </div>
+                                <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.25rem;">
+                                    <h5 style="font-size:.85rem;font-weight:800;color:#34D399;margin-bottom:.65rem;">C4: Nivel 3 - Componentes</h5>
+                                    <p id="content-c4-component" style="font-size:.82rem;color:#94A3B8;line-height:1.65;">...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Diagramas (Mermaid Viewer con Zoom, Pan, Exportar) -->
+                    <div id="doc-panel-diagrams" class="doc-tab-panel">
+                        <div class="mermaid-viewer-wrapper">
+                            <div class="mermaid-toolbar">
+                                <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                                    <label for="diagram-type-select" style="font-size:.76rem;font-weight:700;color:#94A3B8;">Tipo de Diagrama:</label>
+                                    <select id="diagram-type-select" class="input-field" style="height:2.25rem;padding:0 .75rem;font-size:.78rem;">
+                                        <option value="c4">Arquitectura General (C4)</option>
+                                        <option value="erd">Base de Datos (ERD)</option>
+                                        <option value="sequence">Flujo de Secuencia (Auth/Servicio)</option>
+                                        <option value="component">Componentes del Sistema</option>
+                                        <option value="flowchart">Flujo de Procesos</option>
+                                    </select>
+                                </div>
+
+                                <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
+                                    <button type="button" id="btn-zoom-in" class="btn-ghost" title="Acercar"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                                    <button type="button" id="btn-zoom-out" class="btn-ghost" title="Alejar"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                                    <button type="button" id="btn-zoom-reset" class="btn-ghost" title="Restablecer"><i class="fa-solid fa-expand"></i></button>
+                                    <div style="width:1px;height:1.25rem;background:rgba(129,140,248,.2);margin:0 .25rem;"></div>
+                                    <button type="button" id="btn-export-svg" class="btn-cyber" style="padding:.35rem .75rem;font-size:.74rem;">
+                                        <i class="fa-solid fa-download" style="margin-right:.3rem;"></i>SVG
+                                    </button>
+                                    <button type="button" id="btn-export-png" class="btn-cyber-outline" style="padding:.35rem .75rem;font-size:.74rem;">
+                                        <i class="fa-solid fa-image" style="margin-right:.3rem;"></i>PNG
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mermaid-viewport" id="mermaid-viewport">
+                                <div id="mermaid-render-area"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Base de Datos (Overview, ERD, Data Dictionary) -->
+                    <div id="doc-panel-database" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Estrategia de Persistencia</h4>
+                                <p id="content-db-overview" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
+                            </div>
+
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+                                    <i class="fa-solid fa-table" style="color:var(--tech-cyan);"></i> Diccionario de Datos (Data Dictionary)
+                                </h4>
+                                <div style="overflow-x:auto;">
+                                    <table style="width:100%;border-collapse:collapse;font-size:.82rem;font-family:'JetBrains Mono',monospace;">
+                                        <thead>
+                                            <tr style="border-bottom:1px solid rgba(129,140,248,.2);text-align:left;color:#94A3B8;">
+                                                <th style="padding:.75rem 1rem;">Tabla</th>
+                                                <th style="padding:.75rem 1rem;">Campo</th>
+                                                <th style="padding:.75rem 1rem;">Tipo</th>
+                                                <th style="padding:.75rem 1rem;">Descripción</th>
+                                                <th style="padding:.75rem 1rem;text-align:center;">Obligatorio</th>
+                                                <th style="padding:.75rem 1rem;text-align:center;">Clave</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="db-dictionary-tbody">
+                                            <!-- Injected dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. API & OpenAPI Specification -->
+                    <div id="doc-panel-api" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;">Contratos de API &amp; Endpoints</h4>
+                                    <button type="button" id="btn-download-openapi" class="btn-cyber" style="padding:.45rem .95rem;font-size:.76rem;">
+                                        <i class="fa-solid fa-download" style="margin-right:.3rem;"></i>Descargar OpenAPI JSON
+                                    </button>
+                                </div>
+                                <div id="api-endpoints-container" style="display:flex;flex-direction:column;gap:.75rem;">
+                                    <!-- Injected dynamically -->
+                                </div>
+                            </div>
+
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Especificación OpenAPI 3.0 (JSON)</h4>
+                                <pre id="openapi-spec-preview" style="background:rgba(9,13,22,.8);padding:1rem;border-radius:.6rem;border:1px solid rgba(129,140,248,.15);font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#CBD5E1;max-height:350px;overflow:auto;">...</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Desarrollo (README, CONTRIBUTING, Guidelines) -->
+                    <div id="doc-panel-development" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;">README.md Profesional</h4>
+                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-readme" style="font-size:.74rem;">
+                                        <i class="fa-solid fa-copy"></i> Copiar Markdown
+                                    </button>
+                                </div>
+                                <div id="content-readme" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;">CONTRIBUTING.md</h4>
+                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-contributing" style="font-size:.74rem;">
+                                        <i class="fa-solid fa-copy"></i> Copiar Markdown
+                                    </button>
+                                </div>
+                                <div id="content-contributing" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. DevOps & CI/CD -->
+                    <div id="doc-panel-devops" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">Pipeline de CI/CD</h4>
+                                <p id="content-cicd" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
+                            </div>
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">Contenedorización &amp; Docker</h4>
+                                <p id="content-containerization" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
+                            </div>
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">Guía de Despliegue (Deployment Guide)</h4>
+                                <div id="content-deployment-guide" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. QA & Tests -->
+                    <div id="doc-panel-qa" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">Plan de Pruebas (Test Plan)</h4>
+                                <div id="content-test-plan" class="markdown-body" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Casos de Prueba Tabulados (Test Cases)</h4>
+                                <div style="overflow-x:auto;">
+                                    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+                                        <thead>
+                                            <tr style="border-bottom:1px solid rgba(129,140,248,.2);text-align:left;color:#94A3B8;">
+                                                <th style="padding:.65rem .85rem;">ID</th>
+                                                <th style="padding:.65rem .85rem;">Título</th>
+                                                <th style="padding:.65rem .85rem;">Precondiciones</th>
+                                                <th style="padding:.65rem .85rem;">Resultado Esperado</th>
+                                                <th style="padding:.65rem .85rem;text-align:center;">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="qa-test-cases-tbody">
+                                            <!-- Injected dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 9. Seguridad (Security Center) -->
+                    <div id="doc-panel-security" class="doc-tab-panel">
+                        <!-- Header with Title & Export Actions -->
+                        <div class="sec-center-header">
+                            <div>
+                                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;">
+                                    <span class="badge badge-rose" style="font-size:.7rem;padding:.2rem .6rem;">
+                                        <i class="fa-solid fa-shield-virus"></i> DevSecOps Center
+                                    </span>
+                                    <span id="sec-header-timestamp" style="font-size:.72rem;color:#64748B;font-family:'JetBrains Mono',monospace;"></span>
+                                </div>
+                                <h3 style="font-size:1.35rem;font-weight:900;color:#fff;display:flex;align-items:center;gap:.6rem;margin-bottom:.25rem;">
+                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i> Centro de Seguridad &amp; Auditoría SAST
+                                </h3>
+                                <p style="font-size:.82rem;color:#94A3B8;max-width:700px;margin:0;">
+                                    Evaluación integral Secure-by-Design: escaneo estático de código (SAST), detección de secretos criptográficos, auditoría de dependencias, modelado de amenazas STRIDE y matriz de requerimientos SEC-xxx.
+                                </p>
+                            </div>
+                            <!-- Export Buttons Toolbar -->
+                            <div class="sec-export-toolbar">
+                                <button type="button" id="btn-export-sec-json" class="btn-cyber-outline" title="Descargar reporte completo en formato DevSecOps JSON">
+                                    <i class="fa-solid fa-file-code" style="color:var(--tech-cyan);"></i> Exportar JSON
+                                </button>
+                                <button type="button" id="btn-export-sec-md" class="btn-cyber-outline" title="Descargar informe ejecutivo en Markdown">
+                                    <i class="fa-solid fa-file-lines" style="color:#818CF8;"></i> Exportar Markdown
+                                </button>
+                                <button type="button" id="btn-export-sec-pdf" class="btn-cyber" title="Imprimir o guardar como PDF">
+                                    <i class="fa-solid fa-file-pdf" style="color:#fff;"></i> Imprimir / PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Score & Severity Overview Banner -->
+                        <div class="sec-overview-grid">
+                            <!-- Left: Score Card Gauge -->
+                            <div class="sec-score-card">
+                                <div class="sec-score-circle" id="sec-score-circle">
+                                    <svg viewBox="0 0 120 120" class="sec-gauge-svg">
+                                        <circle class="sec-gauge-bg" cx="60" cy="60" r="50"></circle>
+                                        <circle class="sec-gauge-progress" id="sec-score-ring" cx="60" cy="60" r="50"></circle>
+                                    </svg>
+                                    <div class="sec-score-content">
+                                        <span class="sec-score-val" id="sec-score-value">--</span>
+                                        <span class="sec-score-denom">/100</span>
+                                    </div>
+                                </div>
+                                <div class="sec-score-details">
+                                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
+                                        <span class="badge" id="sec-grade-badge">Grado -</span>
+                                        <span class="badge" id="sec-status-badge">Estado -</span>
+                                    </div>
+                                    <h4 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Índice Global de Seguridad</h4>
+                                    <p style="font-size:.78rem;color:#94A3B8;line-height:1.5;margin:0;" id="sec-score-desc">
+                                        Cálculo determinista ponderado por severidad de hallazgos en código fuente y dependencias.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right: KPI Severity Badges -->
+                            <div class="sec-kpis-container">
+                                <div class="sec-kpi-item kpi-critical">
+                                    <div class="sec-kpi-num" id="sec-kpi-critical">0</div>
+                                    <div class="sec-kpi-label"><i class="fa-solid fa-skull-crossbones"></i> Críticas</div>
+                                </div>
+                                <div class="sec-kpi-item kpi-high">
+                                    <div class="sec-kpi-num" id="sec-kpi-high">0</div>
+                                    <div class="sec-kpi-label"><i class="fa-solid fa-triangle-exclamation"></i> Altas</div>
+                                </div>
+                                <div class="sec-kpi-item kpi-medium">
+                                    <div class="sec-kpi-num" id="sec-kpi-medium">0</div>
+                                    <div class="sec-kpi-label"><i class="fa-solid fa-circle-exclamation"></i> Medias</div>
+                                </div>
+                                <div class="sec-kpi-item kpi-low">
+                                    <div class="sec-kpi-num" id="sec-kpi-low">0</div>
+                                    <div class="sec-kpi-label"><i class="fa-solid fa-circle-info"></i> Bajas / Info</div>
+                                </div>
+                                <div class="sec-kpi-item kpi-secrets">
+                                    <div class="sec-kpi-num" id="sec-kpi-secrets">0</div>
+                                    <div class="sec-kpi-label"><i class="fa-solid fa-key"></i> Secretos</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deductions breakdown box -->
+                        <div id="sec-deductions-box" class="sec-subcard" style="display:none;margin-top:1.25rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem;">
+                                <strong style="font-size:.85rem;color:#FB7185;display:flex;align-items:center;gap:.4rem;">
+                                    <i class="fa-solid fa-scale-unbalanced"></i> Desglose de Penalizaciones de Puntaje
+                                </strong>
+                                <span style="font-size:.72rem;color:#64748B;">Impacto directo en índice de seguridad</span>
+                            </div>
+                            <div id="sec-deductions-list" style="display:flex;flex-direction:column;gap:.35rem;"></div>
+                        </div>
+
+                        <!-- 8 Categories Breakdown Section -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <h4 style="font-size:.92rem;font-weight:800;color:#fff;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;">
+                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> Evaluación por Dimensiones de Arquitectura
+                            </h4>
+                            <div class="sec-categories-grid" id="sec-categories-grid">
+                                <!-- 8 categories dynamically rendered -->
+                            </div>
+                        </div>
+
+                        <!-- Secret Scanner Findings -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
+                                <div>
+                                    <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                        <i class="fa-solid fa-key" style="color:#FBBF24;"></i> Secret Scanner &amp; Detección de Fugas de Credenciales
+                                    </h4>
+                                    <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
+                                        Auditoría estática de cadenas sensibles. Los valores mostrados están enmascarados criptográficamente para proteger secretos en reposo.
+                                    </p>
+                                </div>
+                                <span class="badge badge-emerald" id="sec-secrets-shield-badge">
+                                    <i class="fa-solid fa-lock"></i> Redacción Automática Activa
+                                </span>
+                            </div>
+                            <div id="sec-secrets-container">
+                                <!-- Table or empty state injected dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Vulnerabilities SAST Section with Filter Tabs -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
+                                <div>
+                                    <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                        <i class="fa-solid fa-bug" style="color:#FB7185;"></i> Hallazgos de Vulnerabilidades de Código (SAST)
+                                    </h4>
+                                    <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
+                                        Reglas estáticas OWASP Top 10 y ASVS. Diferenciación de certeza: <span style="color:#FB7185;font-weight:600;">Confirmado</span> vs <span style="color:#FBBF24;font-weight:600;">Uso Potencialmente Peligroso</span>.
+                                    </p>
+                                </div>
+                                <!-- Filter Pills -->
+                                <div class="sec-filter-group" role="group" aria-label="Filtrar hallazgos">
+                                    <button type="button" class="sec-filter-btn active" data-sec-filter="ALL">Todos (<span id="count-flt-all">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-crit" data-sec-filter="CRITICAL">Críticos (<span id="count-flt-crit">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-high" data-sec-filter="HIGH">Altos (<span id="count-flt-high">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-med" data-sec-filter="MEDIUM">Medios (<span id="count-flt-med">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-low" data-sec-filter="LOW">Bajos (<span id="count-flt-low">0</span>)</button>
+                                </div>
+                            </div>
+
+                            <div id="content-security-findings" style="display:flex;flex-direction:column;gap:.9rem;">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Dependencies Audit Section -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
+                                <div>
+                                    <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                        <i class="fa-solid fa-boxes-stacked" style="color:var(--tech-cyan);"></i> Auditoría de Dependencias de Software (SCA)
+                                    </h4>
+                                    <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
+                                        Inspección estática de paquetes obsoletos, versiones flotantes y dependencias con vulnerabilidades conocidas.
+                                    </p>
+                                </div>
+                                <span class="badge" id="sec-deps-status-badge">Sin manifiesto</span>
+                            </div>
+                            <div id="sec-deps-container">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- STRIDE Threat Model Matrix -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <div style="margin-bottom:.85rem;">
+                                <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                    <i class="fa-solid fa-chess-rook" style="color:#818CF8;"></i> Modelado de Amenazas STRIDE Mapeado a la Arquitectura
+                                </h4>
+                                <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
+                                    Análisis de vectores de ataque mapeado a los componentes detectados: Cliente Frontend, API Gateway, Backend y Base de Datos.
+                                </p>
+                            </div>
+                            <div class="table-responsive" style="overflow-x:auto;">
+                                <table class="cyber-table" style="width:100%;font-size:.78rem;border-collapse:collapse;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid rgba(129,140,248,.2);background:rgba(15,23,42,.6);">
+                                            <th style="padding:.65rem .75rem;text-align:left;width:150px;">Vector STRIDE</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;width:130px;">Componente</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">Amenaza &amp; Vector de Ataque</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">Mitigación Recomendada</th>
+                                            <th style="padding:.65rem .75rem;text-align:center;width:95px;">Severidad</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sec-stride-tbody">
+                                        <!-- Injected dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Security Requirements (SEC-xxx) -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <div style="margin-bottom:.85rem;">
+                                <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                    <i class="fa-solid fa-list-check" style="color:#34D399;"></i> Matriz de Requerimientos de Seguridad (SEC-001... SEC-N)
+                                </h4>
+                                <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
+                                    Requerimientos no funcionales de seguridad listos para incorporar al backlog de ingeniería y verificación de cumplimiento.
+                                </p>
+                            </div>
+                            <div class="table-responsive" style="overflow-x:auto;">
+                                <table class="cyber-table" style="width:100%;font-size:.78rem;border-collapse:collapse;">
+                                    <thead>
+                                        <tr style="border-bottom:1px solid rgba(129,140,248,.2);background:rgba(15,23,42,.6);">
+                                            <th style="padding:.65rem .75rem;text-align:center;width:95px;">Código</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">Requerimiento Técnico</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;width:140px;">Categoría</th>
+                                            <th style="padding:.65rem .75rem;text-align:center;width:95px;">Prioridad</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">Justificación / Estándar</th>
+                                            <th style="padding:.65rem .75rem;text-align:center;width:95px;">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sec-requirements-tbody">
+                                        <!-- Injected dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 10. ADRs -->
+                    <div id="doc-panel-adr" class="doc-tab-panel">
+                        <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                            <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
+                                <i class="fa-solid fa-scale-balanced" style="color:#FBBF24;"></i> Registros de Decisiones Arquitectónicas (ADRs)
+                            </h4>
+                            <div id="content-adrs" style="display:flex;flex-direction:column;gap:1.25rem;">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 11. Guía de Usuario & FAQ -->
+                    <div id="doc-panel-user" class="doc-tab-panel">
+                        <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Manual y Guía de Usuario</h4>
+                                <div id="content-user-guide" class="markdown-body" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Preguntas Frecuentes (FAQ)</h4>
+                                <div id="content-faq" style="display:flex;flex-direction:column;gap:.85rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contextual AI Chat with Evidence Citations (Section 30) -->
+                    <div class="chat-container-cyber" id="project-chat-container" style="margin-top:2.5rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:.85rem;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
+                            <div style="display:flex;align-items:center;gap:.6rem;">
+                                <div style="width:2.25rem;height:2.25rem;border-radius:.6rem;background:linear-gradient(135deg,#818CF8,#34D399);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;"><i class="fa-solid fa-terminal"></i></div>
+                                <div>
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;">Chat Técnico Grounded con el Proyecto</h4>
+                                    <p style="font-size:.7rem;color:#64748B;">Pregunta sobre la arquitectura, rutas, base de datos y archivos reales con citas de evidencia</p>
+                                </div>
+                            </div>
+                            <span class="badge badge-emerald" style="font-size:.68rem;"><i class="fa-solid fa-code-commit"></i> Análisis Grounded</span>
+                        </div>
+
+                        <!-- Quick Questions Chips -->
+                        <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">¿Cómo funciona la autenticación?</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">¿Qué base de datos utiliza?</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">Muéstrame el flujo arquitectónico</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.25);color:#FB7185;border-radius:.45rem;">¿Qué archivos manejan la API?</button>
+                        </div>
+
+                        <!-- Messages Scroll Area -->
+                        <div id="project-chat-messages" class="chat-messages-area">
+                            <div class="chat-bubble chat-bubble-ai">
+                                ¡Hola! He completado el análisis de la arquitectura del proyecto. Puedes consultarme sobre cualquier módulo, endpoint, modelo de datos o archivo fuente analizado.
+                            </div>
+                        </div>
+
+                        <!-- Input Box -->
+                        <div class="chat-input-wrapper">
+                            <input type="text" id="project-chat-input" class="input-cyber" placeholder="Escribe tu consulta técnica sobre este código..." autocomplete="off">
+                            <button type="button" id="btn-project-chat-send" class="btn-cyber" style="padding:0 1.25rem;flex-shrink:0;">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ============================================================
+                     PANEL C: MIS PROYECTOS & COMPARADOR DE VERSIONES (Section 33 & 34)
                 ============================================================ -->
                 <div id="panel-history" style="display:none;">
                     <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
                         <div>
-                            <h3 style="font-size:1.1rem;font-weight:800;color:#fff;">Historial de Análisis Guardados</h3>
-                            <p style="font-size:.76rem;color:#94A3B8;">Tus análisis recientes se guardan localmente para consulta instantánea.</p>
+                            <h3 style="font-size:1.15rem;font-weight:800;color:#fff;">Mis Proyectos Analizados</h3>
+                            <p style="font-size:.76rem;color:#94A3B8;">Accede a tus análisis guardados, compara versiones estructurales y exporta su documentación.</p>
                         </div>
                         <button type="button" id="btn-clear-history" class="btn-ghost" style="font-size:.76rem;color:#FB7185;padding:.4rem .8rem;">
                             <i class="fa-solid fa-trash-can" style="margin-right:.3rem;"></i>Vaciar Historial
                         </button>
                     </div>
-                    <div id="history-list" style="display:flex;flex-direction:column;gap:.75rem;">
-                        <p style="font-size:.82rem;color:#64748B;text-align:center;padding:2rem 0;">Aún no tienes análisis registrados. Analiza un documento o repositorio para verlo reflejado aquí.</p>
+
+                    <!-- Version Comparison Banner (Visible when comparing) -->
+                    <div id="version-diff-container" style="display:none;background:rgba(15,23,42,.9);border:1px solid var(--tech-cyan);border-radius:.75rem;padding:1.25rem;margin-bottom:1.5rem;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+                            <h4 style="font-size:.92rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                <i class="fa-solid fa-code-compare" style="color:var(--tech-cyan);"></i> Comparación de Versiones
+                            </h4>
+                            <button type="button" id="btn-close-diff" class="btn-ghost" style="font-size:.72rem;"><i class="fa-solid fa-xmark"></i> Cerrar</button>
+                        </div>
+                        <div id="diff-list" style="display:flex;flex-direction:column;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;">
+                            <!-- Injected dynamically -->
+                        </div>
                     </div>
+
+                    <div id="history-list" style="display:flex;flex-direction:column;gap:.75rem;">
+                        <p style="font-size:.82rem;color:#64748B;text-align:center;padding:2rem 0;">Aún no tienes proyectos registrados. Genera documentación para ver el historial aquí.</p>
+                    </div>
+                </div>
+
+                <!-- Hidden elements for legacy script safety -->
+                <div id="doc-upload-section" style="display:none;"></div>
+                <div id="doc-results" style="display:none;">
+                    <span id="doc-res-mode-badge"></span>
+                    <span id="doc-res-filename"></span>
+                    <span id="doc-res-pages"></span>
+                    <span id="doc-res-words"></span>
+                    <span id="doc-res-size"></span>
+                    <div id="doc-res-summary"></div>
+                    <ul id="doc-res-main-ideas"></ul>
+                    <ul id="doc-res-conclusions"></ul>
+                    <div id="doc-res-concepts"></div>
+                    <div id="doc-res-explanation"></div>
+                    <ul id="doc-res-questions"></ul>
+                    <div id="doc-res-entities"></div>
+                    <div id="doc-chat-messages"></div>
+                    <input id="doc-chat-input">
+                    <button id="btn-doc-chat-send"></button>
+                    <button id="btn-new-doc-analysis"></button>
+                </div>
+                <div id="gh-results" style="display:none;">
+                    <span id="gh-res-name"></span>
+                    <span id="gh-res-desc"></span>
+                    <span id="gh-res-lang"></span>
+                    <span id="gh-res-stars"></span>
+                    <span id="gh-res-forks"></span>
+                    <span id="gh-res-files-count"></span>
+                    <span id="gh-res-mode-badge"></span>
+                    <button id="btn-new-gh-analysis"></button>
+                    <div id="gh-tech-chips"></div>
+                    <div id="gh-res-overview"></div>
+                    <div id="gh-res-architecture"></div>
+                    <div id="gh-tree-diagram"></div>
+                    <div id="gh-key-files-container"></div>
+                    <div id="gh-res-flow"></div>
+                    <div id="gh-findings-container"></div>
+                    <div id="gh-res-onboarding"></div>
+                    <div id="gh-chat-messages"></div>
+                    <input id="gh-chat-input">
+                    <button id="btn-gh-chat-send"></button>
+                </div>
+                <div id="sim-output" style="display:none;">
+                    <div id="terminal-log"></div>
+                    <div id="doc-preview"></div>
                 </div>
 
             </div>
         </div>
     </section>
 
+
     <!-- ============================================================
+         5.5 SIMULADOR DE ARQUITECTURA Y DISEÑO TÉCNICO (GUÍA ACTIVIDAD 9)
+         Universidad Libre — Facultad de Ingeniería — Curso: Ingeniería Aplicada (2026-2)
+    ============================================================ -->
+    <section id="simulador-arquitectura" style="padding:6rem 0;position:relative;border-top:1px solid rgba(56,189,248,.18);background:radial-gradient(ellipse at 50% 0%,rgba(56,189,248,.07) 0%,rgba(9,13,22,.98) 70%);">
+        <div class="container">
+            <!-- Encabezado Institucional de la Actividad 9 -->
+            <div style="text-align:center;max-width:840px;margin:0 auto 2.5rem;" class="reveal">
+                <div style="display:inline-flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-bottom:1rem;">
+                    <span class="badge badge-cyan"><i class="fa-solid fa-microchip"></i> Universidad Libre &bull; Ingeniería Aplicada 2026-2</span>
+                    <span class="badge badge-emerald"><i class="fa-solid fa-sliders"></i> Guía Actividad 9 &bull; Simulador Funcional</span>
+                </div>
+                <h2 class="section-title">Simulador de <span class="gradient-text">Arquitectura y Diseño Técnico</span></h2>
+                <p style="color:#94A3B8;margin-top:.85rem;font-size:.92rem;line-height:1.7;">
+                    Aplicativo interactivo de simulación matemática para evaluar y comparar <strong>3 alternativas arquitectónicas</strong> de <strong>Document-Mind AI</strong> (<em>Monolito Modular MVC</em>, <em>Microservicios en Contenedores Kubernetes</em> y <em>Arquitectura Orientada a Eventos EDA</em>) bajo modelos de colas M/M/c, sobrecarga de red inter-servicio y decisión multicriterio explicable.
+                </p>
+            </div>
+
+            <!-- Nota Metodológica Obligatoria (Página 2 de la Guía) -->
+            <div style="margin-bottom:2rem;padding:1rem 1.25rem;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:.85rem;display:flex;align-items:flex-start;gap:.85rem;">
+                <i class="fa-solid fa-circle-info" style="color:#FBBF24;font-size:1.15rem;margin-top:.15rem;flex-shrink:0;"></i>
+                <div style="font-size:.78rem;color:#FDE68A;line-height:1.6;">
+                    <strong>Nota Metodológica (Criterio Fundamental de Evaluación):</strong> Los resultados presentados por este simulador corresponden a <strong>estimaciones analíticas del modelo computacional</strong> (basado en los estudios de <em>Al-Debagy &amp; Martinek</em>, <em>Gosha et al.</em> y pruebas de estrés <em>Apache JMeter</em>) y <strong>no a mediciones físicas de hardware en tiempo real</strong>. Al final de la sección se detalla el protocolo de validación empírica para contrastar estas proyecciones en un entorno real.
+                </div>
+            </div>
+
+            <!-- Alerta Dinámica de Control de Entradas Inválidas (Requisito 10) -->
+            <div id="sim-validation-alert" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.45);border-radius:.85rem;"></div>
+
+            <!-- ============================================================
+                 BLOQUE 1 Y 3: CONFIGURACIÓN DEL PROYECTO + VARIABLES DE ENTRADA + ESCENARIOS
+            ============================================================ -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-bottom:2rem;">
+                
+                <!-- Columna Izquierda: 1. Configuración del Proyecto, Requisitos de Calidad y Restricciones -->
+                <div class="glow-card" style="padding:1.5rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);">
+                        <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-Clipboard-check" style="color:var(--tech-cyan);"></i> 1. Configuración y Restricciones del Proyecto
+                        </h3>
+                        <span style="font-size:.65rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;">Requisito 1 y 8</span>
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:.85rem;">
+                        <div>
+                            <label for="sim-proj-name" style="display:block;font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.3rem;">Sistema Objeto de Estudio</label>
+                            <input type="text" id="sim-proj-name" value="Document-Mind AI — Plataforma Cognitiva AST + LLM + DevSecOps" class="input-field" style="font-size:.8rem;padding:.55rem .8rem;">
+                        </div>
+                        <div>
+                            <label for="sim-proj-users" style="display:block;font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.3rem;">Usuarios Previstos &amp; Perfil de Uso</label>
+                            <input type="text" id="sim-proj-users" value="Desarrolladores, Arquitectos de Software, Tech Leads (CTOs) y Auditores QA" class="input-field" style="font-size:.8rem;padding:.55rem .8rem;">
+                        </div>
+
+                        <!-- Requisitos de Calidad (SLAs) y Restricciones -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.25rem;">
+                            <div>
+                                <label for="sim-req-latency" style="display:block;font-size:.68rem;font-weight:700;color:#38BDF8;margin-bottom:.25rem;">Latencia P95 Máx. (ms)</label>
+                                <input type="number" id="sim-req-latency" value="1800" min="100" max="30000" step="50" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            </div>
+                            <div>
+                                <label for="sim-req-availability" style="display:block;font-size:.68rem;font-weight:700;color:#34D399;margin-bottom:.25rem;">Disponibilidad SLA Mín. (%)</label>
+                                <input type="number" id="sim-req-availability" value="99.5" min="80" max="99.99" step="0.1" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            </div>
+                            <div>
+                                <label for="sim-req-scalability" style="display:block;font-size:.68rem;font-weight:700;color:#818CF8;margin-bottom:.25rem;">Escalabilidad Mín. (0-100)</label>
+                                <input type="number" id="sim-req-scalability" value="75" min="10" max="100" step="5" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            </div>
+                            <div>
+                                <label for="sim-con-budget" style="display:block;font-size:.68rem;font-weight:700;color:#FBBF24;margin-bottom:.25rem;">Presupuesto Cloud Máx. ($ USD)</label>
+                                <input type="number" id="sim-con-budget" value="350" min="10" max="50000" step="10" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            </div>
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                            <div>
+                                <label for="sim-con-memory" style="display:block;font-size:.68rem;font-weight:700;color:#CBD5E1;margin-bottom:.25rem;">Restricción RAM Total (GB)</label>
+                                <input type="number" id="sim-con-memory" value="8" min="1" max="128" step="1" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            </div>
+                            <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+                                <button type="button" id="btn-sim-test-invalid" class="btn-cyber-outline" style="padding:.52rem .75rem;font-size:.72rem;border-color:rgba(251,113,133,.4);color:#FB7185;justify-content:center;">
+                                    <i class="fa-solid fa-shield-virus" style="margin-right:.35rem;"></i>Probar Control Entrada Inválida
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Pesos de Criterios de Decisión del Equipo -->
+                        <div style="margin-top:.35rem;padding:.75rem;background:rgba(9,13,22,.65);border-radius:.65rem;border:1px solid rgba(148,163,184,.12);">
+                            <span style="font-size:.68rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.5rem;text-transform:uppercase;">Pesos de Criterios de Decisión del Equipo (%)</span>
+                            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;text-align:center;">
+                                <div>
+                                    <label for="sim-weight-latency" style="font-size:.6rem;color:#38BDF8;display:block;">Latencia</label>
+                                    <input type="number" id="sim-weight-latency" value="25" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                </div>
+                                <div>
+                                    <label for="sim-weight-scalability" style="font-size:.6rem;color:#818CF8;display:block;">Escala</label>
+                                    <input type="number" id="sim-weight-scalability" value="25" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                </div>
+                                <div>
+                                    <label for="sim-weight-availability" style="font-size:.6rem;color:#34D399;display:block;">SLA</label>
+                                    <input type="number" id="sim-weight-availability" value="20" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                </div>
+                                <div>
+                                    <label for="sim-weight-cost" style="font-size:.6rem;color:#FBBF24;display:block;">Costo</label>
+                                    <input type="number" id="sim-weight-cost" value="15" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                </div>
+                                <div>
+                                    <label for="sim-weight-security" style="font-size:.6rem;color:#F472B6;display:block;">Seg/Cont</label>
+                                    <input type="number" id="sim-weight-security" value="15" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: 3. Variables de Entrada Relevantes y 5. Ejecución de Escenarios -->
+                <div class="glow-card" style="padding:1.5rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);">
+                        <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-sliders" style="color:#34D399;"></i> 3. Variables de Entrada y 5. Escenarios
+                        </h3>
+                        <span id="sim-baseline-status" style="font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">Ref: U=60, S=2.5MB, N=85</span>
+                    </div>
+
+                    <!-- Botones de Escenarios Predefinidos (Referencia + 3 Escenarios) -->
+                    <div style="margin-bottom:1rem;">
+                        <span style="font-size:.68rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.45rem;text-transform:uppercase;">Seleccionar Escenario de Prueba (Requisito 5):</span>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.45rem;">
+                            <button type="button" data-sim-preset="BASELINE" class="btn-cyber-outline" style="padding:.48rem .65rem;font-size:.72rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-anchor" style="color:#38BDF8;margin-right:.4rem;"></i>0. Escenario Referencia (60 u)
+                            </button>
+                            <button type="button" data-sim-preset="SINGLE_MACHINE_LIGHT" class="btn-cyber-outline" style="padding:.48rem .65rem;font-size:.72rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-cube" style="color:#34D399;margin-right:.4rem;"></i>1. Baja Carga / 1 Nodo (18 u)
+                            </button>
+                            <button type="button" data-sim-preset="ENTERPRISE_SCALE" class="btn-cyber-outline" style="padding:.48rem .65rem;font-size:.72rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-cubes" style="color:#818CF8;margin-right:.4rem;"></i>2. Escala Empresarial (320 u)
+                            </button>
+                            <button type="button" data-sim-preset="EXTREME_STRESS_PUSH" class="btn-cyber-outline" style="padding:.48rem .65rem;font-size:.72rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-fire" style="color:#FB7185;margin-right:.4rem;"></i>3. Estrés JMeter (650 u / 14MB)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sliders de las 5 Variables de Entrada -->
+                    <div style="display:flex;flex-direction:column;gap:.8rem;">
+                        <!-- Variable 1 -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
+                                <label for="sim-input-users" style="font-weight:700;color:#E2E8F0;">V1. Usuarios Concurrentes ($U$):</label>
+                                <strong id="sim-val-users" style="color:#38BDF8;font-family:'JetBrains Mono',monospace;">60 usuarios</strong>
+                            </div>
+                            <input type="range" id="sim-input-users" min="5" max="1000" step="5" value="60" style="width:100%;accent-color:#38BDF8;cursor:pointer;">
+                            <span style="font-size:.65rem;color:#64748B;">Justificación: Determina la tasa de llegada $\lambda$ y la contención en la cola del servidor.</span>
+                        </div>
+
+                        <!-- Variable 2 -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
+                                <label for="sim-input-payload" style="font-weight:700;color:#E2E8F0;">V2. Tamaño de Archivo / Repo ($S_{MB}$):</label>
+                                <strong id="sim-val-payload" style="color:#818CF8;font-family:'JetBrains Mono',monospace;">2.5 MB</strong>
+                            </div>
+                            <input type="range" id="sim-input-payload" min="0.5" max="20" step="0.5" value="2.5" style="width:100%;accent-color:#818CF8;cursor:pointer;">
+                            <span style="font-size:.65rem;color:#64748B;">Justificación: Incrementa el tiempo de parseo PDF/ZIP y el costo de serialización entre microservicios.</span>
+                        </div>
+
+                        <!-- Variable 3 -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
+                                <label for="sim-input-files" style="font-weight:700;color:#E2E8F0;">V3. Complejidad AST del Repositorio ($N_{files}$):</label>
+                                <strong id="sim-val-files" style="color:#34D399;font-family:'JetBrains Mono',monospace;">85 archivos</strong>
+                            </div>
+                            <input type="range" id="sim-input-files" min="10" max="600" step="5" value="85" style="width:100%;accent-color:#34D399;cursor:pointer;">
+                            <span style="font-size:.65rem;color:#64748B;">Justificación: Impacta directamente los ciclos de CPU del analizador estático AST y reglas SAST.</span>
+                        </div>
+
+                        <!-- Variables 4 y 5 en fila -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.2rem;">
+                                    <label for="sim-input-aidepth" style="font-weight:700;color:#E2E8F0;">V4. Nivel Cognitivo IA:</label>
+                                    <strong id="sim-val-aidepth" style="color:#FBBF24;font-family:'JetBrains Mono',monospace;">2</strong>
+                                </div>
+                                <input type="range" id="sim-input-aidepth" min="1" max="3" step="1" value="2" style="width:100%;accent-color:#FBBF24;cursor:pointer;">
+                                <span style="font-size:.62rem;color:#64748B;">1=Heurístico, 2=Gemini, 3=Full+STRIDE</span>
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.2rem;">
+                                    <label for="sim-input-burst" style="font-weight:700;color:#E2E8F0;">V5. Factor Ráfaga ($B$):</label>
+                                    <strong id="sim-val-burst" style="color:#FB7185;font-family:'JetBrains Mono',monospace;">1.2x</strong>
+                                </div>
+                                <input type="range" id="sim-input-burst" min="1.0" max="3.5" step="0.1" value="1.2" style="width:100%;accent-color:#FB7185;cursor:pointer;">
+                                <span style="font-size:.62rem;color:#64748B;">Picos simultáneos de Git Push</span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex;gap:.65rem;margin-top:.35rem;flex-wrap:wrap;">
+                            <button type="button" id="btn-sim-set-baseline" class="btn-cyber-outline" style="flex:1;padding:.55rem;font-size:.73rem;justify-content:center;">
+                                <i class="fa-solid fa-bookmark" style="margin-right:.35rem;color:#38BDF8;"></i>Fijar Referencia
+                            </button>
+                            <button type="button" id="btn-sim-run-all-scenarios" class="btn-cyber" style="flex:1.2;padding:.55rem;font-size:.73rem;justify-content:center;">
+                                <i class="fa-solid fa-play" style="margin-right:.35rem;"></i>Ejecutar Lote (4 Escenarios)
+                            </button>
+                        </div>
+                        <div style="display:flex;gap:.65rem;margin-top:.2rem;flex-wrap:wrap;">
+                            <button type="button" id="btn-sim-export-md" class="btn-cyber-outline" style="flex:1;padding:.5rem;font-size:.72rem;justify-content:center;border-color:rgba(52,211,153,.35);color:#34D399;">
+                                <i class="fa-solid fa-file-arrow-down" style="margin-right:.35rem;"></i>Exportar Informe (.MD)
+                            </button>
+                            <button type="button" id="btn-sim-export-json" class="btn-cyber-outline" style="flex:1;padding:.5rem;font-size:.72rem;justify-content:center;border-color:rgba(129,140,248,.35);color:#818CF8;">
+                                <i class="fa-solid fa-code" style="margin-right:.35rem;"></i>Exportar Datos (.JSON)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 2 Y 6: TARJETAS DE LAS 3 ALTERNATIVAS ARQUITECTÓNICAS E INDICADORES
+            ============================================================ -->
+            <div style="margin-bottom:2rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+                    <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">
+                        <i class="fa-solid fa-sitemap" style="color:var(--tech-cyan);margin-right:.45rem;"></i>2. Alternativas Arquitectónicas Evaluadas &amp; 6. Indicadores Cuantificables
+                    </h3>
+                    <span style="font-size:.72rem;color:#94A3B8;">Comparación bajo condiciones de entrada idénticas y verificables</span>
+                </div>
+                <div id="sim-alternatives-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:1.25rem;">
+                    <!-- Renderizado dinámico por js/architecture-simulator.js -->
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 8: APOYO A LA DECISIÓN Y RECOMENDACIÓN EXPLICABLE
+            ============================================================ -->
+            <div id="sim-decision-support-box" class="glow-card" style="padding:1.65rem;margin-bottom:2rem;border:1px solid rgba(52,211,153,.35);background:linear-gradient(180deg,rgba(15,23,42,.95),rgba(9,13,22,.95));">
+                <!-- Renderizado dinámico por js/architecture-simulator.js -->
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 7: COMPARACIÓN GRÁFICA Y TABULAR + HISTORIAL DE ESCENARIOS
+            ============================================================ -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-bottom:2rem;">
+                
+                <!-- Gráfico Comparativo de Barras Dinámicas -->
+                <div class="glow-card" style="padding:1.5rem;">
+                    <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 1rem 0;display:flex;align-items:center;gap:.5rem;">
+                        <i class="fa-solid fa-chart-bar" style="color:#38BDF8;"></i> 7. Comparación Gráfica de Indicadores Clave
+                    </h3>
+                    <div id="sim-visual-bars">
+                        <!-- Renderizado dinámico -->
+                    </div>
+                </div>
+
+                <!-- Bitácora Comparativa de Ejecución de Escenarios (Requisito 5) -->
+                <div class="glow-card" style="padding:1.5rem;overflow-x:auto;">
+                    <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .5rem 0;display:flex;align-items:center;gap:.5rem;">
+                        <i class="fa-solid fa-layer-group" style="color:#818CF8;"></i> 5. Matriz de Ejecución Multi-Escenario (Referencia + 3 Escenarios)
+                    </h3>
+                    <p style="font-size:.73rem;color:#94A3B8;margin-bottom:.85rem;">Registro automático que demuestra cómo cambia la arquitectura ganadora según las variables de entrada:</p>
+                    <table style="width:100%;border-collapse:collapse;font-size:.72rem;text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:1px solid rgba(148,163,184,.2);color:#94A3B8;text-transform:uppercase;">
+                                <th style="padding:.45rem .65rem;">Escenario Ejecutado</th>
+                                <th style="padding:.45rem .65rem;">Entradas</th>
+                                <th style="padding:.45rem .65rem;">Monolito</th>
+                                <th style="padding:.45rem .65rem;">Micros K8s</th>
+                                <th style="padding:.45rem .65rem;">EDA Eventos</th>
+                                <th style="padding:.45rem .65rem;">Decisión Recomendada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sim-scenarios-history-tbody">
+                            <!-- Renderizado dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabla Comparativa Completa de Indicadores -->
+            <div class="glow-card" style="padding:1.5rem;margin-bottom:2rem;overflow-x:auto;">
+                <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .85rem 0;display:flex;align-items:center;gap:.5rem;">
+                    <i class="fa-solid fa-table" style="color:#34D399;"></i> Tabla Consolidada de Indicadores Cuantificables bajo Condiciones Comparables
+                </h3>
+                <table style="width:100%;border-collapse:collapse;font-size:.76rem;text-align:left;">
+                    <thead>
+                        <tr style="border-bottom:1px solid rgba(148,163,184,.25);color:#94A3B8;text-transform:uppercase;font-size:.68rem;">
+                            <th style="padding:.65rem .75rem;">Alternativa Arquitectónica</th>
+                            <th style="padding:.65rem .75rem;">Latencia P95</th>
+                            <th style="padding:.65rem .75rem;">Throughput / Cap.</th>
+                            <th style="padding:.65rem .75rem;">Escalabilidad</th>
+                            <th style="padding:.65rem .75rem;">Disponibilidad SLA</th>
+                            <th style="padding:.65rem .75rem;">CPU % / RAM</th>
+                            <th style="padding:.65rem .75rem;">Contenedores &amp; Cifrado</th>
+                            <th style="padding:.65rem .75rem;">Costo Mensual</th>
+                            <th style="padding:.65rem .75rem;">Puntaje MCDA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sim-comparison-tbody">
+                        <!-- Renderizado dinámico -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 4, 10 Y 11: DOCUMENTACIÓN DEL MODELO MATEMÁTICO, PRUEBAS Y VALIDACIÓN REAL
+            ============================================================ -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;">
+                
+                <!-- 4 & 11. Ecuaciones, Parámetros, Supuestos y Validación en Aplicación Real -->
+                <div class="glow-card" style="padding:1.5rem;">
+                    <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .85rem 0;display:flex;align-items:center;gap:.5rem;">
+                        <i class="fa-solid fa-square-root-variable" style="color:#38BDF8;"></i> 4 y 11. Modelo Matemático, Fórmulas y Validación Empírica
+                    </h3>
+                    <div style="display:flex;flex-direction:column;gap:.65rem;font-size:.75rem;color:#CBD5E1;line-height:1.55;">
+                        <div style="padding:.6rem .75rem;background:rgba(9,13,22,.7);border-radius:.5rem;border-left:3px solid #38BDF8;">
+                            <strong style="color:#fff;display:block;">Ecuación 1 — Tasa de Llegada y Servicio Base:</strong>
+                            <code>λ = (U / 12) × B</code> &nbsp;|&nbsp; <code>T_base = (45 + 1.45·N_files + 26·S_MB + T_IA) × α_arq</code>
+                        </div>
+                        <div style="padding:.6rem .75rem;background:rgba(9,13,22,.7);border-radius:.5rem;border-left:3px solid #818CF8;">
+                            <strong style="color:#fff;display:block;">Ecuación 2 — Penalización de Red Inter-Servicio (Al-Debagy &amp; Martinek):</strong>
+                            <code>T_net = H_hops × (L_hop + 2.8·S_MB + 0.04·N_files)</code>
+                            <div style="font-size:.68rem;color:#94A3B8;margin-top:.2rem;">Monolito: H=0 saltos (0 ms) | Microservicios K8s: H=4 saltos | EDA Eventos: H=3 saltos asíncronos.</div>
+                        </div>
+                        <div style="padding:.6rem .75rem;background:rgba(9,13,22,.7);border-radius:.5rem;border-left:3px solid #34D399;">
+                            <strong style="color:#fff;display:block;">Ecuación 3 — Cola M/M/c No Lineal y Decisión Multicriterio (SAW):</strong>
+                            <code>ρ = λ / (c × μ_nodo)</code> &nbsp;|&nbsp; <code>Score = Σ(w_i · Indicador_i) - Penalización_Restricciones</code>
+                        </div>
+                        <div style="padding:.65rem .75rem;background:rgba(56,189,248,.06);border-radius:.5rem;border:1px solid rgba(56,189,248,.2);">
+                            <strong style="color:#38BDF8;display:block;margin-bottom:.25rem;"><i class="fa-solid fa-flask-vial" style="margin-right:.35rem;"></i>¿Qué información adicional se requiere para validar en la aplicación real?</strong>
+                            1) Ejecutar planes de prueba en <strong>Apache JMeter / k6</strong> con archivos PDF y repositorios ZIP reales midiendo P95/P99; 2) Recolectar telemetría APM (Prometheus / OpenTelemetry) del Event-Loop Lag en Node.js; y 3) Medir costos reales de facturación Cloud y latencia de red VPC entre contenedores bajo carga sostenida de 24 horas.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10. Cinco Pruebas Documentadas del Modelo -->
+                <div class="glow-card" style="padding:1.5rem;">
+                    <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .85rem 0;display:flex;align-items:center;gap:.5rem;">
+                        <i class="fa-solid fa-vial-circle-check" style="color:#34D399;"></i> 10. Cinco (5) Pruebas Documentadas de Coherencia del Modelo
+                    </h3>
+                    <div style="display:flex;flex-direction:column;gap:.55rem;font-size:.73rem;">
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
+                            <strong style="color:#38BDF8;">Prueba 1 (TEST-SIM-01) — Ventaja Monolítica en Nodo Único:</strong>
+                            <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito logra menor latencia (168 ms vs 219 ms Microservicios) y menor RAM (212 MB), validando la literatura científica.</span>
+                        </div>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
+                            <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) — Saturación del Event-Loop y Escalado K8s:</strong>
+                            <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El Monolito satura su cola (>100% ρ), mientras Microservicios escala horizontalmente a 6 pods manteniendo SLA >99.8%.</span>
+                        </div>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
+                            <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) — Resiliencia EDA bajo Estrés Extremo JMeter:</strong>
+                            <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, N=420, Ráfaga=2.5x. Resultado verificado: EDA absorbe la ráfaga con 14 workers asíncronos y logra la máxima disponibilidad (99.88%).</span>
+                        </div>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
+                            <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) — Penalización por Restricción de Presupuesto:</strong>
+                            <span style="color:#94A3B8;display:block;">Entrada: Presupuesto Máximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricción financiera del proyecto.</span>
+                        </div>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
+                            <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) — Rechazo Determinista de Entradas Inválidas:</strong>
+                            <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecución y despliega alerta de control (HTTP 400 / UI Alert).</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- ============================================================
          6. EQUIPO
     ============================================================ -->
     <section id="equipo" class="section-alt" style="padding:6rem 0;">
@@ -1259,10 +2106,10 @@
     </footer>
 
     <!-- Interactive Base Logic (Simulation, counters, VIP pass, toast) -->
-    <script src="app.js"></script>
+    <!-- app.js loaded at bottom -->
 
     <!-- Three.js Real 3D AI CORE Engine -->
-    <script src="js/ai-core-3d.js?v=4.3"></script>
+    <!-- ai-core-3d.js loaded once -->
 
     <!-- General UI Helpers (Navbar, Mobile Menu, Scroll reveals) -->
     <script>
@@ -1384,6 +2231,24 @@
                 </button>
             </form>
 
+            <!-- Social OAuth Divider & Providers -->
+            <div id="oauth-container">
+                <div class="auth-divider">
+                    <span>O continúa con</span>
+                </div>
+
+                <div class="oauth-buttons-grid">
+                    <button type="button" id="btn-oauth-google" class="btn-cyber-oauth" aria-label="Iniciar sesión con Google">
+                        <i class="fa-brands fa-google" style="color:#EA4335;"></i>
+                        <span>Google</span>
+                    </button>
+                    <button type="button" id="btn-oauth-github" class="btn-cyber-oauth" aria-label="Iniciar sesión con GitHub">
+                        <i class="fa-brands fa-github" style="color:#FFFFFF;"></i>
+                        <span>GitHub</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Forgot Password Mini-Form -->
             <form id="forgot-form" style="display:none;margin-top:1.25rem;">
                 <p style="font-size:.8rem;color:#94A3B8;margin-bottom:1rem;line-height:1.6;">Ingresa tu correo registrado y te enviaremos un enlace seguro vía Supabase Auth para restablecer tu contraseña.</p>
@@ -1410,6 +2275,7 @@
     </div>
 
     <!-- Client Controller Application -->
+    <script src="js/ai-core-3d.js?v=5.1"></script>
     <script src="app.js?v=5.0"></script>
 </body>
 </html>

@@ -755,11 +755,18 @@
 
     var PROCESSING_STATES = {
         IDLE: { label: 'AI CORE • LISTO PARA ANÁLISIS', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code', 'docs'], speed: 1.0, light: 4.5 },
-        LOADING: { label: 'PREPARANDO FUENTE DE DATOS...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.4, light: 5.5 },
-        PROCESSING: { label: 'EXTRAYENDO Y PROCESANDO CONTENIDO...', color: '#818CF8', hex: PALETTE.indigo, active: ['ast', 'c4'], speed: 1.8, light: 6.5 },
-        ANALYZING: { label: 'ANALIZANDO CON INTELIGENCIA ARTIFICIAL...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['ast', 'docs', 'api'], speed: 2.2, light: 8.0 },
-        SUCCESS: { label: 'ANÁLISIS COMPLETADO CON ÉXITO', color: '#34D399', hex: PALETTE.emerald, active: ['sync', 'docs'], speed: 1.2, light: 5.5 },
-        ERROR: { label: 'ERROR EN EL PROCESAMIENTO', color: '#F43F5E', hex: 0xF43F5E, active: ['code'], speed: 0.8, light: 4.0 }
+        ANALYZING_PROJECT: { label: 'Analizando proyecto...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.5, light: 5.5 },
+        DETECTING_ARCH: { label: 'Detectando arquitectura...', color: '#818CF8', hex: PALETTE.indigo, active: ['c4'], speed: 1.7, light: 6.5 },
+        ANALYZING_CODE: { label: 'Analizando componentes...', color: '#818CF8', hex: PALETTE.indigo, active: ['ast', 'api'], speed: 2.0, light: 7.2 },
+        ANALYZING_DATA: { label: 'Construyendo modelo de datos...', color: '#818CF8', hex: PALETTE.indigo, active: ['db'], speed: 1.9, light: 7.0 },
+        GENERATING_DIAGRAMS: { label: 'Generando diagramas...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['c4', 'db', 'ast'], speed: 2.2, light: 8.0 },
+        GENERATING_DOCS: { label: 'Generando documentación...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'], speed: 2.1, light: 7.5 },
+        SUCCESS: { label: 'Documentación completada', color: '#34D399', hex: PALETTE.emerald, active: ['sync', 'docs'], speed: 1.2, light: 5.5 },
+        ERROR: { label: 'Inconveniente en el análisis', color: '#F43F5E', hex: 0xF43F5E, active: ['code'], speed: 0.8, light: 4.0 },
+        // Backwards compatibility mappings
+        LOADING: { label: 'Analizando proyecto...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.5, light: 5.5 },
+        PROCESSING: { label: 'Detectando arquitectura...', color: '#818CF8', hex: PALETTE.indigo, active: ['c4'], speed: 1.7, light: 6.5 },
+        ANALYZING: { label: 'Generando documentación...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'], speed: 2.1, light: 7.5 }
     };
 
     function setProcessingState(stateName, customLabel) {
@@ -928,6 +935,18 @@
         // 9.8 Render Scene
         renderer.render(scene, camera);
     }
+
+    if (window.IntersectionObserver && wrapper) {
+        var coreVisObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                AICoreApp.isPaused = !entry.isIntersecting || document.hidden;
+            });
+        }, { threshold: 0.05 });
+        coreVisObserver.observe(wrapper);
+    }
+    document.addEventListener('visibilitychange', function() {
+        AICoreApp.isPaused = document.hidden;
+    });
 
     // Start Animation Loop
     animate();

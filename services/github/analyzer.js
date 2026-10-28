@@ -1,36 +1,30 @@
 /**
  * DOCUMENT-MIND AI — GITHUB REPOSITORY ANALYZER SERVICE
- * Validates, fetches, filters, and extracts real architectural context from public GitHub repositories.
+ * Validates, fetches, filters, sanitizes secrets, and extracts real architectural context
+ * from public GitHub repositories.
  */
 
-const MAX_KEY_FILES = 12;
-const MAX_TOTAL_BYTES = 160 * 1024; // 160 KB total content limit for AI synthesis
-const MAX_SINGLE_FILE_BYTES = 40 * 1024; // 40 KB per file limit
+const { sanitizeContent, sanitizeEnvFile } = require('../analyzer/sanitizer');
+const { classifyFile, shouldIgnoreFile, computeFileHash } = require('../analyzer/fileClassifier');
+const {
+    detectLanguages,
+    detectFrameworks,
+    detectDatabases,
+    detectInfrastructure,
+    extractEndpoints,
+    extractDataModels,
+    buildProjectMap
+} = require('../analyzer/localAnalyzer');
 
-// Directories to strictly ignore
-const IGNORED_DIRS = [
-    'node_modules', '.git', 'dist', 'build', '.next', '.nuxt',
-    'coverage', '.venv', 'venv', 'env', '__pycache__', 'vendor',
-    'target', 'bin', 'obj', '.idea', '.vscode', '.gradle'
-];
-
-// File extensions to strictly ignore
-const IGNORED_EXTS = [
-    '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.webp', '.bmp',
-    '.mp4', '.mov', '.avi', '.mp3', '.wav',
-    '.zip', '.tar', '.gz', '.rar', '.7z',
-    '.exe', '.dll', '.so', '.dylib', '.bin',
-    '.woff', '.woff2', '.ttf', '.eot',
-    '.pdf', '.docx', '.xlsx', '.pptx',
-    '.pyc', '.pyd', '.lock', '.class', '.jar',
-    '.map'
-];
+const MAX_KEY_FILES = 25;
+const MAX_TOTAL_BYTES = 220 * 1024; // 220 KB total content limit for AI synthesis
+const MAX_SINGLE_FILE_BYTES = 45 * 1024; // 45 KB per file limit
 
 // Manifest and config files given top reading priority
 const MANIFEST_FILES = [
     'package.json', 'requirements.txt', 'pyproject.toml', 'Pipfile',
     'pubspec.yaml', 'pom.xml', 'build.gradle', 'go.mod', 'Cargo.toml',
-    'composer.json', 'Gemfile', 'Dockerfile', 'docker-compose.yml'
+    'composer.json', 'Gemfile', 'Dockerfile', 'docker-compose.yml', 'docker-compose.yaml'
 ];
 
 /**
@@ -42,7 +36,15 @@ function parseGitHubUrl(rawUrl) {
     }
 
     const trimmed = rawUrl.trim();
-    // Support formats: https://github.com/owner/repo, http://..., github.com/owner/repo, owner/repo
+
+    // SSRF Protection: Block localhost, loopback, private IP ranges and cloud metadata endpoints
+    if (/(?:localhost|127\.0\.0\.1|0\.0\.0\.0|169\.254\.169\.254|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[0-1])\.\d+\.\d+|\[::1\]|^file:\/\/|^ftp:\/\/|^gopher:\/\/)/i.test(trimmed)) {
+        return {
+            valid: false,
+            error: 'Seguridad SSRF: Destino bloqueado. Solo se permiten repositorios alojados en github.com vía HTTPS.'
+        };
+    }
+
     const regex = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_\-\.]+)\/([a-zA-Z0-9_\-\.]+?)(?:\.git|\/.*)?$/i;
     const match = trimmed.match(regex);
 
@@ -64,101 +66,21 @@ function parseGitHubUrl(rawUrl) {
 }
 
 /**
- * Creates GitHub API headers (optional GITHUB_TOKEN for rate limits).
+ * Creates GitHub API headers (optional GITHUB_TOKEN for higher rate limits).
  */
 function getApiHeaders() {
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'DocumentMindAI-Platform/1.0'
     };
-    if (process.env.GITHUB_TOKEN) {
-        headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+    if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()) {
+        headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN.trim()}`;
     }
     return headers;
 }
 
 /**
- * Detects software technologies and frameworks from package manifests and file types.
- */
-function detectTechnologies(manifests, treeFiles) {
-    const techSet = new Set();
-    const pkgJson = manifests['package.json'];
-    const reqsTxt = manifests['requirements.txt'] || manifests['pyproject.toml'] || '';
-    const pubspec = manifests['pubspec.yaml'] || '';
-    const pomXml = manifests['pom.xml'] || manifests['build.gradle'] || '';
-    const goMod = manifests['go.mod'] || '';
-    const cargoToml = manifests['Cargo.toml'] || '';
-
-    // Node / JS / TS ecosystem
-    if (pkgJson) {
-        techSet.add('Node.js');
-        const deps = { ...(pkgJson.dependencies || {}), ...(pkgJson.devDependencies || {}) };
-        const depNames = Object.keys(deps);
-
-        if (depNames.includes('react')) techSet.add('React');
-        if (depNames.includes('next')) techSet.add('Next.js');
-        if (depNames.includes('vue')) techSet.add('Vue.js');
-        if (depNames.includes('nuxt')) techSet.add('Nuxt');
-        if (depNames.includes('@angular/core')) techSet.add('Angular');
-        if (depNames.includes('express')) techSet.add('Express');
-        if (depNames.includes('fastify')) techSet.add('Fastify');
-        if (depNames.includes('nest') || depNames.some(d => d.startsWith('@nestjs/'))) techSet.add('NestJS');
-        if (depNames.includes('typescript') || treeFiles.some(f => f.path.endsWith('.ts') || f.path.endsWith('.tsx'))) techSet.add('TypeScript');
-        if (depNames.includes('tailwindcss')) techSet.add('Tailwind CSS');
-        if (depNames.includes('three')) techSet.add('Three.js');
-        if (depNames.includes('prisma') || depNames.includes('@prisma/client')) techSet.add('Prisma ORM');
-        if (depNames.includes('mongoose')) techSet.add('MongoDB (Mongoose)');
-        if (depNames.includes('pg') || depNames.includes('typeorm')) techSet.add('PostgreSQL');
-        if (depNames.includes('firebase')) techSet.add('Firebase');
-        if (depNames.includes('@supabase/supabase-js')) techSet.add('Supabase');
-    }
-
-    // Python ecosystem
-    if (reqsTxt || treeFiles.some(f => f.path.endsWith('.py'))) {
-        techSet.add('Python');
-        const lowerReqs = reqsTxt.toLowerCase();
-        if (lowerReqs.includes('fastapi')) techSet.add('FastAPI');
-        if (lowerReqs.includes('django')) techSet.add('Django');
-        if (lowerReqs.includes('flask')) techSet.add('Flask');
-        if (lowerReqs.includes('celery')) techSet.add('Celery');
-        if (lowerReqs.includes('sqlalchemy')) techSet.add('SQLAlchemy');
-        if (lowerReqs.includes('pandas')) techSet.add('Pandas');
-        if (lowerReqs.includes('torch') || lowerReqs.includes('pytorch')) techSet.add('PyTorch');
-        if (lowerReqs.includes('tensorflow')) techSet.add('TensorFlow');
-    }
-
-    // Flutter / Dart
-    if (pubspec || treeFiles.some(f => f.path.endsWith('.dart'))) {
-        techSet.add('Dart');
-        if (pubspec.includes('flutter:')) techSet.add('Flutter');
-    }
-
-    // Java / Kotlin
-    if (pomXml || treeFiles.some(f => f.path.endsWith('.java') || f.path.endsWith('.kt'))) {
-        techSet.add('Java');
-        if (pomXml.toLowerCase().includes('spring-boot')) techSet.add('Spring Boot');
-    }
-
-    // Go
-    if (goMod || treeFiles.some(f => f.path.endsWith('.go'))) {
-        techSet.add('Go (Golang)');
-    }
-
-    // Rust
-    if (cargoToml || treeFiles.some(f => f.path.endsWith('.rs'))) {
-        techSet.add('Rust');
-    }
-
-    // Docker
-    if (manifests['Dockerfile'] || manifests['docker-compose.yml']) {
-        techSet.add('Docker');
-    }
-
-    return Array.from(techSet);
-}
-
-/**
- * Builds a visual directory structure tree string (up to 3 levels deep).
+ * Builds a visual directory structure tree string (up to 4 levels deep).
  */
 function buildTreeDiagram(files) {
     const paths = files.map(f => f.path).sort();
@@ -179,7 +101,7 @@ function buildTreeDiagram(files) {
 
     const lines = [];
     function printNode(node, prefix = '', depth = 0) {
-        if (depth > 3) return;
+        if (depth > 4) return;
         const entries = Object.keys(node).sort((a, b) => {
             const isDirA = node[a] !== null;
             const isDirB = node[b] !== null;
@@ -188,7 +110,7 @@ function buildTreeDiagram(files) {
             return a.localeCompare(b);
         });
 
-        entries.slice(0, 15).forEach((name, idx) => {
+        entries.slice(0, 20).forEach((name, idx) => {
             const isLast = idx === entries.length - 1;
             const pointer = isLast ? '└── ' : '├── ';
             const isDir = node[name] !== null;
@@ -197,8 +119,8 @@ function buildTreeDiagram(files) {
                 printNode(node[name], prefix + (isLast ? '    ' : '│   '), depth + 1);
             }
         });
-        if (entries.length > 15) {
-            lines.push(prefix + '└── ... (' + (entries.length - 15) + ' elementos más)');
+        if (entries.length > 20) {
+            lines.push(prefix + '└── ... (' + (entries.length - 20) + ' elementos más)');
         }
     }
 
@@ -231,7 +153,7 @@ async function fetchAndAnalyzeRepo(rawUrl) {
             throw err;
         }
         if (res.status === 403) {
-            const err = new Error('Límite de solicitudes de la API de GitHub alcanzado. Intenta de nuevo más tarde o configura un GITHUB_TOKEN en el backend.');
+            const err = new Error('Límite de solicitudes de la API de GitHub alcanzado. Intenta de nuevo más tarde o configura un GITHUB_TOKEN en el archivo .env.');
             err.statusCode = 429;
             throw err;
         }
@@ -264,32 +186,25 @@ async function fetchAndAnalyzeRepo(rawUrl) {
 
     const rawTree = Array.isArray(treeData.tree) ? treeData.tree : [];
 
-    // 3. Filter relevant files
-    const relevantFiles = rawTree.filter(item => {
-        if (item.type !== 'blob') return false;
-        const p = item.path;
-        const parts = p.split('/');
+    // 3. Filter relevant files and classify them
+    const relevantFiles = [];
+    const ignoredFiles = [];
 
-        // Check ignored directories
-        if (parts.some(part => IGNORED_DIRS.includes(part.toLowerCase()))) {
-            return false;
+    rawTree.forEach(item => {
+        if (item.type !== 'blob') return;
+        if (shouldIgnoreFile(item.path)) {
+            ignoredFiles.push({ path: item.path, size: item.size || 0 });
+        } else {
+            const category = classifyFile(item.path);
+            relevantFiles.push({
+                path: item.path,
+                size: item.size || 0,
+                category
+            });
         }
-
-        // Check ignored extensions
-        const extMatch = p.match(/\.[a-zA-Z0-9]+$/);
-        if (extMatch && IGNORED_EXTS.includes(extMatch[0].toLowerCase())) {
-            return false;
-        }
-
-        return true;
     });
 
-    // 4. Select key files to download and inspect
-    // Priority: Manifests > README > Core entry points (index, app, main, server) > Other source files
-    const prioritizedFiles = [];
-    const manifests = {};
-
-    // Sort relevant files by priority
+    // 4. Sort and prioritize files to download
     relevantFiles.sort((a, b) => {
         const aName = a.path.split('/').pop().toLowerCase();
         const bName = b.path.split('/').pop().toLowerCase();
@@ -313,6 +228,8 @@ async function fetchAndAnalyzeRepo(rawUrl) {
     });
 
     const keyFilesToFetch = relevantFiles.slice(0, MAX_KEY_FILES);
+    const prioritizedFiles = [];
+    const manifests = {};
     let totalBytesFetched = 0;
 
     for (const file of keyFilesToFetch) {
@@ -322,17 +239,32 @@ async function fetchAndAnalyzeRepo(rawUrl) {
         try {
             const fRes = await fetch(rawFileUrl);
             if (fRes.ok) {
-                const content = await fRes.text();
-                const contentSnippet = content.substring(0, MAX_SINGLE_FILE_BYTES);
+                const rawContent = await fRes.text();
+                const fileName = file.path.split('/').pop().toLowerCase();
+
+                // SANITIZATION: Strict protection of secrets
+                let cleanContent;
+                if (fileName.startsWith('.env')) {
+                    const envRes = sanitizeEnvFile(rawContent);
+                    cleanContent = envRes.sanitizedContent;
+                } else {
+                    cleanContent = sanitizeContent(rawContent);
+                }
+
+                const contentSnippet = cleanContent.substring(0, MAX_SINGLE_FILE_BYTES);
                 totalBytesFetched += contentSnippet.length;
+
+                const hash = computeFileHash(contentSnippet);
+                const category = classifyFile(file.path, contentSnippet);
 
                 prioritizedFiles.push({
                     path: file.path,
                     size: file.size || contentSnippet.length,
+                    category,
+                    hash,
                     content: contentSnippet
                 });
 
-                const fileName = file.path.split('/').pop().toLowerCase();
                 if (fileName === 'package.json') {
                     try { manifests['package.json'] = JSON.parse(contentSnippet); } catch (e) {}
                 } else if (MANIFEST_FILES.includes(fileName)) {
@@ -344,9 +276,23 @@ async function fetchAndAnalyzeRepo(rawUrl) {
         }
     }
 
-    // 5. Detect technologies & generate diagram
-    const detectedTechnologies = detectTechnologies(manifests, relevantFiles);
+    // 5. Local Static Analysis
+    const detectedLanguages = detectLanguages(relevantFiles);
+    const detectedFrameworks = detectFrameworks(manifests, relevantFiles);
+    const detectedDatabases = detectDatabases(manifests, relevantFiles);
+    const detectedInfra = detectInfrastructure(manifests, relevantFiles);
+    const endpoints = extractEndpoints(prioritizedFiles);
+    const dataModels = extractDataModels(prioritizedFiles);
+
+    const allDetectedTechnologies = Array.from(new Set([
+        ...detectedLanguages,
+        ...detectedFrameworks,
+        ...detectedDatabases,
+        ...detectedInfra
+    ]));
+
     const treeDiagram = buildTreeDiagram(relevantFiles);
+    const projectMap = buildProjectMap(prioritizedFiles, allDetectedTechnologies, endpoints, dataModels);
 
     return {
         repository: {
@@ -359,7 +305,7 @@ async function fetchAndAnalyzeRepo(rawUrl) {
             forks: repoData.forks_count || 0,
             openIssues: repoData.open_issues_count || 0,
             defaultBranch,
-            primaryLanguage: repoData.language || 'Multi-lenguaje',
+            primaryLanguage: repoData.language || (detectedLanguages[0] || 'Multi-lenguaje'),
             createdAt: repoData.created_at,
             updatedAt: repoData.updated_at,
             analysisDate: new Date().toISOString()
@@ -367,19 +313,31 @@ async function fetchAndAnalyzeRepo(rawUrl) {
         stats: {
             totalFiles: rawTree.length,
             relevantFilesCount: relevantFiles.length,
+            ignoredFilesCount: ignoredFiles.length,
             analyzedFilesCount: prioritizedFiles.length,
-            technologiesCount: detectedTechnologies.length
+            technologiesCount: allDetectedTechnologies.length
         },
-        detectedTechnologies,
+        detectedLanguages,
+        detectedFrameworks,
+        detectedDatabases,
+        detectedInfra,
+        detectedTechnologies: allDetectedTechnologies,
         treeDiagram,
-        relevantFilesList: relevantFiles.map(f => f.path).slice(0, 100),
-        prioritizedFiles
+        relevantFilesList: relevantFiles.map(f => ({ path: f.path, category: f.category, size: f.size })),
+        ignoredFilesList: ignoredFiles.slice(0, 100),
+        prioritizedFiles,
+        endpoints,
+        dataModels,
+        projectMap
     };
 }
 
 module.exports = {
     parseGitHubUrl,
     fetchAndAnalyzeRepo,
-    detectTechnologies,
+    detectLanguages,
+    detectFrameworks,
+    detectDatabases,
+    detectInfrastructure,
     buildTreeDiagram
 };

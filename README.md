@@ -226,3 +226,14 @@ RESULTADOS: 12 pruebas exitosas, 0 pruebas fallidas.
   - *Emerald Sync:* `#34D399`
   - *Indigo Logic:* `#818CF8`
 - **Accesibilidad:** Diseñado con contraste superior a 7.2:1 bajo la norma **WCAG 2.1 AAA**.
+
+---
+
+## 🎛️ Simulador de Arquitectura y Diseño Técnico (Guía Actividad 9)
+
+La plataforma integra el **Simulador Funcional de Arquitectura y Diseño Técnico** desarrollado para el curso **Ingeniería Aplicada (2026-2)** de la **Universidad Libre**:
+
+- **Sección Interactiva en la Web:** `#simulador-arquitectura` (accesible desde la barra de navegación superior o en `http://localhost:3000/#simulador-arquitectura`).
+- **Motor Matemático Backend:** [`services/simulator/architectureSimulator.js`](services/simulator/architectureSimulator.js) expuesto en `/api/simulator/config`, `/api/simulator/run` y `/api/simulator/scenarios`.
+- **Controlador Interactivo Frontend:** [`js/architecture-simulator.js`](js/architecture-simulator.js).
+- **Documentación Completa del Modelo, Ecuaciones y 5 Pruebas:** 👉 **[`SIMULADOR_ACTIVIDAD_9.md`](SIMULADOR_ACTIVIDAD_9.md)**.

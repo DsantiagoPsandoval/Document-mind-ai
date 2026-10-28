@@ -1,13 +1,13 @@
 -- ============================================================
--- DOCUMENT-MIND AI — ESQUEMA DE BASE DE DATOS SUPABASE
--- PostgreSQL + Row Level Security (RLS) + Triggers
+-- DOCUMENT-MIND AI — ESQUEMA COMPLETO SUPABASE POSTGRESQL + RLS
+-- Migración Versionada v2.0 (Perfiles, Proyectos, Análisis, Simulaciones y Chat)
 -- ============================================================
 
--- 1. Habilitar extensión UUID si no está activa
+-- 1. Habilitar extensión UUID
 create extension if not exists "uuid-ossp";
 
 -- ============================================================
--- 2. TABLA: PROFILES (Perfiles de usuario)
+-- 2. TABLA: PROFILES (Perfiles de usuario vinculados a auth.users)
 -- ============================================================
 create table if not exists public.profiles (
     id uuid references auth.users(id) on delete cascade primary key,
@@ -19,10 +19,8 @@ create table if not exists public.profiles (
     updated_at timestamptz default now()
 );
 
--- Habilitar RLS en profiles
 alter table public.profiles enable row level security;
 
--- Políticas de seguridad para profiles
 drop policy if exists "Los usuarios pueden ver su propio perfil" on public.profiles;
 create policy "Los usuarios pueden ver su propio perfil"
     on public.profiles for select
@@ -38,9 +36,7 @@ create policy "Los usuarios pueden insertar su propio perfil"
     on public.profiles for insert
     with check (auth.uid() = id);
 
--- ============================================================
--- 3. TRIGGER AUTOMÁTICO: Crear perfil al registrarse en auth.users
--- ============================================================
+-- Trigger automático al registrar usuario en Supabase Auth
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
@@ -55,33 +51,30 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Trigger asociado
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
     after insert on auth.users
     for each row execute function public.handle_new_user();
 
 -- ============================================================
--- 4. TABLA: ANALYSES (Análisis de Documentos y Repositorios)
+-- 3. TABLA: ANALYSES (Proyectos, Documentos y Repositorios Analizados)
 -- ============================================================
 create table if not exists public.analyses (
     id uuid default gen_random_uuid() primary key,
     user_id uuid references auth.users(id) on delete cascade not null,
-    type text not null check (type in ('document', 'github')),
+    type text not null check (type in ('document', 'github', 'project')),
     title text not null,
     meta text,
     data jsonb not null,
-    created_at timestamptz default now()
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
 );
 
--- Índices para optimizar consultas de usuario y orden temporal
 create index if not exists idx_analyses_user_id on public.analyses(user_id);
 create index if not exists idx_analyses_created_at on public.analyses(created_at desc);
 
--- Habilitar RLS en analyses
 alter table public.analyses enable row level security;
 
--- Políticas de seguridad para analyses
 drop policy if exists "Los usuarios pueden ver sus propios análisis" on public.analyses;
 create policy "Los usuarios pueden ver sus propios análisis"
     on public.analyses for select
@@ -101,3 +94,61 @@ drop policy if exists "Los usuarios pueden eliminar sus propios análisis" on pu
 create policy "Los usuarios pueden eliminar sus propios análisis"
     on public.analyses for delete
     using (auth.uid() = user_id);
+
+-- ============================================================
+-- 4. TABLA: SIMULATION_RUNS (Historial Inmutable de Simulaciones - Architecture Lab)
+-- ============================================================
+create table if not exists public.simulation_runs (
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid references auth.users(id) on delete cascade not null,
+    project_id text,
+    scenario_name text not null,
+    model_version text not null default '2.0.0',
+    project_config jsonb not null,
+    inputs jsonb not null,
+    results jsonb not null,
+    recommendation jsonb not null,
+    created_at timestamptz default now()
+);
+
+create index if not exists idx_simulation_runs_user_id on public.simulation_runs(user_id);
+create index if not exists idx_simulation_runs_created_at on public.simulation_runs(created_at desc);
+
+alter table public.simulation_runs enable row level security;
+
+drop policy if exists "Los usuarios consultan sus propias simulaciones" on public.simulation_runs;
+create policy "Los usuarios consultan sus propias simulaciones"
+    on public.simulation_runs for select
+    using (auth.uid() = user_id);
+
+drop policy if exists "Los usuarios registran nuevas ejecuciones de simulación" on public.simulation_runs;
+create policy "Los usuarios registran nuevas ejecuciones de simulación"
+    on public.simulation_runs for insert
+    with check (auth.uid() = user_id);
+
+drop policy if exists "Los usuarios eliminan sus propias simulaciones" on public.simulation_runs;
+create policy "Los usuarios eliminan sus propias simulaciones"
+    on public.simulation_runs for delete
+    using (auth.uid() = user_id);
+
+-- ============================================================
+-- 5. TABLA: CHAT_CONVERSATIONS (Historial de Conversaciones RAG con Evidencia)
+-- ============================================================
+create table if not exists public.chat_conversations (
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid references auth.users(id) on delete cascade not null,
+    project_id text not null,
+    messages jsonb not null default '[]'::jsonb,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+
+create index if not exists idx_chat_conversations_user_id on public.chat_conversations(user_id);
+
+alter table public.chat_conversations enable row level security;
+
+drop policy if exists "Aislamiento RLS de conversaciones por usuario" on public.chat_conversations;
+create policy "Aislamiento RLS de conversaciones por usuario"
+    on public.chat_conversations for all
+    using (auth.uid() = user_id)
+    with check (auth.uid() = user_id);
