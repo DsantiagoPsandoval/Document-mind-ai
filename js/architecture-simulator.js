@@ -507,16 +507,33 @@
         if (!validation.valid) {
             alertBox.style.display = 'block';
             alertBox.innerHTML = `
-                <div style="display:flex;align-items:flex-start;gap:.75rem;">
-                    <i class="fa-solid fa-triangle-exclamation" style="color:#FB7185;font-size:1.1rem;margin-top:.15rem;"></i>
-                    <div>
-                        <strong style="color:#FB7185;font-size:.85rem;display:block;margin-bottom:.25rem;">Control de Validación Activo — Entradas Inválidas Detectadas (Requisito 10):</strong>
-                        <ul style="margin:0;padding-left:1.1rem;color:#FECDD3;font-size:.78rem;line-height:1.5;">
-                            ${validation.errors.map(e => `<li>${e}</li>`).join('')}
-                        </ul>
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:flex-start;gap:.75rem;">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#FB7185;font-size:1.1rem;margin-top:.15rem;"></i>
+                        <div>
+                            <strong style="color:#FB7185;font-size:.85rem;display:block;margin-bottom:.25rem;">Control de Validación Activo — Entradas Inválidas Detectadas (Requisito 10):</strong>
+                            <ul style="margin:0;padding-left:1.1rem;color:#FECDD3;font-size:.78rem;line-height:1.5;">
+                                ${validation.errors.map(e => `<li>${e}</li>`).join('')}
+                            </ul>
+                        </div>
                     </div>
+                    <button type="button" id="btn-sim-restore-valid" class="btn-cyber" style="padding:.45rem .85rem;font-size:.73rem;flex-shrink:0;">
+                        <i class="fa-solid fa-rotate-left" style="margin-right:.35rem;"></i>Restaurar Valores Válidos
+                    </button>
                 </div>
             `;
+            const btnRestore = document.getElementById('btn-sim-restore-valid');
+            if (btnRestore) {
+                btnRestore.addEventListener('click', () => {
+                    const elReqLat = document.getElementById('sim-req-latency');
+                    const elReqAvail = document.getElementById('sim-req-availability');
+                    const elConBud = document.getElementById('sim-con-budget');
+                    if (elReqLat) elReqLat.value = 1800;
+                    if (elReqAvail) elReqAvail.value = 99.5;
+                    if (elConBud) elConBud.value = 350;
+                    applyScenarioPreset('BASELINE');
+                });
+            }
         } else {
             alertBox.style.display = 'none';
             alertBox.innerHTML = '';
@@ -784,9 +801,45 @@
     // ============================================================
     // 4. GESTIÓN DE ESCENARIOS Y EVENTOS INTERACTIVOS (REQ 5 & 12)
     // ============================================================
-    function applyScenarioPreset(presetKey) {
+    function showSimFeedback(msg, isError = false) {
+        const toastContainer = document.getElementById('toast-container');
+        if (toastContainer) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `padding:.75rem 1.1rem;border-radius:.75rem;font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:.55rem;box-shadow:0 10px 25px rgba(0,0,0,.6);margin-bottom:.5rem;border:1px solid ${isError ? '#F43F5E' : '#38BDF8'};background:${isError ? 'rgba(136,19,55,.95)' : 'rgba(15,23,42,.96)'};color:#F8FAFC;z-index:9999;pointer-events:auto;`;
+            toast.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-bolt'}" style="color:${isError ? '#FB7185' : '#34D399'};"></i><span>${msg}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3200);
+        }
+    }
+
+    function highlightActivePresetButton(activeKey) {
+        document.querySelectorAll('[data-sim-preset]').forEach(btn => {
+            const key = btn.getAttribute('data-sim-preset');
+            if (key === activeKey) {
+                btn.style.background = 'rgba(56, 189, 248, 0.22)';
+                btn.style.borderColor = '#38BDF8';
+                btn.style.color = '#FFFFFF';
+                btn.style.boxShadow = '0 0 14px rgba(56, 189, 248, 0.35)';
+            } else {
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.style.boxShadow = '';
+            }
+        });
+    }
+
+    function applyScenarioPreset(presetKey, silent = false) {
         const preset = PRESET_SCENARIOS[presetKey];
         if (!preset) return;
+
+        highlightActivePresetButton(presetKey);
+
+        // Si el usuario había activado la prueba de error en Latencia Máxima, restaurarla a un valor válido (1800ms)
+        const elReqLat = document.getElementById('sim-req-latency');
+        if (elReqLat && Number(elReqLat.value) < 100) {
+            elReqLat.value = 1800;
+        }
 
         const setInput = (id, val, labelId, suffix = '') => {
             const el = document.getElementById(id);
@@ -811,6 +864,9 @@
             }
             renderSimulationOutput(sim, preset.name);
             recordScenarioExecution(preset.name, sim);
+            if (!silent) {
+                showSimFeedback(`${preset.badge} ejecutado → Ganadora: ${sim.winner.shortName} (${sim.winner.mcda.finalScore} pts)`);
+            }
         }
     }
 
@@ -889,6 +945,7 @@
                         badge.textContent = `Referencia activa: U=${state.inputs.concurrentUsers}, S=${state.inputs.payloadSizeMb}MB, N=${state.inputs.repoComplexityFiles}`;
                         badge.style.color = '#34D399';
                     }
+                    showSimFeedback(`Nuevo escenario de referencia fijado: U=${state.inputs.concurrentUsers} usuarios, S=${state.inputs.payloadSizeMb} MB`);
                 }
             });
         }
@@ -896,16 +953,17 @@
         // Botón Ejecutar los 4 Escenarios Comparativos
         const btnRunAll = document.getElementById('btn-sim-run-all-scenarios');
         if (btnRunAll) {
-            btnRunAll.addEventListener('click', runAllScenariosBatch);
+            btnRunAll.addEventListener('click', () => {
+                runAllScenariosBatch();
+                showSimFeedback('Lote de 4 escenarios ejecutado y registrado en la Matriz Multi-Escenario.');
+            });
         }
 
         // Botón Probar Control de Entrada Inválida (Demostración Requisito 10)
         const btnTestInvalid = document.getElementById('btn-sim-test-invalid');
         if (btnTestInvalid) {
             btnTestInvalid.addEventListener('click', () => {
-                const elU = document.getElementById('sim-input-users');
                 const elReq = document.getElementById('sim-req-latency');
-                if (elU) elU.value = -25;
                 if (elReq) elReq.value = 15; // menor a 100ms
                 const validation = validateInputs({
                     concurrentUsers: -25,
@@ -918,6 +976,9 @@
                     maxMonthlyBudgetUsd: 2
                 });
                 renderValidationBanner(validation);
+                const alertEl = document.getElementById('sim-validation-alert');
+                if (alertEl) alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showSimFeedback('Control de validación activado: entradas fuera de rango bloqueadas.', true);
             });
         }
 
@@ -968,11 +1029,11 @@
             });
         }
 
-        // Inicialización por defecto: Ejecutar los 4 escenarios y dejar activo el Escenario de Referencia
-        applyScenarioPreset('SINGLE_MACHINE_LIGHT');
-        applyScenarioPreset('ENTERPRISE_SCALE');
-        applyScenarioPreset('EXTREME_STRESS_PUSH');
-        applyScenarioPreset('BASELINE');
+        // Inicialización por defecto: Ejecutar los 4 escenarios en modo silencioso y dejar activo el Escenario de Referencia
+        applyScenarioPreset('SINGLE_MACHINE_LIGHT', true);
+        applyScenarioPreset('ENTERPRISE_SCALE', true);
+        applyScenarioPreset('EXTREME_STRESS_PUSH', true);
+        applyScenarioPreset('BASELINE', true);
     }
 
     function triggerInteractiveRun(label) {
