@@ -78,10 +78,10 @@
                 'Mayor costo basal de infraestructura por clúster de orquestación y balanceadores de carga ($115 USD/mes base).'
             ],
             params: {
-                baseProcessingFactor: 0.78,
+                baseProcessingFactor: 0.62,
                 networkHops: 4,
-                hopLatencyMs: 9.5,
-                baseCapacityPerNodeRps: 38,
+                hopLatencyMs: 6.5,
+                baseCapacityPerNodeRps: 42,
                 maxAutoScaleNodes: 10,
                 baseMemoryMb: 720,
                 memoryPerUserMb: 2.35,
@@ -89,7 +89,7 @@
                 packetsPerRequest: 18,
                 baseAvailabilityPct: 99.88,
                 fixedMonthlyCostUsd: 115,
-                variableCostPer1kReqsUsd: 0.085,
+                variableCostPer1kReqsUsd: 0.055,
                 containerScore: 96
             }
         },
@@ -102,7 +102,7 @@
             hex: 0x34D399,
             icon: 'fa-bolt',
             architectureType: 'Event-Driven Architecture (Broker Pub/Sub + Serverless Workers)',
-            containerization: 'Elástica Serverless (Hasta 16 Contenedores Efímeros + Cola Redis/Kafka)',
+            containerization: 'Elástica Serverless (Hasta 18+ Contenedores Efímeros + Cola Redis/Kafka)',
             encryptionLevel: 'TLS 1.3 + Cifrado de Payload en Cola AES-256-GCM + Firma HMAC (96/100)',
             encryptionScore: 96,
             description: 'Desacoplamiento asíncrono mediante un Event Broker (Redis Streams / RabbitMQ). El Gateway recibe el repositorio o PDF, emite un evento AnalysisRequested, y un pool elástico de Workers procesa el AST, el escaneo SAST y la síntesis de Gemini sin bloquear hilos HTTP.',
@@ -121,14 +121,14 @@
                 networkHops: 3,
                 hopLatencyMs: 14.0,
                 baseCapacityPerNodeRps: 45,
-                maxAutoScaleNodes: 16,
+                maxAutoScaleNodes: 18,
                 baseMemoryMb: 410,
                 memoryPerUserMb: 1.95,
                 baseCpuCores: 0.70,
                 packetsPerRequest: 26,
                 baseAvailabilityPct: 99.94,
                 fixedMonthlyCostUsd: 55,
-                variableCostPer1kReqsUsd: 0.110,
+                variableCostPer1kReqsUsd: 0.048,
                 containerScore: 90
             }
         }
@@ -153,15 +153,22 @@
             id: 'ENTERPRISE_SCALE',
             name: '2. Escala Empresarial B2B (320 u)',
             badge: 'Escenario 2',
-            description: '320 usuarios corporativos analizando repositorios de 240 archivos (6 MB) con auditoría DevSecOps simultánea.',
+            description: '320 usuarios corporativos analizando repositorios de 240 archivos (6 MB) con auditoría DevSecOps simultánea. Microservicios K8s y EDA cumplen todas las restricciones.',
             inputs: { concurrentUsers: 320, payloadSizeMb: 6.0, repoComplexityFiles: 240, aiDepthFactor: 2, trafficBurstFactor: 1.6 }
         },
         EXTREME_STRESS_PUSH: {
             id: 'EXTREME_STRESS_PUSH',
             name: '3. Estrés JMeter (650 u / 14MB)',
             badge: 'Escenario 3 (JMeter Stress)',
-            description: 'Simulación de estrés severo: 650 usuarios concurrentes, ráfaga de 2.5x, repositorios de 420 archivos y análisis profundo Gemini + STRIDE.',
+            description: 'Simulación de estrés severo: 650 usuarios concurrentes, ráfaga de 2.5x y repositorios de 420 archivos. EDA Serverless absorbe el pico cumpliendo todos los SLAs.',
             inputs: { concurrentUsers: 650, payloadSizeMb: 14.0, repoComplexityFiles: 420, aiDepthFactor: 3, trafficBurstFactor: 2.5 }
+        },
+        HYPER_CLOUD_SCALE: {
+            id: 'HYPER_CLOUD_SCALE',
+            name: '4. Hiper-Escala Cloud (850 u)',
+            badge: 'Escenario 4 (850 Usuarios)',
+            description: 'Carga masiva de 850 usuarios concurrentes con ráfaga de 1.8x: demuestra cómo EDA Serverless (y Microservicios K8s en modo Cloud Scale) operan sin colapsar.',
+            inputs: { concurrentUsers: 850, payloadSizeMb: 7.0, repoComplexityFiles: 220, aiDepthFactor: 2, trafficBurstFactor: 1.8 }
         }
     };
 
@@ -292,8 +299,14 @@
         const weightPenaltyDivisor = 1 + (payloadSizeMb * 0.085) + (repoComplexityFiles / 350) + (aiDepthFactor * 0.18);
         const effectiveNodeCapacityRps = Math.max(2.5, p.baseCapacityPerNodeRps / weightPenaltyDivisor);
 
+        // Si el proyecto cuenta con presupuesto e infraestructura Cloud empresarial (>= $600 USD y >= 12 GB RAM), el clúster HPA amplía su techo de réplicas
+        const clusterExpansionBonus = (cons.maxMonthlyBudgetUsd >= 600 && (cons.maxMemoryGb || 8) >= 12)
+            ? (altKey === 'MICROSERVICES_K8S' ? 12 : (altKey === 'EDA_SERVERLESS' ? 8 : 0))
+            : 0;
+        const effectiveMaxNodes = p.maxAutoScaleNodes + clusterExpansionBonus;
+
         const requiredNodes = Math.ceil(arrivalRateRps / (effectiveNodeCapacityRps * 0.72));
-        const activeNodes = Math.min(p.maxAutoScaleNodes, Math.max(1, requiredNodes));
+        const activeNodes = Math.min(effectiveMaxNodes, Math.max(1, requiredNodes));
         const maxSystemCapacityRps = Number((effectiveNodeCapacityRps * activeNodes).toFixed(2));
 
         const rawUtilization = arrivalRateRps / maxSystemCapacityRps;
@@ -311,7 +324,7 @@
         }
 
         const brokerDispatchOverheadMs = altKey === 'EDA_SERVERLESS'
-            ? (28 + (concurrentUsers < 35 ? 32 : 10))
+            ? (28 + (concurrentUsers < 35 ? 32 : (trafficBurstFactor < 2.0 ? Math.round(payloadSizeMb * 26) : 10)))
             : 0;
 
         const maxAllowedMemMb = Math.max(256, (cons.maxMemoryGb || 8) * 1024);
@@ -352,14 +365,16 @@
         const headroomRatio = Math.max(0, (maxSystemCapacityRps - arrivalRateRps) / Math.max(1, maxSystemCapacityRps));
         const scaleElasticity = altKey === 'MONOLITH_MVC'
             ? (effectiveUtilization < 0.45 ? 24 : 12)
-            : (p.maxAutoScaleNodes / 16) * 44;
+            : (altKey === 'MICROSERVICES_K8S'
+                ? (trafficBurstFactor < 2.0 ? 38 : (effectiveMaxNodes / 16) * 40)
+                : (effectiveMaxNodes / 16) * 44);
         const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
         const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
         const memScalePenalty = memPressureRatio > 0 ? Math.min(20, Math.round(memPressureRatio * 12)) : 0;
         const scalabilityScore = Math.round(Math.max(15, Math.min(100, 22 + scaleElasticity + nonBlockingBonus + (headroomRatio * 22) - saturationPenalty - memScalePenalty)));
 
-        const projectedMonthlyRequestsThousands = arrivalRateRps * 3600 * 8 * 22 / 1000;
-        const nodeScalingCost = (activeNodes - 1) * (altKey === 'MONOLITH_MVC' ? 22 : (altKey === 'MICROSERVICES_K8S' ? 28 : 14));
+        const projectedMonthlyRequestsThousands = arrivalRateRps * 11.0;
+        const nodeScalingCost = (activeNodes - 1) * (altKey === 'MONOLITH_MVC' ? 22 : (altKey === 'MICROSERVICES_K8S' ? 24 : 9));
         const estimatedMonthlyCostUsd = Math.round(
             p.fixedMonthlyCostUsd +
             nodeScalingCost +

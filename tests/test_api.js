@@ -753,6 +753,22 @@ CREATE TABLE users (
         assert.ok(simUiCode.includes('executeDocumentedTestCase'), 'Debe incluir ejecutor interactivo para las 5 pruebas documentadas');
     });
 
+    await test('Simulador (TEST-SIM-15): Alta Escala (320 u), Estrés JMeter (650 u) e Hiper-Escala (850 u) siempre cuentan con arquitecturas 100% viables', () => {
+        const entSim = runArchitectureSimulation({ inputs: PRESET_SCENARIOS.ENTERPRISE_SCALE.inputs });
+        const entViable = entSim.alternatives.filter(a => a.compliance.allMandatoryPassed);
+        assert.strictEqual(entViable.length, 2, 'En Escala Empresarial (320 u) tanto Microservicios K8s como EDA deben cumplir todas las restricciones');
+        assert.strictEqual(entSim.recommendation.recommendedId, 'MICROSERVICES_K8S', 'En Escala Empresarial (320 u) debe ganar Microservicios K8s');
+
+        const stressSim = runArchitectureSimulation({ inputs: PRESET_SCENARIOS.EXTREME_STRESS_PUSH.inputs });
+        const stressViable = stressSim.alternatives.filter(a => a.compliance.allMandatoryPassed);
+        assert.strictEqual(stressViable.length, 1, 'En Estrés Extremo JMeter (650 u) EDA Serverless debe cumplir todas las restricciones bajo presupuesto estándar');
+        assert.strictEqual(stressViable[0].alternativeId, 'EDA_SERVERLESS');
+
+        const hyperSim = runArchitectureSimulation({ inputs: PRESET_SCENARIOS.HYPER_CLOUD_SCALE.inputs });
+        const hyperViable = hyperSim.alternatives.filter(a => a.compliance.allMandatoryPassed);
+        assert.ok(hyperViable.length >= 1, 'En Hiper-Escala (850 u) al menos EDA Serverless debe ser 100% viable');
+    });
+
     console.log('='.repeat(60));
     console.log(`RESULTADOS FINALES: ${passed} pruebas exitosas, ${failed} pruebas fallidas.\n`);
     if (failed > 0) {

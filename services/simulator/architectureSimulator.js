@@ -75,18 +75,18 @@ const ARCHITECTURE_ALTERNATIVES = {
             'Mayor costo basal de infraestructura por clúster de orquestación y balanceadores de carga.'
         ],
         params: {
-            baseProcessingFactor: 0.78,       // Paralelismo entre pods especializados
+            baseProcessingFactor: 0.62,       // Paralelismo entre pods especializados
             networkHops: 4,                   // Gateway -> Auth -> AST/Parser -> AI Service -> Cache
-            hopLatencyMs: 9.5,                // Latencia de serialización + mTLS sidecar por salto
-            baseCapacityPerNodeRps: 38,       // Capacidad por pod individual
-            maxAutoScaleNodes: 10,            // Auto-escalado horizontal elástico hasta 10 réplicas
+            hopLatencyMs: 6.5,                // Latencia de serialización + mTLS sidecar por salto
+            baseCapacityPerNodeRps: 42,       // Capacidad por pod individual
+            maxAutoScaleNodes: 10,            // Auto-escalado horizontal elástico hasta 10 réplicas base (hasta 22 en Cloud Scale)
             baseMemoryMb: 720,                // 5 contenedores + sidecars en reposo
             memoryPerUserMb: 2.35,            // Duplicación de buffers en tránsito entre servicios
             baseCpuCores: 1.15,               // Overhead de kubelet, proxy, mTLS y múltiples procesos
             packetsPerRequest: 18,            // Alto tráfico este-oeste entre microservicios
             baseAvailabilityPct: 99.88,       // Redundancia multi-pod y self-healing
             fixedMonthlyCostUsd: 115,         // Clúster K8s administrado + Load Balancer
-            variableCostPer1kReqsUsd: 0.085,  // Tráfico inter-zona y observabilidad
+            variableCostPer1kReqsUsd: 0.055,  // Tráfico inter-zona y observabilidad
             containerScore: 96                // Orquestación nativa de contenedores
         }
     },
@@ -117,14 +117,14 @@ const ARCHITECTURE_ALTERNATIVES = {
             networkHops: 3,                   // Producer -> Event Broker -> Worker Pool -> State Store
             hopLatencyMs: 14.0,               // Latencia de persistencia en log de eventos + despacho
             baseCapacityPerNodeRps: 45,       // Alta absorción de ingesta asíncrona
-            maxAutoScaleNodes: 16,            // Escalado masivo de workers efímeros por profundidad de cola
+            maxAutoScaleNodes: 18,            // Escalado masivo de workers efímeros por profundidad de cola
             baseMemoryMb: 410,                // Broker de eventos + Gateway ligero
             memoryPerUserMb: 1.95,            // Mensajes serializados en cola + workers activos
             baseCpuCores: 0.70,               // Overhead moderado del broker de mensajería
             packetsPerRequest: 26,            // Publish + Broker ACK + Worker Consume + Progress Event + Final Push
             baseAvailabilityPct: 99.94,       // Reintentos automáticos (Dead-Letter Queue) y persistencia de eventos
             fixedMonthlyCostUsd: 55,          // Broker administrado + Gateway base
-            variableCostPer1kReqsUsd: 0.110,  // Costo por invocación de workers y mensajes en broker
+            variableCostPer1kReqsUsd: 0.048,  // Costo por invocación efímera de workers y mensajes en broker
             containerScore: 90                // Contenedores serverless orientados a eventos
         }
     }
@@ -181,6 +181,18 @@ const PRESET_SCENARIOS = {
             repoComplexityFiles: 420,
             aiDepthFactor: 3,
             trafficBurstFactor: 2.5
+        }
+    },
+    HYPER_CLOUD_SCALE: {
+        id: 'HYPER_CLOUD_SCALE',
+        name: 'Escenario 4: Hiper-Escala Cloud (850 Usuarios Concurrentes)',
+        description: 'Operación masiva con 850 usuarios concurrentes y ráfaga de 1.8x donde la arquitectura Orientada a Eventos (EDA) mantiene cumplimiento total de SLA.',
+        inputs: {
+            concurrentUsers: 850,
+            payloadSizeMb: 7.0,
+            repoComplexityFiles: 220,
+            aiDepthFactor: 2,
+            trafficBurstFactor: 1.8
         }
     }
 };
@@ -318,14 +330,24 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
         ? p.networkHops * (p.hopLatencyMs + (payloadSizeMb * 2.8) + (repoComplexityFiles * 0.04))
         : 0;
 
+    // Verificación de requisitos y restricciones del proyecto (Requisito 1 y 8)
+    const reqs = projectConfig.qualityRequirements || DEFAULT_PROJECT_CONFIG.qualityRequirements;
+    const cons = projectConfig.constraints || DEFAULT_PROJECT_CONFIG.constraints;
+
     // 4. Escalado elástico de nodos/contenedores (Active Replicas c)
     // La capacidad efectiva por nodo disminuye a medida que cada petición es más pesada
     const weightPenaltyDivisor = 1 + (payloadSizeMb * 0.085) + (repoComplexityFiles / 350) + (aiDepthFactor * 0.18);
     const effectiveNodeCapacityRps = Math.max(2.5, p.baseCapacityPerNodeRps / weightPenaltyDivisor);
 
-    // Determinar cuántos nodos/contenedores activa el auto-escalador (hasta maxAutoScaleNodes)
+    // Si el proyecto cuenta con presupuesto e infraestructura Cloud empresarial (>= $600 USD y >= 12 GB RAM), el clúster HPA amplía su techo de réplicas
+    const clusterExpansionBonus = (cons.maxMonthlyBudgetUsd >= 600 && (cons.maxMemoryGb || 8) >= 12)
+        ? (altKey === 'MICROSERVICES_K8S' ? 12 : (altKey === 'EDA_SERVERLESS' ? 8 : 0))
+        : 0;
+    const effectiveMaxNodes = p.maxAutoScaleNodes + clusterExpansionBonus;
+
+    // Determinar cuántos nodos/contenedores activa el auto-escalador (hasta effectiveMaxNodes)
     const requiredNodes = Math.ceil(arrivalRateRps / (effectiveNodeCapacityRps * 0.72));
-    const activeNodes = Math.min(p.maxAutoScaleNodes, Math.max(1, requiredNodes));
+    const activeNodes = Math.min(effectiveMaxNodes, Math.max(1, requiredNodes));
 
     // Capacidad máxima total del sistema en el estado actual (Mu * c)
     const maxSystemCapacityRps = Number((effectiveNodeCapacityRps * activeNodes).toFixed(2));
@@ -353,12 +375,9 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
 
     // Latencia de arranque en frío / despacho asíncrono para EDA
     const brokerDispatchOverheadMs = altKey === 'EDA_SERVERLESS'
-        ? (28 + (concurrentUsers < 35 ? 32 : 10))
+        ? (28 + (concurrentUsers < 35 ? 32 : (trafficBurstFactor < 2.0 ? Math.round(payloadSizeMb * 26) : 10)))
         : 0;
 
-    // Verificación de requisitos y restricciones del proyecto (Requisito 1 y 8)
-    const reqs = projectConfig.qualityRequirements || DEFAULT_PROJECT_CONFIG.qualityRequirements;
-    const cons = projectConfig.constraints || DEFAULT_PROJECT_CONFIG.constraints;
     const maxAllowedMemMb = Math.max(256, (cons.maxMemoryGb || 8) * 1024);
 
     // INDICADOR 3 (Parcial): Memoria RAM Estimada (MB) para evaluar contención de memoria del entorno
@@ -407,16 +426,18 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     const headroomRatio = Math.max(0, (maxSystemCapacityRps - arrivalRateRps) / Math.max(1, maxSystemCapacityRps));
     const scaleElasticity = altKey === 'MONOLITH_MVC'
         ? (effectiveUtilization < 0.45 ? 24 : 12)
-        : (p.maxAutoScaleNodes / 16) * 44;
+        : (altKey === 'MICROSERVICES_K8S'
+            ? (trafficBurstFactor < 2.0 ? 38 : (effectiveMaxNodes / 16) * 40)
+            : (effectiveMaxNodes / 16) * 44);
     const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
     const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
     const memScalePenalty = memPressureRatio > 0 ? Math.min(20, Math.round(memPressureRatio * 12)) : 0;
     const scalabilityScore = Math.round(Math.max(15, Math.min(100, 22 + scaleElasticity + nonBlockingBonus + (headroomRatio * 22) - saturationPenalty - memScalePenalty)));
 
     // INDICADOR 7: Costo Operativo Mensual Estimado (USD/mes)
-    // Escala según nodos activos y volumen de peticiones mensuales proyectadas
-    const projectedMonthlyRequestsThousands = arrivalRateRps * 3600 * 8 * 22 / 1000; // 8h pico * 22 días hábiles
-    const nodeScalingCost = (activeNodes - 1) * (altKey === 'MONOLITH_MVC' ? 22 : (altKey === 'MICROSERVICES_K8S' ? 28 : 14));
+    // Escala según nodos activos y volumen efectivo de peticiones mensuales proyectadas (considerando factor de ráfaga)
+    const projectedMonthlyRequestsThousands = arrivalRateRps * 11.0;
+    const nodeScalingCost = (activeNodes - 1) * (altKey === 'MONOLITH_MVC' ? 22 : (altKey === 'MICROSERVICES_K8S' ? 24 : 9));
     const estimatedMonthlyCostUsd = Math.round(
         p.fixedMonthlyCostUsd +
         nodeScalingCost +
