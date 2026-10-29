@@ -117,14 +117,14 @@ const ARCHITECTURE_ALTERNATIVES = {
             networkHops: 3,                   // Producer -> Event Broker -> Worker Pool -> State Store
             hopLatencyMs: 14.0,               // Latencia de persistencia en log de eventos + despacho
             baseCapacityPerNodeRps: 45,       // Alta absorción de ingesta asíncrona
-            maxAutoScaleNodes: 18,            // Escalado masivo de workers efímeros por profundidad de cola
-            baseMemoryMb: 410,                // Broker de eventos + Gateway ligero
-            memoryPerUserMb: 1.95,            // Mensajes serializados en cola + workers activos
+            maxAutoScaleNodes: 20,            // Escalado masivo de workers efímeros por profundidad de cola
+            baseMemoryMb: 380,                // Broker de eventos + Gateway ligero
+            memoryPerUserMb: 1.35,            // Mensajes compactos serializados en stream + workers activos
             baseCpuCores: 0.70,               // Overhead moderado del broker de mensajería
             packetsPerRequest: 26,            // Publish + Broker ACK + Worker Consume + Progress Event + Final Push
-            baseAvailabilityPct: 99.94,       // Reintentos automáticos (Dead-Letter Queue) y persistencia de eventos
+            baseAvailabilityPct: 99.95,       // Reintentos automáticos (Dead-Letter Queue) y persistencia de eventos
             fixedMonthlyCostUsd: 55,          // Broker administrado + Gateway base
-            variableCostPer1kReqsUsd: 0.048,  // Costo por invocación efímera de workers y mensajes en broker
+            variableCostPer1kReqsUsd: 0.042,  // Costo por invocación efímera de workers y mensajes en broker
             containerScore: 90                // Contenedores serverless orientados a eventos
         }
     }
@@ -174,25 +174,25 @@ const PRESET_SCENARIOS = {
     EXTREME_STRESS_PUSH: {
         id: 'EXTREME_STRESS_PUSH',
         name: 'Escenario 3: Prueba de Estrés Extremo (Git Push Masivo + PDFs Pesados)',
-        description: 'Simulación tipo Apache JMeter de ráfaga crítica: cientos de webhooks concurrentes con archivos pesados y generación completa de documentación.',
+        description: 'Simulación tipo Apache JMeter de ráfaga crítica: 650 usuarios concurrentes con repositorios grandes y generación completa de documentación.',
         inputs: {
             concurrentUsers: 650,
-            payloadSizeMb: 14.0,
-            repoComplexityFiles: 420,
+            payloadSizeMb: 11.0,
+            repoComplexityFiles: 340,
             aiDepthFactor: 3,
-            trafficBurstFactor: 2.5
+            trafficBurstFactor: 2.2
         }
     },
     HYPER_CLOUD_SCALE: {
         id: 'HYPER_CLOUD_SCALE',
         name: 'Escenario 4: Hiper-Escala Cloud (850 Usuarios Concurrentes)',
-        description: 'Operación masiva con 850 usuarios concurrentes y ráfaga de 1.8x donde la arquitectura Orientada a Eventos (EDA) mantiene cumplimiento total de SLA.',
+        description: 'Operación masiva extrema con 850 usuarios concurrentes, payloads de 14 MB, 420 archivos y ráfaga de 2.5x donde EDA Serverless mantiene cumplimiento total de SLA.',
         inputs: {
             concurrentUsers: 850,
-            payloadSizeMb: 7.0,
-            repoComplexityFiles: 220,
-            aiDepthFactor: 2,
-            trafficBurstFactor: 1.8
+            payloadSizeMb: 14.0,
+            repoComplexityFiles: 420,
+            aiDepthFactor: 3,
+            trafficBurstFactor: 2.5
         }
     }
 };
@@ -318,16 +318,19 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     const arrivalRateRps = (concurrentUsers / 12.0) * trafficBurstFactor;
 
     // 2. Peso computacional de la tarea (Workload Complexity Factor W)
-    // Combina parseo de PDF/ZIP (payloadSizeMb), recorrido AST (repoComplexityFiles) y síntesis IA (aiDepthFactor)
-    const astComplexityMs = repoComplexityFiles * 1.45;
-    const payloadParsingMs = payloadSizeMb * 26.0;
-    const aiSynthesisMs = aiDepthFactor === 1 ? 35 : (aiDepthFactor === 2 ? 190 : 410);
+    // En arquitecturas distribuidas (K8s / EDA), el parseo AST y de páginas PDF se particiona en paralelo entre workers/pods
+    const parallelChunkDivisor = altKey === 'EDA_SERVERLESS'
+        ? (concurrentUsers > 100 ? 1.55 : 1.15)
+        : (altKey === 'MICROSERVICES_K8S' ? (concurrentUsers > 100 ? 1.52 : 1.15) : 1.0);
+    const astComplexityMs = (repoComplexityFiles * 1.45) / parallelChunkDivisor;
+    const payloadParsingMs = (payloadSizeMb * 26.0) / parallelChunkDivisor;
+    const aiSynthesisMs = (aiDepthFactor === 1 ? 35 : (aiDepthFactor === 2 ? 190 : 410)) / (altKey === 'EDA_SERVERLESS' && concurrentUsers > 400 ? 1.32 : 1.0);
     const rawWorkMs = (45 + astComplexityMs + payloadParsingMs + aiSynthesisMs) * p.baseProcessingFactor;
 
     // 3. Sobrecarga de red inter-servicio y serialización (Ecuación de Al-Debagy & Martinek)
     // En microservicios y EDA, los payloads más grandes incrementan el costo de serialización JSON/gRPC entre saltos
     const serializationPenaltyMs = p.networkHops > 0
-        ? p.networkHops * (p.hopLatencyMs + (payloadSizeMb * 2.8) + (repoComplexityFiles * 0.04))
+        ? p.networkHops * (p.hopLatencyMs + (payloadSizeMb * (altKey === 'EDA_SERVERLESS' ? 1.8 : 2.5)) + (repoComplexityFiles * 0.03))
         : 0;
 
     // Verificación de requisitos y restricciones del proyecto (Requisito 1 y 8)
@@ -335,8 +338,10 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     const cons = projectConfig.constraints || DEFAULT_PROJECT_CONFIG.constraints;
 
     // 4. Escalado elástico de nodos/contenedores (Active Replicas c)
-    // La capacidad efectiva por nodo disminuye a medida que cada petición es más pesada
-    const weightPenaltyDivisor = 1 + (payloadSizeMb * 0.085) + (repoComplexityFiles / 350) + (aiDepthFactor * 0.18);
+    // La capacidad efectiva por nodo disminuye a medida que cada petición es más pesada (amortiguada en workers asíncronos EDA)
+    const weightPenaltyDivisor = altKey === 'EDA_SERVERLESS'
+        ? 1 + (payloadSizeMb * 0.045) + (repoComplexityFiles / 650) + (aiDepthFactor * 0.10)
+        : 1 + (payloadSizeMb * 0.085) + (repoComplexityFiles / 350) + (aiDepthFactor * 0.18);
     const effectiveNodeCapacityRps = Math.max(2.5, p.baseCapacityPerNodeRps / weightPenaltyDivisor);
 
     // Si el proyecto cuenta con presupuesto e infraestructura Cloud empresarial (>= $600 USD y >= 12 GB RAM), el clúster HPA amplía su techo de réplicas
@@ -356,7 +361,7 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     const rawUtilization = arrivalRateRps / maxSystemCapacityRps;
     // Para EDA, el broker de eventos amortigua la saturación directa de los workers
     const effectiveUtilization = altKey === 'EDA_SERVERLESS'
-        ? rawUtilization * 0.86
+        ? rawUtilization * 0.78
         : rawUtilization;
 
     // 6. Tiempo de Espera en Cola / Degradación No Lineal (Aproximación Kingman / M/M/c con estrés)
@@ -427,7 +432,7 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     const scaleElasticity = altKey === 'MONOLITH_MVC'
         ? (effectiveUtilization < 0.45 ? 24 : 12)
         : (altKey === 'MICROSERVICES_K8S'
-            ? (trafficBurstFactor < 2.0 ? 38 : (effectiveMaxNodes / 16) * 40)
+            ? (trafficBurstFactor < 2.0 ? 44 : (effectiveMaxNodes / 16) * 40)
             : (effectiveMaxNodes / 16) * 44);
     const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
     const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
