@@ -246,18 +246,26 @@ function validateSimulationInput(rawInput = {}) {
     if (config && config.qualityRequirements) {
         const maxLat = Number(config.qualityRequirements.maxLatencyMs);
         const minAvail = Number(config.qualityRequirements.minAvailabilityPct);
+        const minScale = Number(config.qualityRequirements.minScalabilityScore ?? 75);
         if (!Number.isFinite(maxLat) || maxLat < 100 || maxLat > 30000) {
             errors.push('El requisito de "Latencia Máxima Aceptable" debe estar entre 100 ms y 30,000 ms.');
         }
         if (!Number.isFinite(minAvail) || minAvail < 80 || minAvail > 99.999) {
             errors.push('El requisito de "Disponibilidad Mínima (SLA)" debe estar entre 80% y 99.999%.');
         }
+        if (!Number.isFinite(minScale) || minScale < 10 || minScale > 100) {
+            errors.push('El requisito de "Escalabilidad Mínima" debe estar entre 10 y 100.');
+        }
     }
 
     if (config && config.constraints) {
         const maxBudget = Number(config.constraints.maxMonthlyBudgetUsd);
+        const maxMemGb = Number(config.constraints.maxMemoryGb ?? 8);
         if (!Number.isFinite(maxBudget) || maxBudget < 10 || maxBudget > 50000) {
             errors.push('La restricción de "Presupuesto Mensual Máximo" debe estar entre $10 USD y $50,000 USD.');
+        }
+        if (!Number.isFinite(maxMemGb) || maxMemGb < 0.25 || maxMemGb > 512) {
+            errors.push('La restricción de "Memoria RAM Total" debe estar entre 0.25 GB y 512 GB.');
         }
     }
 
@@ -348,8 +356,26 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
         ? (28 + (concurrentUsers < 35 ? 32 : 10))
         : 0;
 
+    // Verificación de requisitos y restricciones del proyecto (Requisito 1 y 8)
+    const reqs = projectConfig.qualityRequirements || DEFAULT_PROJECT_CONFIG.qualityRequirements;
+    const cons = projectConfig.constraints || DEFAULT_PROJECT_CONFIG.constraints;
+    const maxAllowedMemMb = Math.max(256, (cons.maxMemoryGb || 8) * 1024);
+
+    // INDICADOR 3 (Parcial): Memoria RAM Estimada (MB) para evaluar contención de memoria del entorno
+    const memoryUsageMb = Math.round(
+        p.baseMemoryMb +
+        (activeNodes - 1) * (p.baseMemoryMb * 0.42) +
+        (concurrentUsers * p.memoryPerUserMb * (1 + payloadSizeMb * 0.06))
+    );
+
+    // Penalización física de latencia por presión de memoria / GC / Swap si la huella se acerca o supera la RAM del proyecto
+    const memPressureRatio = memoryUsageMb > (maxAllowedMemMb * 0.65)
+        ? (memoryUsageMb - (maxAllowedMemMb * 0.65)) / Math.max(256, maxAllowedMemMb * 0.35)
+        : 0;
+    const memoryPressureMs = Math.round(memPressureRatio * 185 * (altKey === 'MONOLITH_MVC' ? 1.35 : 1.0));
+
     // INDICADOR 1: Latencia Estimada P95 (ms)
-    const estimatedLatencyMs = Math.round(rawWorkMs + serializationPenaltyMs + queueingDelayMs + brokerDispatchOverheadMs);
+    const estimatedLatencyMs = Math.round(rawWorkMs + serializationPenaltyMs + queueingDelayMs + brokerDispatchOverheadMs + memoryPressureMs);
 
     // INDICADOR 2: Throughput Efectivo (req/s) y Capacidad Máxima (req/s)
     const dropRate = effectiveUtilization > 1.05
@@ -357,16 +383,10 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
         : 0;
     const effectiveThroughputRps = Number((arrivalRateRps * (1 - dropRate)).toFixed(2));
 
-    // INDICADOR 3: Consumo de Recursos (CPU % y Memoria RAM MB) - Inspirado en artículo EDA vs Monolito
+    // INDICADOR 3: Consumo de Recursos (CPU %)
     const cpuCoresUsed = p.baseCpuCores * activeNodes + (arrivalRateRps * (rawWorkMs / 1000) * (altKey === 'MONOLITH_MVC' ? 0.28 : 0.36));
     const totalAllocatedCores = activeNodes * (altKey === 'MONOLITH_MVC' ? 2.0 : 1.5);
     const cpuUtilizationPct = Number(Math.min(99.9, Math.max(8.0, (cpuCoresUsed / totalAllocatedCores) * 100)).toFixed(1));
-
-    const memoryUsageMb = Math.round(
-        p.baseMemoryMb +
-        (activeNodes - 1) * (p.baseMemoryMb * 0.42) +
-        (concurrentUsers * p.memoryPerUserMb * (1 + payloadSizeMb * 0.06))
-    );
 
     // INDICADOR 4: Tráfico de Paquetes de Red (paquetes/s)
     const networkPacketsPerSec = Math.round(arrivalRateRps * p.packetsPerRequest * (1 + (payloadSizeMb * 0.35)));
@@ -377,9 +397,8 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     if (effectiveUtilization > 0.70) {
         availabilityPenalty += Math.pow(effectiveUtilization - 0.70, 1.5) * (altKey === 'MONOLITH_MVC' ? 4.8 : (altKey === 'MICROSERVICES_K8S' ? 1.2 : 0.5));
     }
-    const maxAllowedMemMb = (projectConfig.constraints?.maxMemoryGb || 8) * 1024;
     if (memoryUsageMb > maxAllowedMemMb * 0.85) {
-        availabilityPenalty += 1.25;
+        availabilityPenalty += 1.25 * Math.min(3.0, memoryUsageMb / maxAllowedMemMb);
     }
     const availabilityPct = Number(Math.max(85.0, Math.min(99.99, p.baseAvailabilityPct - availabilityPenalty)).toFixed(2));
 
@@ -391,7 +410,8 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
         : (p.maxAutoScaleNodes / 16) * 44;
     const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
     const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
-    const scalabilityScore = Math.round(Math.max(15, Math.min(100, 22 + scaleElasticity + nonBlockingBonus + (headroomRatio * 22) - saturationPenalty)));
+    const memScalePenalty = memPressureRatio > 0 ? Math.min(20, Math.round(memPressureRatio * 12)) : 0;
+    const scalabilityScore = Math.round(Math.max(15, Math.min(100, 22 + scaleElasticity + nonBlockingBonus + (headroomRatio * 22) - saturationPenalty - memScalePenalty)));
 
     // INDICADOR 7: Costo Operativo Mensual Estimado (USD/mes)
     // Escala según nodos activos y volumen de peticiones mensuales proyectadas
@@ -406,17 +426,18 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     // INDICADOR 8: Cifrado, Seguridad y Contenerización (0 - 100)
     const securityAndContainerIndex = Math.round((alt.encryptionScore * 0.55) + (p.containerScore * 0.45));
 
-    // Verificación de cumplimiento de requisitos obligatorios del proyecto (Requisito 8)
-    const reqs = projectConfig.qualityRequirements || DEFAULT_PROJECT_CONFIG.qualityRequirements;
-    const cons = projectConfig.constraints || DEFAULT_PROJECT_CONFIG.constraints;
+    // Porcentajes de uso frente a las restricciones del proyecto (Sección 1)
+    const latencySlaPct = Number(((estimatedLatencyMs / Math.max(100, reqs.maxLatencyMs)) * 100).toFixed(1));
+    const budgetUsagePct = Number(((estimatedMonthlyCostUsd / Math.max(10, cons.maxMonthlyBudgetUsd)) * 100).toFixed(1));
+    const memoryEnvelopePct = Number(((memoryUsageMb / maxAllowedMemMb) * 100).toFixed(1));
 
     const compliance = {
         latencyOk: estimatedLatencyMs <= reqs.maxLatencyMs,
         availabilityOk: availabilityPct >= reqs.minAvailabilityPct,
         scalabilityOk: scalabilityScore >= reqs.minScalabilityScore,
-        securityOk: alt.encryptionScore >= reqs.minSecurityScore,
+        securityOk: alt.encryptionScore >= (reqs.minSecurityScore || 90),
         budgetOk: estimatedMonthlyCostUsd <= cons.maxMonthlyBudgetUsd,
-        memoryOk: memoryUsageMb <= (cons.maxMemoryGb * 1024)
+        memoryOk: memoryUsageMb <= maxAllowedMemMb
     };
     const passedChecksCount = Object.values(compliance).filter(Boolean).length;
     const totalChecksCount = Object.keys(compliance).length;
@@ -448,19 +469,22 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
             encryptionScore: alt.encryptionScore,
             containerScore: p.containerScore,
             securityAndContainerIndex,
-            estimatedMonthlyCostUsd
+            estimatedMonthlyCostUsd,
+            latencySlaPct,
+            budgetUsagePct,
+            memoryEnvelopePct
         },
         breakdown: {
             arrivalRateRps: Number(arrivalRateRps.toFixed(2)),
             baseComputeMs: Math.round(rawWorkMs),
             networkSerializationMs: Math.round(serializationPenaltyMs),
-            queueingAndContentionMs: Math.round(queueingDelayMs + brokerDispatchOverheadMs)
+            queueingAndContentionMs: Math.round(queueingDelayMs + brokerDispatchOverheadMs + memoryPressureMs)
         },
         compliance: {
             ...compliance,
             passedChecksCount,
             totalChecksCount,
-            allMandatoryPassed: compliance.latencyOk && compliance.availabilityOk && compliance.budgetOk
+            allMandatoryPassed: compliance.latencyOk && compliance.availabilityOk && compliance.scalabilityOk && compliance.budgetOk && compliance.memoryOk
         }
     };
 }
@@ -501,22 +525,40 @@ function runArchitectureSimulation(payload = {}) {
         simulateArchitectureAlternative(key, inputs, projectConfig)
     );
 
-    // Normalización Multicriterio (MCDA - Simple Additive Weighting con penalización por incumplimiento de SLA/Restricciones)
+    // Normalización Multicriterio (MCDA - Simple Additive Weighting sensible a objetivos SLA y Restricciones)
     const minLatency = Math.min(...results.map(r => r.metrics.latencyMs));
     const minCost = Math.min(...results.map(r => r.metrics.estimatedMonthlyCostUsd));
     const minMem = Math.min(...results.map(r => r.metrics.memoryUsageMb));
 
     const weights = projectConfig.decisionWeights;
+    const reqs = projectConfig.qualityRequirements;
+    const cons = projectConfig.constraints;
 
     const scoredResults = results.map(r => {
-        // Puntajes parciales de 0 a 100
-        const latencyScore = Math.max(10, Math.min(100, (minLatency / Math.max(1, r.metrics.latencyMs)) * 100));
-        const scalabilityScore = r.metrics.scalabilityScore;
-        // Disponibilidad mapeada de [95%..100%] a [0..100]
-        const availabilityScore = Math.max(0, Math.min(100, ((r.metrics.availabilityPct - 95) / 5.0) * 100));
-        // Eficiencia de recursos y costo
-        const costScore = (minCost / Math.max(1, r.metrics.estimatedMonthlyCostUsd)) * 100;
-        const memEfficiencyScore = (minMem / Math.max(1, r.metrics.memoryUsageMb)) * 100;
+        // 1. Puntaje de Latencia: combina rapidez relativa (68%) y holgura frente al SLA configurado (32%)
+        const relLatScore = (minLatency / Math.max(1, r.metrics.latencyMs)) * 100;
+        const slaLatHeadroom = Math.max(0, Math.min(100, (1 - (r.metrics.latencyMs / Math.max(100, reqs.maxLatencyMs * 1.55))) * 112));
+        const latencyScore = Math.max(8, Math.min(100, (relLatScore * 0.68) + (slaLatHeadroom * 0.32)));
+
+        // 2. Puntaje de Escalabilidad: sensible al umbral mínimo configurado en Sección 1
+        const scaleTargetDelta = (r.metrics.scalabilityScore - (reqs.minScalabilityScore || 75)) * 0.42;
+        const scalabilityScore = Math.max(10, Math.min(100, r.metrics.scalabilityScore + Math.max(-16, Math.min(12, scaleTargetDelta))));
+
+        // 3. Puntaje de Disponibilidad: mapeado dinámicamente según el SLA mínimo exigido en Sección 1
+        const slaFloor = Math.max(80, Math.min(99.85, (reqs.minAvailabilityPct || 99.5) - 1.4));
+        const availSpan = Math.max(0.15, 100 - slaFloor);
+        const availabilityScore = Math.max(0, Math.min(100, ((r.metrics.availabilityPct - slaFloor) / availSpan) * 100));
+
+        // 4. Eficiencia de Recursos y Costo: combina comparación relativa con holgura presupuestaria y de RAM (Sección 1)
+        const relCostScore = (minCost / Math.max(1, r.metrics.estimatedMonthlyCostUsd)) * 100;
+        const budgetHeadroom = Math.max(0, Math.min(100, (1 - (r.metrics.estimatedMonthlyCostUsd / Math.max(15, cons.maxMonthlyBudgetUsd * 1.35))) * 108));
+        const costScore = (relCostScore * 0.65) + (budgetHeadroom * 0.35);
+
+        const relMemScore = (minMem / Math.max(1, r.metrics.memoryUsageMb)) * 100;
+        const maxMemMb = Math.max(256, (cons.maxMemoryGb || 8) * 1024);
+        const memHeadroom = Math.max(0, Math.min(100, (1 - (r.metrics.memoryUsageMb / (maxMemMb * 1.25))) * 106));
+        const memEfficiencyScore = (relMemScore * 0.62) + (memHeadroom * 0.38);
+
         const efficiencyAndCostScore = (costScore * 0.65) + (memEfficiencyScore * 0.35);
         const securityAndContainersScore = r.metrics.securityAndContainerIndex;
 
@@ -532,8 +574,8 @@ function runArchitectureSimulation(payload = {}) {
         if (!r.compliance.latencyOk) constraintPenalty += 14;
         if (!r.compliance.availabilityOk) constraintPenalty += 14;
         if (!r.compliance.budgetOk) constraintPenalty += 12;
-        if (!r.compliance.scalabilityOk) constraintPenalty += 8;
-        if (!r.compliance.memoryOk) constraintPenalty += 10;
+        if (!r.compliance.scalabilityOk) constraintPenalty += 10;
+        if (!r.compliance.memoryOk) constraintPenalty += 12;
 
         const finalScore = Number(Math.max(5, Math.min(100, weightedScore - constraintPenalty)).toFixed(1));
 

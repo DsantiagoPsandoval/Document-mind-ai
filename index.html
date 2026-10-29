@@ -1390,79 +1390,132 @@
                 
                 <!-- Columna Izquierda: 1. Configuración del Proyecto, Requisitos de Calidad y Restricciones -->
                 <div class="glow-card" style="padding:1.5rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
                         <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
-                            <i class="fa-solid fa-Clipboard-check" style="color:var(--tech-cyan);"></i> 1. Configuración y Restricciones del Proyecto
+                            <i class="fa-solid fa-clipboard-check" style="color:var(--tech-cyan);"></i> 1. Configuración y Restricciones del Proyecto
                         </h3>
-                        <span style="font-size:.65rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;">Requisito 1 y 8</span>
+                        <span id="sim-config-live-badge" style="font-size:.64rem;color:#34D399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);padding:.18rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace;">● Sincronizado en Vivo</span>
                     </div>
 
-                    <div style="display:flex;flex-direction:column;gap:.85rem;">
+                    <!-- Perfiles Rápidos de Restricciones y Prioridades (1-Click) -->
+                    <div style="margin-bottom:.85rem;">
+                        <span style="font-size:.66rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.4rem;text-transform:uppercase;">Perfiles Rápidos de Restricción &amp; SLA (Prueba cómo cambian los resultados):</span>
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;">
+                            <button type="button" data-sim-config-preset="STANDARD" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-sliders" style="color:#38BDF8;margin-right:.35rem;"></i>Estándar ($350 / 1800ms / 8GB)
+                            </button>
+                            <button type="button" data-sim-config-preset="BOOTSTRAPPED" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-piggy-bank" style="color:#FBBF24;margin-right:.35rem;"></i>Startup ($45 USD / 1GB RAM)
+                            </button>
+                            <button type="button" data-sim-config-preset="FINTECH_STRICT" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-bolt-lightning" style="color:#34D399;margin-right:.35rem;"></i>SLA Estricto (390ms / 99.85%)
+                            </button>
+                            <button type="button" data-sim-config-preset="CLOUD_SCALE" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-cloud-arrow-up" style="color:#818CF8;margin-right:.35rem;"></i>Alta Escala (Esc≥88 / $900)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:.8rem;">
                         <div>
-                            <label for="sim-proj-name" style="display:block;font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.3rem;">Sistema Objeto de Estudio</label>
-                            <input type="text" id="sim-proj-name" value="Document-Mind AI — Plataforma Cognitiva AST + LLM + DevSecOps" class="input-field" style="font-size:.8rem;padding:.55rem .8rem;">
+                            <label for="sim-proj-name" style="display:block;font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.25rem;">Sistema Objeto de Estudio</label>
+                            <input type="text" id="sim-proj-name" value="Document-Mind AI — Plataforma Cognitiva AST + LLM + DevSecOps" class="input-field" style="font-size:.78rem;padding:.5rem .75rem;">
                         </div>
                         <div>
-                            <label for="sim-proj-users" style="display:block;font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.3rem;">Usuarios Previstos &amp; Perfil de Uso</label>
-                            <input type="text" id="sim-proj-users" value="Desarrolladores, Arquitectos de Software, Tech Leads (CTOs) y Auditores QA" class="input-field" style="font-size:.8rem;padding:.55rem .8rem;">
+                            <label for="sim-proj-users" style="display:block;font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.25rem;">Usuarios Previstos &amp; Perfil de Uso</label>
+                            <input type="text" id="sim-proj-users" value="Desarrolladores, Arquitectos de Software, Tech Leads (CTOs) y Auditores QA" class="input-field" style="font-size:.78rem;padding:.5rem .75rem;">
                         </div>
 
-                        <!-- Requisitos de Calidad (SLAs) y Restricciones -->
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.25rem;">
-                            <div>
-                                <label for="sim-req-latency" style="display:block;font-size:.68rem;font-weight:700;color:#38BDF8;margin-bottom:.25rem;">Latencia P95 Máx. (ms)</label>
-                                <input type="number" id="sim-req-latency" value="1800" min="100" max="30000" step="50" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                        <!-- Requisitos de Calidad (SLAs) y Restricciones con Sliders sincronizados -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.15rem;">
+                            <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(56,189,248,.18);">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
+                                    <label for="sim-req-latency" style="font-size:.66rem;font-weight:700;color:#38BDF8;">Latencia P95 Máx (ms)</label>
+                                    <span id="sim-lbl-req-latency" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">SLA</span>
+                                </div>
+                                <input type="number" id="sim-req-latency" value="1800" min="100" max="30000" step="50" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
+                                <input type="range" id="sim-range-req-latency" min="200" max="4000" step="50" value="1800" style="width:100%;accent-color:#38BDF8;cursor:pointer;height:4px;">
                             </div>
-                            <div>
-                                <label for="sim-req-availability" style="display:block;font-size:.68rem;font-weight:700;color:#34D399;margin-bottom:.25rem;">Disponibilidad SLA Mín. (%)</label>
-                                <input type="number" id="sim-req-availability" value="99.5" min="80" max="99.99" step="0.1" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(52,211,153,.18);">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
+                                    <label for="sim-req-availability" style="font-size:.66rem;font-weight:700;color:#34D399;">Disponibilidad SLA (%)</label>
+                                    <span id="sim-lbl-req-avail" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Mín</span>
+                                </div>
+                                <input type="number" id="sim-req-availability" value="99.5" min="80" max="99.99" step="0.05" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
+                                <input type="range" id="sim-range-req-availability" min="95.0" max="99.95" step="0.05" value="99.5" style="width:100%;accent-color:#34D399;cursor:pointer;height:4px;">
                             </div>
-                            <div>
-                                <label for="sim-req-scalability" style="display:block;font-size:.68rem;font-weight:700;color:#818CF8;margin-bottom:.25rem;">Escalabilidad Mín. (0-100)</label>
-                                <input type="number" id="sim-req-scalability" value="75" min="10" max="100" step="5" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(129,140,248,.18);">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
+                                    <label for="sim-req-scalability" style="font-size:.66rem;font-weight:700;color:#818CF8;">Escalabilidad Mín (0-100)</label>
+                                    <span id="sim-lbl-req-scale" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Índice</span>
+                                </div>
+                                <input type="number" id="sim-req-scalability" value="75" min="10" max="100" step="1" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
+                                <input type="range" id="sim-range-req-scalability" min="30" max="98" step="1" value="75" style="width:100%;accent-color:#818CF8;cursor:pointer;height:4px;">
                             </div>
-                            <div>
-                                <label for="sim-con-budget" style="display:block;font-size:.68rem;font-weight:700;color:#FBBF24;margin-bottom:.25rem;">Presupuesto Cloud Máx. ($ USD)</label>
-                                <input type="number" id="sim-con-budget" value="350" min="10" max="50000" step="10" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                            <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(251,191,36,.18);">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
+                                    <label for="sim-con-budget" style="font-size:.66rem;font-weight:700;color:#FBBF24;">Presupuesto Máx ($ USD)</label>
+                                    <span id="sim-lbl-con-budget" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Mes</span>
+                                </div>
+                                <input type="number" id="sim-con-budget" value="350" min="10" max="50000" step="5" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
+                                <input type="range" id="sim-range-con-budget" min="20" max="1000" step="10" value="350" style="width:100%;accent-color:#FBBF24;cursor:pointer;height:4px;">
                             </div>
                         </div>
 
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
-                            <div>
-                                <label for="sim-con-memory" style="display:block;font-size:.68rem;font-weight:700;color:#CBD5E1;margin-bottom:.25rem;">Restricción RAM Total (GB)</label>
-                                <input type="number" id="sim-con-memory" value="8" min="1" max="128" step="1" class="input-field" style="font-size:.82rem;padding:.5rem .7rem;font-family:'JetBrains Mono',monospace;">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+                            <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(148,163,184,.18);">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
+                                    <label for="sim-con-memory" style="font-size:.66rem;font-weight:700;color:#CBD5E1;">Restricción RAM (GB)</label>
+                                    <span id="sim-lbl-con-memory" style="font-size:.64rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;">8,192 MB</span>
+                                </div>
+                                <input type="number" id="sim-con-memory" value="8" min="0.5" max="128" step="0.5" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
+                                <input type="range" id="sim-range-con-memory" min="0.5" max="32" step="0.5" value="8" style="width:100%;accent-color:#CBD5E1;cursor:pointer;height:4px;">
                             </div>
-                            <div style="display:flex;flex-direction:column;justify-content:flex-end;">
-                                <button type="button" id="btn-sim-test-invalid" class="btn-cyber-outline" style="padding:.52rem .75rem;font-size:.72rem;border-color:rgba(251,113,133,.4);color:#FB7185;justify-content:center;">
-                                    <i class="fa-solid fa-shield-virus" style="margin-right:.35rem;"></i>Probar Control Entrada Inválida
+                            <div style="display:flex;flex-direction:column;justify-content:space-between;gap:.4rem;">
+                                <button type="button" id="btn-sim-apply-config" class="btn-cyber" style="padding:.48rem .75rem;font-size:.72rem;justify-content:center;width:100%;">
+                                    <i class="fa-solid fa-arrows-rotate" style="margin-right:.35rem;"></i>Recalcular Todo &amp; 3D
+                                </button>
+                                <button type="button" id="btn-sim-test-invalid" class="btn-cyber-outline" style="padding:.45rem .75rem;font-size:.69rem;border-color:rgba(251,113,133,.4);color:#FB7185;justify-content:center;width:100%;">
+                                    <i class="fa-solid fa-shield-virus" style="margin-right:.35rem;"></i>Probar Entrada Inválida
                                 </button>
                             </div>
                         </div>
 
                         <!-- Pesos de Criterios de Decisión del Equipo -->
-                        <div style="margin-top:.35rem;padding:.75rem;background:rgba(9,13,22,.65);border-radius:.65rem;border:1px solid rgba(148,163,184,.12);">
-                            <span style="font-size:.68rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.5rem;text-transform:uppercase;">Pesos de Criterios de Decisión del Equipo (%)</span>
+                        <div style="margin-top:.15rem;padding:.75rem;background:rgba(9,13,22,.65);border-radius:.65rem;border:1px solid rgba(148,163,184,.12);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;">
+                                <span style="font-size:.66rem;font-weight:700;color:#94A3B8;text-transform:uppercase;">Pesos de Criterios de Decisión MCDA (%)</span>
+                                <span id="sim-weights-sum-label" style="font-size:.64rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;">Total: 100% (Normalizado)</span>
+                            </div>
                             <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;text-align:center;">
                                 <div>
-                                    <label for="sim-weight-latency" style="font-size:.6rem;color:#38BDF8;display:block;">Latencia</label>
-                                    <input type="number" id="sim-weight-latency" value="25" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                    <label for="sim-weight-latency" style="font-size:.6rem;color:#38BDF8;display:block;font-weight:700;">Latencia</label>
+                                    <input type="number" id="sim-weight-latency" value="25" min="1" max="100" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;font-family:'JetBrains Mono',monospace;">
                                 </div>
                                 <div>
-                                    <label for="sim-weight-scalability" style="font-size:.6rem;color:#818CF8;display:block;">Escala</label>
-                                    <input type="number" id="sim-weight-scalability" value="25" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                    <label for="sim-weight-scalability" style="font-size:.6rem;color:#818CF8;display:block;font-weight:700;">Escala</label>
+                                    <input type="number" id="sim-weight-scalability" value="25" min="1" max="100" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;font-family:'JetBrains Mono',monospace;">
                                 </div>
                                 <div>
-                                    <label for="sim-weight-availability" style="font-size:.6rem;color:#34D399;display:block;">SLA</label>
-                                    <input type="number" id="sim-weight-availability" value="20" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                    <label for="sim-weight-availability" style="font-size:.6rem;color:#34D399;display:block;font-weight:700;">SLA</label>
+                                    <input type="number" id="sim-weight-availability" value="20" min="1" max="100" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;font-family:'JetBrains Mono',monospace;">
                                 </div>
                                 <div>
-                                    <label for="sim-weight-cost" style="font-size:.6rem;color:#FBBF24;display:block;">Costo</label>
-                                    <input type="number" id="sim-weight-cost" value="15" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                    <label for="sim-weight-cost" style="font-size:.6rem;color:#FBBF24;display:block;font-weight:700;">Costo</label>
+                                    <input type="number" id="sim-weight-cost" value="15" min="1" max="100" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;font-family:'JetBrains Mono',monospace;">
                                 </div>
                                 <div>
-                                    <label for="sim-weight-security" style="font-size:.6rem;color:#F472B6;display:block;">Seg/Cont</label>
-                                    <input type="number" id="sim-weight-security" value="15" min="5" max="80" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;">
+                                    <label for="sim-weight-security" style="font-size:.6rem;color:#F472B6;display:block;font-weight:700;">Seg/Cont</label>
+                                    <input type="number" id="sim-weight-security" value="15" min="1" max="100" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;font-family:'JetBrains Mono',monospace;">
                                 </div>
+                            </div>
+                            <!-- Barra visual de distribución de pesos -->
+                            <div id="sim-weights-visual-bar" style="display:flex;height:7px;border-radius:999px;overflow:hidden;margin-top:.55rem;background:rgba(148,163,184,.12);">
+                                <div style="width:25%;background:#38BDF8;" title="Latencia"></div>
+                                <div style="width:25%;background:#818CF8;" title="Escalabilidad"></div>
+                                <div style="width:20%;background:#34D399;" title="SLA"></div>
+                                <div style="width:15%;background:#FBBF24;" title="Costo"></div>
+                                <div style="width:15%;background:#F472B6;" title="Seguridad/Contenedores"></div>
                             </div>
                         </div>
                     </div>
@@ -1501,17 +1554,17 @@
                         <!-- Variable 1 -->
                         <div>
                             <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
-                                <label for="sim-input-users" style="font-weight:700;color:#E2E8F0;">V1. Usuarios Concurrentes ($U$):</label>
+                                <label for="sim-input-users" style="font-weight:700;color:#E2E8F0;">V1. Usuarios Concurrentes (U):</label>
                                 <strong id="sim-val-users" style="color:#38BDF8;font-family:'JetBrains Mono',monospace;">60 usuarios</strong>
                             </div>
                             <input type="range" id="sim-input-users" min="5" max="1000" step="5" value="60" style="width:100%;accent-color:#38BDF8;cursor:pointer;">
-                            <span style="font-size:.65rem;color:#64748B;">Justificación: Determina la tasa de llegada $\lambda$ y la contención en la cola del servidor.</span>
+                            <span style="font-size:.65rem;color:#64748B;">Justificación: Determina la tasa de llegada λ y la contención en la cola del servidor.</span>
                         </div>
 
                         <!-- Variable 2 -->
                         <div>
                             <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
-                                <label for="sim-input-payload" style="font-weight:700;color:#E2E8F0;">V2. Tamaño de Archivo / Repo ($S_{MB}$):</label>
+                                <label for="sim-input-payload" style="font-weight:700;color:#E2E8F0;">V2. Tamaño de Archivo / Repo (S_MB):</label>
                                 <strong id="sim-val-payload" style="color:#818CF8;font-family:'JetBrains Mono',monospace;">2.5 MB</strong>
                             </div>
                             <input type="range" id="sim-input-payload" min="0.5" max="20" step="0.5" value="2.5" style="width:100%;accent-color:#818CF8;cursor:pointer;">
@@ -1521,7 +1574,7 @@
                         <!-- Variable 3 -->
                         <div>
                             <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
-                                <label for="sim-input-files" style="font-weight:700;color:#E2E8F0;">V3. Complejidad AST del Repositorio ($N_{files}$):</label>
+                                <label for="sim-input-files" style="font-weight:700;color:#E2E8F0;">V3. Complejidad AST del Repositorio (N_files):</label>
                                 <strong id="sim-val-files" style="color:#34D399;font-family:'JetBrains Mono',monospace;">85 archivos</strong>
                             </div>
                             <input type="range" id="sim-input-files" min="10" max="600" step="5" value="85" style="width:100%;accent-color:#34D399;cursor:pointer;">
@@ -1540,7 +1593,7 @@
                             </div>
                             <div>
                                 <div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.2rem;">
-                                    <label for="sim-input-burst" style="font-weight:700;color:#E2E8F0;">V5. Factor Ráfaga ($B$):</label>
+                                    <label for="sim-input-burst" style="font-weight:700;color:#E2E8F0;">V5. Factor Ráfaga (B):</label>
                                     <strong id="sim-val-burst" style="color:#FB7185;font-family:'JetBrains Mono',monospace;">1.2x</strong>
                                 </div>
                                 <input type="range" id="sim-input-burst" min="1.0" max="3.5" step="0.1" value="1.2" style="width:100%;accent-color:#FB7185;cursor:pointer;">
@@ -1564,6 +1617,104 @@
                                 <i class="fa-solid fa-code" style="margin-right:.35rem;"></i>Exportar Datos (.JSON)
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BANNER REACTIVO DE CONFIGURACIÓN Y RESTRICCIONES ACTIVAS (SECCIÓN 1 EN VIVO)
+            ============================================================ -->
+            <div id="sim-active-config-banner" class="glow-card" style="padding:1rem 1.35rem;margin-bottom:1.75rem;border:1px solid rgba(56,189,248,.3);background:linear-gradient(90deg,rgba(15,23,42,.95),rgba(30,41,59,.85));">
+                <!-- Renderizado dinámico por js/architecture-simulator.js -->
+            </div>
+
+            <!-- ============================================================
+                 LABORATORIO INTERACTIVO DE GRÁFICAS Y SIMULACIÓN 3D (THREE.JS WEBGL + CANVAS 3D)
+            ============================================================ -->
+            <div class="glow-card" style="padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(56,189,248,.35);background:radial-gradient(circle at 50% 0%,rgba(56,189,248,.09),rgba(9,13,22,.96) 75%);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.85rem;margin-bottom:1.1rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.16);">
+                    <div>
+                        <div style="display:inline-flex;align-items:center;gap:.45rem;font-size:.66rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;text-transform:uppercase;margin-bottom:.2rem;">
+                            <i class="fa-solid fa-cubes-stacked"></i> Motor Gráfico WebGL Three.js + Proyección 3D en Tiempo Real
+                        </div>
+                        <h3 style="font-size:1.08rem;font-weight:800;color:#fff;margin:0;">
+                            Centro de Telemetría y Gráficas 3D de la Simulación Arquitectónica
+                        </h3>
+                    </div>
+
+                    <!-- Controles de Modo 3D y Simulación en Vivo -->
+                    <div style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;">
+                        <button type="button" data-sim-3d-mode="BARS_3D" class="btn-cyber-outline sim-3d-mode-btn" style="padding:.42rem .75rem;font-size:.71rem;background:rgba(56,189,248,.2);border-color:#38BDF8;color:#fff;">
+                            <i class="fa-solid fa-chart-column" style="margin-right:.35rem;color:#38BDF8;"></i>1. Torres 3D &amp; Plano SLA
+                        </button>
+                        <button type="button" data-sim-3d-mode="TOPOLOGY_3D" class="btn-cyber-outline sim-3d-mode-btn" style="padding:.42rem .75rem;font-size:.71rem;">
+                            <i class="fa-solid fa-network-wired" style="margin-right:.35rem;color:#818CF8;"></i>2. Topología 3D &amp; Paquetes
+                        </button>
+                        <button type="button" data-sim-3d-mode="SURFACE_3D" class="btn-cyber-outline sim-3d-mode-btn" style="padding:.42rem .75rem;font-size:.71rem;">
+                            <i class="fa-solid fa-mountain-sun" style="margin-right:.35rem;color:#34D399;"></i>3. Superficie 3D M/M/c
+                        </button>
+                        <button type="button" id="btn-sim-3d-live-sweep" class="btn-cyber" style="padding:.44rem .85rem;font-size:.72rem;">
+                            <i class="fa-solid fa-bolt" style="margin-right:.35rem;"></i>Simular Ráfaga 3D en Vivo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid Principal 3D: Escena WebGL Principal + 2 Gráficas 3D Especializadas -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem;align-items:stretch;">
+                    
+                    <!-- Visor WebGL Three.js Interactivo (Arrastrar para rotar 360°, Rueda para Zoom) -->
+                    <div style="grid-column:span 1;min-height:380px;display:flex;flex-direction:column;justify-content:space-between;background:rgba(6,10,19,.92);border-radius:.85rem;border:1px solid rgba(56,189,248,.25);position:relative;overflow:hidden;">
+                        <!-- HUD Superior del Visor 3D -->
+                        <div style="position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5;flex-wrap:wrap;gap:.4rem;">
+                            <div style="background:rgba(9,13,22,.82);backdrop-filter:blur(6px);padding:.35rem .65rem;border-radius:.5rem;border:1px solid rgba(56,189,248,.25);">
+                                <span id="sim-3d-hud-title" style="font-size:.68rem;font-weight:800;color:#38BDF8;font-family:'JetBrains Mono',monospace;display:block;">MODO: TORRES VOLUMÉTRICAS 3D + PLANO SLA</span>
+                                <span id="sim-3d-hud-subtitle" style="font-size:.63rem;color:#CBD5E1;">Arrastra con el mouse para rotar 360° &bull; Plano Ámbar/Rojo = Umbral SLA (Sección 1)</span>
+                            </div>
+                            <div style="display:flex;gap:.3rem;pointer-events:auto;">
+                                <button type="button" id="btn-sim-3d-cam-iso" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Isométrica">Iso</button>
+                                <button type="button" id="btn-sim-3d-cam-front" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Frontal SLA">Frontal</button>
+                                <button type="button" id="btn-sim-3d-cam-top" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Superior">Planta</button>
+                                <button type="button" id="btn-sim-3d-autorotate" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;color:#34D399;border-color:rgba(52,211,153,.4);" title="Alternar Auto-Rotación">↻ Auto</button>
+                            </div>
+                        </div>
+
+                        <div id="sim-3d-webgl-wrapper" style="width:100%;height:350px;position:relative;cursor:grab;">
+                            <canvas id="sim-3d-webgl-canvas" style="width:100%;height:100%;display:block;"></canvas>
+                        </div>
+
+                        <!-- Leyenda Inferior del Visor WebGL -->
+                        <div id="sim-3d-hud-footer" style="padding:.55rem .85rem;background:rgba(15,23,42,.95);border-top:1px solid rgba(148,163,184,.14);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;font-size:.67rem;font-family:'JetBrains Mono',monospace;">
+                            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                                <span style="color:#38BDF8;">● Monolito MVC</span>
+                                <span style="color:#818CF8;">● Microservicios K8s</span>
+                                <span style="color:#34D399;">● Orientada a Eventos (EDA)</span>
+                                <span style="color:#FBBF24;">▬ Plano Límite SLA/Presupuesto</span>
+                            </div>
+                            <span id="sim-3d-live-telemetry" style="color:#E2E8F0;font-weight:700;">λ = 6.0 req/s</span>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha de Gráficas 3D: Superficie 3D de Latencia y Radar Volumétrico 3D MCDA -->
+                    <div style="display:flex;flex-direction:column;gap:1rem;justify-content:space-between;">
+                        
+                        <!-- Gráfica 3D 1: Superficie de Respuesta 3D (Usuarios × Carga vs Latencia P95 y Techo SLA) -->
+                        <div style="background:rgba(6,10,19,.92);border-radius:.85rem;border:1px solid rgba(129,140,248,.25);padding:.8rem;display:flex;flex-direction:column;justify-content:space-between;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;flex-wrap:wrap;gap:.3rem;">
+                                <span style="font-size:.73rem;font-weight:800;color:#fff;"><i class="fa-solid fa-cube" style="color:#818CF8;margin-right:.35rem;"></i>Proyección 3D: Curvas de Saturación M/M/c vs Techo SLA</span>
+                                <span id="sim-3d-surf-badge" style="font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;">SLA Máx: 1800 ms</span>
+                            </div>
+                            <canvas id="sim-canvas-3d-surface" width="520" height="165" style="width:100%;height:165px;display:block;border-radius:.5rem;background:rgba(9,13,22,.8);cursor:ew-resize;" title="Arrastra horizontalmente para rotar la perspectiva 3D"></canvas>
+                        </div>
+
+                        <!-- Gráfica 3D 2: Prisma / Radar Volumétrico 3D Multicriterio (Sensible a Pesos de Sección 1) -->
+                        <div style="background:rgba(6,10,19,.92);border-radius:.85rem;border:1px solid rgba(52,211,153,.25);padding:.8rem;display:flex;flex-direction:column;justify-content:space-between;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;flex-wrap:wrap;gap:.3rem;">
+                                <span style="font-size:.73rem;font-weight:800;color:#fff;"><i class="fa-solid fa-draw-polygon" style="color:#34D399;margin-right:.35rem;"></i>Prisma Radar 3D Multicriterio (Ponderado por Sección 1)</span>
+                                <span id="sim-3d-radar-badge" style="font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#34D399;">Ganadora #1</span>
+                            </div>
+                            <canvas id="sim-canvas-3d-radar" width="520" height="165" style="width:100%;height:165px;display:block;border-radius:.5rem;background:rgba(9,13,22,.8);cursor:ew-resize;" title="Arrastra horizontalmente para rotar el prisma 3D"></canvas>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -2277,6 +2428,6 @@
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=5.2"></script>
     <script src="app.js?v=5.2"></script>
-    <script src="js/architecture-simulator.js?v=2.0"></script>
+    <script src="js/architecture-simulator.js?v=3.0"></script>
 </body>
 </html>
