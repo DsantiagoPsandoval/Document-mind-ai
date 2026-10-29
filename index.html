@@ -1838,29 +1838,59 @@
 
                 <!-- 10. Cinco Pruebas Documentadas del Modelo -->
                 <div class="glow-card" style="padding:1.5rem;">
-                    <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .85rem 0;display:flex;align-items:center;gap:.5rem;">
-                        <i class="fa-solid fa-vial-circle-check" style="color:#34D399;"></i> 10. Cinco (5) Pruebas Documentadas de Coherencia del Modelo
-                    </h3>
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.85rem;">
+                        <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-vial-circle-check" style="color:#34D399;"></i> 10. Cinco (5) Pruebas Documentadas de Coherencia del Modelo
+                        </h3>
+                        <button type="button" data-sim-config-preset="STANDARD" class="btn-ghost" style="padding:.25rem .65rem;font-size:.68rem;border-color:rgba(52,211,153,.4);color:#34D399;">
+                            <i class="fa-solid fa-rotate-left" style="margin-right:.3rem;"></i>Restaurar Base
+                        </button>
+                    </div>
                     <div style="display:flex;flex-direction:column;gap:.55rem;font-size:.73rem;">
-                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
-                            <strong style="color:#38BDF8;">Prueba 1 (TEST-SIM-01) — Ventaja Monolítica en Nodo Único:</strong>
-                            <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito logra menor latencia (168 ms vs 219 ms Microservicios) y menor RAM (212 MB), validando la literatura científica.</span>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:220px;">
+                                <strong style="color:#38BDF8;">Prueba 1 (TEST-SIM-01) — Ventaja Monolítica en Nodo Único:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito logra menor latencia (168 ms vs 219 ms Microservicios) y menor RAM (212 MB), validando la literatura científica.</span>
+                            </div>
+                            <button type="button" data-sim-test-case="1" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(56,189,248,.4);color:#38BDF8;flex-shrink:0;">
+                                <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #1
+                            </button>
                         </div>
-                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
-                            <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) — Saturación del Event-Loop y Escalado K8s:</strong>
-                            <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El Monolito satura su cola (>100% ρ), mientras Microservicios escala horizontalmente a 6 pods manteniendo SLA >99.8%.</span>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:220px;">
+                                <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) — Saturación del Event-Loop y Escalado K8s:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El Monolito satura su cola (>100% ρ), mientras Microservicios escala horizontalmente a 6 pods manteniendo SLA >99.8%.</span>
+                            </div>
+                            <button type="button" data-sim-test-case="2" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(129,140,248,.4);color:#818CF8;flex-shrink:0;">
+                                <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #2
+                            </button>
                         </div>
-                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
-                            <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) — Resiliencia EDA bajo Estrés Extremo JMeter:</strong>
-                            <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, N=420, Ráfaga=2.5x. Resultado verificado: EDA absorbe la ráfaga con 14 workers asíncronos y logra la máxima disponibilidad (99.88%).</span>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:220px;">
+                                <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) — Resiliencia EDA bajo Estrés Extremo JMeter:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, N=420, Ráfaga=2.5x. Resultado verificado: EDA absorbe la ráfaga con 14 workers asíncronos y logra la máxima disponibilidad (99.88%).</span>
+                            </div>
+                            <button type="button" data-sim-test-case="3" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(52,211,153,.4);color:#34D399;flex-shrink:0;">
+                                <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #3
+                            </button>
                         </div>
-                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
-                            <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) — Penalización por Restricción de Presupuesto:</strong>
-                            <span style="color:#94A3B8;display:block;">Entrada: Presupuesto Máximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricción financiera del proyecto.</span>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:220px;">
+                                <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) — Penalización por Restricción de Presupuesto:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: Presupuesto Máximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricción financiera del proyecto.</span>
+                            </div>
+                            <button type="button" data-sim-test-case="4" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(251,191,36,.4);color:#FBBF24;flex-shrink:0;">
+                                <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #4
+                            </button>
                         </div>
-                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);">
-                            <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) — Rechazo Determinista de Entradas Inválidas:</strong>
-                            <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecución y despliega alerta de control (HTTP 400 / UI Alert).</span>
+                        <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:220px;">
+                                <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) — Rechazo Determinista de Entradas Inválidas:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecución y despliega alerta de control (HTTP 400 / UI Alert).</span>
+                            </div>
+                            <button type="button" data-sim-test-case="5" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(251,113,133,.4);color:#FB7185;flex-shrink:0;">
+                                <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #5
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2428,6 +2458,6 @@
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=5.2"></script>
     <script src="app.js?v=5.2"></script>
-    <script src="js/architecture-simulator.js?v=3.0"></script>
+    <script src="js/architecture-simulator.js?v=3.1"></script>
 </body>
 </html>

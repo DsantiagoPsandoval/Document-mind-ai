@@ -351,7 +351,7 @@
 
         const headroomRatio = Math.max(0, (maxSystemCapacityRps - arrivalRateRps) / Math.max(1, maxSystemCapacityRps));
         const scaleElasticity = altKey === 'MONOLITH_MVC'
-            ? (effectiveUtilization < 0.45 ? 42 : 20)
+            ? (effectiveUtilization < 0.45 ? 24 : 12)
             : (p.maxAutoScaleNodes / 16) * 44;
         const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
         const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
@@ -547,8 +547,58 @@
     }
 
     // ============================================================
-    // 3. LECTURA DEL DOM Y SINCRONIZACIÓN TOTAL DE LA SECCIÓN 1
+    // 3. LECTURA DEL DOM, SANITIZACIÓN Y VALIDACIÓN REACTIVA
     // ============================================================
+    let isInvalidDemoActive = false;
+
+    function resetTestInvalidButtonLabel() {
+        const btn = document.getElementById('btn-sim-test-invalid');
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-shield-virus" style="margin-right:.35rem;color:#FB7185;"></i>Probar Entrada Inválida';
+            btn.style.background = '';
+        }
+    }
+
+    function sanitizeOutOfBoundsDomFields(skipFieldId = null) {
+        const clampField = (id, rangeId, min, max, fallback, labelId = null, suffix = '') => {
+            if (id === skipFieldId) return;
+            const el = document.getElementById(id);
+            if (!el) return;
+            const val = Number(el.value);
+            if (!Number.isFinite(val) || val < min || val > max) {
+                el.value = fallback;
+                if (rangeId) {
+                    const rEl = document.getElementById(rangeId);
+                    if (rEl) rEl.value = fallback;
+                }
+                if (labelId) {
+                    const lEl = document.getElementById(labelId);
+                    if (lEl) lEl.textContent = fallback + suffix;
+                }
+            }
+        };
+
+        clampField('sim-req-latency', 'sim-range-req-latency', 100, 15000, 1800);
+        clampField('sim-req-availability', 'sim-range-req-availability', 80, 99.999, 99.5);
+        clampField('sim-req-scalability', 'sim-range-req-scalability', 10, 100, 75);
+        clampField('sim-con-budget', 'sim-range-con-budget', 15, 25000, 350);
+        clampField('sim-con-memory', 'sim-range-con-memory', 0.5, 128, 8);
+
+        clampField('sim-input-users', null, 1, 5000, 60, 'sim-val-users', ' usuarios');
+        clampField('sim-input-payload', null, 0.1, 20, 2.5, 'sim-val-payload', ' MB');
+        clampField('sim-input-files', null, 1, 2000, 85, 'sim-val-files', ' archivos');
+        clampField('sim-input-aidepth', null, 1, 5, 2, 'sim-val-aidepth', '');
+        clampField('sim-input-burst', null, 1.0, 4.0, 1.2, 'sim-val-burst', 'x');
+    }
+
+    function clearInvalidDemoState(skipFieldId = null) {
+        if (isInvalidDemoActive) {
+            isInvalidDemoActive = false;
+            resetTestInvalidButtonLabel();
+            sanitizeOutOfBoundsDomFields(skipFieldId);
+        }
+    }
+
     function readFormState() {
         const getVal = (id, def) => {
             const el = document.getElementById(id);
@@ -630,6 +680,7 @@
 
     function renderValidationBanner(validation) {
         const alertBox = document.getElementById('sim-validation-alert');
+        const liveBadge = document.getElementById('sim-config-live-badge');
         if (!alertBox) return;
 
         if (!validation.valid) {
@@ -650,16 +701,32 @@
                     </button>
                 </div>
             `;
+            if (liveBadge) {
+                liveBadge.textContent = '⚠ Alerta Validación';
+                liveBadge.style.color = '#FB7185';
+                liveBadge.style.borderColor = 'rgba(251,113,133,.5)';
+            }
             const btnRestore = document.getElementById('btn-sim-restore-valid');
             if (btnRestore) {
                 btnRestore.addEventListener('click', () => {
+                    isInvalidDemoActive = false;
+                    resetTestInvalidButtonLabel();
+                    sanitizeOutOfBoundsDomFields();
                     applyConfigPreset('STANDARD', true);
-                    applyScenarioPreset('BASELINE');
+                    applyScenarioPreset('BASELINE', true);
+                    showSimFeedback('Datos válidos restaurados correctamente. Simulación y gráficas 3D activas.');
                 });
             }
         } else {
             alertBox.style.display = 'none';
             alertBox.innerHTML = '';
+            isInvalidDemoActive = false;
+            resetTestInvalidButtonLabel();
+            if (liveBadge) {
+                liveBadge.textContent = '● Sincronizado en Vivo';
+                liveBadge.style.color = '#34D399';
+                liveBadge.style.borderColor = 'rgba(52,211,153,.35)';
+            }
         }
     }
 
@@ -1903,6 +1970,8 @@
         const cfg = CONFIG_PRESETS[presetKey];
         if (!cfg) return;
 
+        isInvalidDemoActive = false;
+        resetTestInvalidButtonLabel();
         highlightActiveConfigPresetButton(presetKey);
 
         const setField = (id, rangeId, val) => {
@@ -1928,6 +1997,7 @@
         setField('sim-weight-cost', null, cfg.weights.cost);
         setField('sim-weight-security', null, cfg.weights.security);
 
+        sanitizeOutOfBoundsDomFields();
         const state = readFormState();
         const validation = validateInputs(state.rawValidationData);
         renderValidationBanner(validation);
@@ -1944,15 +2014,12 @@
         const preset = PRESET_SCENARIOS[presetKey];
         if (!preset) return;
 
+        isInvalidDemoActive = false;
+        resetTestInvalidButtonLabel();
         activePresetKey = presetKey;
         highlightActivePresetButton(presetKey);
 
-        const elReqLat = document.getElementById('sim-req-latency');
-        if (elReqLat && Number(elReqLat.value) < 100) {
-            elReqLat.value = 1800;
-            const rLat = document.getElementById('sim-range-req-latency');
-            if (rLat) rLat.value = 1800;
-        }
+        sanitizeOutOfBoundsDomFields();
 
         const setInput = (id, val, labelId, suffix = '') => {
             const el = document.getElementById(id);
@@ -1982,6 +2049,60 @@
         }
     }
 
+    function triggerInvalidInputDemo() {
+        const btnTestInvalid = document.getElementById('btn-sim-test-invalid');
+        isInvalidDemoActive = true;
+        const elReq = document.getElementById('sim-req-latency');
+        if (elReq) elReq.value = 15;
+        if (btnTestInvalid) {
+            btnTestInvalid.innerHTML = '<i class="fa-solid fa-rotate-left" style="margin-right:.35rem;color:#34D399;"></i>Restaurar Estado Válido';
+            btnTestInvalid.style.background = 'rgba(52, 211, 153, 0.16)';
+        }
+        const validation = validateInputs({
+            concurrentUsers: -25,
+            payloadSizeMb: 45,
+            repoComplexityFiles: 0,
+            aiDepthFactor: 9,
+            trafficBurstFactor: 8.5,
+            maxLatencyMs: 15,
+            minAvailabilityPct: 105,
+            minScalabilityScore: 5,
+            maxMonthlyBudgetUsd: 2,
+            maxMemoryGb: 0.05
+        });
+        renderValidationBanner(validation);
+        const alertEl = document.getElementById('sim-validation-alert');
+        if (alertEl) alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showSimFeedback('Control de validación activado: entradas fuera de rango bloqueadas.', true);
+    }
+
+    function executeDocumentedTestCase(testId) {
+        if (testId === '1') {
+            applyConfigPreset('STANDARD', true);
+            applyScenarioPreset('SINGLE_MACHINE_LIGHT', true);
+            showSimFeedback('TEST-SIM-01 ejecutado: U=18, S=1MB, N=35 → Monolito gana en latencia (168 ms) y RAM (212 MB).');
+        } else if (testId === '2') {
+            applyConfigPreset('STANDARD', true);
+            applyScenarioPreset('ENTERPRISE_SCALE', true);
+            showSimFeedback('TEST-SIM-02 ejecutado: U=320, S=6MB, N=240 → Monolito satura (>100% ρ), Microservicios K8s escala a 6 pods.');
+        } else if (testId === '3') {
+            applyConfigPreset('STANDARD', true);
+            applyScenarioPreset('EXTREME_STRESS_PUSH', true);
+            showSimFeedback('TEST-SIM-03 ejecutado: U=650, S=14MB, Ráfaga=2.5x → EDA Serverless absorbe ráfaga con 14 workers (SLA 99.88%).');
+        } else if (testId === '4') {
+            applyConfigPreset('BOOTSTRAPPED', true);
+            applyScenarioPreset('BASELINE', true);
+            const bNum = document.getElementById('sim-con-budget');
+            const bRng = document.getElementById('sim-range-con-budget');
+            if (bNum) bNum.value = 45;
+            if (bRng) bRng.value = 45;
+            triggerInteractiveRun('Prueba 4 (TEST-SIM-04): Restricción Presupuesto $45 USD/mes');
+            showSimFeedback('TEST-SIM-04 ejecutado: Presupuesto = $45 USD/mes → Microservicios K8s penalizado por exceso de costo.');
+        } else if (testId === '5') {
+            triggerInvalidInputDemo();
+        }
+    }
+
     function runLive3DLoadSweep() {
         const btn = document.getElementById('btn-sim-3d-live-sweep');
         if (liveSweepInterval) {
@@ -1990,6 +2111,9 @@
             if (btn) btn.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:.35rem;"></i>Simular Ráfaga 3D en Vivo';
             return;
         }
+
+        clearInvalidDemoState();
+        sanitizeOutOfBoundsDomFields();
 
         if (btn) {
             btn.innerHTML = '<i class="fa-solid fa-stop" style="margin-right:.35rem;color:#FB7185;"></i>Detener Barrido 3D';
@@ -2029,6 +2153,7 @@
             const el = document.getElementById(s.id);
             if (el) {
                 el.addEventListener('input', () => {
+                    clearInvalidDemoState();
                     const lbl = document.getElementById(s.label);
                     if (lbl) lbl.textContent = el.value + s.suffix;
                     highlightActivePresetButton('');
@@ -2051,6 +2176,7 @@
             const rangeEl = document.getElementById(pair.rangeId);
             if (numEl) {
                 const onNumChange = () => {
+                    clearInvalidDemoState(pair.numId);
                     if (rangeEl && Number.isFinite(Number(numEl.value))) {
                         rangeEl.value = numEl.value;
                     }
@@ -2062,6 +2188,7 @@
             }
             if (rangeEl) {
                 rangeEl.addEventListener('input', () => {
+                    clearInvalidDemoState();
                     if (numEl) numEl.value = rangeEl.value;
                     highlightActiveConfigPresetButton('');
                     triggerInteractiveRun(pair.label);
@@ -2078,6 +2205,7 @@
             const el = document.getElementById(cid);
             if (el) {
                 const handler = () => {
+                    clearInvalidDemoState();
                     highlightActiveConfigPresetButton('');
                     triggerInteractiveRun('Actualización de Configuración / Pesos (Sección 1)');
                 };
@@ -2098,6 +2226,8 @@
         const btnApplyConfig = document.getElementById('btn-sim-apply-config');
         if (btnApplyConfig) {
             btnApplyConfig.addEventListener('click', () => {
+                clearInvalidDemoState();
+                sanitizeOutOfBoundsDomFields();
                 triggerInteractiveRun('Configuración de Sección 1 Aplicada');
                 showSimFeedback('Configuración, restricciones SLA, matriz multiescenario y gráficas 3D actualizadas.');
             });
@@ -2108,6 +2238,14 @@
             btn.addEventListener('click', () => {
                 const key = btn.getAttribute('data-sim-preset');
                 applyScenarioPreset(key);
+            });
+        });
+
+        // Botones de las 5 Pruebas Documentadas Interactivas (Sección 10)
+        document.querySelectorAll('[data-sim-test-case]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const testId = btn.getAttribute('data-sim-test-case');
+                executeDocumentedTestCase(testId);
             });
         });
 
@@ -2170,6 +2308,8 @@
         const btnSetBaseline = document.getElementById('btn-sim-set-baseline');
         if (btnSetBaseline) {
             btnSetBaseline.addEventListener('click', () => {
+                clearInvalidDemoState();
+                sanitizeOutOfBoundsDomFields();
                 const state = readFormState();
                 const val = validateInputs(state.rawValidationData);
                 renderValidationBanner(val);
@@ -2190,6 +2330,8 @@
         const btnRunAll = document.getElementById('btn-sim-run-all-scenarios');
         if (btnRunAll) {
             btnRunAll.addEventListener('click', () => {
+                clearInvalidDemoState();
+                sanitizeOutOfBoundsDomFields();
                 const state = readFormState();
                 const val = validateInputs(state.rawValidationData);
                 renderValidationBanner(val);
@@ -2200,28 +2342,25 @@
             });
         }
 
-        // Botón Probar Control de Entrada Inválida (Demostración Requisito 10)
+        // Botón Probar Control de Entrada Inválida (Conmutador / Restauración Automática)
         const btnTestInvalid = document.getElementById('btn-sim-test-invalid');
         if (btnTestInvalid) {
             btnTestInvalid.addEventListener('click', () => {
-                const elReq = document.getElementById('sim-req-latency');
-                if (elReq) elReq.value = 15;
-                const validation = validateInputs({
-                    concurrentUsers: -25,
-                    payloadSizeMb: 45,
-                    repoComplexityFiles: 0,
-                    aiDepthFactor: 9,
-                    trafficBurstFactor: 8.5,
-                    maxLatencyMs: 15,
-                    minAvailabilityPct: 105,
-                    minScalabilityScore: 5,
-                    maxMonthlyBudgetUsd: 2,
-                    maxMemoryGb: 0.05
-                });
-                renderValidationBanner(validation);
-                const alertEl = document.getElementById('sim-validation-alert');
-                if (alertEl) alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                showSimFeedback('Control de validación activado: entradas fuera de rango bloqueadas.', true);
+                if (isInvalidDemoActive) {
+                    isInvalidDemoActive = false;
+                    resetTestInvalidButtonLabel();
+                    sanitizeOutOfBoundsDomFields();
+                    const state = readFormState();
+                    const val = validateInputs(state.rawValidationData);
+                    renderValidationBanner(val);
+                    if (val.valid) {
+                        const sim = executeSimulation(state.inputs, state.projectConfig);
+                        renderSimulationOutput(sim, 'Estado Válido Restaurado');
+                    }
+                    showSimFeedback('Datos restaurados y alerta de validación limpiada correctamente.');
+                    return;
+                }
+                triggerInvalidInputDemo();
             });
         }
 

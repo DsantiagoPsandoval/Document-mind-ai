@@ -677,6 +677,82 @@ CREATE TABLE users (
         assert.ok(ssrfCheck.error.includes('SSRF'));
     });
 
+    await test('Simulador (TEST-SIM-11): Reactividad total de Sección 1 (Restricciones de RAM, Escalabilidad, SLA y Presupuesto)', () => {
+        // Baja RAM máxima (0.5 GB = 512 MB) en carga moderada debe disparar memoryPressureMs y marcar memoryOk = false en K8s
+        const tightRamSim = runArchitectureSimulation({
+            inputs: PRESET_SCENARIOS.BASELINE.inputs,
+            projectConfig: {
+                qualityRequirements: { maxLatencyMs: 1800, minAvailabilityPct: 99.5, minScalabilityScore: 92 },
+                constraints: { maxMonthlyBudgetUsd: 350, maxMemoryGb: 0.5 }
+            }
+        });
+        const k8s = tightRamSim.alternatives.find(a => a.alternativeId === 'MICROSERVICES_K8S');
+        const mono = tightRamSim.alternatives.find(a => a.alternativeId === 'MONOLITH_MVC');
+        assert.strictEqual(k8s.compliance.memoryOk, false, 'Microservicios K8s (>512 MB RAM) debe incumplir tope de 0.5 GB');
+        assert.ok(k8s.metrics.memoryPressureMs > 0, 'El estrangulamiento de RAM debe agregar latencia física por GC/Swap');
+        assert.strictEqual(mono.compliance.scalabilityOk, false, 'Monolito debe incumplir meta de Escalabilidad >= 92');
+        assert.strictEqual(mono.compliance.allMandatoryPassed, false, 'allMandatoryPassed debe ser false si falla escalabilidad');
+    });
+
+    await test('Simulador (TEST-SIM-12): Cambio en Pesos y Perfiles de Sección 1 cambia dinámicamente la arquitectura ganadora', () => {
+        const sharedInputs = { concurrentUsers: 55, payloadSizeMb: 2.0, repoComplexityFiles: 75, aiDepthFactor: 2, trafficBurstFactor: 1.1 };
+
+        // Perfil Startup Bootstrapped ($45 USD, RAM 1GB, peso Costo 55%) -> Gana Monolito MVC
+        const startupSim = runArchitectureSimulation({
+            inputs: sharedInputs,
+            projectConfig: {
+                qualityRequirements: { maxLatencyMs: 2400, minAvailabilityPct: 99.0, minScalabilityScore: 40 },
+                constraints: { maxMonthlyBudgetUsd: 45, maxMemoryGb: 1.0 },
+                decisionWeights: { latency: 0.15, scalability: 0.10, availability: 0.10, efficiencyAndCost: 0.55, securityAndContainers: 0.10 }
+            }
+        });
+        assert.strictEqual(startupSim.recommendation.recommendedId, 'MONOLITH_MVC', 'Con presupuesto $45 USD y peso Costo 55% debe ganar Monolito MVC');
+
+        // Perfil Cloud Scale (Escala >= 90, Presupuesto $1200 USD, peso Escalabilidad 45%) -> Gana EDA o K8s
+        const cloudScaleSim = runArchitectureSimulation({
+            inputs: sharedInputs,
+            projectConfig: {
+                qualityRequirements: { maxLatencyMs: 1200, minAvailabilityPct: 99.8, minScalabilityScore: 90 },
+                constraints: { maxMonthlyBudgetUsd: 1200, maxMemoryGb: 32.0 },
+                decisionWeights: { latency: 0.20, scalability: 0.45, availability: 0.20, efficiencyAndCost: 0.05, securityAndContainers: 0.10 }
+            }
+        });
+        assert.notStrictEqual(cloudScaleSim.recommendation.recommendedId, 'MONOLITH_MVC', 'Con meta de escalabilidad >= 90 no puede ganar Monolito MVC');
+    });
+
+    await test('Simulador (TEST-SIM-13): Validación de los 5 campos de Sección 1 y recuperación limpia al restaurar valores válidos', () => {
+        const invalidCheck = validateSimulationInput({
+            inputs: { concurrentUsers: -25, payloadSizeMb: 45, repoComplexityFiles: 0, aiDepthFactor: 9, trafficBurstFactor: 8.5 },
+            projectConfig: {
+                qualityRequirements: { maxLatencyMs: 15, minAvailabilityPct: 105, minScalabilityScore: 5 },
+                constraints: { maxMonthlyBudgetUsd: 2, maxMemoryGb: 0.05 }
+            }
+        });
+        assert.strictEqual(invalidCheck.valid, false);
+        assert.strictEqual(invalidCheck.errors.length, 10, 'Debe detectar exactamente los 10 parámetros fuera de rango (5 de carga + 5 de Sección 1)');
+
+        const restoredCheck = validateSimulationInput({
+            inputs: PRESET_SCENARIOS.BASELINE.inputs,
+            projectConfig: {
+                qualityRequirements: { maxLatencyMs: 1800, minAvailabilityPct: 99.5, minScalabilityScore: 75 },
+                constraints: { maxMonthlyBudgetUsd: 350, maxMemoryGb: 8 }
+            }
+        });
+        assert.strictEqual(restoredCheck.valid, true, 'Al restaurar los datos el validador debe aprobar inmediatamente sin errores');
+        assert.strictEqual(restoredCheck.errors.length, 0);
+    });
+
+    await test('Simulador UI (TEST-SIM-14): Botón "Probar Entrada Inválida" restaura estado sin bloquear sliders ni presets posteriores', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const simUiCode = fs.readFileSync(path.join(__dirname, '..', 'js', 'architecture-simulator.js'), 'utf8');
+
+        assert.ok(simUiCode.includes('isInvalidDemoActive'), 'Debe gestionar estado explícito isInvalidDemoActive');
+        assert.ok(simUiCode.includes('sanitizeOutOfBoundsDomFields'), 'Debe sanitizar campos fuera de rango al restaurar o cambiar controles');
+        assert.ok(simUiCode.includes('clearInvalidDemoState'), 'Debe limpiar automáticamente el modo demo inválido al interactuar con sliders o botones');
+        assert.ok(simUiCode.includes('executeDocumentedTestCase'), 'Debe incluir ejecutor interactivo para las 5 pruebas documentadas');
+    });
+
     console.log('='.repeat(60));
     console.log(`RESULTADOS FINALES: ${passed} pruebas exitosas, ${failed} pruebas fallidas.\n`);
     if (failed > 0) {

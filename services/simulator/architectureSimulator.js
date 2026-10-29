@@ -406,7 +406,7 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
     // Evalúa margen de capacidad (headroom), elasticidad de nodos y eficiencia sin sobre-aprovisionamiento
     const headroomRatio = Math.max(0, (maxSystemCapacityRps - arrivalRateRps) / Math.max(1, maxSystemCapacityRps));
     const scaleElasticity = altKey === 'MONOLITH_MVC'
-        ? (effectiveUtilization < 0.45 ? 42 : 20)
+        ? (effectiveUtilization < 0.45 ? 24 : 12)
         : (p.maxAutoScaleNodes / 16) * 44;
     const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
     const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
@@ -472,7 +472,8 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
             estimatedMonthlyCostUsd,
             latencySlaPct,
             budgetUsagePct,
-            memoryEnvelopePct
+            memoryEnvelopePct,
+            memoryPressureMs
         },
         breakdown: {
             arrivalRateRps: Number(arrivalRateRps.toFixed(2)),
