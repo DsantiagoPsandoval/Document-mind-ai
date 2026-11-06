@@ -210,6 +210,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Cargar historial de análisis
+    async function loadSupabaseHistory() {
+        try {
+            if (typeof renderHistoryList === "function") {
+                renderHistoryList();
+            }
+        } catch (err) {
+            console.warn("Historial note:", err);
+        }
+    }
+
     // Initialize Supabase from Server API Config
     async function initSupabase() {
         try {
@@ -223,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session && session.user) {
                     updateAuthUI(session.user);
-                    loadSupabaseHistory();
+                    await loadSupabaseHistory();
                 } else {
                     updateAuthUI(null);
                 }
@@ -231,13 +242,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Listen to Auth state transitions
                 supabaseClient.auth.onAuthStateChange(async (event, session) => {
                     const user = session ? session.user : null;
-                    updateAuthUI(user);
+                    if (user) {
+                        updateAuthUI(user);
+                    } else if (event === "SIGNED_OUT") {
+                        updateAuthUI(null);
+                    }
+
                     if (event === "SIGNED_IN") {
                         showToast(`¡Sesión iniciada con éxito!`, "success");
-                        loadSupabaseHistory();
+                        await loadSupabaseHistory();
                     } else if (event === "SIGNED_OUT") {
                         showToast("Sesión finalizada.", "info");
-                        renderHistoryList();
+                        if (typeof renderHistoryList === "function") renderHistoryList();
                     }
                 });
             } else {
@@ -245,7 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (err) {
             console.warn("Supabase initialization note:", err);
-            updateAuthUI(null);
         }
     }
     initSupabase();
