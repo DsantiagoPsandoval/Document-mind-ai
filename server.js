@@ -907,6 +907,66 @@ app.get('/api/integrations/status', async (req, res, next) => {
 });
 
 // ============================================================
+// REAL SITE ANALYTICS & VISITOR METRICS API
+// ============================================================
+const analyticsService = require('./services/analytics/analyticsService');
+
+/**
+ * POST /api/analytics/visit
+ * Registers or updates an anonymous visitor and records visit session
+ */
+app.post('/api/analytics/visit', async (req, res, next) => {
+    try {
+        const { visitorId, referrer, path } = req.body || {};
+        const userAgent = req.headers['user-agent'] || '';
+        const ip = req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+        
+        const result = await analyticsService.recordVisit({
+            visitorId,
+            userAgent,
+            ip,
+            referrer,
+            path
+        });
+        res.json({ success: true, ...result });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * POST /api/analytics/heartbeat
+ * Heartbeat to maintain active visitor status (within last 5 minutes)
+ */
+app.post('/api/analytics/heartbeat', async (req, res, next) => {
+    try {
+        const { visitorId } = req.body || {};
+        const userAgent = req.headers['user-agent'] || '';
+        
+        const result = await analyticsService.recordHeartbeat({
+            visitorId,
+            userAgent
+        });
+        res.json({ success: true, ...result });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /api/analytics/stats
+ * Returns real verified metrics: unique total, active now (5 min), today, and last 7 days
+ */
+app.get('/api/analytics/stats', async (req, res, next) => {
+    try {
+        const stats = await analyticsService.getStats();
+        res.json({ success: true, stats });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// ============================================================
 // ACTIVIDAD 9: ARCHITECTURE & TECHNICAL DESIGN SIMULATOR API
 // ============================================================
 

@@ -769,6 +769,70 @@ CREATE TABLE users (
         assert.ok(hyperViable.length >= 1, 'En Hiper-Escala (850 u) al menos EDA Serverless debe ser 100% viable');
     });
 
+    // ============================================================
+    // SUITE ANALÍTICA REAL & VISITANTES
+    // ============================================================
+    const analyticsService = require('../services/analytics/analyticsService');
+
+    await test('Analítica Real: registro anónimo de visitantes, deduplicación en recarga y cálculo de métricas', async () => {
+        const vId1 = 'test_visitor_uuid_alpha_1';
+        const vId2 = 'test_visitor_uuid_beta_2';
+
+        // Registro visitante 1
+        const res1 = await analyticsService.recordVisit({
+            visitorId: vId1,
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0',
+            ip: '190.25.1.1'
+        });
+        assert.strictEqual(res1.recorded, true, 'Visitante válido debe registrarse');
+        assert.strictEqual(res1.isNewVisitor, true, 'La primera vez debe marcarse como nuevo visitante');
+
+        // Recarga de página del visitante 1 (no debe duplicar visitante único)
+        const res1_reload = await analyticsService.recordVisit({
+            visitorId: vId1,
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0',
+            ip: '190.25.1.1'
+        });
+        assert.strictEqual(res1_reload.isNewVisitor, false, 'Al recargar la página no debe contarse como nuevo visitante');
+
+        // Registro visitante 2 desde otro entorno
+        const res2 = await analyticsService.recordVisit({
+            visitorId: vId2,
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+            ip: '186.28.2.2'
+        });
+        assert.strictEqual(res2.isNewVisitor, true, 'Visitante con UUID distinto debe contarse como nuevo');
+
+        const stats = await analyticsService.getStats();
+        assert.ok(stats.available, 'Las estadísticas deben estar disponibles');
+        assert.ok(stats.totalVisitors >= 2, 'Total de visitantes debe ser al menos 2');
+        assert.ok(stats.activeNow >= 2, 'Ambos visitantes deben estar activos en los últimos 5 minutos');
+        assert.ok(stats.visitorsToday >= 2, 'Visitantes de hoy debe ser al menos 2');
+        assert.ok(stats.visitorsLast7Days >= 2, 'Visitantes de últimos 7 días debe ser al menos 2');
+    });
+
+    await test('Analítica Real: latido (heartbeat) de actividad en tiempo real y filtrado de bots', async () => {
+        const vId = 'test_visitor_uuid_gamma_3';
+        const botUserAgent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
+
+        // Bot crawler debe ser filtrado
+        const botRes = await analyticsService.recordVisit({
+            visitorId: 'bot_crawler_id',
+            userAgent: botUserAgent,
+            ip: '66.249.66.1'
+        });
+        assert.strictEqual(botRes.recorded, false, 'Bots no deben computarse como visitantes reales');
+        assert.strictEqual(botRes.reason, 'bot_filtered');
+
+        // Heartbeat de visitante válido
+        const hb = await analyticsService.recordHeartbeat({
+            visitorId: vId,
+            userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_5)'
+        });
+        assert.strictEqual(hb.active, true, 'Heartbeat de visitante válido debe procesarse');
+        assert.ok(typeof hb.activeNow === 'number' && hb.activeNow >= 1, 'activeNow debe retornar número de visitantes activos');
+    });
+
     console.log('='.repeat(60));
     console.log(`RESULTADOS FINALES: ${passed} pruebas exitosas, ${failed} pruebas fallidas.\n`);
     if (failed > 0) {

@@ -106,7 +106,7 @@
         <a href="#analizador">Analizador de IA</a>
         <a href="#simulador-arquitectura" style="color:#34D399;font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.4rem;"></i>Simulador de Arquitectura (Act. 9)</a>
         <a href="#equipo">Equipo</a>
-        <a href="#registro" style="color:var(--tech-cyan);">Acceso a la Plataforma</a>
+        <a href="#metricas" style="color:var(--tech-cyan);">Estadísticas en Vivo</a>
         <a href="#contacto">Contacto</a>
         <!-- Mobile Auth Actions -->
         <div style="border-top:1px solid rgba(129,140,248,.2);margin:0.75rem 0;padding-top:0.75rem;">
@@ -173,9 +173,9 @@
                             <i class="fa-solid fa-compass" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
                             Ver Como Funciona
                         </a>
-                        <a href="#registro" class="btn-ghost" style="padding:.85rem 1.35rem;font-size:.85rem;">
-                            <i class="fa-solid fa-bolt" style="margin-right:.4rem;color:var(--tech-cyan);"></i>
-                            Obtener Acceso
+                        <a href="#metricas" class="btn-ghost" style="padding:.85rem 1.35rem;font-size:.85rem;">
+                            <i class="fa-solid fa-chart-line" style="margin-right:.4rem;color:var(--tech-cyan);"></i>
+                            Estadísticas en Vivo
                         </a>
                     </div>
 
@@ -1977,36 +1977,43 @@
     </section>
 
     <!-- ============================================================
-         7. METRICAS
+         7. METRICAS Y ANALITICA REAL
     ============================================================ -->
     <section id="metricas" style="padding:6rem 0;">
         <div class="container">
-            <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
-                <span class="badge badge-emerald" style="margin-bottom:1rem;"><i class="fa-solid fa-chart-line"></i> Traccion &amp; Datos</span>
-                <h2 class="section-title">Metricas de Validacion en Vivo</h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Indicadores cuantificables que sustentan la alta demanda del proyecto.</p>
+            <div style="text-align:center;max-width:680px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-emerald" style="margin-bottom:1rem;"><i class="fa-solid fa-chart-line"></i> Analítica &amp; Tráfico Real</span>
+                <h2 class="section-title">Estadísticas de Tráfico y <span class="gradient-text">Visitantes en Vivo</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;">Métricas verificables y persistentes generadas exclusivamente por actividad real de navegación en Document-Mind AI.</p>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
+                <!-- 1. Visitantes Únicos Totales -->
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes Unicos</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);line-height:1;" id="visitor-counter" class="neon-glow-cyan">1,250</div>
-                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-arrow-trend-up" style="margin-right:.25rem;"></i>+14.2% esta semana</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes Únicos Totales</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);line-height:1;" id="stat-total-visitors" class="neon-glow-cyan"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.35rem;"></i></div>
+                    <p style="font-size:.72rem;color:#38BDF8;margin-top:.6rem;"><i class="fa-solid fa-id-card-clip" style="margin-right:.3rem;"></i>Identificador anónimo único</p>
                 </div>
+                <!-- 2. Visitantes Activos Ahora -->
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Usuarios Registrados</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#7DD3FC;line-height:1;" id="registered-counter">186</div>
-                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;"><i class="fa-solid fa-users" style="margin-right:.25rem;"></i>Comunidad activa</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes Activos Ahora</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34D399;line-height:1;" id="stat-active-visitors" class="neon-glow-emerald"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.35rem;"></i></div>
+                    <p style="font-size:.72rem;color:#34D399;margin-top:.6rem;display:inline-flex;align-items:center;justify-content:center;gap:.35rem;"><span class="animate-pulse" style="display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:#34D399;"></span>Activos últimos 5 min</p>
                 </div>
+                <!-- 3. Visitantes de Hoy -->
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Tasa Conversion (CTR)</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#34D399;line-height:1;" class="neon-glow-emerald">14.7%</div>
-                    <p style="font-size:.72rem;color:#64748B;margin-top:.6rem;">Promedio SaaS B2B: ~3.5%</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Visitantes de Hoy</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#7DD3FC;line-height:1;" id="stat-today-visitors"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.35rem;"></i></div>
+                    <p style="font-size:.72rem;color:#94A3B8;margin-top:.6rem;"><i class="fa-solid fa-calendar-day" style="margin-right:.3rem;color:#7DD3FC;"></i>Sesiones de la jornada</p>
                 </div>
+                <!-- 4. Visitantes Últimos 7 Días -->
                 <div class="glow-card" style="padding:1.75rem;text-align:center;">
-                    <div style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Validacion de Dolor</div>
-                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#818CF8;line-height:1;">86.0%</div>
-                    <p style="font-size:.72rem;color:#64748B;margin-top:.6rem;">Muestra en Software Houses</p>
+                    <div style="font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;">Últimos 7 Días</div>
+                    <div style="font-size:2.5rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#A78BFA;line-height:1;" id="stat-week-visitors"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.35rem;"></i></div>
+                    <p style="font-size:.72rem;color:#94A3B8;margin-top:.6rem;"><i class="fa-solid fa-chart-simple" style="margin-right:.3rem;color:#A78BFA;"></i>Alcance semanal consolidado</p>
                 </div>
+            </div>
+            <div style="text-align:center;margin-top:1.5rem;font-size:.74rem;color:#64748B;font-family:'JetBrains Mono',monospace;">
+                <i class="fa-solid fa-arrows-rotate" style="margin-right:.35rem;color:var(--tech-cyan);"></i>Sincronización en vivo vía Heartbeat &bull; Almacenamiento persistente en Supabase &bull; Cero números simulados
             </div>
         </div>
     </section>
@@ -2040,125 +2047,7 @@
     </section>
 
     <!-- ============================================================
-         9. REGISTRO Y LLAVE DE ACCESO
-    ============================================================ -->
-    <section id="registro" style="padding:6rem 0;position:relative;overflow:hidden;">
-        <div style="position:absolute;top:50%;left:0;width:300px;height:300px;background:radial-gradient(ellipse at 0% 50%,rgba(56,189,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
-        <div style="position:absolute;top:50%;right:0;width:300px;height:300px;background:radial-gradient(ellipse at 100% 50%,rgba(129,140,248,.07) 0%,transparent 70%);transform:translateY(-50%);pointer-events:none;"></div>
-        <div class="container">
-            <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
-                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Acceso y Licenciamiento Institucional</span>
-                <h2 class="section-title">Obtén tu <span class="gradient-text">Llave de Acceso</span></h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Genera tu credencial de acceso oficial a Document-Mind AI para tu equipo de ingeniería.</p>
-            </div>
-            <div class="registro-grid-container reveal reveal-delay-1" id="registro-grid">
-                <div class="glow-card" style="padding:2rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem;background:rgba(9,13,22,.85);border-radius:.75rem;border:1px solid rgba(56,189,248,.2);margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem;">
-                        <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;color:var(--tech-cyan);"><span style="display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--tech-cyan);" class="animate-pulse"></span>Acceso Habilitado</div>
-                        <span style="font-size:.7rem;font-family:'JetBrains Mono',monospace;font-weight:800;color:#fff;background:rgba(56,189,248,.1);padding:.3rem .75rem;border-radius:.45rem;border:1px solid rgba(56,189,248,.25);" id="spots-left">&#128293; 14 cupos restantes</span>
-                    </div>
-                    <h3 style="font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:1.5rem;">Beneficios para Desarrolladores</h3>
-                    <div style="display:flex;flex-direction:column;gap:1.25rem;">
-                        <div style="display:flex;align-items:flex-start;gap:.85rem;">
-                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--tech-cyan);flex-shrink:0;"><i class="fa-solid fa-key"></i></div>
-                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">6 Meses Enterprise Gratuito</h5><p style="font-size:.75rem;color:#64748B;line-height:1.55;">Acceso sin limites a analisis AST y sincronizacion sin costo.</p></div>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:.85rem;">
-                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#818CF8;flex-shrink:0;"><i class="fa-solid fa-user-gear"></i></div>
-                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Soporte Directo con Fundadores</h5><p style="font-size:.75rem;color:#64748B;line-height:1.55;">Sesiones de onboarding 1-on-1 con Daniel y Nelson.</p></div>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:.85rem;">
-                            <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#34D399;flex-shrink:0;"><i class="fa-solid fa-award"></i></div>
-                            <div><h5 style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.25rem;">Insignia de Early Backer en GitHub</h5><p style="font-size:.75rem;color:#64748B;line-height:1.55;">Reconocimiento oficial en la documentacion Universidad Libre.</p></div>
-                        </div>
-                    </div>
-                    <div style="margin-top:1.5rem;padding:1rem;background:rgba(9,13,22,.95);border-radius:.75rem;border:1px solid rgba(56,189,248,.15);font-family:'JetBrains Mono',monospace;">
-                        <div style="display:flex;justify-content:space-between;font-size:.68rem;color:#64748B;margin-bottom:.5rem;border-bottom:1px solid rgba(129,140,248,.1);padding-bottom:.5rem;"><span><i class="fa-solid fa-lock" style="color:var(--tech-cyan);margin-right:.3rem;"></i>TOKEN ASIGNADO:</span><span style="color:#34D399;font-weight:700;">TIER_VIP_READY</span></div>
-                        <p style="color:var(--tech-cyan);font-size:.7rem;word-break:break-all;">documind_live_9f8a2e1d7c4b0a8f</p>
-                    </div>
-                </div>
-                <div class="glow-card" style="padding:2rem 2.25rem;">
-                    <div style="margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,.12);">
-                        <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">Solicita tu acceso anticipado</h3>
-                        <p style="font-size:.8rem;color:#64748B;margin-top:.4rem;">Completa el formulario para reservar tu lugar y generar tu pasaporte VIP digital.</p>
-                    </div>
-                    <form id="lead-form" style="display:flex;flex-direction:column;gap:1.25rem;">
-                        <div class="form-grid-row">
-                            <div>
-                                <label for="name" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-user" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Nombre Completo *</label>
-                                <input type="text" id="name" required placeholder="Carlos Mendoza" class="input-field">
-                            </div>
-                            <div>
-                                <label for="email" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-envelope" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Correo Dev *</label>
-                                <input type="email" id="email" required placeholder="carlos@empresa.com" class="input-field">
-                            </div>
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem;"><i class="fa-solid fa-id-badge" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Selecciona tu Rol Principal *</label>
-                            <input type="hidden" id="selected-role" name="role" value="tech_lead" required>
-                            <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
-                                <button type="button" class="role-chip" data-role="cto"><i class="fa-solid fa-crown" style="color:var(--amber-accent);"></i>CTO / VP Eng</button>
-                                <button type="button" class="role-chip active" data-role="tech_lead"><i class="fa-solid fa-cube" style="color:var(--tech-cyan);"></i>Tech Lead</button>
-                                <button type="button" class="role-chip" data-role="dev"><i class="fa-solid fa-code" style="color:#34D399;"></i>Senior Dev</button>
-                                <button type="button" class="role-chip" data-role="devops"><i class="fa-solid fa-terminal" style="color:#818CF8;"></i>DevOps / SRE</button>
-                                <button type="button" class="role-chip" data-role="academic"><i class="fa-solid fa-graduation-cap" style="color:#818CF8;"></i>Academico</button>
-                            </div>
-                        </div>
-                        <div class="form-grid-row">
-                            <div>
-                                <label for="repo_size" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-folder-tree" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Tamano Repos</label>
-                                <select id="repo_size" class="input-field">
-                                    <option value="1-5">1 a 5 microservicios</option>
-                                    <option value="6-20">6 a 20 repositorios</option>
-                                    <option value="20+">Monorepo / +20 repos</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="ci_cd_tool" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-brands fa-github" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Plataforma CI/CD</label>
-                                <select id="ci_cd_tool" class="input-field">
-                                    <option value="github_actions">GitHub Actions</option>
-                                    <option value="gitlab_ci">GitLab CI/CD</option>
-                                    <option value="bitbucket">Bitbucket Pipelines</option>
-                                    <option value="jenkins">Jenkins / Azure DevOps</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="comments" style="display:block;font-size:.72rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;"><i class="fa-solid fa-comment-dots" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Mayor dolor con la documentacion</label>
-                            <textarea id="comments" rows="3" placeholder="Ej. El tiempo excesivo en onboarding y que los diagramas quedan obsoletos..." class="input-field"></textarea>
-                        </div>
-                        <div style="display:flex;align-items:flex-start;gap:.65rem;font-size:.75rem;color:#64748B;">
-                            <input type="checkbox" id="terms" required style="margin-top:.15rem;accent-color:var(--tech-cyan);">
-                            <label for="terms" style="line-height:1.55;cursor:pointer;">Acepto recibir notificaciones de acceso y actualizaciones de la plataforma de la Universidad Libre.</label>
-                        </div>
-                        <button type="submit" id="btn-submit-lead" class="btn-cyber" style="width:100%;padding:1rem;font-size:.95rem;">
-                            <i class="fa-solid fa-bolt" style="margin-right:.5rem;"></i>Generar Llave de Acceso &amp; Pase
-                        </button>
-                    </form>
-                    <div id="vip-pass-result" class="hidden vip-pass-card" style="margin-top:1.5rem;padding:1.5rem;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(56,189,248,.18);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
-                            <div style="display:flex;align-items:center;gap:.75rem;">
-                                <div style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:var(--tech-cyan);display:flex;align-items:center;justify-content:center;color:#040810;font-size:.85rem;flex-shrink:0;"><i class="fa-solid fa-ticket"></i></div>
-                                <div><h4 style="font-size:.8rem;font-weight:800;color:#fff;">DOCUMIND OFFICIAL ACCESS PASS</h4><p style="font-size:.65rem;color:var(--tech-cyan);margin-top:.15rem;">ACCESO PROFESIONAL | UNIVERSIDAD LIBRE</p></div>
-                            </div>
-                            <span class="badge badge-emerald">HABILITADO</span>
-                        </div>
-                        <div class="form-grid-row" style="font-family:'JetBrains Mono',monospace;font-size:.75rem;margin-bottom:1.25rem;">
-                            <div><span style="display:block;font-size:.65rem;color:#64748B;margin-bottom:.25rem;">TITULAR:</span><span style="font-weight:700;color:#fff;word-break:break-words;" id="pass-holder-name">-</span></div>
-                            <div><span style="display:block;font-size:.65rem;color:#64748B;margin-bottom:.25rem;">PASAPORTE ID:</span><span style="font-weight:700;color:var(--tech-cyan);" id="pass-id-code">DOCU-2026-X89</span></div>
-                        </div>
-                        <div style="padding:1rem;background:rgba(9,13,22,.85);border-radius:.65rem;border:1px solid rgba(129,140,248,.18);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;">
-                            <div style="min-width:0;"><p style="font-size:.65rem;color:#64748B;margin-bottom:.35rem;">TU ENLACE DE INVITACION:</p><p style="font-size:.7rem;color:var(--tech-cyan);word-break:break-all;" id="pass-invite-link">https://dsantiagopsandoval.github.io/Document-mind-ai/?ref=DOCU-2026</p></div>
-                            <button type="button" id="btn-copy-pass" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.75rem;flex-shrink:0;"><i class="fa-solid fa-copy" style="margin-right:.35rem;"></i>Copiar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         10. CONTACTO (FINAL SECTION)
+         9. CONTACTO (FINAL SECTION)
     ============================================================ -->
     <section id="contacto" class="section-alt" style="padding:6rem 0;">
         <div class="container">
@@ -2258,7 +2147,7 @@
                         <p style="font-size:.82rem;color:#64748B;line-height:1.65;">Analiza documentos técnicos o repositorios GitHub y descubre cómo Document-Mind AI transforma la documentación de tu equipo.</p>
                     </div>
                     <a href="#analizador" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Comenzar Análisis Ahora &rarr;</a>
-                    <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-key" style="margin-right:.5rem;font-size:.75rem;color:var(--tech-cyan);"></i>Obtener Llave de Acceso</a>
+                    
                 </div>
             </div>
         </div>
@@ -2642,9 +2531,10 @@
 
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=5.2"></script>
-    <script src="app.js?v=5.5"></script>
+    <script src="app.js?v=5.6"></script>
     <script src="js/architecture-simulator.js?v=3.3"></script>
 </body>
 </html>
+
 
 

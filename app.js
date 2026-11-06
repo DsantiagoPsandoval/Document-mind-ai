@@ -491,22 +491,127 @@ if (btnOAuthGoogle) {
     }
 
     // ------------------------------------------------------------
-    // 5. Counters
+    // 5. Real Site Analytics & Real-Time Active Visitor Tracking
     // ------------------------------------------------------------
-    const visitorCounter = document.getElementById("visitor-counter");
-    const registeredCounter = document.getElementById("registered-counter");
-    const spotsLeft = document.getElementById("spots-left");
+    const statTotalVisitors = document.getElementById("stat-total-visitors");
+    const statActiveVisitors = document.getElementById("stat-active-visitors");
+    const statTodayVisitors = document.getElementById("stat-today-visitors");
+    const statWeekVisitors = document.getElementById("stat-week-visitors");
 
-    let visitors = parseInt(localStorage.getItem("documind_visitors") || "1250", 10);
-    let registered = parseInt(localStorage.getItem("documind_registered") || "186", 10);
-    let availableSpots = Math.max(2, 200 - registered);
+    // Persistent anonymous visitor UUID
+    function getOrCreateVisitorId() {
+        let vid = localStorage.getItem("documind_visitor_uuid");
+        if (!vid || typeof vid !== "string" || vid.length < 10) {
+            vid = "vis_" + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, function(c) {
+                return (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4)).toString(16);
+            });
+            localStorage.setItem("documind_visitor_uuid", vid);
+        }
+        return vid;
+    }
 
-    visitors += Math.floor(Math.random() * 3) + 1;
-    localStorage.setItem("documind_visitors", visitors.toString());
+    const currentVisitorId = getOrCreateVisitorId();
 
-    if (visitorCounter) visitorCounter.textContent = visitors.toLocaleString("es-CO");
-    if (registeredCounter) registeredCounter.textContent = registered.toLocaleString("es-CO");
-    if (spotsLeft) spotsLeft.textContent = `🔥 ${availableSpots} cupos restantes`;
+    function updateStatsUI(stats) {
+        if (!stats || !stats.available) {
+            [statTotalVisitors, statActiveVisitors, statTodayVisitors, statWeekVisitors].forEach(function(el) {
+                if (el) el.textContent = "No disponible";
+            });
+            return;
+        }
+
+        if (statTotalVisitors) {
+            statTotalVisitors.textContent = typeof stats.totalVisitors === "number" 
+                ? stats.totalVisitors.toLocaleString("es-CO") 
+                : "No disponible";
+        }
+        if (statActiveVisitors) {
+            statActiveVisitors.textContent = typeof stats.activeNow === "number" 
+                ? stats.activeNow.toLocaleString("es-CO") 
+                : "No disponible";
+        }
+        if (statTodayVisitors) {
+            statTodayVisitors.textContent = typeof stats.visitorsToday === "number" 
+                ? stats.visitorsToday.toLocaleString("es-CO") 
+                : "No disponible";
+        }
+        if (statWeekVisitors) {
+            statWeekVisitors.textContent = typeof stats.visitorsLast7Days === "number" 
+                ? stats.visitorsLast7Days.toLocaleString("es-CO") 
+                : "No disponible";
+        }
+    }
+
+    async function recordRealVisit() {
+        try {
+            const res = await fetch("/api/analytics/visit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    visitorId: currentVisitorId,
+                    referrer: document.referrer || "",
+                    path: window.location.pathname || "/"
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.stats) updateStatsUI(data.stats);
+            } else {
+                fetchRealStats();
+            }
+        } catch (e) {
+            fetchRealStats();
+        }
+    }
+
+    async function sendRealHeartbeat() {
+        try {
+            const res = await fetch("/api/analytics/heartbeat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ visitorId: currentVisitorId })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (typeof data.activeNow === "number" && statActiveVisitors) {
+                    statActiveVisitors.textContent = data.activeNow.toLocaleString("es-CO");
+                }
+            }
+        } catch (e) {
+            // silent fail on network drop
+        }
+    }
+
+    async function fetchRealStats() {
+        try {
+            const res = await fetch("/api/analytics/stats");
+            if (res.ok) {
+                const data = await res.json();
+                if (data.stats) updateStatsUI(data.stats);
+            } else {
+                updateStatsUI({ available: false });
+            }
+        } catch (e) {
+            updateStatsUI({ available: false });
+        }
+    }
+
+    // Initial visit record
+    recordRealVisit();
+
+    // Periodic heartbeat every 25 seconds (active threshold = 5 min)
+    setInterval(sendRealHeartbeat, 25000);
+
+    // Periodic full stats refresh every 45 seconds
+    setInterval(fetchRealStats, 45000);
+
+    // Reactivate on tab focus
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === "visible") {
+            sendRealHeartbeat();
+            fetchRealStats();
+        }
+    });
 
     // ------------------------------------------------------------
     // 6. Safe 3D AI Core State Helper
@@ -2192,16 +2297,7 @@ if (btnOAuthGoogle) {
         };
     }
 
-    // ------------------------------------------------------------
-    // 20. Role Chips Selection Helper
-    // ------------------------------------------------------------
-    const roleChips = document.querySelectorAll(".role-chip");
-    roleChips.forEach(chip => {
-        chip.addEventListener("click", () => {
-            roleChips.forEach(c => c.classList.remove("active"));
-            chip.classList.add("active");
-        });
-    });
+
 
 
     // ------------------------------------------------------------
