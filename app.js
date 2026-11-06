@@ -473,21 +473,108 @@ if (btnOAuthGoogle) {
     }
 
     // ------------------------------------------------------------
-    // 4. Mobile Menu Toggle
+    // 4. Mobile Menu & Navigation Controls
     // ------------------------------------------------------------
     const mobileMenuBtn = document.getElementById("mobile-menu-btn");
     const mobileMenu = document.getElementById("mobile-menu");
+    const btnMobileOpenTour = document.getElementById("btn-mobile-open-tour");
+    const btnMobileOpenIntegrations = document.getElementById("btn-mobile-open-integrations");
 
     if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
+        mobileMenuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isClosed = mobileMenu.classList.contains("hidden");
+            if (isClosed) {
+                mobileMenu.classList.remove("hidden");
+                mobileMenu.classList.add("open");
+                mobileMenuBtn.setAttribute("aria-expanded", "true");
+            } else {
+                mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove("open");
+                mobileMenuBtn.setAttribute("aria-expanded", "false");
+            }
         });
 
-        mobileMenu.querySelectorAll("a").forEach(link => {
-            link.addEventListener("click", () => {
+        // Click outside mobile menu to dismiss
+        document.addEventListener("click", (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target) && !mobileMenu.classList.contains("hidden")) {
                 mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove("open");
+                mobileMenuBtn.setAttribute("aria-expanded", "false");
+            }
+        });
+
+        // Close mobile drawer on navigation click
+        mobileMenu.querySelectorAll("a, button").forEach(item => {
+            item.addEventListener("click", () => {
+                mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove("open");
+                mobileMenuBtn.setAttribute("aria-expanded", "false");
             });
         });
+    }
+
+    if (btnMobileOpenTour) {
+        btnMobileOpenTour.addEventListener("click", () => {
+            if (mobileMenu) {
+                mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove("open");
+            }
+            openTourModal();
+        });
+    }
+
+    if (btnMobileOpenIntegrations) {
+        btnMobileOpenIntegrations.addEventListener("click", () => {
+            if (mobileMenu) {
+                mobileMenu.classList.add("hidden");
+                mobileMenu.classList.remove("open");
+            }
+            openIntegrationsModal();
+        });
+    }
+
+    // ------------------------------------------------------------
+    // ScrollSpy: Dynamic Active Link Highlighting on Scroll
+    // ------------------------------------------------------------
+    const spySections = [
+        "como-funciona",
+        "solucion",
+        "analizador",
+        "simulador-arquitectura",
+        "equipo",
+        "contacto"
+    ];
+    const navSpyLinks = document.querySelectorAll(".nav-links a, #mobile-menu .mobile-nav-link");
+
+    function updateActiveNavLink() {
+        const scrollPosition = window.scrollY + 130;
+        let currentSectionId = "";
+
+        for (const sectionId of spySections) {
+            const el = document.getElementById(sectionId);
+            if (el) {
+                const top = el.offsetTop;
+                const height = el.offsetHeight;
+                if (scrollPosition >= top && scrollPosition < top + height) {
+                    currentSectionId = sectionId;
+                    break;
+                }
+            }
+        }
+
+        navSpyLinks.forEach(link => {
+            const href = link.getAttribute("href");
+            if (href && href === "#" + currentSectionId) {
+                link.classList.add("active");
+            } else if (href && href.startsWith("#")) {
+                link.classList.remove("active");
+            }
+        });
+    }
+
+    window.addEventListener("scroll", updateActiveNavLink, { passive: true });
+    setTimeout(updateActiveNavLink, 200););
     }
 
     // ------------------------------------------------------------
@@ -936,7 +1023,7 @@ if (btnOAuthGoogle) {
 
         } catch (err) {
             clearInterval(stageTimer);
-            set3DCoreState('ERROR', 'Error en el procesamiento');
+            set3DCoreState('STANDBY', 'NÚCLEO EN ESPERA (LISTO)');
             if (progressStatus) progressStatus.innerHTML = `<i class="fa-solid fa-circle-exclamation" style="color:#FB7185;"></i> ${err.message}`;
             showToast(err.message, "error");
         } finally {

@@ -58,11 +58,11 @@
 
     // Stages / State Machine
     var STAGES = [
-        { id: 'ANALYZING', label: 'ANALYZING REPOSITORY', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'] },
-        { id: 'BUILDING_AST', label: 'BUILDING AST', color: '#818CF8', hex: PALETTE.indigo, active: ['ast'] },
-        { id: 'MAPPING_ARCH', label: 'MAPPING ARCHITECTURE', color: '#818CF8', hex: PALETTE.indigo, active: ['c4', 'api', 'db'] },
-        { id: 'GENERATING_DOCS', label: 'GENERATING DOCUMENTATION', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'] },
-        { id: 'SYNC_COMPLETE', label: 'SYNC COMPLETE', color: '#34D399', hex: PALETTE.emerald, active: ['sync'] }
+        { id: 'ANALYZING', label: 'ANÁLISIS DE REPOSITORIO', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'] },
+        { id: 'BUILDING_AST', label: 'CONSTRUCCIÓN DE AST', color: '#818CF8', hex: PALETTE.indigo, active: ['ast'] },
+        { id: 'MAPPING_ARCH', label: 'MAPEADO DE ARQUITECTURA', color: '#818CF8', hex: PALETTE.indigo, active: ['c4', 'api', 'db'] },
+        { id: 'GENERATING_DOCS', label: 'GENERACIÓN DOCUMENTAL', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'] },
+        { id: 'SYNC_COMPLETE', label: 'SINCRONIZACIÓN COMPLETA', color: '#34D399', hex: PALETTE.emerald, active: ['sync'] }
     ];
 
     // Deliberate Spatial 3D Composition
@@ -762,7 +762,7 @@
         GENERATING_DIAGRAMS: { label: 'Generando diagramas...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['c4', 'db', 'ast'], speed: 2.2, light: 8.0 },
         GENERATING_DOCS: { label: 'Generando documentación...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'], speed: 2.1, light: 7.5 },
         SUCCESS: { label: 'Documentación completada', color: '#34D399', hex: PALETTE.emerald, active: ['sync', 'docs'], speed: 1.2, light: 5.5 },
-        ERROR: { label: 'Inconveniente en el análisis', color: '#F43F5E', hex: 0xF43F5E, active: ['code'], speed: 0.8, light: 4.0 },
+        ERROR: { label: 'NÚCLEO EN ESPERA (LISTO)', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.0, light: 4.5 },
         // Backwards compatibility mappings
         LOADING: { label: 'Analizando proyecto...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.5, light: 5.5 },
         PROCESSING: { label: 'Detectando arquitectura...', color: '#818CF8', hex: PALETTE.indigo, active: ['c4'], speed: 1.7, light: 6.5 },
