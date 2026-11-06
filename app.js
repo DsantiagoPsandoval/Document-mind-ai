@@ -2119,381 +2119,119 @@ if (btnOAuthGoogle) {
     }
 
     // ============================================================
-    // Dedicated Multi-Section Technical Documentation PDF Generator
+    // 17. DOCUMENTATION PREVIEW & PDF/MARKDOWN EXPORT CENTER
     // ============================================================
-    function generateDedicatedDocumentationPdf(data) {
-        if (!data || !data.documentation) {
-            showToast("Primero debes generar la documentación de un repositorio para exportar su PDF.", "error");
-            return;
+    const previewModal = document.getElementById("doc-preview-modal");
+    const previewPaper = document.getElementById("preview-paper-sheet");
+    const previewScopeSelect = document.getElementById("preview-doc-scope");
+    const btnPreviewPrint = document.getElementById("btn-preview-print");
+    const btnPreviewDownloadMd = document.getElementById("btn-preview-download-md");
+    const btnCloseDocPreview = document.getElementById("btn-close-doc-preview");
+    const previewZoomBtns = document.querySelectorAll(".preview-zoom-btn");
+    const previewPageCount = document.getElementById("preview-page-count");
+
+    let currentPreviewScope = "all";
+
+    function renderDocumentPreview(scope = "all") {
+        if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
+        currentPreviewScope = scope;
+
+        if (previewPaper) {
+            const fullHtml = DocuMindExporter.buildDocumentHtml(currentAnalysisData, scope);
+            const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+            previewPaper.innerHTML = bodyMatch ? bodyMatch[1] : fullHtml;
         }
 
-        const repo = data.repository || {};
-        const stats = data.stats || {};
-        const doc = data.documentation || {};
-        const sec = data.security || {};
-        const projectName = repo.name || repo.fullName || 'Proyecto';
-        const fullName = repo.fullName || repo.name || 'Repositorio';
-        const safeTitle = `${projectName.replace(/[^a-zA-Z0-9_-]/g, '_')}_Documentacion_Tecnica_DocuMind`;
-
-        // Helper for safe markdown rendering
-        function parseMd(text) {
-            if (!text) return '<p style="color:#64748B;font-style:italic;">Sección no provista en el análisis.</p>';
-            if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
-                return marked.parse(text);
-            }
-            return String(text).replace(/\n/g, '<br>');
-        }
-
-        const reportHtml = `<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>${safeTitle}</title>
-    <style>
-        @page {
-            size: A4;
-            margin: 18mm 16mm 18mm 16mm;
-        }
-        @media print {
-            .no-print { display: none !important; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .page-break { page-break-after: always; break-after: page; }
-            .avoid-break { page-break-inside: avoid; break-inside: avoid; }
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #0F172A;
-            background: #FFFFFF;
-            line-height: 1.6;
-            margin: 0;
-            padding: 24px;
-            font-size: 10.5pt;
-        }
-        .header-cover {
-            border-bottom: 3px solid #0284C7;
-            padding-bottom: 20px;
-            margin-bottom: 24px;
-        }
-        .brand-pill {
-            display: inline-block;
-            background: #0F172A;
-            color: #38BDF8;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 8pt;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        h1 {
-            font-size: 20pt;
-            font-weight: 900;
-            color: #0F172A;
-            margin: 4px 0 8px;
-            line-height: 1.2;
-        }
-        .sub-header {
-            font-size: 11pt;
-            color: #475569;
-            margin-bottom: 16px;
-        }
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin-bottom: 24px;
-        }
-        .meta-item { font-size: 9.5pt; }
-        .meta-label { color: #64748B; font-weight: 600; text-transform: uppercase; font-size: 8pt; letter-spacing: 0.04em; }
-        .meta-val { color: #0F172A; font-weight: 700; margin-top: 2px; }
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 8pt;
-            font-weight: 700;
-        }
-        .badge-secure { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
-        .badge-warn   { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
-        .badge-crit   { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
-        .toc-box {
-            background: #F1F5F9;
-            border-left: 4px solid #0284C7;
-            padding: 14px 18px;
-            border-radius: 4px;
-            margin-bottom: 28px;
-        }
-        .toc-box h3 { margin: 0 0 8px; font-size: 11pt; color: #0F172A; }
-        .toc-box ul { margin: 0; padding-left: 20px; font-size: 9pt; color: #334155; }
-        .toc-box li { margin-bottom: 4px; }
-        .section-title {
-            font-size: 13pt;
-            font-weight: 800;
-            color: #0F172A;
-            border-bottom: 1.5px solid #CBD5E1;
-            padding-bottom: 6px;
-            margin: 28px 0 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-title span.num {
-            background: #0284C7;
-            color: #FFFFFF;
-            width: 22px;
-            height: 22px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 8.5pt;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 12px 0 16px;
-            font-size: 9pt;
-        }
-        th, td {
-            border: 1px solid #CBD5E1;
-            padding: 8px 10px;
-            text-align: left;
-            vertical-align: top;
-        }
-        th {
-            background: #F1F5F9;
-            font-weight: 700;
-            color: #0F172A;
-        }
-        pre {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 6px;
-            padding: 12px;
-            font-family: "JetBrains Mono", Consolas, monospace;
-            font-size: 8.5pt;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-        code {
-            font-family: "JetBrains Mono", Consolas, monospace;
-            background: #F1F5F9;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-size: 8.5pt;
-        }
-        .footer-note {
-            margin-top: 36px;
-            padding-top: 12px;
-            border-top: 1px solid #E2E8F0;
-            font-size: 8pt;
-            color: #94A3B8;
-            text-align: center;
-        }
-        .btn-print-floating {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            background: #0284C7;
-            color: #FFFFFF;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 10pt;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
-        }
-        .btn-print-floating:hover { background: #0369A1; }
-    </style>
-</head>
-<body>
-    <div class="no-print" style="margin-bottom:16px;">
-        <button class="btn-print-floating" onclick="window.print()">
-            &#128424; Imprimir / Guardar como PDF
-        </button>
-    </div>
-
-    <div class="header-cover">
-        <div class="brand-pill">DocuMind AI &bull; Enterprise Documentation Engine</div>
-        <h1>${fullName}</h1>
-        <div class="sub-header">Documentación Técnica Integral &bull; Arquitectura, Requerimientos, APIs y Seguridad DevSecOps</div>
-        
-        <div class="meta-grid">
-            <div class="meta-item">
-                <div class="meta-label">Repositorio GitHub</div>
-                <div class="meta-val">${repo.url && repo.url !== '#' ? `<a href="${repo.url}" target="_blank" style="color:#0284C7;text-decoration:none;">${fullName}</a>` : fullName}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Rama Analizada</div>
-                <div class="meta-val">${repo.branch || repo.defaultBranch || 'main'}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Lenguaje Principal</div>
-                <div class="meta-val">${repo.primaryLanguage || 'Multi-lenguaje'}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Archivos Analizados</div>
-                <div class="meta-val">${stats.relevantFilesCount || stats.totalFiles || 0} archivos</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Stack Tecnológico</div>
-                <div class="meta-val">${(data.detectedTechnologies || []).slice(0, 6).join(', ') || 'Nativo'}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Auditoría SAST (Seguridad)</div>
-                <div class="meta-val">
-                    ${sec.score !== undefined ? `<span class="badge ${sec.score >= 80 ? 'badge-secure' : sec.score >= 60 ? 'badge-warn' : 'badge-crit'}">Puntaje: ${sec.score}/100 (${sec.riskLevel || 'EVALUADO'})</span>` : 'Evaluado'}
-                </div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Fecha de Análisis</div>
-                <div class="meta-val">${new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Motor Cognitivo</div>
-                <div class="meta-val">${doc.isAiGenerated ? 'Gemini 2.5 Flash + AST Parser' : 'Análisis Estático Factual'}</div>
-            </div>
-        </div>
-
-        <div class="toc-box avoid-break">
-            <h3>Contenido del Documento</h3>
-            <ul>
-                <li><strong>1. Requerimientos del Producto (PRD &amp; SRS):</strong> Problema, contexto, objetivos y matriz funcional.</li>
-                <li><strong>2. Arquitectura del Sistema (C4 Containers):</strong> Topología, capas, componentes y flujo de datos.</li>
-                <li><strong>3. Modelos de Datos &amp; Base de Datos:</strong> Esquemas de entidades, relaciones y almacenamiento.</li>
-                <li><strong>4. Catálogo de API &amp; Endpoints:</strong> Servicios REST expuestos, métodos y especificación OpenAPI.</li>
-                <li><strong>5. Guía de Desarrollo &amp; README:</strong> Instrucciones de ejecución local, variables y dependencias.</li>
-                <li><strong>6. Pipeline DevOps &amp; Despliegue:</strong> CI/CD, contenedorización e infraestructura.</li>
-                <li><strong>7. Plan de Calidad &amp; QA:</strong> Estrategia de pruebas unitarias y cobertura.</li>
-                <li><strong>8. Centro de Seguridad DevSecOps (SAST):</strong> Hallazgos estáticos, mitigaciones y modelado STRIDE.</li>
-                <li><strong>9. Decisiones de Arquitectura (ADR):</strong> Registro de decisiones técnicas clave y justificaciones.</li>
-                <li><strong>10. Guía de Usuario &amp; FAQ:</strong> Onboarding técnico y preguntas frecuentes.</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- SECCION 1: PRD & SRS -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">1</span> Requerimientos del Producto (PRD &amp; SRS)</div>
-    <div class="avoid-break">${parseMd(doc.product?.prd)}</div>
-    <div style="margin-top:20px;" class="avoid-break">${parseMd(doc.product?.srs)}</div>
-
-    <!-- SECCION 2: ARQUITECTURA C4 -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">2</span> Arquitectura del Sistema &amp; Modelo C4</div>
-    <div class="avoid-break">${parseMd(doc.architecture?.c4Context || doc.architecture?.c4Container)}</div>
-    <div style="margin-top:16px;" class="avoid-break">${parseMd(doc.architecture?.components)}</div>
-    <div style="margin-top:16px;" class="avoid-break">${parseMd(doc.architecture?.dataFlow)}</div>
-
-    <!-- SECCION 3: BASE DE DATOS -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">3</span> Modelos de Datos &amp; Base de Datos</div>
-    <div class="avoid-break">${parseMd(doc.database?.summary)}</div>
-    <div style="margin-top:16px;" class="avoid-break">${parseMd(doc.database?.schemas)}</div>
-
-    <!-- SECCION 4: API & ENDPOINTS -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">4</span> Catálogo de APIs &amp; Endpoints REST</div>
-    <div class="avoid-break">${parseMd(doc.api?.summary)}</div>
-    <div style="margin-top:16px;" class="avoid-break">${parseMd(doc.api?.endpointsTable)}</div>
-
-    <!-- SECCION 5: GUIA DE DESARROLLO -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">5</span> Guía de Desarrollo &amp; README</div>
-    <div class="avoid-break">${parseMd(doc.development?.readme || doc.development?.setupGuide)}</div>
-
-    <!-- SECCION 6: DEVOPS -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">6</span> Pipeline DevOps, Despliegue &amp; CI/CD</div>
-    <div class="avoid-break">${parseMd(doc.devops?.ciCdPipelines || doc.devops?.deploymentGuide)}</div>
-
-    <!-- SECCION 7: QA & TESTS -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">7</span> Estrategia de Calidad &amp; Casos de Prueba (QA)</div>
-    <div class="avoid-break">${parseMd(doc.qa?.testStrategy || doc.qa?.testCases)}</div>
-
-    <!-- SECCION 8: SEGURIDAD SAST -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">8</span> Auditoría de Seguridad DevSecOps (SAST &amp; STRIDE)</div>
-    <div class="avoid-break">${parseMd(sec.markdownReport || sec.summary || 'Auditoría estática completada sin vulnerabilidades críticas detectadas.')}</div>
-
-    <!-- SECCION 9: ADRs -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">9</span> Registro de Decisiones de Arquitectura (ADR)</div>
-    <div class="avoid-break">
-        ${Array.isArray(doc.adrs) && doc.adrs.length > 0 
-            ? doc.adrs.map(adr => `
-                <div style="border:1px solid #CBD5E1;border-radius:6px;padding:12px;margin-bottom:12px;" class="avoid-break">
-                    <h4 style="margin:0 0 6px;color:#0F172A;">${adr.id || 'ADR'}: ${adr.title || 'Decisión'} [${adr.status || 'Aceptado'}]</h4>
-                    <p style="margin:4px 0;"><strong>Contexto:</strong> ${adr.context || '-'}</p>
-                    <p style="margin:4px 0;"><strong>Decisión:</strong> ${adr.decision || '-'}</p>
-                    <p style="margin:4px 0;"><strong>Consecuencias:</strong> ${adr.consequences || '-'}</p>
-                </div>
-            `).join('')
-            : '<p>Decisiones de arquitectura estándar aplicadas según la topología detectada.</p>'}
-    </div>
-
-    <!-- SECCION 10: GUIA DE USUARIO -->
-    <div class="page-break"></div>
-    <div class="section-title"><span class="num">10</span> Guía de Usuario &amp; Preguntas Frecuentes (FAQ)</div>
-    <div class="avoid-break">${parseMd(doc.userGuide?.overview)}</div>
-    <div style="margin-top:16px;" class="avoid-break">${parseMd(doc.userGuide?.faq)}</div>
-
-    <div class="footer-note avoid-break">
-        Documento generado automáticamente por <strong>DocuMind AI</strong> &bull; Plataforma de Inteligencia Artificial &bull; Cohorte 2026<br>
-        Repositorio: ${fullName} &bull; Rama: ${repo.branch || 'main'} &bull; Todos los derechos reservados.
-    </div>
-
-    <script>
-        window.onload = function() {
-            setTimeout(function() {
-                window.print();
-            }, 350);
-        };
-    </script>
-</body>
-</html>`;
-
-        // Open in dedicated print window with isolation
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-            printWindow.document.open();
-            printWindow.document.write(reportHtml);
-            printWindow.document.close();
-            showToast("Generando reporte técnico imprimible para " + fullName + "...", "success");
-        } else {
-            showToast("Ventana emergente bloqueada por el navegador. Imprimiendo vista activa...", "info");
-            document.title = safeTitle;
-            window.print();
+        if (previewPageCount) {
+            const metrics = DocuMindExporter.analyzeLayoutQuality(currentAnalysisData, scope);
+            previewPageCount.textContent = `~${metrics.pageEstimate} págs`;
         }
     }
+
+    function openDocPreviewModal(defaultScope = "all") {
+        if (!currentAnalysisData || !currentAnalysisData.documentation) {
+            showToast("Primero debes generar la documentación de un repositorio para previsualizar o exportar.", "error");
+            return;
+        }
+        const repoInput = document.getElementById("repo-input");
+        if (currentInputMode === "gh" && repoInput && repoInput.value.trim()) {
+            const analyzedName = (currentAnalysisData.repository?.name || "").toLowerCase();
+            const analyzedFull = (currentAnalysisData.repository?.fullName || "").toLowerCase();
+            const inputVal = repoInput.value.trim().toLowerCase();
+            if (analyzedName && !inputVal.includes(analyzedName) && !inputVal.includes(analyzedFull)) {
+                showToast(`El repositorio en el campo (${repoInput.value}) no coincide con el análisis generado (${currentAnalysisData.repository?.fullName || analyzedName}). Haz clic en "Generar Documentación" para analizar el nuevo repositorio.`, "warning");
+                return;
+            }
+        }
+
+        if (previewScopeSelect) {
+            previewScopeSelect.value = defaultScope;
+        }
+
+        renderDocumentPreview(defaultScope);
+
+        if (previewModal) {
+            previewModal.style.display = "flex";
+            previewModal.classList.add("active");
+        }
+    }
+
+    function closeDocPreviewModal() {
+        if (previewModal) {
+            previewModal.style.display = "none";
+            previewModal.classList.remove("active");
+        }
+    }
+
+    if (previewScopeSelect) {
+        previewScopeSelect.addEventListener("change", (e) => {
+            renderDocumentPreview(e.target.value);
+        });
+    }
+
+    if (btnPreviewPrint) {
+        btnPreviewPrint.addEventListener("click", () => {
+            if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
+            DocuMindExporter.printDocument(currentAnalysisData, currentPreviewScope);
+            showToast("Generando documento editorial listo para imprimir o guardar...", "info");
+        });
+    }
+
+    if (btnPreviewDownloadMd) {
+        btnPreviewDownloadMd.addEventListener("click", () => {
+            if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
+            DocuMindExporter.downloadMarkdownFile(currentAnalysisData, currentPreviewScope);
+            showToast("Descargando archivo Markdown...", "success");
+        });
+    }
+
+    if (btnCloseDocPreview) {
+        btnCloseDocPreview.addEventListener("click", closeDocPreviewModal);
+    }
+
+    if (previewModal) {
+        previewModal.addEventListener("click", (e) => {
+            if (e.target === previewModal) {
+                closeDocPreviewModal();
+            }
+        });
+    }
+
+    previewZoomBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            previewZoomBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const zoom = parseFloat(btn.dataset.zoom) || 1.0;
+            if (previewPaper) {
+                previewPaper.style.transform = `scale(${zoom})`;
+            }
+        });
+    });
 
     const btnExportPdf = document.getElementById("btn-export-pdf");
     if (btnExportPdf) {
         btnExportPdf.addEventListener("click", () => {
-            if (!currentAnalysisData || !currentAnalysisData.documentation) {
-                showToast("Primero debes generar la documentación de un repositorio para exportar su PDF.", "error");
-                return;
-            }
-            const repoInput = document.getElementById("repo-input");
-            if (currentInputMode === "gh" && repoInput && repoInput.value.trim()) {
-                const analyzedName = (currentAnalysisData.repository?.name || "").toLowerCase();
-                const analyzedFull = (currentAnalysisData.repository?.fullName || "").toLowerCase();
-                const inputVal = repoInput.value.trim().toLowerCase();
-                if (analyzedName && !inputVal.includes(analyzedName) && !inputVal.includes(analyzedFull)) {
-                    showToast(`El repositorio en el campo (${repoInput.value}) no coincide con el análisis generado (${currentAnalysisData.repository?.fullName || analyzedName}). Haz clic en "Generar Documentación" para analizar el nuevo repositorio.`, "warning");
-                    return;
-                }
-            }
-            generateDedicatedDocumentationPdf(currentAnalysisData);
+            openDocPreviewModal("all");
         });
     }
 
@@ -2547,12 +2285,7 @@ if (btnOAuthGoogle) {
                 showToast("No hay datos de seguridad disponibles para imprimir.", "error");
                 return;
             }
-            const projectName = currentAnalysisData.repository?.name || 'Proyecto';
-            document.title = `${projectName.replace(/[^a-zA-Z0-9_-]/g, '_')}_Reporte_Seguridad_SAST_DocuMind`;
-            switchDocTab('security');
-            setTimeout(() => {
-                window.print();
-            }, 250);
+            openDocPreviewModal("sec");
         });
     }
 
@@ -3250,6 +2983,7 @@ if (btnOAuthGoogle) {
             closeLegalModal();
             closeTourModal();
             closeDocEditor();
+            closeDocPreviewModal();
         }
     });
 

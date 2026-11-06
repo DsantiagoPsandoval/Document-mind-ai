@@ -2289,17 +2289,19 @@ img, svg, video, canvas {
 @media print {
     @page {
         size: A4;
-        margin: 14mm 12mm 14mm 12mm;
+        margin: 18mm 16mm 18mm 16mm;
     }
     body {
         background: #FFFFFF !important;
         color: #0F172A !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-        font-size: 11pt !important;
-        line-height: 1.5 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+        font-size: 10pt !important;
+        line-height: 1.55 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    /* Strictly hide all landing page sections, hero, forms, and marketing clutter */
+    /* Strictly hide all non-documentation UI elements */
     #navbar, #hero, #cursor-spotlight, #problema, #como-funciona, #solucion,
     #analizador .container > div:first-child, .analyzer-tab-group,
     #project-input-container, #project-input-section, #progress-container,
@@ -2308,7 +2310,8 @@ img, svg, video, canvas {
     #btn-download-zip, #btn-export-pdf, #btn-sync-check, #btn-toggle-editor,
     #btn-open-modify-modal, #btn-new-analysis, .sec-export-toolbar, .sec-filter-group,
     .modal, .toast, .demo-repo-wrapper, .doc-lang-selector, .cat-grid,
-    #eda-fab-pill, #eda-events-modal, #three-canvas-container, .canvas-wrapper {
+    #eda-fab-pill, #eda-events-modal, #three-canvas-container, .canvas-wrapper,
+    #doc-preview-modal, .auth-modal-overlay {
         display: none !important;
     }
 
@@ -2332,7 +2335,7 @@ img, svg, video, canvas {
         pointer-events: auto !important;
     }
 
-    /* Ensure executive card styling on paper */
+    /* Clean cards without heavy shadows */
     .glow-card, .mermaid-viewer-wrapper, .project-map-container, .file-tree-wrapper,
     .sec-score-card, .sec-subcard, .sec-kpi-item, .sec-vuln-card, .sec-cat-card,
     .kpi-card, .sec-overview-grid {
@@ -2340,50 +2343,105 @@ img, svg, video, canvas {
         box-shadow: none !important;
         background: #FFFFFF !important;
         color: #0F172A !important;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 
-    .sec-score-val, .sec-kpi-num, h1, h2, h3, h4, h5, strong {
-        color: #0F172A !important;
-    }
-
-    /* Render every documentation tab sequentially with clean page breaks */
+    /* NO BLANK PAGES: Panels flow naturally, only breaking if they have content */
     .doc-tab-panel {
         display: block !important;
-        page-break-after: always;
-        break-after: page;
         margin-bottom: 2rem !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
     }
-    .doc-tab-panel:last-child {
-        page-break-after: auto;
-        break-after: auto;
+    .doc-tab-panel:empty {
+        display: none !important;
     }
 
+    /* HEADING ORPHAN PREVENTION GUARANTEE */
+    h1, h2, h3, h4, h5, h6, .section-title, .doc-heading {
+        color: #0F172A !important;
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        orphans: 3 !important;
+        widows: 3 !important;
+    }
+
+    p, li {
+        orphans: 2 !important;
+        widows: 2 !important;
+        line-height: 1.55 !important;
+    }
+
+    /* BULLETPROOF TABLES (No Overflow, Repeating Headers) */
     table {
-        border-collapse: collapse;
-        width: 100%;
-        page-break-inside: avoid;
-        break-inside: avoid;
-        margin: 1rem 0;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: auto !important;
+        margin: 12px 0 16px 0 !important;
+        font-size: 8.5pt !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+    }
+    thead {
+        display: table-header-group !important;
+    }
+    tfoot {
+        display: table-footer-group !important;
+    }
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
     th, td {
         border: 1px solid #CBD5E1 !important;
-        padding: 6px 10px;
+        padding: 7px 9px !important;
         color: #0F172A !important;
+        vertical-align: top !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
     }
     th {
         background: #F1F5F9 !important;
-        font-weight: 700;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        font-size: 7.5pt !important;
+        letter-spacing: 0.04em !important;
     }
 
+    /* PREFORMATTED CODE BLOCKS */
     pre, code {
         background: #F8FAFC !important;
         color: #0F172A !important;
         border: 1px solid #E2E8F0 !important;
-        font-family: "JetBrains Mono", Consolas, monospace !important;
-        font-size: 9.5pt !important;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        font-family: "JetBrains Mono", Consolas, "Courier New", monospace !important;
+        font-size: 8pt !important;
+        line-height: 1.45 !important;
+        white-space: pre-wrap !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
+
+    /* SCALED DIAGRAMS */
+    .mermaid-viewer-wrapper, svg, img {
+        max-width: 100% !important;
+        height: auto !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+}
+
+/* Document Preview Modal & A4 Paper Simulator Styles */
+#doc-preview-modal.active {
+    display: flex !important;
+}
+.preview-zoom-btn.active {
+    background: rgba(56, 189, 248, 0.2) !important;
+    color: var(--tech-cyan) !important;
+    font-weight: 700 !important;
 }

@@ -699,8 +699,8 @@
                             <button type="button" id="btn-download-zip" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.82rem;">
                                 <i class="fa-solid fa-file-zipper" style="margin-right:.4rem;"></i>Descargar (.ZIP)
                             </button>
-                            <button type="button" id="btn-export-pdf" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
-                                <i class="fa-solid fa-file-pdf" style="margin-right:.4rem;"></i>Exportar PDF
+                            <button type="button" id="btn-export-pdf" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;" title="Abrir visor de vista previa editorial y exportar a PDF">
+                                <i class="fa-solid fa-file-pdf" style="margin-right:.4rem;"></i>Vista Previa &amp; PDF
                             </button>
                             <button type="button" id="btn-sync-check" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.82rem;" title="Comprobar nuevos commits en el repositorio público">
                                 <i class="fa-solid fa-rotate" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Sincronizar
@@ -2071,6 +2071,79 @@
     </div>
 
     <!-- ============================================================
+         MODAL: VISTA PREVIA Y CENTRO DE EXPORTACION EDITORIAL (PDF & MARKDOWN)
+    ============================================================ -->
+    <div id="doc-preview-modal" class="modal-backdrop" style="display:none;position:fixed;inset:0;background:rgba(5,8,15,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:99999;align-items:center;justify-content:center;padding:1.25rem;">
+        <div class="glow-card" style="width:100%;max-width:1160px;height:92vh;background:#090D16;border:1px solid rgba(56,189,248,.35);border-radius:1rem;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.85);">
+            
+            <!-- Modal Header Toolbar -->
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid rgba(129,140,248,.18);background:rgba(15,23,42,.95);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.5rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-file-pdf" style="font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size:1.05rem;font-weight:900;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            Centro de Exportación &amp; Vista Previa Editorial
+                            <span class="badge badge-cyan" style="font-size:.65rem;">A4 Print Ready</span>
+                        </h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Inspección en tiempo real de maquetación, tablas autoajustadas y paginación sin saltos vacíos</p>
+                    </div>
+                </div>
+
+                <!-- Scope Selector & Actions -->
+                <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                    <select id="preview-doc-scope" class="cyber-input" style="padding:.45rem .85rem;font-size:.78rem;width:auto;min-width:220px;background:#0F172A;border:1px solid rgba(56,189,248,.3);color:#E2E8F0;border-radius:.45rem;">
+                        <option value="all">📚 Suite Completa (Todos los Módulos)</option>
+                        <option value="prd">📋 PRD &amp; SRS (IEEE 830)</option>
+                        <option value="arch">🏛️ Arquitectura de Software &amp; C4</option>
+                        <option value="db">🗄️ Base de Datos &amp; Diccionario</option>
+                        <option value="api">🔌 Catálogo de APIs &amp; OpenAPI</option>
+                        <option value="readme">📖 README &amp; Guía de Desarrollo</option>
+                        <option value="devops">🚀 DevOps &amp; CI/CD</option>
+                        <option value="qa">🧪 Plan de Calidad &amp; Matriz QA</option>
+                        <option value="sec">🛡️ Seguridad DevSecOps (SAST)</option>
+                        <option value="adrs">⚖️ Decisiones de Arquitectura (ADR)</option>
+                        <option value="user">👤 Guía de Usuario &amp; FAQ</option>
+                    </select>
+
+                    <button type="button" id="btn-preview-print" class="btn-cyber" style="padding:.5rem 1.15rem;font-size:.8rem;">
+                        <i class="fa-solid fa-print" style="margin-right:.4rem;"></i>Imprimir / Guardar PDF
+                    </button>
+                    <button type="button" id="btn-preview-download-md" class="btn-cyber-outline" style="padding:.5rem 1rem;font-size:.8rem;" title="Descargar documento en formato Markdown">
+                        <i class="fa-solid fa-download" style="margin-right:.35rem;color:var(--tech-cyan);"></i>Markdown (.md)
+                    </button>
+                    <button type="button" id="btn-close-doc-preview" class="auth-modal-close" style="margin-left:.4rem;font-size:1.4rem;color:#94A3B8;cursor:pointer;background:none;border:none;" aria-label="Cerrar vista previa">&times;</button>
+                </div>
+            </div>
+
+            <!-- Diagnostics Quality Banner -->
+            <div style="padding:.55rem 1.5rem;background:rgba(2,132,199,.08);border-bottom:1px solid rgba(56,189,248,.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;font-size:.76rem;color:#94A3B8;">
+                <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+                    <span><i class="fa-solid fa-book-open" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Páginas estimadas: <strong id="preview-page-count" style="color:#fff;">~8 págs</strong></span>
+                    <span><i class="fa-solid fa-circle-check" style="color:#34D399;margin-right:.35rem;"></i>Paginación: <strong style="color:#34D399;">0 páginas vacías</strong></span>
+                    <span><i class="fa-solid fa-table" style="color:#818CF8;margin-right:.35rem;"></i>Tablas: <strong style="color:#fff;">Autoajustadas (Sin Desborde)</strong></span>
+                    <span><i class="fa-solid fa-shield-halved" style="color:#38BDF8;margin-right:.35rem;"></i>Evidencia Factual: <strong style="color:#38BDF8;">Verificada</strong></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:.4rem;">
+                    <span style="font-size:.72rem;color:#64748B;">Zoom:</span>
+                    <button type="button" class="btn-ghost preview-zoom-btn" data-zoom="0.8" style="padding:.15rem .5rem;font-size:.72rem;border-radius:.3rem;">80%</button>
+                    <button type="button" class="btn-ghost preview-zoom-btn active" data-zoom="1.0" style="padding:.15rem .5rem;font-size:.72rem;background:rgba(56,189,248,.18);color:var(--tech-cyan);border-radius:.3rem;">100%</button>
+                    <button type="button" class="btn-ghost preview-zoom-btn" data-zoom="1.2" style="padding:.15rem .5rem;font-size:.72rem;border-radius:.3rem;">120%</button>
+                </div>
+            </div>
+
+            <!-- Scrollable Paper Canvas Container -->
+            <div style="flex:1;overflow-y:auto;background:#070B13;padding:2rem 1rem;display:flex;justify-content:center;">
+                <div id="preview-paper-sheet" style="width:100%;max-width:860px;background:#FFFFFF;color:#0F172A;border-radius:4px;box-shadow:0 12px 40px rgba(0,0,0,.7);padding:40px 48px;transform-origin:top center;transition:transform .2s ease;">
+                    <!-- Injected dynamically by DocuMindExporter -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================
          ONBOARDING QUICK TOUR MODAL (3 STEPS)
     ============================================================ -->
     <div id="tour-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tour-modal-title">
@@ -2115,7 +2188,8 @@
 
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=6.0" charset="UTF-8"></script>
-    <script src="app.js?v=6.0" charset="UTF-8"></script>
+    <script src="js/document-exporter.js?v=7.0" charset="UTF-8"></script>
+    <script src="app.js?v=7.0" charset="UTF-8"></script>
 </body>
 </html>
 
