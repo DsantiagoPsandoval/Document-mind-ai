@@ -77,8 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let supabaseClient = null;
     let currentUser = null;
     let isSupabaseConfigured = false;
-    let authMode = "login"; // "login" | "signup"
-
     // DOM Elements - Nav & User Capsule
     const navAuthGuest = document.getElementById("nav-auth-guest");
     const btnOpenAuthModal = document.getElementById("btn-open-auth-modal");
@@ -87,8 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const navUserAvatar = document.getElementById("nav-user-avatar");
     const navUserEmail = document.getElementById("nav-user-email");
     const userDropdownMenu = document.getElementById("user-dropdown-menu");
+    const dropdownUserName = document.getElementById("dropdown-user-name");
     const dropdownUserEmail = document.getElementById("dropdown-user-email");
+    const btnUserAccount = document.getElementById("btn-user-account");
     const btnUserHistory = document.getElementById("btn-user-history");
+    const btnUserPrivacy = document.getElementById("btn-user-privacy");
     const btnLogout = document.getElementById("btn-logout");
 
     // DOM Elements - Mobile Menu Auth
@@ -98,27 +99,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const mobileUserEmail = document.getElementById("mobile-user-email");
     const btnMobileLogout = document.getElementById("btn-mobile-logout");
 
-    // DOM Elements - Modal
+    // DOM Elements - Auth Modal & Welcome Banner
     const authModal = document.getElementById("auth-modal");
     const authModalBackdrop = document.getElementById("auth-modal-backdrop");
     const btnCloseAuthModal = document.getElementById("btn-close-auth-modal");
     const authUnconfiguredAlert = document.getElementById("auth-unconfigured-alert");
-    const authTabLogin = document.getElementById("auth-tab-login");
-    const authTabSignup = document.getElementById("auth-tab-signup");
     const authAlertBox = document.getElementById("auth-alert-box");
-    const authForm = document.getElementById("auth-form");
-    const authFieldFullname = document.getElementById("auth-field-fullname");
-    const authFullname = document.getElementById("auth-fullname");
-    const authEmail = document.getElementById("auth-email");
-    const authPassword = document.getElementById("auth-password");
-    const btnTogglePwd = document.getElementById("btn-toggle-pwd");
-    const btnToggleForgot = document.getElementById("btn-toggle-forgot");
-    const btnAuthSubmit = document.getElementById("btn-auth-submit");
-    const authSubmitLabel = document.getElementById("auth-submit-label");
-    const forgotForm = document.getElementById("forgot-form");
-    const forgotEmail = document.getElementById("forgot-email");
-    const btnCancelForgot = document.getElementById("btn-cancel-forgot");
     const btnOAuthGoogle = document.getElementById("btn-oauth-google");
+    const googleBtnText = document.getElementById("google-btn-text");
+
+    // Account & Privacy Modals
+    const accountModal = document.getElementById("account-modal");
+    const btnCloseAccountModal = document.getElementById("btn-close-account-modal");
+    const accountModalBackdrop = document.getElementById("account-modal-backdrop");
+    const btnAccCloseAction = document.getElementById("btn-acc-close-action");
+    const btnAccLogout = document.getElementById("btn-acc-logout");
+    const privacyModal = document.getElementById("privacy-modal");
+    const btnClosePrivacyModal = document.getElementById("btn-close-privacy-modal");
+    const privacyModalBackdrop = document.getElementById("privacy-modal-backdrop");
+    const btnPrivacyOk = document.getElementById("btn-privacy-ok");
+    const btnOpenPrivacyLink = document.getElementById("btn-open-privacy-link");
+    const btnOpenTermsLink = document.getElementById("btn-open-terms-link");
+
+    // Welcome Banner Elements
+    const userWelcomeBanner = document.getElementById("user-welcome-banner");
+    const welcomeGreeting = document.getElementById("welcome-banner-greeting");
+    const welcomeUserName = document.getElementById("welcome-user-name");
+    const welcomeUserAvatar = document.getElementById("welcome-user-avatar");
+    const welcomeProfileName = document.getElementById("welcome-profile-name");
+    const welcomeProfileEmail = document.getElementById("welcome-profile-email");
+    const btnBannerAccount = document.getElementById("btn-banner-account");
+    const btnBannerLogout = document.getElementById("btn-banner-logout");
+
+    function getLocalGreeting() {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return "Buenos días";
+        if (hour >= 12 && hour < 19) return "Buenas tardes";
+        return "Buenas noches";
+    }
+
     function setAuthAlert(message, type = "error") {
         if (!authAlertBox) return;
         if (!message) {
@@ -145,21 +164,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function openAuthModal(mode = "login") {
+    function openAuthModal() {
         if (!authModal) return;
         setAuthAlert("");
-        authMode = mode;
-        switchAuthTab(mode);
-        if (forgotForm) forgotForm.style.display = "none";
-        if (authForm) authForm.style.display = "block";
         if (authUnconfiguredAlert) {
             authUnconfiguredAlert.style.display = isSupabaseConfigured ? "none" : "block";
         }
         authModal.classList.remove("hidden");
         document.body.style.overflow = "hidden";
-        setTimeout(() => {
-            if (authEmail) authEmail.focus();
-        }, 150);
     }
 
     function closeAuthModal() {
@@ -169,44 +181,108 @@ document.addEventListener("DOMContentLoaded", () => {
         setAuthAlert("");
     }
 
-    function switchAuthTab(mode) {
-        authMode = mode;
-        setAuthAlert("");
-        if (mode === "login") {
-            if (authTabLogin) authTabLogin.classList.add("active");
-            if (authTabSignup) authTabSignup.classList.remove("active");
-            if (authFieldFullname) authFieldFullname.style.display = "none";
-            if (authSubmitLabel) authSubmitLabel.textContent = "Iniciar Sesión";
-        } else {
-            if (authTabLogin) authTabLogin.classList.remove("active");
-            if (authTabSignup) authTabSignup.classList.add("active");
-            if (authFieldFullname) authFieldFullname.style.display = "block";
-            if (authSubmitLabel) authSubmitLabel.textContent = "Crear Cuenta";
+    function openAccountModal() {
+        if (!currentUser || !accountModal) return;
+        const meta = currentUser.user_metadata || {};
+        const email = currentUser.email || "";
+        const fullName = meta.full_name || meta.name || (email ? email.split("@")[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
+        const avatarUrl = meta.avatar_url || meta.picture || "";
+        const initials = fullName.slice(0, 2).toUpperCase() || "US";
+
+        const accName = document.getElementById("acc-modal-name");
+        const accEmail = document.getElementById("acc-modal-email");
+        const accAvatar = document.getElementById("acc-modal-avatar");
+        const accId = document.getElementById("acc-modal-id");
+
+        if (accName) accName.textContent = fullName;
+        if (accEmail) accEmail.textContent = email;
+        if (accId) accId.textContent = currentUser.id ? currentUser.id.slice(0, 16) + '...' : 'UUID';
+        if (accAvatar) {
+            if (avatarUrl) {
+                accAvatar.innerHTML = `<img src="${avatarUrl}" alt="${fullName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+            } else {
+                accAvatar.innerHTML = `<span>${initials}</span>`;
+            }
         }
+        accountModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeAccountModal() {
+        if (accountModal) accountModal.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    function openPrivacyModal() {
+        if (privacyModal) {
+            privacyModal.classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+        }
+    }
+
+    function closePrivacyModal() {
+        if (privacyModal) privacyModal.classList.add("hidden");
+        document.body.style.overflow = "";
     }
 
     function updateAuthUI(user) {
         currentUser = user;
+
         if (user) {
             if (navAuthGuest) navAuthGuest.style.display = "none";
             if (navAuthUser) navAuthUser.style.display = "inline-flex";
             if (mobileAuthGuest) mobileAuthGuest.style.display = "none";
             if (mobileAuthUser) mobileAuthUser.style.display = "flex";
 
-            const email = user.email || "usuario";
-            const name = (user.user_metadata && user.user_metadata.full_name) || email;
-            const initials = name.substring(0, 2).toUpperCase();
+            const meta = user.user_metadata || {};
+            const email = user.email || "usuario@correo.com";
+            const fullName = meta.full_name || meta.name || (email ? email.split("@")[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
+            const firstName = fullName.split(" ")[0] || fullName;
+            const avatarUrl = meta.avatar_url || meta.picture || "";
+            const initials = (firstName.slice(0, 1) + (fullName.split(" ")[1] ? fullName.split(" ")[1].slice(0, 1) : "")).toUpperCase() || "US";
 
-            if (navUserAvatar) navUserAvatar.textContent = initials;
-            if (navUserEmail) navUserEmail.textContent = email;
+            // Update Navbar Capsule
+            if (navUserAvatar) {
+                if (avatarUrl) {
+                    navUserAvatar.innerHTML = `<img src="${avatarUrl}" alt="${fullName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${initials}'">`;
+                } else {
+                    navUserAvatar.textContent = initials;
+                }
+            }
+            if (navUserEmail) navUserEmail.textContent = firstName;
+            if (dropdownUserName) dropdownUserName.textContent = fullName;
             if (dropdownUserEmail) dropdownUserEmail.textContent = email;
-            if (mobileUserEmail) mobileUserEmail.textContent = email;
+            if (mobileUserEmail) mobileUserEmail.textContent = fullName;
+
+            // Update & Display Welcome Banner
+            if (userWelcomeBanner) {
+                userWelcomeBanner.style.display = "block";
+                const greetingWord = getLocalGreeting();
+                if (welcomeGreeting) {
+                    welcomeGreeting.innerHTML = `${greetingWord}, <span class="gradient-text">${firstName}</span>`;
+                }
+                if (welcomeUserName) welcomeUserName.textContent = firstName;
+                if (welcomeProfileName) welcomeProfileName.textContent = fullName;
+                if (welcomeProfileEmail) welcomeProfileEmail.textContent = email;
+                if (welcomeUserAvatar) {
+                    if (avatarUrl) {
+                        welcomeUserAvatar.innerHTML = `<img src="${avatarUrl}" alt="${fullName}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.innerHTML='<span>${initials}</span>'">`;
+                    } else {
+                        welcomeUserAvatar.innerHTML = `<span>${initials}</span>`;
+                    }
+                }
+            }
+
+            // Close auth modal smoothly if open
+            closeAuthModal();
+
         } else {
             if (navAuthGuest) navAuthGuest.style.display = "inline-flex";
             if (navAuthUser) navAuthUser.style.display = "none";
             if (mobileAuthGuest) mobileAuthGuest.style.display = "block";
             if (mobileAuthUser) mobileAuthUser.style.display = "none";
             if (userDropdownMenu) userDropdownMenu.classList.add("hidden");
+            if (userWelcomeBanner) userWelcomeBanner.style.display = "none";
         }
     }
 
@@ -230,7 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                 isSupabaseConfigured = true;
 
-                // Check active session
+                // Check active session on startup
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session && session.user) {
                     updateAuthUI(session.user);
@@ -249,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     if (event === "SIGNED_IN") {
-                        showToast(`¡Sesión iniciada con éxito!`, "success");
+                        showToast(`¡Bienvenido a DocuMind AI!`, "success");
                         await loadSupabaseHistory();
                     } else if (event === "SIGNED_OUT") {
                         showToast("Sesión finalizada.", "info");
@@ -261,80 +337,58 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (err) {
             console.warn("Supabase initialization note:", err);
+            updateAuthUI(null);
         }
     }
     initSupabase();
 
     // Event Listeners for Auth Modal
-    if (btnOpenAuthModal) btnOpenAuthModal.addEventListener("click", () => openAuthModal("login"));
+    if (btnOpenAuthModal) btnOpenAuthModal.addEventListener("click", openAuthModal);
     if (btnMobileOpenAuth) btnMobileOpenAuth.addEventListener("click", () => {
         if (mobileMenu) mobileMenu.classList.add("hidden");
-        openAuthModal("login");
+        openAuthModal();
     });
     if (btnCloseAuthModal) btnCloseAuthModal.addEventListener("click", closeAuthModal);
     if (authModalBackdrop) authModalBackdrop.addEventListener("click", closeAuthModal);
 
     window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && authModal && !authModal.classList.contains("hidden")) {
-            closeAuthModal();
+        if (e.key === "Escape") {
+            if (authModal && !authModal.classList.contains("hidden")) closeAuthModal();
+            if (accountModal && !accountModal.classList.contains("hidden")) closeAccountModal();
+            if (privacyModal && !privacyModal.classList.contains("hidden")) closePrivacyModal();
         }
     });
 
-    if (authTabLogin) authTabLogin.addEventListener("click", () => switchAuthTab("login"));
-    if (authTabSignup) authTabSignup.addEventListener("click", () => switchAuthTab("signup"));
     // Google OAuth Login
-if (btnOAuthGoogle) {
-    btnOAuthGoogle.addEventListener("click", async () => {
-        if (!supabaseClient || !isSupabaseConfigured) {
-            setAuthAlert("Supabase no está conectado. Inténtalo nuevamente.");
-            return;
-        }
+    if (btnOAuthGoogle) {
+        btnOAuthGoogle.addEventListener("click", async () => {
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase no está conectado todavía. Define SUPABASE_URL y SUPABASE_ANON_KEY en tu archivo .env.");
+                return;
+            }
 
-        btnOAuthGoogle.disabled = true;
-        setAuthAlert("Conectando con Google...", "info");
+            btnOAuthGoogle.disabled = true;
+            if (googleBtnText) googleBtnText.textContent = "Conectando con Google...";
+            setAuthAlert("Redirigiendo a Google OAuth seguro...", "info");
 
-        try {
-            const redirectTo = window.location.origin + window.location.pathname;
+            try {
+                const redirectTo = window.location.origin + window.location.pathname;
 
-            const { error } = await supabaseClient.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: redirectTo
-                }
-            });
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: "google",
+                    options: {
+                        redirectTo: redirectTo
+                    }
+                });
 
-            if (error) throw error;
+                if (error) throw error;
 
-        } catch (err) {
-            console.error("Google OAuth error:", err);
-            setAuthAlert(err.message || "No se pudo iniciar sesión con Google.");
-            btnOAuthGoogle.disabled = false;
-        }
-    });
-}
-
-    // Password Toggle
-    if (btnTogglePwd && authPassword) {
-        btnTogglePwd.addEventListener("click", () => {
-            const isPwd = authPassword.type === "password";
-            authPassword.type = isPwd ? "text" : "password";
-            btnTogglePwd.innerHTML = isPwd ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
-        });
-    }
-
-    // Toggle Forgot Password Form
-    if (btnToggleForgot) {
-        btnToggleForgot.addEventListener("click", () => {
-            if (authForm) authForm.style.display = "none";
-            if (forgotForm) forgotForm.style.display = "block";
-            setAuthAlert("");
-        });
-    }
-    if (btnCancelForgot) {
-        btnCancelForgot.addEventListener("click", () => {
-            if (forgotForm) forgotForm.style.display = "none";
-            if (authForm) authForm.style.display = "block";
-            setAuthAlert("");
+            } catch (err) {
+                console.error("Google OAuth error:", err);
+                setAuthAlert(err.message || "No se pudo iniciar sesión con Google.");
+                btnOAuthGoogle.disabled = false;
+                if (googleBtnText) googleBtnText.textContent = "Continuar con Google";
+            }
         });
     }
 
@@ -360,6 +414,30 @@ if (btnOAuthGoogle) {
         });
     }
 
+    // Modal Triggers: Mi Cuenta & Privacidad
+    if (btnUserAccount) {
+        btnUserAccount.addEventListener("click", () => {
+            if (userDropdownMenu) userDropdownMenu.classList.add("hidden");
+            openAccountModal();
+        });
+    }
+    if (btnBannerAccount) btnBannerAccount.addEventListener("click", openAccountModal);
+    if (btnCloseAccountModal) btnCloseAccountModal.addEventListener("click", closeAccountModal);
+    if (accountModalBackdrop) accountModalBackdrop.addEventListener("click", closeAccountModal);
+    if (btnAccCloseAction) btnAccCloseAction.addEventListener("click", closeAccountModal);
+
+    if (btnUserPrivacy) {
+        btnUserPrivacy.addEventListener("click", () => {
+            if (userDropdownMenu) userDropdownMenu.classList.add("hidden");
+            openPrivacyModal();
+        });
+    }
+    if (btnOpenPrivacyLink) btnOpenPrivacyLink.addEventListener("click", (e) => { e.preventDefault(); openPrivacyModal(); });
+    if (btnOpenTermsLink) btnOpenTermsLink.addEventListener("click", (e) => { e.preventDefault(); openPrivacyModal(); });
+    if (btnClosePrivacyModal) btnClosePrivacyModal.addEventListener("click", closePrivacyModal);
+    if (privacyModalBackdrop) privacyModalBackdrop.addEventListener("click", closePrivacyModal);
+    if (btnPrivacyOk) btnPrivacyOk.addEventListener("click", closePrivacyModal);
+
     // Logout Handlers
     async function handleLogout() {
         if (supabaseClient) {
@@ -370,107 +448,16 @@ if (btnOAuthGoogle) {
             }
         }
         updateAuthUI(null);
-        showToast("Sesión cerrada.", "info");
+        closeAccountModal();
+        showToast("Sesión cerrada correctamente.", "info");
     }
     if (btnLogout) btnLogout.addEventListener("click", handleLogout);
+    if (btnBannerLogout) btnBannerLogout.addEventListener("click", handleLogout);
+    if (btnAccLogout) btnAccLogout.addEventListener("click", handleLogout);
     if (btnMobileLogout) btnMobileLogout.addEventListener("click", () => {
         if (mobileMenu) mobileMenu.classList.add("hidden");
         handleLogout();
     });
-
-    // Submit Auth Form (Login or Signup)
-    if (authForm) {
-        authForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = authEmail ? authEmail.value.trim() : "";
-            const password = authPassword ? authPassword.value : "";
-            const fullname = authFullname ? authFullname.value.trim() : "";
-
-            if (!email || !password) {
-                setAuthAlert("Por favor ingresa tu correo y contraseña.");
-                return;
-            }
-
-            if (!supabaseClient) {
-                setAuthAlert("Supabase no está conectado todavía. Define SUPABASE_URL y SUPABASE_ANON_KEY en tu archivo .env.");
-                return;
-            }
-
-            const originalBtnHtml = btnAuthSubmit.innerHTML;
-            btnAuthSubmit.disabled = true;
-            btnAuthSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-right:.45rem;"></i>Procesando...`;
-            setAuthAlert("");
-
-            try {
-                if (authMode === "login") {
-                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                    if (error) throw error;
-                    showToast(`¡Bienvenido de nuevo, ${email}!`, "success");
-                    closeAuthModal();
-                    authForm.reset();
-                } else {
-                    const { data, error } = await supabaseClient.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            data: { full_name: fullname }
-                        }
-                    });
-                    if (error) throw error;
-                    if (data && data.session) {
-                        showToast("¡Cuenta creada exitosamente!", "success");
-                        closeAuthModal();
-                        authForm.reset();
-                    } else {
-                        setAuthAlert("¡Registro exitoso! Si se requiere confirmación, revisa el correo de activación.", "info");
-                        authForm.reset();
-                    }
-                }
-            } catch (err) {
-                setAuthAlert(err.message || "Error al procesar la solicitud de autenticación.");
-            } finally {
-                btnAuthSubmit.disabled = false;
-                btnAuthSubmit.innerHTML = originalBtnHtml;
-            }
-        });
-    }
-
-    // Submit Forgot Password Form
-    if (forgotForm) {
-        forgotForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = forgotEmail ? forgotEmail.value.trim() : "";
-            if (!email) {
-                setAuthAlert("Por favor ingresa tu correo registrado.");
-                return;
-            }
-            if (!supabaseClient) {
-                setAuthAlert("Supabase no está conectado todavía. Define SUPABASE_URL y SUPABASE_ANON_KEY en .env.");
-                return;
-            }
-
-            const btn = document.getElementById("btn-forgot-submit");
-            const originalBtnHtml = btn ? btn.innerHTML : "";
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="margin-right:.45rem;"></i>Enviando...`;
-            }
-
-            try {
-                const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-                if (error) throw error;
-                setAuthAlert("Se ha enviado un enlace de restablecimiento a tu correo.", "success");
-                forgotForm.reset();
-            } catch (err) {
-                setAuthAlert(err.message || "Error al solicitar restablecimiento de contraseña.");
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = originalBtnHtml;
-                }
-            }
-        });
-    }
 
     // ------------------------------------------------------------
     // 4. Mobile Menu & Navigation Controls
@@ -1738,12 +1725,12 @@ if (btnOAuthGoogle) {
         const remPlan = sec.remediationPlan || { queues: {}, summary: {} };
         const countInm = document.getElementById("count-rem-inm");
         const countAlta = document.getElementById("count-rem-alta");
-        const countMed = document.getElementById("count-rem-med");
+        const countRemMed = document.getElementById("count-rem-med");
         const countBaja = document.getElementById("count-rem-baja");
 
         if (countInm) countInm.textContent = remPlan.summary?.inmediata || 0;
         if (countAlta) countAlta.textContent = remPlan.summary?.alta || 0;
-        if (countMed) countMed.textContent = remPlan.summary?.media || 0;
+        if (countRemMed) countRemMed.textContent = remPlan.summary?.media || 0;
         if (countBaja) countBaja.textContent = remPlan.summary?.baja || 0;
 
         function renderRemQueue(queueKey = 'inmediata') {

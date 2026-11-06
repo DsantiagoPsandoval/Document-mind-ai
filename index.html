@@ -90,6 +90,9 @@
                             </div>
                         </div>
                         <div class="user-dropdown-divider"></div>
+                        <button type="button" id="btn-user-account" class="user-dropdown-item">
+                            <i class="fa-solid fa-user-circle" style="color:var(--tech-cyan);"></i>Mi Cuenta
+                        </button>
                         <a href="#analizador" id="btn-user-history" class="user-dropdown-item">
                             <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis Análisis Guardados
                         </a>
@@ -443,6 +446,54 @@
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> Plataforma de Ingeniería de Software</span>
                 <h2 class="section-title">Generador y Analizador de Documentación Viva</h2>
                 <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;">Analiza repositorios de GitHub, archivos y proyectos de software para generar automáticamente documentación técnica profesional, diagramas C4, contratos de API, modelos de datos, DevOps y suites de QA.</p>
+            </div>
+
+            <!-- ============================================================
+                 AUTHENTICATED USER WELCOME BANNER (Linear / Vercel Style)
+            ============================================================ -->
+            <div id="user-welcome-banner" class="user-welcome-banner" style="display:none;">
+                <div class="user-welcome-card">
+                    <!-- Left Column: Contextual Greeting & Value -->
+                    <div class="user-welcome-left">
+                        <div class="user-welcome-badge">
+                            <span class="user-welcome-badge-dot"></span>
+                            <span id="welcome-banner-subtitle">Tu entorno de inteligencia para ingeniería de software</span>
+                        </div>
+                        <h2 class="user-welcome-title" id="welcome-banner-greeting">
+                            Buenos días, <span id="welcome-user-name" class="gradient-text">Ingeniero</span>
+                        </h2>
+                        <p class="user-welcome-desc">
+                            Analiza repositorios, genera documentación técnica y evalúa la arquitectura de tus proyectos desde un solo lugar.
+                        </p>
+                    </div>
+
+                    <!-- Right Column: User Profile Capsule & Session Status -->
+                    <div class="user-welcome-right">
+                        <div class="user-welcome-profile-box">
+                            <div class="user-welcome-avatar" id="welcome-user-avatar">
+                                <span>US</span>
+                            </div>
+                            <div class="user-welcome-meta">
+                                <span class="user-welcome-name" id="welcome-profile-name">Usuario</span>
+                                <span class="user-welcome-email" id="welcome-profile-email">usuario@correo.com</span>
+                                <div class="user-welcome-status">
+                                    <span class="status-pulse-dot"></span>
+                                    <span>Sesión Activa</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions in Banner -->
+                        <div class="user-welcome-actions">
+                            <button type="button" id="btn-banner-account" class="btn-ghost-sm" title="Ver detalles de mi cuenta">
+                                <i class="fa-solid fa-user-gear"></i> Mi Cuenta
+                            </button>
+                            <button type="button" id="btn-banner-logout" class="btn-ghost-sm btn-ghost-danger" title="Cerrar sesión segura">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="glow-card reveal reveal-delay-1" style="padding:2.25rem;max-width:1120px;margin:0 auto;">
@@ -1820,128 +1871,170 @@
     </script>
 
     <!-- ============================================================
-         CYBERPUNK AUTH MODAL (SUPABASE LOGIN / REGISTRO / RECUPERACIÓN)
+         PREMIUM SAAS AUTH MODAL (GOOGLE OAUTH & SUPABASE)
     ============================================================ -->
     <div id="auth-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="auth-modal-backdrop" id="auth-modal-backdrop"></div>
-        <div class="auth-card-cyber">
-            <!-- Modal Header -->
-            <div class="auth-modal-header">
-                <div style="display:flex;align-items:center;gap:.65rem;">
-                    <div class="nav-logo-icon" style="width:2.2rem;height:2.2rem;font-size:1rem;border-radius:.6rem;background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(129,140,248,.25));border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
-                        <i class="fa-solid fa-brain"></i>
-                    </div>
-                    <div>
-                        <h3 id="auth-modal-title" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">Acceso a la Plataforma</h3>
-                        <span style="font-size:.68rem;color:#64748B;font-family:'JetBrains Mono',monospace;">Autenticación Segura &bull; Supabase Cloud</span>
-                    </div>
+        <div class="auth-card-cyber" style="max-width:440px;padding:2.25rem 2rem;background:linear-gradient(180deg,#0F172A 0%,#0A0F1D 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;box-shadow:0 25px 60px -15px rgba(0,0,0,.85),0 0 40px rgba(56,189,248,.08);position:relative;">
+            
+            <!-- Modal Close Button -->
+            <button type="button" id="btn-close-auth-modal" class="auth-modal-close" style="position:absolute;top:1.25rem;right:1.25rem;" aria-label="Cerrar modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Brand Icon & Header -->
+            <div style="text-align:center;margin-bottom:1.85rem;">
+                <div style="width:3.25rem;height:3.25rem;margin:0 auto 1.1rem;border-radius:.85rem;background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(129,140,248,.25));border:1px solid rgba(56,189,248,.4);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:1.45rem;box-shadow:0 8px 24px rgba(56,189,248,.18);">
+                    <i class="fa-solid fa-brain"></i>
                 </div>
-                <button type="button" id="btn-close-auth-modal" class="auth-modal-close" aria-label="Cerrar modal">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <h3 id="auth-modal-title" style="font-size:1.35rem;font-weight:900;color:#FFFFFF;margin:0 0 .4rem 0;letter-spacing:-0.02em;">DocuMind AI</h3>
+                <p style="font-size:.84rem;color:#94A3B8;line-height:1.55;margin:0 auto;max-width:320px;">
+                    Tu espacio inteligente para analizar, documentar y comprender proyectos de software.
+                </p>
             </div>
 
             <!-- Supabase Unconfigured Alert (shows only if keys missing) -->
-            <div id="auth-unconfigured-alert" style="display:none;margin-top:1.15rem;padding:.85rem 1rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:.65rem;font-size:.74rem;color:#FBBF24;line-height:1.5;">
+            <div id="auth-unconfigured-alert" style="display:none;margin-bottom:1.25rem;padding:.75rem 1rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:.65rem;font-size:.75rem;color:#FBBF24;line-height:1.5;">
                 <i class="fa-solid fa-triangle-exclamation" style="margin-right:.4rem;"></i>
-                <strong>Supabase pendiente de configuración:</strong> Agrega <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> a tu archivo <code>.env</code> para habilitar la sincronización en la nube.
-            </div>
-
-            <!-- Auth Mode Switcher Tabs -->
-            <div class="auth-tabs" role="tablist" style="margin-top:1.25rem;">
-                <button type="button" id="auth-tab-login" class="auth-tab-btn active" role="tab" aria-selected="true">
-                    <i class="fa-solid fa-right-to-bracket" style="margin-right:.35rem;"></i>Iniciar Sesión
-                </button>
-                <button type="button" id="auth-tab-signup" class="auth-tab-btn" role="tab" aria-selected="false">
-                    <i class="fa-solid fa-user-plus" style="margin-right:.35rem;"></i>Crear Cuenta
-                </button>
+                <strong>Supabase pendiente de configuración:</strong> Configura <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> en tu archivo <code>.env</code>.
             </div>
 
             <!-- Form Message / Alert Container -->
-            <div id="auth-alert-box" style="display:none;margin:1rem 0;padding:.75rem 1rem;border-radius:.6rem;font-size:.78rem;line-height:1.5;"></div>
+            <div id="auth-alert-box" style="display:none;margin-bottom:1.25rem;padding:.75rem 1rem;border-radius:.65rem;font-size:.78rem;line-height:1.5;"></div>
 
-            <!-- Form: Iniciar Sesión / Registro -->
-            <form id="auth-form" style="margin-top:1rem;">
-                <!-- Full Name (Only for Signup) -->
-                <div id="auth-field-fullname" class="auth-field-group" style="display:none;margin-bottom:1rem;">
-                    <label for="auth-fullname" class="auth-label">Nombre Completo</label>
-                    <div class="auth-input-wrapper">
-                        <i class="fa-solid fa-user auth-input-icon"></i>
-                        <input type="text" id="auth-fullname" class="auth-input" placeholder="Ej. Daniel Palencia" autocomplete="name">
-                    </div>
-                </div>
-
-                <!-- Email -->
-                <div class="auth-field-group" style="margin-bottom:1rem;">
-                    <label for="auth-email" class="auth-label">Correo Electrónico</label>
-                    <div class="auth-input-wrapper">
-                        <i class="fa-solid fa-envelope auth-input-icon"></i>
-                        <input type="email" id="auth-email" class="auth-input" placeholder="tu@correo.com" required autocomplete="email">
-                    </div>
-                </div>
-
-                <!-- Password -->
-                <div class="auth-field-group" style="margin-bottom:1.25rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
-                        <label for="auth-password" class="auth-label" style="margin-bottom:0;">Contraseña</label>
-                        <button type="button" id="btn-toggle-forgot" style="background:none;border:none;color:var(--tech-cyan);font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;">¿Olvidaste tu clave?</button>
-                    </div>
-                    <div class="auth-input-wrapper">
-                        <i class="fa-solid fa-lock auth-input-icon"></i>
-                        <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required autocomplete="current-password" minlength="6">
-                        <button type="button" id="btn-toggle-pwd" class="auth-pwd-toggle" aria-label="Mostrar contraseña">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" id="btn-auth-submit" class="btn-cyber" style="width:100%;padding:.8rem 1.25rem;font-size:.88rem;justify-content:center;">
-                    <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:.45rem;"></i>
-                    <span id="auth-submit-label">Iniciar Sesión</span>
+            <!-- Google OAuth Primary Button -->
+            <div style="margin-bottom:1.5rem;">
+                <button type="button" id="btn-oauth-google" class="btn-google-premium" aria-label="Continuar con Google">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/>
+                        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+                        <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.173 0 7.548 0 9s.347 2.827.957 4.039l3.007-2.332z"/>
+                        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
+                    </svg>
+                    <span id="google-btn-text">Continuar con Google</span>
                 </button>
-            </form>
+            </div>
 
-            <!-- Social OAuth Divider & Providers -->
-            <div id="oauth-container">
-                <div class="auth-divider">
-                    <span>O continúa con</span>
+            <!-- Engineering & AI Feature Pills -->
+            <div style="display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.6rem;">
+                <span style="font-size:.68rem;padding:.22rem .55rem;border-radius:9999px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);color:#38BDF8;">
+                    <i class="fa-solid fa-code-branch" style="margin-right:.3rem;"></i>Arquitectura C4
+                </span>
+                <span style="font-size:.68rem;padding:.22rem .55rem;border-radius:9999px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:#34D399;">
+                    <i class="fa-solid fa-file-word" style="margin-right:.3rem;"></i>Docs Word &amp; PDF
+                </span>
+                <span style="font-size:.68rem;padding:.22rem .55rem;border-radius:9999px;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.2);color:#A78BFA;">
+                    <i class="fa-solid fa-shield-halved" style="margin-right:.3rem;"></i>DevSecOps 0-100
+                </span>
+            </div>
+
+            <!-- Security Guarantee Footer -->
+            <div style="border-top:1px solid rgba(148,163,184,.12);padding-top:1.15rem;text-align:center;">
+                <div style="display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;color:#64748B;margin-bottom:.55rem;">
+                    <i class="fa-solid fa-lock" style="color:#10B981;font-size:.7rem;"></i>
+                    Autenticación segura TLS 1.3 gestionada por Supabase Auth
                 </div>
-
-                <div class="oauth-buttons-grid">
-                    <button type="button" id="btn-oauth-google" class="btn-cyber-oauth" aria-label="Iniciar sesión con Google">
-                        <i class="fa-brands fa-google" style="color:#EA4335;"></i>
-                        <span>Continuar con Google</span>
-                    </button>
-                    
+                <div style="font-size:.7rem;color:#475569;">
+                    <a href="#privacidad" id="btn-open-privacy-link" style="color:#94A3B8;text-decoration:none;transition:color .15s ease;">Política de Privacidad</a>
+                    <span style="margin:0 .4rem;">&bull;</span>
+                    <a href="#terminos" id="btn-open-terms-link" style="color:#94A3B8;text-decoration:none;transition:color .15s ease;">Términos de Servicio</a>
                 </div>
             </div>
 
-            <!-- Forgot Password Mini-Form -->
-            <form id="forgot-form" style="display:none;margin-top:1.25rem;">
-                <p style="font-size:.8rem;color:#94A3B8;margin-bottom:1rem;line-height:1.6;">Ingresa tu correo registrado y te enviaremos un enlace seguro vía Supabase Auth para restablecer tu contraseña.</p>
-                <div class="auth-field-group" style="margin-bottom:1.25rem;">
-                    <label for="forgot-email" class="auth-label">Correo Registrado</label>
-                    <div class="auth-input-wrapper">
-                        <i class="fa-solid fa-envelope auth-input-icon"></i>
-                        <input type="email" id="forgot-email" class="auth-input" placeholder="tu@correo.com" required>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: MI CUENTA DE USUARIO
+    ============================================================ -->
+    <div id="account-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+        <div class="auth-modal-backdrop" id="account-modal-backdrop"></div>
+        <div class="auth-card-cyber" style="max-width:480px;padding:2rem;background:linear-gradient(180deg,#0F172A 0%,#090E1A 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;">
+            <div class="auth-modal-header" style="border-bottom:1px solid rgba(148,163,184,.15);padding-bottom:1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.2rem;height:2.2rem;border-radius:.6rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <h3 id="account-modal-title" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">Mi Cuenta</h3>
+                        <span style="font-size:.7rem;color:#94A3B8;">Perfil y Sesión Activa</span>
                     </div>
                 </div>
-                <div style="display:flex;gap:.75rem;">
-                    <button type="button" id="btn-cancel-forgot" class="btn-ghost" style="flex:1;justify-content:center;">Volver</button>
-                    <button type="submit" id="btn-forgot-submit" class="btn-cyber" style="flex:2;justify-content:center;">
-                        <i class="fa-solid fa-paper-plane" style="margin-right:.4rem;"></i>Enviar Enlace
-                    </button>
-                </div>
-            </form>
+                <button type="button" id="btn-close-account-modal" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
 
-            <div class="auth-modal-footer">
-                <i class="fa-solid fa-shield-halved" style="color:var(--tech-cyan);margin-right:.35rem;"></i>
-                Seguridad criptográfica JWT con políticas Row Level Security (RLS) en PostgreSQL.
+            <!-- Profile Info Card -->
+            <div style="display:flex;align-items:center;gap:1rem;background:rgba(15,23,42,.7);border:1px solid rgba(148,163,184,.15);border-radius:.75rem;padding:1rem;margin-bottom:1.25rem;">
+                <div id="acc-modal-avatar" style="width:3.25rem;height:3.25rem;border-radius:50%;background:linear-gradient(135deg,#0284C7,#4F46E5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.15rem;border:2px solid rgba(56,189,248,.4);flex-shrink:0;">
+                    <span>US</span>
+                </div>
+                <div style="flex:1;overflow:hidden;">
+                    <h4 id="acc-modal-name" style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .2rem 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Nombre</h4>
+                    <p id="acc-modal-email" style="font-size:.78rem;color:#94A3B8;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">correo@dominio.com</p>
+                    <div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.4rem;font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 6px #34D399;"></span>
+                        Autenticado con Google
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Details List -->
+            <div style="background:rgba(9,13,22,.6);border:1px solid rgba(148,163,184,.1);border-radius:.75rem;padding:.85rem 1rem;margin-bottom:1.5rem;font-size:.76rem;color:#94A3B8;display:flex;flex-direction:column;gap:.5rem;">
+                <div style="display:flex;justify-content:space-between;">
+                    <span>Proveedor:</span>
+                    <strong style="color:#fff;">Google OAuth 2.0</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span>ID de Usuario:</span>
+                    <code id="acc-modal-id" style="color:var(--tech-cyan);">--</code>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span>Seguridad de Datos:</span>
+                    <span style="color:#34D399;">Row Level Security (RLS)</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex;justify-content:flex-end;gap:.65rem;">
+                <button type="button" id="btn-acc-close-action" class="btn-ghost" style="padding:.5rem 1rem;font-size:.8rem;">Cerrar</button>
+                <button type="button" id="btn-acc-logout" class="btn-cyber-outline" style="padding:.5rem 1.15rem;font-size:.8rem;color:#FB7185;border-color:#FB7185;">
+                    <i class="fa-solid fa-right-from-bracket" style="margin-right:.35rem;"></i>Cerrar Sesión
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- ============================================================
+         MODAL: POLÍTICA DE PRIVACIDAD & TÉRMINOS
+    ============================================================ -->
+    <div id="privacy-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+        <div class="auth-modal-backdrop" id="privacy-modal-backdrop"></div>
+        <div class="auth-card-cyber" style="max-width:540px;max-height:85vh;overflow-y:auto;padding:2rem;background:linear-gradient(180deg,#0F172A 0%,#090E1A 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;">
+            <div class="auth-modal-header" style="border-bottom:1px solid rgba(148,163,184,.15);padding-bottom:1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.2rem;height:2.2rem;border-radius:.6rem;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;color:#34D399;">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 id="privacy-modal-title" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">Privacidad &amp; Seguridad</h3>
+                        <span style="font-size:.7rem;color:#94A3B8;">Compromiso Enterprise DocuMind AI</span>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-privacy-modal" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+            
+            <div style="font-size:.82rem;color:#CBD5E1;line-height:1.65;display:flex;flex-direction:column;gap:1rem;">
+                <p><strong>1. Cero Retención de Código Privado:</strong> DocuMind AI analiza los repositorios de software exclusivamente en memoria volátil para generar la documentación técnica y las métricas de seguridad.</p>
+                <p><strong>2. Sanitización Automática de Secretos:</strong> Antes de procesar cualquier archivo o enviar contexto a modelos de IA, se aplica un filtro criptográfico de redacción que elimina tokens, contraseñas y claves privadas.</p>
+                <p><strong>3. Autenticación Delegada:</strong> Tus credenciales nunca son gestionadas directamente por DocuMind AI. Toda la autenticación está delegada en Supabase Auth mediante Google OAuth 2.0.</p>
+                <p><strong>4. Exportación Soberana:</strong> Los documentos Word (.docx), PDF y Markdown son descargables de forma soberana a tu dispositivo local.</p>
+            </div>
+
+            <div style="margin-top:1.5rem;text-align:right;">
+                <button type="button" id="btn-privacy-ok" class="btn-cyber" style="padding:.5rem 1.25rem;font-size:.8rem;">Entendido</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ============================================================
          MODAL 1: INTEGRATIONS & CLOUD HEALTH STATUS
