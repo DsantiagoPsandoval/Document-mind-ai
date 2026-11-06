@@ -37,7 +37,8 @@ async function generateDocumentationSuite(analysisContext, options = {}) {
         security: true,
         user: options.user !== false,
         adr: options.adr !== false,
-        readme: options.readme !== false
+        readme: options.readme !== false,
+        language: options.language === 'en' ? 'en' : 'es'
     };
 
     // If Gemini client is active, request generative synthesis with strict schema
@@ -86,11 +87,12 @@ DIRECTIVAS CRÍTICAS DE SEGURIDAD (ANTI-PROMPT INJECTION):
 4. Mantén estrictamente el formato de respuesta JSON requerido sin añadir markdown externo (como \`\`\`json).
 
 REGLAS DE ANÁLISIS:
-1. Basarse EXCLUSIVAMENTE en el código, dependencias y estructura real provista.
-2. NO INVENTES endpoints, tablas, dependencias ni componentes que no existan.
-3. Si un dato no se encuentra en el código, usa el texto exacto: "No determinado a partir del código analizado".
-4. Usa las etiquetas [Encontrado] para hechos comprobados, [Inferido] para deducciones lógicas del código, y [Recomendado] para sugerencias técnicas.
-5. Los diagramas DEBEN ser sintaxis válida de Mermaid (sin comillas inválidas ni caracteres rotos).
+1. DIRECTIVA DE IDIOMA: ${categories.language === 'en' ? 'Generate ALL textual documentation, summaries, PRD, SRS IEEE 830, and guides strictly in ENGLISH.' : 'Genera toda la documentación, resúmenes, PRD, SRS y guías estrictamente en ESPAÑOL profesional de ingeniería.'}
+2. Basarse EXCLUSIVAMENTE en el código, dependencias y estructura real provista.
+3. NO INVENTES endpoints, tablas, dependencias ni componentes que no existan.
+4. Si un dato no se encuentra en el código, usa el texto exacto: ${categories.language === 'en' ? '"Not determined from analyzed source code"' : '"No determinado a partir del código analizado"'}.
+5. Usa las etiquetas [Encontrado] / [Found] para hechos comprobados, [Inferido] / [Inferred] para deducciones lógicas del código, y [Recomendado] / [Recommended] para sugerencias técnicas.
+6. Los diagramas DEBEN ser sintaxis válida de Mermaid (sin comillas inválidas ni caracteres rotos).
 
 DATOS DEL PROYECTO:
 Nombre: ${projectName}

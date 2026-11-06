@@ -188,6 +188,9 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
                 categories = {};
             }
         }
+        if (req.body.doc_language || req.body.language) {
+            categories.language = (req.body.doc_language || req.body.language) === 'en' ? 'en' : 'es';
+        }
 
         let projectData;
 

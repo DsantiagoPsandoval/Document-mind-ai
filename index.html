@@ -55,6 +55,10 @@
                     <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Analizador
                 </a>
 
+                <button type="button" id="btn-open-tour" class="btn-ghost" style="padding:.5rem .85rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.35rem;color:#38BDF8;" aria-label="Guía de inicio rápido y tour de la plataforma">
+                    <i class="fa-solid fa-circle-question" style="color:#38BDF8;font-size:.78rem;"></i>
+                    <span>Guía Rápida</span>
+                </button>
                 <button type="button" id="btn-open-integrations" class="btn-ghost" style="padding:.5rem .85rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.35rem;" aria-label="Ver estado de integraciones y servicios">
                     <i class="fa-solid fa-server" style="color:var(--tech-cyan);font-size:.75rem;"></i>
                     <span>Servicios</span>
@@ -479,6 +483,26 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 1-Click Demo Repositories Bar -->
+                        <div style="margin-top:-.25rem;margin-bottom:1.25rem;padding:.75rem 1rem;background:rgba(15,23,42,.65);border:1px solid rgba(56,189,248,.18);border-radius:.65rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+                                <span style="font-size:.74rem;color:#94A3B8;font-weight:700;">
+                                    <i class="fa-solid fa-wand-magic-sparkles" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Probar con Repositorios Demo (1 Clic):
+                                </span>
+                                <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                                    <button type="button" class="btn-ghost demo-repo-btn" data-url="https://github.com/expressjs/express" data-branch="master" style="padding:.28rem .7rem;font-size:.72rem;border-radius:.45rem;border:1px solid rgba(56,189,248,.3);background:rgba(56,189,248,.08);color:var(--tech-cyan);">
+                                        <i class="fa-brands fa-node-js" style="margin-right:.35rem;"></i>Express.js (Node)
+                                    </button>
+                                    <button type="button" class="btn-ghost demo-repo-btn" data-url="https://github.com/tiangolo/fastapi" data-branch="master" style="padding:.28rem .7rem;font-size:.72rem;border-radius:.45rem;border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:#34D399;">
+                                        <i class="fa-brands fa-python" style="margin-right:.35rem;"></i>FastAPI (Python)
+                                    </button>
+                                    <button type="button" class="btn-ghost demo-repo-btn" data-url="https://github.com/DsantiagoPsandoval/Document-mind-ai" data-branch="main" style="padding:.28rem .7rem;font-size:.72rem;border-radius:.45rem;border:1px solid rgba(129,140,248,.3);background:rgba(129,140,248,.08);color:#818CF8;">
+                                        <i class="fa-solid fa-brain" style="margin-right:.35rem;"></i>DocuMind AI (Fullstack)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 2. Files / ZIP Upload Panel -->
@@ -505,8 +529,24 @@
                         </div>
                     </div>
 
+                    <!-- Documentation Language Selector -->
+                    <div style="margin-top:1.5rem;margin-bottom:1rem;padding:.75rem 1rem;background:rgba(9,13,22,.65);border:1px solid rgba(56,189,248,.18);border-radius:.65rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+                        <div style="display:flex;align-items:center;gap:.55rem;">
+                            <i class="fa-solid fa-language" style="color:var(--tech-cyan);font-size:1.15rem;"></i>
+                            <div>
+                                <span style="font-size:.78rem;font-weight:700;color:#fff;display:block;">Idioma de la Suite Documental</span>
+                                <span style="font-size:.68rem;color:#64748B;">Genera PRD, Arquitectura, SRS y Guías en el idioma seleccionado</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.35rem;background:rgba(15,23,42,.8);padding:.25rem;border-radius:.45rem;border:1px solid rgba(148,163,184,.15);">
+                            <button type="button" id="doc-lang-es" class="doc-lang-btn active" data-lang="es" style="padding:.3rem .75rem;font-size:.72rem;font-weight:700;border-radius:.35rem;border:none;cursor:pointer;background:var(--tech-cyan);color:#040810;">Español</button>
+                            <button type="button" id="doc-lang-en" class="doc-lang-btn" data-lang="en" style="padding:.3rem .75rem;font-size:.72rem;font-weight:700;border-radius:.35rem;border:none;cursor:pointer;background:transparent;color:#94A3B8;">English</button>
+                            <input type="hidden" id="selected-doc-lang" name="doc_language" value="es">
+                        </div>
+                    </div>
+
                     <!-- Category Selection Checklist ("¿Qué quieres generar?") -->
-                    <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.16);">
+                    <div style="padding-top:1rem;border-top:1px solid rgba(129,140,248,.16);">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
                             <h4 style="font-size:.84rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.45rem;">
                                 <i class="fa-solid fa-list-check" style="color:var(--tech-cyan);"></i> ¿Qué quieres generar?
@@ -650,12 +690,43 @@
                             <button type="button" id="btn-sync-check" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.82rem;" title="Comprobar nuevos commits en el repositorio público">
                                 <i class="fa-solid fa-rotate" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Sincronizar
                             </button>
+                            <button type="button" id="btn-toggle-editor" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.82rem;" title="Editar el documento activo en vista dividida con autoguardado">
+                                <i class="fa-solid fa-pen-to-square" style="color:#A78BFA;margin-right:.4rem;"></i>Editar Documento
+                            </button>
                             <button type="button" id="btn-open-modify-modal" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.82rem;" title="Solicitar modificaciones de código con IA">
                                 <i class="fa-solid fa-code-pull-request" style="color:#34D399;margin-right:.4rem;"></i>Modificar con IA
                             </button>
                             <button type="button" id="btn-new-analysis" class="btn-ghost" style="padding:.6rem 1rem;font-size:.82rem;">
                                 <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.35rem;"></i>Nuevo
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Split-Pane Markdown Live Editor Container -->
+                    <div id="doc-editor-section" style="display:none;margin-bottom:2rem;background:rgba(15,23,42,.95);border:1px solid rgba(167,139,250,.35);border-radius:1rem;padding:1.5rem;box-shadow:0 10px 35px rgba(0,0,0,.6);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.15);">
+                            <div style="display:flex;align-items:center;gap:.6rem;">
+                                <i class="fa-solid fa-pen-to-square" style="color:#A78BFA;font-size:1.15rem;"></i>
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin:0;">Editor Markdown en Pantalla Dividida &bull; <span id="editor-active-doc-title" style="color:var(--tech-cyan);">README.md</span></h4>
+                            </div>
+                            <div style="display:flex;gap:.5rem;">
+                                <button type="button" id="btn-save-doc-edit" class="btn-cyber" style="padding:.45rem 1rem;font-size:.78rem;">
+                                    <i class="fa-solid fa-floppy-disk" style="margin-right:.35rem;"></i>Guardar Cambios
+                                </button>
+                                <button type="button" id="btn-close-doc-editor" class="btn-ghost" style="padding:.45rem .85rem;font-size:.78rem;">
+                                    <i class="fa-solid fa-xmark" style="margin-right:.35rem;"></i>Cerrar Editor
+                                </button>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem;">
+                            <div style="display:flex;flex-direction:column;">
+                                <span style="font-size:.72rem;color:#94A3B8;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;"><i class="fa-solid fa-code" style="margin-right:.35rem;color:#A78BFA;"></i>Código Fuente Markdown:</span>
+                                <textarea id="doc-editor-textarea" class="input-cyber" style="height:460px;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.6;padding:.85rem;width:100%;"></textarea>
+                            </div>
+                            <div style="display:flex;flex-direction:column;">
+                                <span style="font-size:.72rem;color:#94A3B8;font-weight:700;margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.05em;"><i class="fa-solid fa-eye" style="margin-right:.35rem;color:var(--tech-cyan);"></i>Vista Previa en Tiempo Real:</span>
+                                <div id="doc-editor-preview" class="markdown-body" style="height:460px;overflow-y:auto;padding:.85rem;background:rgba(9,13,22,.7);border:1px solid rgba(148,163,184,.15);border-radius:.65rem;font-size:.82rem;color:#CBD5E1;"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -855,7 +926,8 @@
                                 <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
                                     <button type="button" id="btn-zoom-in" class="btn-ghost" title="Acercar"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
                                     <button type="button" id="btn-zoom-out" class="btn-ghost" title="Alejar"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                                    <button type="button" id="btn-zoom-reset" class="btn-ghost" title="Restablecer"><i class="fa-solid fa-expand"></i></button>
+                                    <button type="button" id="btn-zoom-reset" class="btn-ghost" title="Restablecer"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                    <button type="button" id="btn-mermaid-fullscreen" class="btn-ghost" title="Pantalla Completa"><i class="fa-solid fa-expand"></i></button>
                                     <div style="width:1px;height:1.25rem;background:rgba(129,140,248,.2);margin:0 .25rem;"></div>
                                     <button type="button" id="btn-export-svg" class="btn-cyber" style="padding:.35rem .75rem;font-size:.74rem;">
                                         <i class="fa-solid fa-download" style="margin-right:.3rem;"></i>SVG
@@ -2529,9 +2601,52 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         ONBOARDING QUICK TOUR MODAL (3 STEPS)
+    ============================================================ -->
+    <div id="tour-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tour-modal-title">
+        <div class="auth-modal-backdrop" id="tour-modal-backdrop"></div>
+        <div class="auth-modal-dialog glow-card" style="max-width:580px;padding:2rem;position:relative;z-index:1001;border-color:rgba(56,189,248,.35);">
+            <div class="auth-modal-header" style="border-bottom:1px solid rgba(56,189,248,.18);padding-bottom:.85rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2rem;height:2rem;border-radius:.45rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                    <div>
+                        <h3 id="tour-modal-title" style="font-size:1.05rem;font-weight:800;color:#FFFFFF;margin:0;">Guía Rápida de DocuMind AI</h3>
+                        <p style="font-size:.72rem;color:#94A3B8;margin:.15rem 0 0 0;">Conoce el flujo de trabajo en 3 sencillos pasos</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-tour" class="auth-modal-close" aria-label="Cerrar tour">&times;</button>
+            </div>
+
+            <!-- Tour Step Carousel Content -->
+            <div id="tour-step-content" style="min-height:190px;">
+                <!-- Injected dynamically by app.js -->
+            </div>
+
+            <!-- Stepper Indicators and Navigation Buttons -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(148,163,184,.14);">
+                <div id="tour-dots" style="display:flex;gap:.4rem;">
+                    <span class="tour-dot active" style="width:.55rem;height:.55rem;border-radius:50%;background:var(--tech-cyan);"></span>
+                    <span class="tour-dot" style="width:.55rem;height:.55rem;border-radius:50%;background:#334155;"></span>
+                    <span class="tour-dot" style="width:.55rem;height:.55rem;border-radius:50%;background:#334155;"></span>
+                </div>
+                <div style="display:flex;gap:.5rem;">
+                    <button type="button" id="btn-tour-prev" class="btn-ghost" style="padding:.45rem .85rem;font-size:.78rem;" disabled>
+                        <i class="fa-solid fa-arrow-left" style="margin-right:.3rem;"></i>Anterior
+                    </button>
+                    <button type="button" id="btn-tour-next" class="btn-cyber" style="padding:.45rem 1.15rem;font-size:.78rem;">
+                        Siguiente<i class="fa-solid fa-arrow-right" style="margin-left:.35rem;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=5.2"></script>
-    <script src="app.js?v=5.6"></script>
+    <script src="app.js?v=5.7"></script>
     <script src="js/architecture-simulator.js?v=3.3"></script>
 </body>
 </html>

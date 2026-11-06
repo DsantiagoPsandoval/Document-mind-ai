@@ -843,14 +843,19 @@ if (btnOAuthGoogle) {
         let payload = null;
         let isMultipart = false;
 
+        const selectedDocLang = document.getElementById("selected-doc-lang")?.value || "es";
+        categories.language = selectedDocLang;
+
         if (currentInputMode === "gh") {
             const repoInput = document.getElementById("repo-input");
+            const branchInput = document.getElementById("repo-branch-input");
             const repoUrl = repoInput ? repoInput.value.trim() : "";
+            const branch = branchInput ? branchInput.value.trim() : "";
             if (!repoUrl) {
                 showToast("Por favor ingresa la URL de un repositorio de GitHub.", "error");
                 return;
             }
-            payload = JSON.stringify({ repoUrl, categories });
+            payload = JSON.stringify({ repoUrl, branch, categories, doc_language: selectedDocLang });
         } else if (currentInputMode === "doc") {
             if (uploadedFiles.length === 0) {
                 showToast("Por favor selecciona o arrastra al menos un archivo o ZIP del proyecto.", "error");
@@ -860,6 +865,7 @@ if (btnOAuthGoogle) {
             uploadedFiles.forEach(f => fd.append('files', f));
             fd.append('projectName', uploadedFiles[0].name.replace(/\.[^/.]+$/, ""));
             fd.append('categories', JSON.stringify(categories));
+            fd.append('doc_language', selectedDocLang);
             payload = fd;
             isMultipart = true;
         } else if (currentInputMode === "manual") {
@@ -869,7 +875,7 @@ if (btnOAuthGoogle) {
                 showToast("Por favor escribe una descripción técnica de al menos 20 caracteres.", "error");
                 return;
             }
-            payload = JSON.stringify({ manualText, projectName: "Especificación-Manual", categories });
+            payload = JSON.stringify({ manualText, projectName: "Especificación-Manual", categories, doc_language: selectedDocLang });
         }
 
         // Lock button and start progress animation
@@ -2731,7 +2737,372 @@ if (btnOAuthGoogle) {
             closeModifyModal();
             closeSyncModal();
             closeLegalModal();
+            closeTourModal();
+            closeDocEditor();
         }
     });
+
+    // ============================================================
+    // 25. DEMO REPOSITORIES (1-CLICK TRIAL)
+    // ============================================================
+    const demoRepoBtns = document.querySelectorAll(".demo-repo-btn");
+    demoRepoBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const repoInput = document.getElementById("repo-input");
+            const branchInput = document.getElementById("repo-branch-input");
+            if (repoInput && btn.dataset.url) {
+                repoInput.value = btn.dataset.url;
+                repoInput.focus();
+            }
+            if (branchInput && btn.dataset.branch) {
+                branchInput.value = btn.dataset.branch;
+            }
+            switchInputMode("gh");
+            showToast(`Repositorio demo cargado: ${btn.textContent.trim()}. Haz clic en "Generar Documentación"`, "info");
+        });
+    });
+
+    // ============================================================
+    // 26. DOCUMENTATION LANGUAGE SELECTOR (ES / EN)
+    // ============================================================
+    const docLangBtns = document.querySelectorAll(".doc-lang-btn");
+    const hiddenDocLang = document.getElementById("selected-doc-lang");
+
+    docLangBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            docLangBtns.forEach(b => {
+                b.classList.remove("active");
+                b.style.background = "transparent";
+                b.style.color = "#94A3B8";
+            });
+            btn.classList.add("active");
+            btn.style.background = "var(--tech-cyan)";
+            btn.style.color = "#040810";
+            if (hiddenDocLang) {
+                hiddenDocLang.value = btn.dataset.lang || "es";
+            }
+            showToast(`Idioma documental configurado en: ${btn.textContent.trim()}`, "info");
+        });
+    });
+
+    // ============================================================
+    // 27. INTERACTIVE MERMAID (FULLSCREEN & PAN/DRAG)
+    // ============================================================
+    const btnMermaidFullscreen = document.getElementById("btn-mermaid-fullscreen");
+    let isMermaidFullscreen = false;
+
+    if (btnMermaidFullscreen && mermaidViewport) {
+        btnMermaidFullscreen.addEventListener("click", () => {
+            isMermaidFullscreen = !isMermaidFullscreen;
+            if (isMermaidFullscreen) {
+                mermaidViewport.style.position = "fixed";
+                mermaidViewport.style.inset = "0";
+                mermaidViewport.style.zIndex = "9999";
+                mermaidViewport.style.background = "rgba(9,13,22,.97)";
+                mermaidViewport.style.height = "100vh";
+                mermaidViewport.style.borderRadius = "0";
+                btnMermaidFullscreen.innerHTML = '<i class="fa-solid fa-compress"></i>';
+                btnMermaidFullscreen.title = "Salir de Pantalla Completa";
+                showToast("Modo Pantalla Completa activado. Presiona Esc para salir.", "info");
+            } else {
+                mermaidViewport.style.position = "";
+                mermaidViewport.style.inset = "";
+                mermaidViewport.style.zIndex = "";
+                mermaidViewport.style.background = "";
+                mermaidViewport.style.height = "";
+                mermaidViewport.style.borderRadius = "";
+                btnMermaidFullscreen.innerHTML = '<i class="fa-solid fa-expand"></i>';
+                btnMermaidFullscreen.title = "Pantalla Completa";
+            }
+            applyDiagramZoom();
+        });
+    }
+
+    // Pan / Drag support on mermaidViewport
+    if (mermaidViewport) {
+        let isPanning = false;
+        let startX = 0;
+        let startY = 0;
+        let panX = 0;
+        let panY = 0;
+
+        mermaidViewport.style.cursor = "grab";
+
+        mermaidViewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest("button") || e.target.closest("select")) return;
+            isPanning = true;
+            mermaidViewport.style.cursor = "grabbing";
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+        });
+
+        window.addEventListener("mousemove", (e) => {
+            if (!isPanning) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            const renderArea = document.getElementById("mermaid-render-area");
+            if (renderArea) {
+                renderArea.style.transform = `translate(${panX}px, ${panY}px) scale(${currentDiagramZoom})`;
+            }
+        });
+
+        window.addEventListener("mouseup", () => {
+            if (isPanning) {
+                isPanning = false;
+                if (mermaidViewport) mermaidViewport.style.cursor = "grab";
+            }
+        });
+
+        if (btnZoomReset) {
+            const originalReset = btnZoomReset.onclick;
+            btnZoomReset.onclick = () => {
+                panX = 0;
+                panY = 0;
+                currentDiagramZoom = 1.0;
+                const renderArea = document.getElementById("mermaid-render-area");
+                if (renderArea) {
+                    renderArea.style.transform = 'translate(0px, 0px) scale(1.0)';
+                }
+            };
+        }
+    }
+
+    // ============================================================
+    // 28. ONBOARDING QUICK TOUR (3 STEPS)
+    // ============================================================
+    const tourModal = document.getElementById("tour-modal");
+    const btnOpenTour = document.getElementById("btn-open-tour");
+    const btnCloseTour = document.getElementById("btn-close-tour");
+    const tourModalBackdrop = document.getElementById("tour-modal-backdrop");
+    const tourStepContent = document.getElementById("tour-step-content");
+    const btnTourPrev = document.getElementById("btn-tour-prev");
+    const btnTourNext = document.getElementById("btn-tour-next");
+    const tourDots = document.querySelectorAll("#tour-dots .tour-dot");
+
+    let currentTourStep = 0;
+
+    const TOUR_STEPS = [
+        {
+            title: "1. Ingesta de Código y Repositorios",
+            badge: "Paso 1 de 3",
+            icon: "fa-brands fa-github",
+            color: "var(--tech-cyan)",
+            content: `<p style="font-size:.85rem;color:#CBD5E1;line-height:1.7;margin-bottom:1rem;">
+                Comienza ingresando cualquier repositorio <strong>público de GitHub</strong> o utiliza los botones de <strong>1 Clic (Express, FastAPI, DocuMind)</strong> para probar inmediatamente.
+            </p>
+            <div style="padding:.85rem 1rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);border-radius:.65rem;font-size:.78rem;color:#7DD3FC;line-height:1.6;">
+                <i class="fa-solid fa-shield-halved" style="margin-right:.4rem;"></i><strong>Cero Riesgo:</strong> DocuMind analiza código estáticamente sin ejecutarlo en el servidor, con protección anti-SSRF y sanitización criptográfica de secretos.
+            </div>`
+        },
+        {
+            title: "2. Documentación Viva, C4 y Auditoría SAST",
+            badge: "Paso 2 de 3",
+            icon: "fa-solid fa-sitemap",
+            color: "#818CF8",
+            content: `<p style="font-size:.85rem;color:#CBD5E1;line-height:1.7;margin-bottom:1rem;">
+                En segundos obtienes una suite completa de ingeniería: <strong>PRD, SRS (IEEE 830), diagramas C4 y ERD en Mermaid interactivo</strong>, contratos OpenAPI 3.0.3 y un informe de seguridad SAST con matriz STRIDE.
+            </p>
+            <div style="padding:.85rem 1rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);border-radius:.65rem;font-size:.78rem;color:#C7D2FE;line-height:1.6;">
+                <i class="fa-solid fa-pen-to-square" style="margin-right:.4rem;"></i><strong>Editor Markdown en Pantalla Dividida:</strong> Puedes editar cualquier documento generado en tiempo real y descargarlo en ZIP o PDF.
+            </div>`
+        },
+        {
+            title: "3. Simulación de Arquitectura y Parches Git",
+            badge: "Paso 3 de 3",
+            icon: "fa-solid fa-sliders",
+            color: "#34D399",
+            content: `<p style="font-size:.85rem;color:#CBD5E1;line-height:1.7;margin-bottom:1rem;">
+                Usa el <strong>Simulador Matemático (Actividad 9)</strong> para evaluar concurrencia y límites de hardware bajo modelos de colas M/M/c. Además, puedes <strong>solicitar modificaciones con IA</strong> para descargar parches Git listos para aplicar.
+            </p>
+            <div style="padding:.85rem 1rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.65rem;font-size:.78rem;color:#6EE7B7;line-height:1.6;">
+                <i class="fa-solid fa-bolt" style="margin-right:.4rem;"></i><strong>Sincronización en Vivo:</strong> Detecta discrepancias de commit y drift de arquitectura en 1 clic.
+            </div>`
+        }
+    ];
+
+    function renderTourStep(index) {
+        if (!tourStepContent) return;
+        const step = TOUR_STEPS[index];
+        tourStepContent.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+                <h4 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                    <i class="${step.icon}" style="color:${step.color};"></i>${step.title}
+                </h4>
+                <span class="badge badge-cyan" style="font-size:.65rem;">${step.badge}</span>
+            </div>
+            ${step.content}
+        `;
+
+        // Update dots
+        tourDots.forEach((dot, dIdx) => {
+            if (dIdx === index) {
+                dot.style.background = "var(--tech-cyan)";
+                dot.style.transform = "scale(1.2)";
+            } else {
+                dot.style.background = "#334155";
+                dot.style.transform = "scale(1)";
+            }
+        });
+
+        // Update buttons
+        if (btnTourPrev) btnTourPrev.disabled = (index === 0);
+        if (btnTourNext) {
+            if (index === TOUR_STEPS.length - 1) {
+                btnTourNext.innerHTML = '<i class="fa-solid fa-play" style="margin-right:.35rem;"></i>Comenzar Ahora';
+            } else {
+                btnTourNext.innerHTML = 'Siguiente<i class="fa-solid fa-arrow-right" style="margin-left:.35rem;"></i>';
+            }
+        }
+    }
+
+    function openTourModal() {
+        if (!tourModal) return;
+        currentTourStep = 0;
+        renderTourStep(0);
+        tourModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeTourModal() {
+        if (!tourModal) return;
+        tourModal.classList.add("hidden");
+        document.body.style.overflow = "";
+        localStorage.setItem("documind_tour_seen", "true");
+    }
+
+    if (btnOpenTour) btnOpenTour.addEventListener("click", openTourModal);
+    if (btnCloseTour) btnCloseTour.addEventListener("click", closeTourModal);
+    if (tourModalBackdrop) tourModalBackdrop.addEventListener("click", closeTourModal);
+
+    if (btnTourPrev) {
+        btnTourPrev.addEventListener("click", () => {
+            if (currentTourStep > 0) {
+                currentTourStep--;
+                renderTourStep(currentTourStep);
+            }
+        });
+    }
+
+    if (btnTourNext) {
+        btnTourNext.addEventListener("click", () => {
+            if (currentTourStep < TOUR_STEPS.length - 1) {
+                currentTourStep++;
+                renderTourStep(currentTourStep);
+            } else {
+                closeTourModal();
+                const inputSec = document.getElementById("analizador");
+                if (inputSec) inputSec.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+
+    // Auto-launch tour on first visit
+    if (!localStorage.getItem("documind_tour_seen")) {
+        setTimeout(openTourModal, 1200);
+    }
+
+    // ============================================================
+    // 29. SPLIT-PANE MARKDOWN LIVE EDITOR
+    // ============================================================
+    const btnToggleEditor = document.getElementById("btn-toggle-editor");
+    const docEditorSection = document.getElementById("doc-editor-section");
+    const btnCloseDocEditor = document.getElementById("btn-close-doc-editor");
+    const btnSaveDocEdit = document.getElementById("btn-save-doc-edit");
+    const docEditorTextarea = document.getElementById("doc-editor-textarea");
+    const docEditorPreview = document.getElementById("doc-editor-preview");
+    const editorActiveDocTitle = document.getElementById("editor-active-doc-title");
+
+    let activeDocKey = "readme";
+
+    const DOC_KEY_MAP = {
+        'doc-tab-readme': { key: 'readme', title: 'README.md', contentId: 'content-readme' },
+        'doc-tab-product': { key: 'prd', title: 'PRD & Especificación', contentId: 'content-prd' },
+        'doc-tab-srs': { key: 'srs', title: 'SRS (IEEE 830)', contentId: 'content-srs' },
+        'doc-tab-architecture': { key: 'architecture', title: 'Arquitectura C4', contentId: 'content-architecture' },
+        'doc-tab-api': { key: 'api', title: 'Endpoints & OpenAPI', contentId: 'content-api' },
+        'doc-tab-devops': { key: 'devops', title: 'Guía DevOps & Despliegue', contentId: 'content-devops' },
+        'doc-tab-qa': { key: 'qa', title: 'Matriz QA & Casos de Prueba', contentId: 'content-qa' },
+        'doc-tab-user': { key: 'userGuide', title: 'Manual de Usuario', contentId: 'content-user' },
+        'doc-tab-security': { key: 'security', title: 'Reporte de Seguridad SAST', contentId: 'content-security' }
+    };
+
+    function getCurrentlyActiveDocInfo() {
+        const activeTab = document.querySelector(".doc-tab-btn.active");
+        if (activeTab && DOC_KEY_MAP[activeTab.id]) {
+            return DOC_KEY_MAP[activeTab.id];
+        }
+        return DOC_KEY_MAP['doc-tab-readme'];
+    }
+
+    function openDocEditor() {
+        if (!docEditorSection || !currentAnalysisData) {
+            showToast("Primero analiza un proyecto para editar sus documentos.", "error");
+            return;
+        }
+
+        const info = getCurrentlyActiveDocInfo();
+        activeDocKey = info.key;
+        if (editorActiveDocTitle) editorActiveDocTitle.textContent = info.title;
+
+        // Fetch current markdown content
+        const docObj = currentAnalysisData.documentation || {};
+        let rawContent = docObj[info.key] || "";
+        if (typeof rawContent !== "string") {
+            try { rawContent = JSON.stringify(rawContent, null, 2); } catch(e) { rawContent = ""; }
+        }
+
+        if (docEditorTextarea) docEditorTextarea.value = rawContent;
+        if (docEditorPreview && typeof marked !== "undefined") {
+            docEditorPreview.innerHTML = marked.parse(rawContent);
+        }
+
+        docEditorSection.style.display = "block";
+        docEditorSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeDocEditor() {
+        if (docEditorSection) docEditorSection.style.display = "none";
+    }
+
+    if (btnToggleEditor) {
+        btnToggleEditor.addEventListener("click", () => {
+            if (docEditorSection && docEditorSection.style.display === "block") {
+                closeDocEditor();
+            } else {
+                openDocEditor();
+            }
+        });
+    }
+
+    if (btnCloseDocEditor) btnCloseDocEditor.addEventListener("click", closeDocEditor);
+
+    // Live preview sync
+    if (docEditorTextarea && docEditorPreview) {
+        docEditorTextarea.addEventListener("input", () => {
+            if (typeof marked !== "undefined") {
+                docEditorPreview.innerHTML = marked.parse(docEditorTextarea.value);
+            }
+        });
+    }
+
+    // Save changes to current memory model & update active view
+    if (btnSaveDocEdit) {
+        btnSaveDocEdit.addEventListener("click", () => {
+            if (!currentAnalysisData || !docEditorTextarea) return;
+            const updatedText = docEditorTextarea.value;
+            const info = getCurrentlyActiveDocInfo();
+
+            if (!currentAnalysisData.documentation) currentAnalysisData.documentation = {};
+            currentAnalysisData.documentation[info.key] = updatedText;
+
+            // Update visible rendered panel if exists
+            const panelEl = document.getElementById(info.contentId);
+            if (panelEl && typeof marked !== "undefined") {
+                panelEl.innerHTML = marked.parse(updatedText);
+            }
+
+            showToast(`¡Cambios guardados en ${info.title}! Se incluirán en tus descargas ZIP.`, "success");
+        });
+    }
 
 });
