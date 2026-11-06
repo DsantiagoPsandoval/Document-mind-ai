@@ -170,7 +170,8 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
         throw err;
     }
 
-    const targetBranch = branch || repoData.default_branch || 'main';
+    const defaultBranch = repoData.default_branch || 'main';
+    const targetBranch = branch || defaultBranch;
 
     // 2. Fetch Git Tree recursively
     const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(targetBranch)}?recursive=1`;
@@ -235,7 +236,7 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     for (const file of keyFilesToFetch) {
         if (totalBytesFetched >= MAX_TOTAL_BYTES) break;
 
-        const rawFileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/${file.path}`;
+        const rawFileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(targetBranch)}/${file.path}`;
         try {
             const fRes = await fetch(rawFileUrl);
             if (fRes.ok) {
