@@ -1618,18 +1618,27 @@ if (btnOAuthGoogle) {
         const gradeBadge = document.getElementById("sec-grade-badge");
         if (gradeBadge) {
             gradeBadge.textContent = `Grado ${grade}`;
-            gradeBadge.className = `badge ${grade === 'A' ? 'badge-emerald' : grade === 'B' ? 'badge-cyan' : grade === 'C' ? 'badge-amber' : 'badge-rose'}`;
+            gradeBadge.className = `badge ${grade === 'A+' || grade === 'A' ? 'badge-emerald' : grade === 'B' ? 'badge-cyan' : grade === 'C' ? 'badge-amber' : 'badge-rose'}`;
         }
 
         const statusBadge = document.getElementById("sec-status-badge");
         if (statusBadge) {
-            statusBadge.textContent = status;
-            statusBadge.className = `badge ${score >= 80 ? 'badge-emerald' : score >= 65 ? 'badge-cyan' : score >= 45 ? 'badge-amber' : 'badge-rose'}`;
+            statusBadge.textContent = sec.classification || status;
+            statusBadge.className = `badge ${score >= 90 ? 'badge-emerald' : score >= 80 ? 'badge-cyan' : score >= 70 ? 'badge-amber' : 'badge-rose'}`;
+        }
+
+        const covBadge = document.getElementById("sec-coverage-badge");
+        if (covBadge) {
+            const cov = sec.coverage || { coveragePct: 100, confidenceLevel: 'Alta' };
+            covBadge.innerHTML = `<i class="fa-solid fa-crosshairs"></i> Cobertura: ${cov.coveragePct}% (${escapeHtml(cov.confidenceLevel || 'Alta')})`;
+            covBadge.className = `badge ${cov.coveragePct >= 80 ? 'badge-emerald' : cov.coveragePct >= 50 ? 'badge-amber' : 'badge-rose'}`;
         }
 
         const scoreDesc = document.getElementById("sec-score-desc");
         if (scoreDesc) {
-            if (score >= 90) {
+            if (sec.classificationDescription) {
+                scoreDesc.textContent = sec.classificationDescription;
+            } else if (score >= 90) {
                 scoreDesc.textContent = "Excelente nivel de blindaje. Código robusto con mínimas advertencias de configuración.";
             } else if (score >= 75) {
                 scoreDesc.textContent = "Nivel de seguridad aceptable. Existen oportunidades de mitigación en validación y dependencias.";
@@ -1664,7 +1673,7 @@ if (btnOAuthGoogle) {
                 deductionsBox.style.display = "block";
                 deductionsList.innerHTML = sec.deductions.map(d => `
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:.35rem .65rem;background:rgba(9,13,22,.6);border-radius:.45rem;border-left:3px solid ${d.severity === 'CRITICAL' ? '#FB7185' : d.severity === 'HIGH' ? '#FB923C' : '#FBBF24'};">
-                        <span style="font-size:.78rem;color:#E2E8F0;">${escapeHtml(d.reason)}</span>
+                        <span style="font-size:.78rem;color:#E2E8F0;">${escapeHtml(d.name || d.reason || 'Deducción de seguridad')} (${escapeHtml(d.file || 'código')})</span>
                         <div style="display:flex;align-items:center;gap:.5rem;">
                             <span class="badge ${d.severity === 'CRITICAL' ? 'badge-rose' : d.severity === 'HIGH' ? 'badge-cyan' : 'badge-amber'}" style="font-size:.65rem;">${d.severity}</span>
                             <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;color:#FB7185;">-${d.deduction} pts</span>
@@ -1676,26 +1685,30 @@ if (btnOAuthGoogle) {
             }
         }
 
-        // 5. 8 Architectural Categories
+        // 5. 12 Architectural Dimensions
         const catGrid = document.getElementById("sec-categories-grid");
         if (catGrid) {
-            const categoriesMeta = [
-                { id: 'authentication', label: 'Autenticación', icon: 'fa-user-lock' },
-                { id: 'authorization', label: 'Autorización & Permisos', icon: 'fa-key' },
-                { id: 'inputValidation', label: 'Validación de Entradas', icon: 'fa-filter' },
-                { id: 'apiSecurity', label: 'Seguridad de APIs', icon: 'fa-network-wired' },
-                { id: 'secrets', label: 'Secretos & Credenciales', icon: 'fa-vault' },
-                { id: 'dependencies', label: 'Cadena de Suministro / Deps', icon: 'fa-boxes-stacked' },
-                { id: 'configuration', label: 'Configuración & Hardening', icon: 'fa-sliders' },
-                { id: 'dataProtection', label: 'Protección de Datos', icon: 'fa-database' }
+            const dimensionsMeta = [
+                { id: 'secretsManagement', label: 'Gestión de Secretos & Claves', weight: '15%', icon: 'fa-key' },
+                { id: 'authentication', label: 'Autenticación & Autorización', weight: '15%', icon: 'fa-user-shield' },
+                { id: 'inputValidation', label: 'Validación & Sanitización', weight: '10%', icon: 'fa-filter' },
+                { id: 'injectionProtection', label: 'Protección Inyecciones', weight: '10%', icon: 'fa-shield-virus' },
+                { id: 'apiSecurity', label: 'Seguridad de APIs & CORS', weight: '10%', icon: 'fa-network-wired' },
+                { id: 'serverConfig', label: 'Configuración Servidor', weight: '5%', icon: 'fa-server' },
+                { id: 'dependencies', label: 'Seguridad Dependencias', weight: '10%', icon: 'fa-boxes-stacked' },
+                { id: 'dataProtection', label: 'Protección Datos & Cripto', weight: '5%', icon: 'fa-database' },
+                { id: 'sessionManagement', label: 'Gestión de Sesiones', weight: '5%', icon: 'fa-clock-rotate-left' },
+                { id: 'errorHandling', label: 'Manejo Errores & Anti-Fugas', weight: '5%', icon: 'fa-bug-slash' },
+                { id: 'infrastructure', label: 'Infraestructura & Nube', weight: '5%', icon: 'fa-cloud' },
+                { id: 'accessControl', label: 'Control Acceso (IDOR/BOLA)', weight: '5%', icon: 'fa-lock' }
             ];
 
-            const categoriesData = sec.categories || {};
-            catGrid.innerHTML = categoriesMeta.map(meta => {
-                const cat = categoriesData[meta.id] || { score: 100, status: 'Excelente' };
-                const cScore = typeof cat.score === 'number' ? cat.score : 100;
-                const barColor = cScore >= 80 ? '#34D399' : cScore >= 60 ? '#38BDF8' : cScore >= 40 ? '#FBBF24' : '#FB7185';
-                const statusColor = cScore >= 80 ? '#34D399' : cScore >= 60 ? '#38BDF8' : cScore >= 40 ? '#FBBF24' : '#FB7185';
+            const dimsData = sec.dimensions || sec.categories || {};
+            catGrid.innerHTML = dimensionsMeta.map(meta => {
+                const dim = dimsData[meta.id] || { score: 100, status: 'Excelente', findingsCount: 0 };
+                const dScore = typeof dim.score === 'number' ? dim.score : 100;
+                const barColor = dScore >= 80 ? '#34D399' : dScore >= 60 ? '#38BDF8' : dScore >= 40 ? '#FBBF24' : '#FB7185';
+                const statusColor = dScore >= 80 ? '#34D399' : dScore >= 60 ? '#38BDF8' : dScore >= 40 ? '#FBBF24' : '#FB7185';
                 return `
                     <div class="sec-cat-card">
                         <div class="sec-cat-head">
@@ -1703,19 +1716,94 @@ if (btnOAuthGoogle) {
                                 <i class="fa-solid ${meta.icon}" style="color:var(--tech-cyan);font-size:.75rem;"></i>
                                 ${meta.label}
                             </span>
-                            <span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:${statusColor};">${cScore}%</span>
+                            <div style="display:flex;align-items:center;gap:.35rem;">
+                                <span class="badge badge-slate" style="font-size:.58rem;padding:.15rem .35rem;">${meta.weight}</span>
+                                <span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:${statusColor};">${dScore}%</span>
+                            </div>
                         </div>
                         <div class="sec-cat-bar-bg">
-                            <div class="sec-cat-bar-fill" style="width:${cScore}%;background:${barColor};"></div>
+                            <div class="sec-cat-bar-fill" style="width:${dScore}%;background:${barColor};"></div>
                         </div>
                         <div style="display:flex;justify-content:space-between;margin-top:.35rem;font-size:.68rem;color:#64748B;">
-                            <span>Estado: <strong style="color:${statusColor};">${cat.status || 'Auditoría OK'}</strong></span>
-                            <span>${cat.findingsCount !== undefined ? `${cat.findingsCount} hallazgos` : ''}</span>
+                            <span>Estado: <strong style="color:${statusColor};">${dim.status || 'OK'}</strong></span>
+                            <span>${dim.findingsCount !== undefined ? `${dim.findingsCount} hallazgo(s)` : ''}</span>
                         </div>
                     </div>
                 `;
             }).join('');
         }
+
+        // 5.1 Remediation Plan Rendering
+        const remContainer = document.getElementById("sec-remediation-container");
+        const remPlan = sec.remediationPlan || { queues: {}, summary: {} };
+        const countInm = document.getElementById("count-rem-inm");
+        const countAlta = document.getElementById("count-rem-alta");
+        const countMed = document.getElementById("count-rem-med");
+        const countBaja = document.getElementById("count-rem-baja");
+
+        if (countInm) countInm.textContent = remPlan.summary?.inmediata || 0;
+        if (countAlta) countAlta.textContent = remPlan.summary?.alta || 0;
+        if (countMed) countMed.textContent = remPlan.summary?.media || 0;
+        if (countBaja) countBaja.textContent = remPlan.summary?.baja || 0;
+
+        function renderRemQueue(queueKey = 'inmediata') {
+            if (!remContainer) return;
+            const items = remPlan.queues?.[queueKey] || [];
+            if (items.length === 0) {
+                remContainer.innerHTML = `
+                    <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.65rem;padding:1.25rem;text-align:center;">
+                        <i class="fa-solid fa-circle-check" style="font-size:1.6rem;color:#34D399;margin-bottom:.4rem;display:inline-block;"></i>
+                        <h5 style="font-size:.88rem;color:#E2E8F0;font-weight:700;">Cola de remediación limpia</h5>
+                        <p style="font-size:.76rem;color:#94A3B8;margin:0;">No hay tareas pendientes en la ventana ${escapeHtml(queueKey)}.</p>
+                    </div>
+                `;
+                return;
+            }
+            remContainer.innerHTML = items.map(item => `
+                <div class="sec-vuln-card ${item.severity === 'CRITICAL' ? 'vuln-crit' : item.severity === 'HIGH' ? 'vuln-high' : 'vuln-med'}" style="padding:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;">
+                        <div>
+                            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;flex-wrap:wrap;">
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--tech-cyan);font-weight:700;">${escapeHtml(item.id)}</span>
+                                <span class="badge ${item.severity === 'CRITICAL' ? 'badge-rose' : item.severity === 'HIGH' ? 'badge-cyan' : 'badge-amber'}" style="font-size:.65rem;">${escapeHtml(item.priority)}</span>
+                                <span class="badge badge-slate" style="font-size:.65rem;">Esfuerzo: ${escapeHtml(item.estimatedEffort)}</span>
+                            </div>
+                            <strong style="font-size:.92rem;color:#fff;">${escapeHtml(item.title)}</strong>
+                        </div>
+                        <span style="font-size:.75rem;color:#94A3B8;">Ventana: <strong style="color:#E2E8F0;">${escapeHtml(item.timeframe || '')}</strong></span>
+                    </div>
+                    <p style="font-size:.78rem;color:#94A3B8;margin:0 0 .65rem;">${escapeHtml(item.impact || '')}</p>
+                    ${item.codeExample ? `
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:.65rem;margin-bottom:.65rem;">
+                            <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:.45rem;padding:.65rem;">
+                                <div style="font-size:.68rem;color:#FB7185;font-weight:700;margin-bottom:.35rem;"><i class="fa-solid fa-xmark"></i> Patrón Vulnerable:</div>
+                                <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#FCA5A5;white-space:pre-wrap;">${escapeHtml(item.codeExample.vulnerable)}</pre>
+                            </div>
+                            <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.45rem;padding:.65rem;">
+                                <div style="font-size:.68rem;color:#34D399;font-weight:700;margin-bottom:.35rem;"><i class="fa-solid fa-check"></i> Corrección Remediada:</div>
+                                <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#86EFAC;white-space:pre-wrap;">${escapeHtml(item.codeExample.remediated)}</pre>
+                            </div>
+                        </div>
+                        <div style="font-size:.74rem;color:#CBD5E1;background:rgba(15,23,42,.6);border-left:3px solid var(--tech-cyan);padding:.4rem .65rem;border-radius:.35rem;">
+                            <strong>Verificación:</strong> ${escapeHtml(item.codeExample.verification || item.codeExample.explanation)}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        renderRemQueue('inmediata');
+
+        // Hook up remediation queue tab buttons
+        const remBtns = document.querySelectorAll("#sec-rem-tabs .sec-filter-btn");
+        remBtns.forEach(btn => {
+            btn.onclick = () => {
+                remBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                const filter = btn.getAttribute("data-rem-filter") || 'inmediata';
+                renderRemQueue(filter);
+            };
+        });
 
         // 6. Secret Scanner Section
         const secSecretsContainer = document.getElementById("sec-secrets-container");

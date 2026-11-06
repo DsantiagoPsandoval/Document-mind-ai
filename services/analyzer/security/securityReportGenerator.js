@@ -1,8 +1,8 @@
 /**
  * DOCUMENT-MIND AI — SECURITY REPORT GENERATOR
  * Produces comprehensive, professional technical security reports in Markdown and structured JSON.
- * Incorporates Executive Summary, Attack Surface, Assets, Threat Model, Findings,
- * Security Requirements, Architecture Controls, and OWASP Top 10 Checklist.
+ * Incorporates Executive Summary, Attack Surface, 12 Dimensions Breakdown, Remediation Plan,
+ * Findings Catalog, Coverage Metrics, and OWASP Top 10 Checklist.
  */
 
 /**
@@ -15,9 +15,12 @@ function generateSecurityMarkdownReport(securityAudit, projectName = 'Proyecto')
     const {
         score,
         grade,
-        riskLevel,
-        counts,
-        categoryScores,
+        classification = 'Bueno',
+        riskLevel = 'Bajo',
+        counts = {},
+        dimensions = {},
+        coverage = {},
+        remediationPlan = {},
         findings = [],
         secrets = [],
         threatModel = {},
@@ -27,42 +30,92 @@ function generateSecurityMarkdownReport(securityAudit, projectName = 'Proyecto')
 
     const dateStr = new Date().toISOString().split('T')[0];
 
-    let md = `# Informe Técnico de Seguridad & Auditoría de Código — ${projectName}\n\n`;
-    md += `> **Generado por**: DocuMind AI (Motor de Análisis Estático SAST & Seguridad Cognitiva)\n`;
+    let md = `# DocuMind Security Intelligence — Informe Técnico de Seguridad\n\n`;
+    md += `> **Proyecto**: ${projectName}\n`;
+    md += `> **Motor**: DocuMind Security Intelligence (SAST Estático, Secret Scanner & SCA)\n`;
     md += `> **Fecha de Evaluación**: ${dateStr}\n`;
-    md += `> **Nivel de Riesgo Global**: **${riskLevel.toUpperCase()}** | **Calificación**: **Grado ${grade}**\n\n`;
+    md += `> **Security Score**: **${score} / 100** | **Clasificación**: **${classification}** | **Grado**: **${grade}**\n\n`;
 
     // 1. Resumen Ejecutivo
-    md += `## 1. Resumen Ejecutivo\n\n`;
-    md += `Se ha completado una evaluación integral de seguridad del proyecto **${projectName}** siguiendo los estándares **OWASP Top 10**, **OWASP ASVS** y principios de **Secure by Design**.\n\n`;
-    md += `- **Security Score Global**: **${score} / 100**\n`;
-    md += `- **Vulnerabilidades Críticas**: ${counts.critical}\n`;
-    md += `- **Vulnerabilidades de Severidad Alta**: ${counts.high}\n`;
-    md += `- **Vulnerabilidades de Severidad Media**: ${counts.medium}\n`;
-    md += `- **Hallazgos de Severidad Baja / Informativos**: ${counts.low + counts.info}\n`;
-    md += `- **Secretos / Claves Hardcodeadas Detectadas**: ${secrets.length}\n\n`;
+    md += `## 1. Resumen Ejecutivo & Postura de Seguridad\n\n`;
+    md += `Se ha completado una evaluación exhaustiva de seguridad sobre el código fuente y manifiestos de **${projectName}** siguiendo los estándares **OWASP Top 10 (2021)**, **CWE/SANS Top 25** y principios de arquitectura **Secure by Design**.\n\n`;
+    md += `- **Puntuación Global (Security Score)**: **${score}/100** (${classification})\n`;
+    md += `- **Vulnerabilidades Críticas**: ${counts.critical || 0}\n`;
+    md += `- **Vulnerabilidades de Severidad Alta**: ${counts.high || 0}\n`;
+    md += `- **Vulnerabilidades de Severidad Media**: ${counts.medium || 0}\n`;
+    md += `- **Hallazgos de Severidad Baja / Informativos**: ${(counts.low || 0) + (counts.info || 0)}\n`;
+    md += `- **Secretos o Credenciales Expuestas**: ${secrets.length}\n`;
+    md += `- **Cobertura del Análisis**: ${coverage.coveragePct || 100}% (${coverage.filesAnalyzed || 0}/${coverage.totalFiles || 0} archivos evaluados) — **Nivel de Confianza: ${coverage.confidenceLevel || 'Alta'}**\n\n`;
 
-    // Categorías
-    md += `### Desglose de Seguridad por Categoría\n\n`;
-    md += `| Categoría de Seguridad | Puntuación | Estado |\n`;
-    md += `| :--- | :---: | :---: |\n`;
-    Object.entries(categoryScores || {}).forEach(([cat, val]) => {
-        const catName = cat.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-        const status = val >= 80 ? 'Seguro ✔' : (val >= 60 ? 'Atención ⚠' : 'Riesgo ✖');
-        md += `| ${catName} | ${val}/100 | ${status} |\n`;
+    md += `> **Nota Metodológica**: Una puntuación de 100 indica que no se identificaron problemas dentro del alcance de archivos y reglas evaluadas; no constituye una garantía de seguridad absoluta. Toda puntuación se calcula de forma estrictamente determinista a partir de evidencias reales extraídas del código.\n\n`;
+
+    // 2. Desglose de las 12 Dimensiones de Evaluación
+    md += `## 2. Evaluación por Dimensiones de Arquitectura (12 Categorías)\n\n`;
+    md += `| Dimensión de Seguridad | Ponderación | Puntuación | Hallazgos | Estado |\n`;
+    md += `| :--- | :---: | :---: | :---: | :---: |\n`;
+    Object.values(dimensions || {}).forEach(dim => {
+        const statusTag = dim.score >= 80 ? 'Seguro ✔' : (dim.score >= 60 ? 'Atención ⚠' : 'Riesgo ✖');
+        md += `| **${dim.name}** | ${dim.weightPct}% | **${dim.score}/100** | ${dim.findingsCount} | ${statusTag} |\n`;
     });
     md += `\n`;
 
-    // 2. Superficie de Ataque y Activos
-    md += `## 2. Superficie de Ataque & Activos Identificados\n\n`;
-    md += `### Activos Principales del Sistema\n`;
-    md += `- **Base de Datos & Almacenamiento**: Persistencia de registros y datos de usuarios.\n`;
-    md += `- **Puntos de Entrada API**: Rutas expuestas HTTP procesadas por el servidor.\n`;
-    md += `- **Credenciales & Secretos**: Variables de entorno, tokens JWT y claves de API de terceros.\n`;
-    md += `- **Lógica de Servidor**: Componentes de controladores y servicios de procesamiento.\n\n`;
+    // 3. Plan de Remediación Priorizado
+    md += `## 3. Plan de Remediación Priorizado (Actionable Remediation Plan)\n\n`;
+    const queues = remediationPlan.queues || {};
+    
+    if (remediationPlan.totalActions === 0) {
+        md += `✔ **No se requieren acciones de remediación prioritarias inmediatas.**\n\n`;
+    } else {
+        // Queue: Inmediata
+        if (queues.inmediata && queues.inmediata.length > 0) {
+            md += `### 🚨 Prioridad Inmediata (Ventana: 0 a 24 horas)\n\n`;
+            queues.inmediata.forEach(item => {
+                md += `#### ${item.id}: ${item.title}\n`;
+                md += `- **Dimensión**: ${item.category} | **Esfuerzo Estimado**: ${item.estimatedEffort}\n`;
+                md += `- **Archivos Afectados**: ${item.affectedFiles.join(', ') || 'N/A'}\n`;
+                md += `- **Impacto**: ${item.impact}\n\n`;
+                if (item.codeExample) {
+                    md += `**Código Vulnerable vs Remediado**:\n\`\`\`javascript\n${item.codeExample.remediated}\n\`\`\`\n\n`;
+                    md += `*Verificación*: ${item.codeExample.verification}\n\n`;
+                }
+            });
+        }
 
-    // 3. Secret Scanner
-    md += `## 3. Escaneo de Secretos & Credenciales (Secret Scanner)\n\n`;
+        // Queue: Alta
+        if (queues.alta && queues.alta.length > 0) {
+            md += `### ⚠ Prioridad Alta (Ventana: 1 a 3 días)\n\n`;
+            queues.alta.forEach(item => {
+                md += `#### ${item.id}: ${item.title}\n`;
+                md += `- **Dimensión**: ${item.category} | **Esfuerzo Estimado**: ${item.estimatedEffort}\n`;
+                md += `- **Archivos Afectados**: ${item.affectedFiles.join(', ') || 'N/A'}\n`;
+                md += `- **Impacto**: ${item.impact}\n\n`;
+                if (item.codeExample) {
+                    md += `**Código Remediado Sugerido**:\n\`\`\`javascript\n${item.codeExample.remediated}\n\`\`\`\n\n`;
+                }
+            });
+        }
+
+        // Queue: Media
+        if (queues.media && queues.media.length > 0) {
+            md += `### ⚡ Prioridad Media (Ventana: 1 a 2 semanas)\n\n`;
+            queues.media.forEach(item => {
+                md += `- **[${item.id}] ${item.title}**: ${item.category} (Esfuerzo: ${item.estimatedEffort})\n`;
+            });
+            md += `\n`;
+        }
+
+        // Queue: Baja
+        if (queues.baja && queues.baja.length > 0) {
+            md += `### ℹ Prioridad Baja / Preventiva (Próximo ciclo de release)\n\n`;
+            queues.baja.forEach(item => {
+                md += `- **[${item.id}] ${item.title}**: ${item.category} (Esfuerzo: ${item.estimatedEffort})\n`;
+            });
+            md += `\n`;
+        }
+    }
+
+    // 4. Secret Scanner
+    md += `## 4. Auditoría de Secretos & Credenciales (Secret Scanner)\n\n`;
     if (secrets.length === 0) {
         md += `✔ **No se identificaron secretos ni credenciales en texto plano expuestas en los archivos analizados.**\n\n`;
     } else {
@@ -75,27 +128,28 @@ function generateSecurityMarkdownReport(securityAudit, projectName = 'Proyecto')
         md += `\n`;
     }
 
-    // 4. Hallazgos y Vulnerabilidades SAST
-    md += `## 4. Hallazgos y Vulnerabilidades de Código (SAST)\n\n`;
+    // 5. Hallazgos SAST de Código
+    md += `## 5. Hallazgos de Vulnerabilidades de Código (SAST)\n\n`;
     if (findings.length === 0) {
         md += `✔ **No se detectaron patrones de vulnerabilidad estática severos en la muestra analizada.**\n\n`;
     } else {
         findings.forEach(f => {
             md += `### [${f.severity}] ${f.name} (\`${f.id}\`)\n\n`;
-            md += `- **Categoría OWASP**: ${f.owaspCategory || 'N/A'}\n`;
+            md += `- **Dimensión**: ${f.category || f.dimensionId || 'Seguridad General'}\n`;
+            md += `- **Categoría OWASP**: ${f.owaspCategory || f.owasp || 'N/A'}\n`;
             md += `- **Identificador CWE**: ${f.cwe || 'N/A'}\n`;
             md += `- **Ubicación**: Archivo \`${f.file}\`, Línea ~${f.line}\n`;
-            md += `- **Certeza**: \`${f.certainty || 'Probable'}\` | **Estado**: \`${f.status || 'Detectado'}\`\n\n`;
+            md += `- **Certeza**: \`${f.certainty || 'Probable'}\` | **Estado**: \`${f.status || 'confirmado'}\`\n\n`;
             md += `**Fragmento de Código Relevante (Sanitizado)**:\n\`\`\`javascript\n${f.snippet || '// No disponible'}\n\`\`\`\n\n`;
-            md += `**Explicación Técnica**:\n${f.explanation}\n\n`;
+            md += `**Explicación Técnica**:\n${f.explanation || f.description}\n\n`;
             md += `**Impacto Potencial**:\n${f.impact}\n\n`;
             md += `**Recomendación de Mitigación**:\n${f.recommendation}\n\n`;
             md += `---\n\n`;
         });
     }
 
-    // 5. Modelado de Amenazas STRIDE
-    md += `## 5. Modelado de Amenazas (Metodología STRIDE)\n\n`;
+    // 6. Modelado de Amenazas STRIDE
+    md += `## 6. Modelado de Amenazas (Metodología STRIDE)\n\n`;
     md += `${threatModel.summary || 'Análisis de amenazas estructurado sobre la arquitectura del sistema.'}\n\n`;
     md += `| ID | Categoría STRIDE | Componente Afectado | Escenario de Amenaza | Control Recomendado |\n`;
     md += `| :--- | :--- | :--- | :--- | :--- |\n`;
@@ -104,8 +158,8 @@ function generateSecurityMarkdownReport(securityAudit, projectName = 'Proyecto')
     });
     md += `\n`;
 
-    // 6. Requisitos de Seguridad (SEC-001...)
-    md += `## 6. Requisitos de Seguridad Automatizados (Security Requirements)\n\n`;
+    // 7. Requisitos de Seguridad Automatizados (SEC-001...)
+    md += `## 7. Requisitos de Seguridad Automatizados (Security Requirements)\n\n`;
     md += `| ID | Prioridad | Categoría | Descripción del Requisito | Estado |\n`;
     md += `| :--- | :---: | :--- | :--- | :---: |\n`;
     (securityRequirements || []).forEach(req => {
@@ -113,8 +167,8 @@ function generateSecurityMarkdownReport(securityAudit, projectName = 'Proyecto')
     });
     md += `\n`;
 
-    // 7. Auditoría de Dependencias
-    md += `## 7. Análisis de Dependencias & Cadena de Suministro\n\n`;
+    // 8. Auditoría de Dependencias
+    md += `## 8. Análisis de Dependencias & Cadena de Suministro (SCA)\n\n`;
     if (dependencyFindings.length === 0) {
         md += `✔ **No se identificaron dependencias críticamente comprometidas en los manifiestos analizados.**\n\n`;
     } else {
@@ -124,8 +178,8 @@ function generateSecurityMarkdownReport(securityAudit, projectName = 'Proyecto')
         md += `\n`;
     }
 
-    // 8. Checklist OWASP Top 10 (2021)
-    md += `## 8. Checklist de Cumplimiento OWASP Top 10\n\n`;
+    // 9. Checklist OWASP Top 10 (2021)
+    md += `## 9. Checklist de Cumplimiento OWASP Top 10\n\n`;
     const owaspItems = [
         { code: 'A01:2021', name: 'Broken Access Control', checked: !findings.some(f => (f.owaspCategory || '').includes('A01')) },
         { code: 'A02:2021', name: 'Cryptographic Failures', checked: !findings.some(f => (f.owaspCategory || '').includes('A02')) },
@@ -156,21 +210,24 @@ function generateSecurityJsonReport(securityAudit, projectName = 'Proyecto') {
     return {
         metadata: {
             platform: 'DocuMind AI',
-            generator: 'Security Analyzer SAST Engine',
-            version: '2.0.0',
+            generator: 'DocuMind Security Intelligence Engine',
+            version: '2.5.0',
             projectName,
             timestamp: new Date().toISOString(),
-            standard: 'OWASP Top 10 2021 / ASVS / STRIDE'
+            standards: ['OWASP Top 10:2021', 'OWASP ASVS v4.0', 'CWE/SANS Top 25', 'STRIDE']
         },
         executiveSummary: {
             securityScore: securityAudit.score,
+            classification: securityAudit.classification || 'Bueno',
             grade: securityAudit.grade,
             riskLevel: securityAudit.riskLevel,
-            totalFindings: securityAudit.counts.total,
-            severityBreakdown: securityAudit.counts,
+            totalFindings: securityAudit.counts ? securityAudit.counts.total : 0,
+            severityBreakdown: securityAudit.counts || {},
+            coverage: securityAudit.coverage || {},
             explanation: securityAudit.explanation
         },
-        categoryScores: securityAudit.categoryScores,
+        dimensions: securityAudit.dimensions || {},
+        remediationPlan: securityAudit.remediationPlan || {},
         secretsDetected: (securityAudit.secrets || []).map(s => ({
             id: s.id,
             type: s.type,
@@ -178,20 +235,26 @@ function generateSecurityJsonReport(securityAudit, projectName = 'Proyecto') {
             line: s.line,
             maskedSnippet: s.maskedSecret,
             severity: s.severity,
+            dimensionId: s.dimensionId,
+            category: s.category,
             owaspCategory: s.owaspCategory,
             cwe: s.cwe
         })),
         findings: (securityAudit.findings || []).map(f => ({
             id: f.id,
-            name: f.name,
+            name: f.name || f.title,
+            dimensionId: f.dimensionId,
+            category: f.category,
             severity: f.severity,
             owaspCategory: f.owaspCategory,
             cwe: f.cwe,
             file: f.file,
             line: f.line,
             snippet: f.snippet,
-            explanation: f.explanation,
+            evidence: f.evidence,
+            explanation: f.explanation || f.description,
             impact: f.impact,
+            likelihood: f.likelihood,
             recommendation: f.recommendation,
             status: f.status,
             certainty: f.certainty

@@ -1136,6 +1136,7 @@
                                     <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
                                         <span class="badge" id="sec-grade-badge">Grado -</span>
                                         <span class="badge" id="sec-status-badge">Estado -</span>
+                                        <span class="badge badge-slate" id="sec-coverage-badge" title="Cobertura de archivos y nivel de confianza"><i class="fa-solid fa-crosshairs"></i> Cobertura: --%</span>
                                     </div>
                                     <h4 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Índice Global de Seguridad</h4>
                                     <p style="font-size:.78rem;color:#94A3B8;line-height:1.5;margin:0;" id="sec-score-desc">
@@ -1180,13 +1181,36 @@
                             <div id="sec-deductions-list" style="display:flex;flex-direction:column;gap:.35rem;"></div>
                         </div>
 
-                        <!-- 8 Categories Breakdown Section -->
+                        <!-- 12 Dimensions Breakdown Section -->
                         <div class="sec-subcard" style="margin-top:1.25rem;">
                             <h4 style="font-size:.92rem;font-weight:800;color:#fff;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;">
-                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> Evaluación por Dimensiones de Arquitectura
+                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> Evaluación por Dimensiones de Arquitectura (12 Categorías — 100%)
                             </h4>
                             <div class="sec-categories-grid" id="sec-categories-grid">
-                                <!-- 8 categories dynamically rendered -->
+                                <!-- 12 categories dynamically rendered -->
+                            </div>
+                        </div>
+
+                        <!-- Actionable Remediation Plan Section -->
+                        <div class="sec-subcard" style="margin-top:1.25rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
+                                <div>
+                                    <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
+                                        <i class="fa-solid fa-wrench" style="color:#38BDF8;"></i> Plan de Remediación Priorizado (Actionable Remediation Plan)
+                                    </h4>
+                                    <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
+                                        Backlog de ingeniería estructurado por ventanas de urgencia con ejemplos de código vulnerable vs mitigado y pasos de verificación.
+                                    </p>
+                                </div>
+                                <div class="sec-filter-group" id="sec-rem-tabs" role="group" aria-label="Colas de remediación">
+                                    <button type="button" class="sec-filter-btn active" data-rem-filter="inmediata">🚨 Inmediata (<span id="count-rem-inm">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-high" data-rem-filter="alta">⚠ Alta (<span id="count-rem-alta">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-med" data-rem-filter="media">⚡ Media (<span id="count-rem-med">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-low" data-rem-filter="baja">ℹ Preventiva (<span id="count-rem-baja">0</span>)</button>
+                                </div>
+                            </div>
+                            <div id="sec-remediation-container" style="display:flex;flex-direction:column;gap:.85rem;">
+                                <!-- Injected dynamically -->
                             </div>
                         </div>
 

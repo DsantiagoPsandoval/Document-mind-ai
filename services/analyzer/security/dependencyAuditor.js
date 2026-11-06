@@ -46,16 +46,23 @@ function auditDependencies(files) {
                     findings.push({
                         id: `DEP-RISK-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
                         name: `Dependencia con Versión Comodín (*) o 'latest': ${depName}`,
+                        title: `Dependencia con Versión Comodín (*) o 'latest': ${depName}`,
+                        dimensionId: 'dependencies',
+                        category: 'Seguridad de dependencias',
                         severity: 'MEDIUM',
                         owaspCategory: 'A06:2021-Vulnerable and Outdated Components',
+                        owasp: 'A06:2021-Vulnerable and Outdated Components',
                         cwe: 'CWE-1104',
                         file: pkgFile.path,
                         line: 1,
                         snippet: `"${depName}": "${verStr}"`,
+                        evidence: `"${depName}": "${verStr}"`,
                         explanation: `La dependencia "${depName}" utiliza un rango flotante sin fijar ("${verStr}"). Esto puede introducir breaking changes o versiones infectadas de forma automática.`,
+                        description: `La dependencia "${depName}" utiliza un rango flotante sin fijar ("${verStr}").`,
                         impact: 'Riesgo de ataque a la cadena de suministro (Supply Chain Attack) y compilaciones no deterministas.',
+                        likelihood: 'Alta',
                         recommendation: 'Fijar la versión con un prefijo controlado (ej. ^1.2.3 o ~1.2.3) y versionar un archivo de bloqueo (package-lock.json).',
-                        status: 'Detectado',
+                        status: 'confirmado',
                         certainty: 'Confirmado'
                     });
                 }
@@ -72,16 +79,23 @@ function auditDependencies(files) {
                         findings.push({
                             id: `DEP-VULN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
                             name: `Componente Vulnerable / Obsoleto Detectado: ${depName}`,
+                            title: `Componente Vulnerable / Obsoleto Detectado: ${depName}`,
+                            dimensionId: 'dependencies',
+                            category: 'Seguridad de dependencias',
                             severity: known.risk,
                             owaspCategory: 'A06:2021-Vulnerable and Outdated Components',
+                            owasp: 'A06:2021-Vulnerable and Outdated Components',
                             cwe: 'CWE-1395',
                             file: pkgFile.path,
                             line: 1,
                             snippet: `"${depName}": "${verStr}"`,
+                            evidence: `"${depName}": "${verStr}"`,
                             explanation: known.reason,
+                            description: known.reason,
                             impact: 'Exposición del sistema a vulnerabilidades públicas documentadas (CVE).',
+                            likelihood: 'Alta',
                             recommendation: `Actualizar "${depName}" a su última versión estable parcheada o sustituir por una alternativa mantenida.`,
-                            status: 'Detectado',
+                            status: 'confirmado',
                             certainty: 'Confirmado'
                         });
                     }
@@ -94,16 +108,23 @@ function auditDependencies(files) {
                 findings.push({
                     id: `DEP-WARN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
                     name: 'Ausencia de Lockfile (package-lock.json / yarn.lock)',
+                    title: 'Ausencia de Lockfile (package-lock.json / yarn.lock)',
+                    dimensionId: 'dependencies',
+                    category: 'Seguridad de dependencias',
                     severity: 'LOW',
                     owaspCategory: 'A06:2021-Vulnerable and Outdated Components',
+                    owasp: 'A06:2021-Vulnerable and Outdated Components',
                     cwe: 'CWE-1104',
                     file: pkgFile.path,
                     line: 1,
                     snippet: 'Archivo package-lock.json no detectado en el repositorio',
+                    evidence: 'Archivo package-lock.json no detectado en el repositorio',
                     explanation: 'El repositorio contiene package.json pero carece de un lockfile versionado que garantice el árbol de dependencias exacto.',
+                    description: 'El repositorio contiene package.json pero carece de un lockfile versionado.',
                     impact: 'Diferencias entre entornos de desarrollo, CI/CD y producción.',
+                    likelihood: 'Media',
                     recommendation: 'Generar y versionar el archivo package-lock.json ejecutando `npm install`.',
-                    status: 'Detectado',
+                    status: 'preventivo',
                     certainty: 'Confirmado'
                 });
             }

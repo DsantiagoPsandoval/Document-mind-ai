@@ -146,18 +146,25 @@ function scanFileForSecrets(filePath, content) {
             findings.push({
                 id: `SEC-FIND-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
                 name: `Secreto Detectado: ${sig.type}`,
+                title: `Secreto Detectado: ${sig.type}`,
+                dimensionId: 'secretsManagement',
+                category: 'Gestión de secretos y credenciales',
                 type: sig.type,
                 severity: sig.severity,
                 owaspCategory: sig.owasp,
+                owasp: sig.owasp,
                 cwe: sig.cwe,
                 file: filePath,
                 line: lineNum,
                 maskedSecret,
                 snippet: snippet.substring(0, 160),
+                evidence: snippet.substring(0, 160),
                 explanation: `Se detectó una credencial sensible (${sig.type}) escrita directamente en el código fuente o archivo de configuración.`,
+                description: `Se detectó una credencial sensible (${sig.type}) escrita directamente en el código fuente o archivo de configuración.`,
                 impact: 'Exposición no autorizada de credenciales que podría comprometer servicios en la nube, APIs o bases de datos.',
+                likelihood: 'Alta',
                 recommendation: 'Extraer esta credencial inmediatamente hacia variables de entorno seguras (.env protegido) o un gestor de secretos (ej. AWS Secrets Manager, Vault, Doppler). Rotar la clave si el repositorio ha sido publicado.',
-                status: 'Detectado',
+                status: 'confirmado',
                 certainty: 'Confirmado'
             });
         }
