@@ -541,7 +541,6 @@ if (btnOAuthGoogle) {
         "como-funciona",
         "solucion",
         "analizador",
-        "simulador-arquitectura",
         "equipo",
         "contacto"
     ];
@@ -3032,8 +3031,13 @@ if (btnOAuthGoogle) {
             content: `<p style="font-size:.85rem;color:#CBD5E1;line-height:1.7;margin-bottom:1rem;">
                 Usa el <strong>Simulador Matemático (Actividad 9)</strong> para evaluar concurrencia y límites de hardware bajo modelos de colas M/M/c. Además, puedes <strong>solicitar modificaciones con IA</strong> para descargar parches Git listos para aplicar.
             </p>
-            <div style="padding:.85rem 1rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.65rem;font-size:.78rem;color:#6EE7B7;line-height:1.6;">
+            <div style="padding:.85rem 1rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.65rem;font-size:.78rem;color:#6EE7B7;line-height:1.6;margin-bottom:.75rem;">
                 <i class="fa-solid fa-bolt" style="margin-right:.4rem;"></i><strong>Sincronización en Vivo:</strong> Detecta discrepancias de commit y drift de arquitectura en 1 clic.
+            </div>
+            <div>
+                <a href="/simulador" target="_blank" rel="noopener noreferrer" class="btn-cyber-outline" style="display:inline-flex;align-items:center;padding:.35rem .75rem;font-size:.72rem;color:#34D399;border-color:rgba(52,211,153,.4);">
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="margin-right:.35rem;"></i>Abrir Simulador Independiente
+                </a>
             </div>`
         }
     ];

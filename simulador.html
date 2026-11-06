@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ingeniería | DocuMind AI — Arquitectura y Diseño Técnico</title>
+    <meta name="description" content="Simulador de Ingeniería y Diseño Técnico para evaluar y comparar arquitecturas de software bajo modelos de colas M/M/c y decisión multicriterio. Universidad Libre — Guía Actividad 9.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23090D16' stroke='%2334D399' stroke-width='3'/%3E%3Cpath d='M30 45 C30 35,45 32,48 40 C52 32,70 35,70 45 C70 55,62 65,50 72 C38 65,30 55,30 45Z' fill='%2338BDF8'/%3E%3C/svg%3E">
+    <meta name="theme-color" content="#090D16">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css?v=6.0">
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background-color:#090D16;color:#E2E8F0;min-height:100vh;display:flex;flex-direction:column;">
+
+    <!-- Background Ambient Lighting -->
+    <div style="position:fixed;top:0;left:20%;width:600px;height:400px;background:radial-gradient(circle,rgba(56,189,248,.07) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+    <div style="position:fixed;bottom:10%;right:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(52,211,153,.06) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+
+    <!-- ============================================================
+         SAAS APP HEADER (INDEPENDENT APPLICATION TOPBAR)
+    ============================================================ -->
+    <header style="position:sticky;top:0;z-index:50;background:rgba(9,13,22,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(56,189,248,.18);height:64px;display:flex;align-items:center;">
+        <div class="container" style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:1rem;">
+            
+            <!-- Left Brand & App Title -->
+            <div style="display:flex;align-items:center;gap:1.25rem;">
+                <a href="/" style="display:flex;align-items:center;gap:.6rem;text-decoration:none;" aria-label="DocuMind AI Home">
+                    <div style="width:2.2rem;height:2.2rem;border-radius:.6rem;background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(52,211,153,.2));border:1px solid rgba(56,189,248,.4);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <span style="font-size:1.05rem;font-weight:900;letter-spacing:-0.02em;color:#fff;">DocuMind<span class="ai-badge">AI</span></span>
+                </a>
+
+                <div style="height:20px;width:1px;background:rgba(148,163,184,.2);" class="hidden-mobile"></div>
+
+                <div style="display:flex;align-items:center;gap:.65rem;" class="hidden-mobile">
+                    <span style="font-size:.85rem;font-weight:800;color:#F8FAFC;letter-spacing:-0.01em;">Simulador de Ingeniería</span>
+                    <span class="badge badge-emerald" style="font-size:.65rem;padding:.15rem .5rem;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:#34D399;display:inline-block;margin-right:.3rem;box-shadow:0 0 8px #34D399;"></span>
+                        Motor M/M/c Activo
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right App Controls & Actions -->
+            <div style="display:flex;align-items:center;gap:.85rem;">
+                <!-- Return Button -->
+                <a href="/" class="btn-cyber-outline" style="padding:.42rem .95rem;font-size:.78rem;border-radius:999px;gap:.4rem;" title="Regresar a la plataforma principal de DocuMind AI">
+                    <i class="fa-solid fa-arrow-left" style="color:var(--tech-cyan);"></i>
+                    <span>Volver a DocuMind AI</span>
+                </a>
+
+                <!-- User Profile / Auth State Capsule -->
+                <div id="sim-auth-guest" style="display:inline-flex;align-items:center;">
+                    <button type="button" id="btn-sim-open-auth" class="btn-cyber" style="padding:.42rem 1.05rem;font-size:.78rem;border-radius:9999px;">
+                        <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.4rem;"></i>Iniciar Sesión
+                    </button>
+                </div>
+
+                <div id="sim-auth-user" class="user-nav-capsule" style="display:none;position:relative;">
+                    <button type="button" id="sim-user-menu-btn" class="user-menu-trigger" aria-haspopup="true" aria-expanded="false">
+                        <div class="user-avatar-badge" id="sim-nav-user-avatar">US</div>
+                        <span class="user-email-text" id="sim-nav-user-email">usuario@correo.com</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:.65rem;color:#94A3B8;margin-left:.25rem;"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div id="sim-user-dropdown-menu" class="user-dropdown-cyber hidden">
+                        <div class="user-dropdown-header">
+                            <span style="font-size:.68rem;color:#64748B;text-transform:uppercase;letter-spacing:.05em;">Conectado como</span>
+                            <strong id="sim-dropdown-user-email" style="display:block;font-size:.78rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">usuario@correo.com</strong>
+                            <div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.35rem;font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">
+                                <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 8px #34D399;"></span>
+                                Sesión Sincronizada
+                            </div>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <a href="/" class="user-dropdown-item">
+                            <i class="fa-solid fa-brain" style="color:var(--tech-cyan);"></i>Analizador de Repositorios
+                        </a>
+                        <div class="user-dropdown-divider"></div>
+                        <button type="button" id="btn-sim-logout" class="user-dropdown-item" style="color:#FB7185;">
+                            <i class="fa-solid fa-right-from-bracket" style="color:#FB7185;"></i>Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ============================================================
+         MAIN APPLICATION WORKBENCH
+    ============================================================ -->
+    <main style="flex:1;position:relative;z-index:1;padding:2rem 0 4rem;">
+        <div class="container">
+
+            <!-- Institutional Breadcrumb & Header Title -->
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem;padding-bottom:1.25rem;border-bottom:1px solid rgba(148,163,184,.14);">
+                <div>
+                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.45rem;font-size:.74rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">
+                        <a href="/" style="color:#94A3B8;text-decoration:none;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#94A3B8'">DocuMind AI</a>
+                        <span>/</span>
+                        <span style="color:var(--tech-cyan);">Simulador de Arquitectura (Actividad 9)</span>
+                    </div>
+                    <h1 style="font-size:1.65rem;font-weight:900;color:#fff;letter-spacing:-0.02em;margin:0;display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                        Simulador de <span class="gradient-text">Arquitectura y Dise&ntilde;o T&eacute;cnico</span>
+                    </h1>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                    <span class="badge badge-cyan"><i class="fa-solid fa-microchip"></i> Universidad Libre &bull; Ingenier&iacute;a Aplicada 2026-2</span>
+                    <span class="badge badge-emerald"><i class="fa-solid fa-sliders"></i> Gu&iacute;a Actividad 9 &bull; Entorno Dedicado</span>
+                </div>
+            </div>
+
+            <!-- Contextual Description & Methodology Alert -->
+            <div style="margin-bottom:1.75rem;padding:1rem 1.25rem;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:.85rem;display:flex;align-items:flex-start;gap:.85rem;">
+                <i class="fa-solid fa-circle-info" style="color:#FBBF24;font-size:1.15rem;margin-top:.15rem;flex-shrink:0;"></i>
+                <div style="font-size:.78rem;color:#FDE68A;line-height:1.6;">
+                    <strong>Nota Metodol&oacute;gica (Criterio Fundamental de Evaluaci&oacute;n):</strong> Los resultados de este simulador corresponden a <strong>estimaciones anal&iacute;ticas del modelo computacional M/M/c</strong> (basado en los estudios de <em>Al-Debagy &amp; Martinek</em>, <em>Gosha et al.</em> y pruebas de estr&eacute;s <em>Apache JMeter</em>) y <strong>no a mediciones f&iacute;sicas de hardware en tiempo real</strong>. Al final del tablero se describe el protocolo de validaci&oacute;n emp&iacute;rica para contrastar estas proyecciones.
+                </div>
+            </div>
+
+            <!-- Dynamic Input Validation Alert -->
+            <div id="sim-validation-alert" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.45);border-radius:.85rem;"></div>
+
+            <!-- ============================================================
+                 SAAS WORKBENCH: 2-COLUMN MODULAR LAYOUT
+                 Column 1 (Inputs & Controls) | Column 2 (Realtime Telemetry & Visualizer)
+            ============================================================ -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-bottom:2rem;">
+                
+                <!-- Columna Izquierda: 1. Configuración del Proyecto, Requisitos de Calidad y Restricciones -->
+                <div class="glow-card" style="padding:1.5rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
+                        <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-clipboard-check" style="color:var(--tech-cyan);"></i> 1. Configuraci&oacute;n y Restricciones del Proyecto
+                        </h3>
+                        <span id="sim-config-live-badge" style="font-size:.64rem;color:#34D399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);padding:.18rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace;">●  Sincronizado en Vivo</span>
+                    </div>
+
+                    <!-- Perfiles Rápidos de Restricciones y Prioridades (1-Click) -->
+                    <div style="margin-bottom:.85rem;">
+                        <span style="font-size:.66rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.4rem;text-transform:uppercase;">Perfiles R&aacute;pidos de Restricci&oacute;n &amp; SLA (Prueba c&oacute;mo cambian los resultados):</span>
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;">
+                            <button type="button" data-sim-config-preset="STANDARD" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-sliders" style="color:#38BDF8;margin-right:.35rem;"></i>Est&aacute;ndar ($350 / 1800ms / 8GB)
+                            </button>
+                            <button type="button" data-sim-config-preset="BOOTSTRAPPED" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-piggy-bank" style="color:#FBBF24;margin-right:.35rem;"></i>Startup ($45 USD / 1GB RAM)
+                            </button>
+                            <button type="button" data-sim-config-preset="FINTECH_STRICT" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-bolt-lightning" style="color:#34D399;margin-right:.35rem;"></i>SLA Estricto (390ms / 99.85%)
+                            </button>
+                            <button type="button" data-sim-config-preset="CLOUD_SCALE" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-cloud-arrow-up" style="color:#818CF8;margin-right:.35rem;"></i>Alta Escala (Esc &ge; 88 / $900)
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;flex-direction:column;gap:.8rem;">
+                        <!-- Presupuesto Máximo Mensual -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.25rem;">
+                                <span style="color:#CBD5E1;"><i class="fa-solid fa-wallet" style="color:#FBBF24;margin-right:.3rem;"></i>Presupuesto M&aacute;ximo Infraestructura:</span>
+                                <strong id="sim-lbl-con-budget" style="color:#FBBF24;font-family:'JetBrains Mono',monospace;">$350 USD/mes</strong>
+                            </div>
+                            <input type="range" id="sim-con-budget" min="20" max="1500" step="10" value="350" style="width:100%;accent-color:#FBBF24;">
+                            <span style="font-size:.63rem;color:#64748B;">L&iacute;mite m&aacute;ximo de costo operativo mensual permitido para el proyecto.</span>
+                        </div>
+
+                        <!-- SLA Latencia Máxima P95 -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.25rem;">
+                                <span style="color:#CBD5E1;"><i class="fa-solid fa-stopwatch" style="color:#38BDF8;margin-right:.3rem;"></i>SLA Latencia M&aacute;xima P95:</span>
+                                <strong id="sim-lbl-req-latency" style="color:#38BDF8;font-family:'JetBrains Mono',monospace;">1800 ms</strong>
+                            </div>
+                            <input type="range" id="sim-req-latency" min="100" max="5000" step="50" value="1800" style="width:100%;accent-color:#38BDF8;">
+                            <span style="font-size:.63rem;color:#64748B;">Umbral contractual de tiempo de respuesta para no incurrir en violaci&oacute;n de SLA.</span>
+                        </div>
+
+                        <!-- Memoria RAM Máxima Permitida -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.25rem;">
+                                <span style="color:#CBD5E1;"><i class="fa-solid fa-memory" style="color:#34D399;margin-right:.3rem;"></i>Restricci&oacute;n de Memoria RAM:</span>
+                                <strong id="sim-lbl-con-memory" style="color:#34D399;font-family:'JetBrains Mono',monospace;">8.0 GB</strong>
+                            </div>
+                            <input type="range" id="sim-con-memory" min="0.5" max="32" step="0.5" value="8" style="width:100%;accent-color:#34D399;">
+                            <span style="font-size:.63rem;color:#64748B;">Capacidad m&aacute;xima de memoria de los nodos/instancias asignadas.</span>
+                        </div>
+
+                        <!-- Disponibilidad Mínima Contractual -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.25rem;">
+                                <span style="color:#CBD5E1;"><i class="fa-solid fa-shield-heart" style="color:#FB7185;margin-right:.3rem;"></i>Disponibilidad M&iacute;nima (SLA):</span>
+                                <strong id="sim-lbl-req-avail" style="color:#FB7185;font-family:'JetBrains Mono',monospace;">99.50%</strong>
+                            </div>
+                            <input type="range" id="sim-req-avail" min="95.0" max="99.99" step="0.05" value="99.50" style="width:100%;accent-color:#FB7185;">
+                            <span style="font-size:.63rem;color:#64748B;">Porcentaje de uptime m&iacute;nimo exigido para el servicio.</span>
+                        </div>
+
+                        <!-- Requisito Mínimo de Escalabilidad -->
+                        <div>
+                            <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.25rem;">
+                                <span style="color:#CBD5E1;"><i class="fa-solid fa-arrow-trend-up" style="color:#818CF8;margin-right:.3rem;"></i>Puntuaci&oacute;n M&iacute;nima de Escalabilidad:</span>
+                                <strong id="sim-lbl-req-scale" style="color:#818CF8;font-family:'JetBrains Mono',monospace;">70 / 100</strong>
+                            </div>
+                            <input type="range" id="sim-req-scale" min="40" max="95" step="1" value="70" style="width:100%;accent-color:#818CF8;">
+                            <span style="font-size:.63rem;color:#64748B;">Criterio arquitect&oacute;nico m&iacute;nimo de capacidad para absorber picos de carga.</span>
+                        </div>
+                    </div>
+
+                    <!-- Ponderación de Criterios de Evaluación MCDA (Sección 1 de la Guía) -->
+                    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(148,163,184,.14);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;flex-wrap:wrap;gap:.4rem;">
+                            <span style="font-size:.72rem;font-weight:700;color:#CBD5E1;text-transform:uppercase;">Pesos de Decisi&oacute;n MCDA (Normalizaci&oacute;n Autom&aacute;tica a 100%):</span>
+                            <span id="sim-weights-sum-label" style="font-size:.68rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;">Suma: 100%</span>
+                        </div>
+
+                        <!-- Barra Visual Normalizada -->
+                        <div id="sim-weights-visual-bar" style="height:7px;width:100%;background:#1E293B;border-radius:999px;overflow:hidden;display:flex;margin-bottom:.85rem;border:1px solid rgba(148,163,184,.15);">
+                            <div style="width:25%;background:#38BDF8;" title="Latencia"></div>
+                            <div style="width:20%;background:#FBBF24;" title="Costo"></div>
+                            <div style="width:20%;background:#FB7185;" title="Disponibilidad"></div>
+                            <div style="width:20%;background:#818CF8;" title="Escalabilidad"></div>
+                            <div style="width:10%;background:#34D399;" title="Memoria"></div>
+                            <div style="width:5%;background:#94A3B8;" title="Complejidad"></div>
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;font-size:.72rem;">
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#94A3B8;margin-bottom:.15rem;">
+                                    <span>Latencia:</span><strong id="sim-lbl-w-lat" style="color:#38BDF8;">25%</strong>
+                                </div>
+                                <input type="range" id="sim-w-lat" class="sim-weight-input" min="0" max="60" step="5" value="25" style="width:100%;accent-color:#38BDF8;">
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#94A3B8;margin-bottom:.15rem;">
+                                    <span>Costo:</span><strong id="sim-lbl-w-cost" style="color:#FBBF24;">20%</strong>
+                                </div>
+                                <input type="range" id="sim-w-cost" class="sim-weight-input" min="0" max="60" step="5" value="20" style="width:100%;accent-color:#FBBF24;">
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#94A3B8;margin-bottom:.15rem;">
+                                    <span>Disponibilidad:</span><strong id="sim-lbl-w-avail" style="color:#FB7185;">20%</strong>
+                                </div>
+                                <input type="range" id="sim-w-avail" class="sim-weight-input" min="0" max="60" step="5" value="20" style="width:100%;accent-color:#FB7185;">
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#94A3B8;margin-bottom:.15rem;">
+                                    <span>Escalabilidad:</span><strong id="sim-lbl-w-scale" style="color:#818CF8;">20%</strong>
+                                </div>
+                                <input type="range" id="sim-w-scale" class="sim-weight-input" min="0" max="60" step="5" value="20" style="width:100%;accent-color:#818CF8;">
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#94A3B8;margin-bottom:.15rem;">
+                                    <span>Memoria RAM:</span><strong id="sim-lbl-w-ram" style="color:#34D399;">10%</strong>
+                                </div>
+                                <input type="range" id="sim-w-ram" class="sim-weight-input" min="0" max="40" step="5" value="10" style="width:100%;accent-color:#34D399;">
+                            </div>
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#94A3B8;margin-bottom:.15rem;">
+                                    <span>Complejidad:</span><strong id="sim-lbl-w-cmplx" style="color:#94A3B8;">5%</strong>
+                                </div>
+                                <input type="range" id="sim-w-cmplx" class="sim-weight-input" min="0" max="30" step="5" value="5" style="width:100%;accent-color:#94A3B8;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: 2 & 3. Variables de Entrada de Carga + Escenarios de la Guía -->
+                <div class="glow-card" style="padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;">
+                    <div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);">
+                            <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                                <i class="fa-solid fa-sliders" style="color:#818CF8;"></i> 2. Variables de Entrada y Carga Operacional
+                            </h3>
+                            <button type="button" id="btn-sim-reset-inputs" class="btn-ghost" style="padding:.2rem .55rem;font-size:.65rem;" title="Restablecer valores de carga">
+                                <i class="fa-solid fa-rotate-left" style="margin-right:.25rem;"></i>Restablecer
+                            </button>
+                        </div>
+
+                        <!-- Sliders de Variables Operacionales -->
+                        <div style="display:flex;flex-direction:column;gap:.9rem;">
+                            <!-- Usuarios Concurrentes (U) -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
+                                    <span style="color:#CBD5E1;"><i class="fa-solid fa-users" style="color:var(--tech-cyan);margin-right:.3rem;"></i>Usuarios Concurrentes (U):</span>
+                                    <strong id="sim-lbl-users" style="color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">18 usuarios</strong>
+                                </div>
+                                <input type="range" id="sim-input-users" class="sim-variable-slider" min="1" max="1000" step="1" value="18" style="width:100%;accent-color:var(--tech-cyan);">
+                                <span style="font-size:.65rem;color:#64748B;">Justificaci&oacute;n: Determina la tasa de llegada de peticiones &lambda; = (U / 12) &times; Factor R&aacute;faga bajo modelos M/M/c.</span>
+                            </div>
+
+                            <!-- Tamaño Promedio de Código (S_MB) -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
+                                    <span style="color:#CBD5E1;"><i class="fa-solid fa-file-zipper" style="color:#818CF8;margin-right:.3rem;"></i>Tama&ntilde;o de Repositorio (S_MB):</span>
+                                    <strong id="sim-lbl-size" style="color:#818CF8;font-family:'JetBrains Mono',monospace;">1.0 MB</strong>
+                                </div>
+                                <input type="range" id="sim-input-size" class="sim-variable-slider" min="0.1" max="20" step="0.1" value="1.0" style="width:100%;accent-color:#818CF8;">
+                                <span style="font-size:.65rem;color:#64748B;">Impacta el tiempo de procesamiento base AST, consumo de memoria y tr&aacute;nsito de red entre capas.</span>
+                            </div>
+
+                            <!-- Número de Archivos Analizados (N_files) -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
+                                    <span style="color:#CBD5E1;"><i class="fa-solid fa-folder-tree" style="color:#34D399;margin-right:.3rem;"></i>N&uacute;mero de Archivos (N_files):</span>
+                                    <strong id="sim-lbl-files" style="color:#34D399;font-family:'JetBrains Mono',monospace;">35 archivos</strong>
+                                </div>
+                                <input type="range" id="sim-input-files" class="sim-variable-slider" min="5" max="500" step="5" value="35" style="width:100%;accent-color:#34D399;">
+                                <span style="font-size:.65rem;color:#64748B;">Multiplica el n&uacute;mero de llamadas al parser AST y an&aacute;lisis de dependencias internas.</span>
+                            </div>
+
+                            <!-- Factor de Ráfaga / Concurrencia Punta (Burst Factor B) -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
+                                    <span style="color:#CBD5E1;"><i class="fa-solid fa-bolt" style="color:#F59E0B;margin-right:.3rem;"></i>Factor de R&aacute;faga (Burst Factor):</span>
+                                    <strong id="sim-lbl-burst" style="color:#F59E0B;font-family:'JetBrains Mono',monospace;">1.0x (Tr&aacute;fico Estable)</strong>
+                                </div>
+                                <input type="range" id="sim-input-burst" class="sim-variable-slider" min="1.0" max="4.0" step="0.1" value="1.0" style="width:100%;accent-color:#F59E0B;">
+                                <span style="font-size:.65rem;color:#64748B;">Modela picos de carga repentinos (1.0x estable hasta 4.0x pico cr&iacute;tico en despliegues masivos).</span>
+                            </div>
+
+                            <!-- Saltos de Red Inter-Servicio (Hops) -->
+                            <div>
+                                <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
+                                    <span style="color:#CBD5E1;"><i class="fa-solid fa-network-wired" style="color:#FB7185;margin-right:.3rem;"></i>Saltos de Red Inter-Servicio (Hops):</span>
+                                    <strong id="sim-lbl-hops" style="color:#FB7185;font-family:'JetBrains Mono',monospace;">3 saltos</strong>
+                                </div>
+                                <input type="range" id="sim-input-hops" class="sim-variable-slider" min="1" max="10" step="1" value="3" style="width:100%;accent-color:#FB7185;">
+                                <span style="font-size:.65rem;color:#64748B;">Afecta a microservicios: cada salto RPC/gRPC agrega 12ms base m&aacute;s sobrecarga de serializaci&oacute;n JSON.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Escenarios Predefinidos de la Guía (Requisito 3) -->
+                    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(148,163,184,.14);">
+                        <span style="font-size:.68rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.5rem;text-transform:uppercase;">
+                            <i class="fa-solid fa-bookmark" style="color:#38BDF8;margin-right:.3rem;"></i>Escenarios de Prueba Guiados (1-Click):
+                        </span>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.45rem;">
+                            <button type="button" data-sim-preset="ESC_1_LOW" class="btn-cyber-outline" style="padding:.45rem .6rem;font-size:.7rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-circle-dot" style="color:#38BDF8;margin-right:.3rem;"></i>Baja Carga (U=18, 1MB)
+                            </button>
+                            <button type="button" data-sim-preset="ESC_2_ENTERPRISE" class="btn-cyber-outline" style="padding:.45rem .6rem;font-size:.7rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-building" style="color:#818CF8;margin-right:.3rem;"></i>Empresarial (U=320, 6MB)
+                            </button>
+                            <button type="button" data-sim-preset="ESC_3_STRESS" class="btn-cyber-outline" style="padding:.45rem .6rem;font-size:.7rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-fire" style="color:#F59E0B;margin-right:.3rem;"></i>Estr&eacute;s JMeter (U=650, R&aacute;f=2.5x)
+                            </button>
+                            <button type="button" data-sim-preset="ESC_4_BURST" class="btn-cyber-outline" style="padding:.45rem .6rem;font-size:.7rem;justify-content:flex-start;">
+                                <i class="fa-solid fa-forward-fast" style="color:#34D399;margin-right:.3rem;"></i>R&aacute;fagas Continuas (4.0x)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ============================================================
+                 BANNER DE RESUMEN DE CONFIGURACIÓN ACTIVA Y ACCIONES
+            ============================================================ -->
+            <div id="sim-active-config-banner" style="margin-bottom:2rem;padding:1rem 1.35rem;background:rgba(15,23,42,.92);border:1px solid rgba(56,189,248,.25);border-radius:.85rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                <div style="display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;">
+                    <div style="width:2.2rem;height:2.2rem;border-radius:.55rem;background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <strong style="color:#fff;font-size:.88rem;display:block;">Configuraci&oacute;n Activa del Simulador:</strong>
+                        <span id="sim-config-summary-text" style="font-size:.75rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Presupuesto: $350 USD | SLA: 1800ms | RAM: 8GB | Carga: U=18, S=1.0MB</span>
+                    </div>
+                </div>
+                
+                <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+                    <button type="button" id="btn-sim-test-invalid" class="btn-ghost" style="padding:.4rem .75rem;font-size:.72rem;border-color:rgba(244,63,94,.4);color:#FB7185;" title="Probar validación de error con valores fuera de rango">
+                        <i class="fa-solid fa-triangle-exclamation" style="margin-right:.35rem;"></i>Probar Entrada Inv&aacute;lida
+                    </button>
+                    <button type="button" id="btn-sim-restore-valid" class="btn-cyber" style="padding:.4rem .75rem;font-size:.72rem;" title="Restablecer valores válidos">
+                        <i class="fa-solid fa-check" style="margin-right:.35rem;"></i>Restablecer V&aacute;lidos
+                    </button>
+                    <button type="button" id="btn-sim-export-md" class="btn-cyber-outline" style="padding:.4rem .85rem;font-size:.72rem;">
+                        <i class="fa-solid fa-file-arrow-down" style="margin-right:.35rem;"></i>Exportar Informe Markdown
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 4 & 5: TARJETA DE ARQUITECTURA GANADORA (DECISIÓN EXPLICABLE)
+            ============================================================ -->
+            <div id="sim-decision-support-box" style="margin-bottom:2rem;">
+                <!-- Injected dynamically by architecture-simulator.js -->
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 6: TABLA COMPARATIVA DE LAS 3 ALTERNATIVAS ARQUITECTÓNICAS
+            ============================================================ -->
+            <div class="glow-card" style="padding:1.5rem;margin-bottom:2rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.15rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-table-columns" style="color:var(--tech-cyan);"></i> Comparativa Cuantitativa de las 3 Alternativas Arquitect&oacute;nicas
+                        </h3>
+                        <span style="font-size:.72rem;color:#94A3B8;">Evaluaci&oacute;n seg&uacute;n los requisitos de calidad y restricciones de la Secci&oacute;n 1.</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;">
+                        <span class="badge badge-cyan" style="font-size:.65rem;">Modelo M/M/c v1.0.0</span>
+                    </div>
+                </div>
+
+                <!-- Tabla de Comparación Responsive -->
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:.78rem;text-align:left;">
+                        <thead>
+                            <tr style="background:rgba(15,23,42,.95);border-bottom:1px solid rgba(56,189,248,.25);color:#94A3B8;text-transform:uppercase;font-size:.68rem;letter-spacing:.05em;">
+                                <th style="padding:.75rem .85rem;">Alternativa Arquitect&oacute;nica</th>
+                                <th style="padding:.75rem .85rem;">Latencia P95</th>
+                                <th style="padding:.75rem .85rem;">Throughput M&aacute;x</th>
+                                <th style="padding:.75rem .85rem;">Utilizaci&oacute;n (&rho;)</th>
+                                <th style="padding:.75rem .85rem;">Costo Mensual</th>
+                                <th style="padding:.75rem .85rem;">RAM Requerida</th>
+                                <th style="padding:.75rem .85rem;">Cumplimiento Restricciones</th>
+                                <th style="padding:.75rem .85rem;text-align:right;">Puntaje Global MCDA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sim-comparison-tbody">
+                            <!-- Injected dynamically by architecture-simulator.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 7: VISOR 3D WEBGL Y GRÁFICAS DE COMPORTAMIENTO (REQUISITO 7)
+            ============================================================ -->
+            <div class="glow-card" style="padding:1.5rem;margin-bottom:2rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-cubes" style="color:#818CF8;"></i> Visualizaci&oacute;n Tridimensional WebGL &bull; Din&aacute;mica de Carga y Espacio MCDA
+                        </h3>
+                        <span style="font-size:.72rem;color:#94A3B8;">Superficie de respuesta matemática tridimensional y radar volum&eacute;trico multidimensional.</span>
+                    </div>
+
+                    <!-- Controles de Modo 3D y Barrido Dinámico -->
+                    <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
+                        <button type="button" class="btn-cyber-outline sim-3d-mode-btn active" data-sim-3d-mode="SURFACE" style="padding:.35rem .75rem;font-size:.72rem;">
+                            <i class="fa-solid fa-chart-area" style="margin-right:.3rem;"></i>Superficie M/M/c
+                        </button>
+                        <button type="button" class="btn-cyber-outline sim-3d-mode-btn" data-sim-3d-mode="RADAR" style="padding:.35rem .75rem;font-size:.72rem;">
+                            <i class="fa-solid fa-circle-nodes" style="margin-right:.3rem;"></i>Radar MCDA 3D
+                        </button>
+                        <button type="button" id="btn-sim-3d-live-sweep" class="btn-cyber" style="padding:.35rem .85rem;font-size:.72rem;" title="Ejecutar barrido animado de 15 a 700 usuarios para observar la superficie 3D en tiempo real">
+                            <i class="fa-solid fa-play" style="margin-right:.35rem;"></i>Barrido 3D en Vivo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contenedores de Gráficas 3D (2 Columnas) -->
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;">
+                    
+                    <!-- Columna Izquierda: Visor Interactivo WebGL Three.js -->
+                    <div style="background:rgba(9,13,22,.9);border:1px solid rgba(56,189,248,.2);border-radius:.85rem;overflow:hidden;position:relative;">
+                        <!-- HUD Superior del Visor 3D -->
+                        <div id="sim-3d-hud-header" style="position:absolute;top:0;left:0;right:0;padding:.6rem .85rem;background:rgba(15,23,42,.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(148,163,184,.14);display:flex;justify-content:space-between;align-items:center;z-index:10;pointer-events:none;">
+                            <div>
+                                <span id="sim-3d-hud-title" style="font-size:.7rem;font-weight:800;color:#fff;display:block;font-family:'JetBrains Mono',monospace;">MODO: SUPERFICIE MATEM&Aacute;TICA 3D</span>
+                                <span id="sim-3d-hud-subtitle" style="font-size:.63rem;color:#CBD5E1;">Arrastra con el mouse para rotar 360° &bull; Plano &Aacute;mbar/Rojo = Umbral SLA (Secci&oacute;n 1)</span>
+                            </div>
+                            <div style="display:flex;gap:.3rem;pointer-events:auto;">
+                                <button type="button" id="btn-sim-3d-cam-iso" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Isométrica">Iso</button>
+                                <button type="button" id="btn-sim-3d-cam-front" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Frontal SLA">Frontal</button>
+                                <button type="button" id="btn-sim-3d-cam-top" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Superior">Planta</button>
+                                <button type="button" id="btn-sim-3d-autorotate" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;color:#34D399;border-color:rgba(52,211,153,.4);" title="Alternar Auto-Rotación"><i class="fa-solid fa-rotate" style="margin-right:.25rem;"></i>Auto</button>
+                            </div>
+                        </div>
+
+                        <div id="sim-3d-webgl-wrapper" style="width:100%;height:350px;position:relative;cursor:grab;">
+                            <canvas id="sim-3d-webgl-canvas" style="width:100%;height:100%;display:block;"></canvas>
+                        </div>
+
+                        <!-- Leyenda Inferior del Visor WebGL -->
+                        <div id="sim-3d-hud-footer" style="padding:.55rem .85rem;background:rgba(15,23,42,.95);border-top:1px solid rgba(148,163,184,.14);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;font-size:.67rem;font-family:'JetBrains Mono',monospace;">
+                            <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                                <span style="color:#38BDF8;">● Monolito MVC</span>
+                                <span style="color:#818CF8;">● Microservicios K8s</span>
+                                <span style="color:#34D399;">● Orientada a Eventos (EDA)</span>
+                                <span style="color:#FBBF24;">&mdash; Plano L&iacute;mite SLA/Presupuesto</span>
+                            </div>
+                            <span id="sim-3d-live-telemetry" style="color:#E2E8F0;font-weight:700;">λ = 6.0 req/s</span>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha de Gráficas 3D: Superficie 3D de Latencia y Radar Volumétrico 3D MCDA -->
+                    <div style="display:flex;flex-direction:column;gap:1rem;">
+                        <!-- Gráfica 3D 1: Superficie de Respuesta 3D (Usuarios × Carga vs Latencia P95 y Techo SLA) -->
+                        <div style="background:rgba(9,13,22,.9);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1rem;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+                                <span style="font-size:.74rem;font-weight:700;color:#fff;">
+                                    <i class="fa-solid fa-chart-line" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Proyecci&oacute;n 2D/3D: Curva de Latencia P95 vs SLA
+                                </span>
+                                <span id="sim-3d-surf-badge" style="font-size:.63rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;">P95: 168 ms</span>
+                            </div>
+                            <canvas id="sim-canvas-3d-surface" width="480" height="135" style="width:100%;height:135px;display:block;border-radius:.45rem;background:#060911;"></canvas>
+                        </div>
+
+                        <!-- Gráfica 3D 2: Radar Volumétrico de Evaluación Multicriterio (6 Dimensiones) -->
+                        <div style="background:rgba(9,13,22,.9);border:1px solid rgba(52,211,153,.2);border-radius:.85rem;padding:1rem;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+                                <span style="font-size:.74rem;font-weight:700;color:#fff;">
+                                    <i class="fa-solid fa-chart-pie" style="color:#34D399;margin-right:.35rem;"></i>Radar Multicriterio de Decisi&oacute;n (6 Atributos de Calidad)
+                                </span>
+                                <span id="sim-3d-radar-badge" style="font-size:.63rem;color:#34D399;font-family:'JetBrains Mono',monospace;">Ganadora: Monolito MVC</span>
+                            </div>
+                            <canvas id="sim-canvas-3d-radar" width="480" height="135" style="width:100%;height:135px;display:block;border-radius:.45rem;background:#060911;"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 8: HISTORIAL DE SIMULACIONES Y VALIDACIÓN DE HIPÓTESIS
+            ============================================================ -->
+            <div class="glow-card" style="padding:1.5rem;margin-bottom:2rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i> Historial Din&aacute;mico de Escenarios Simulados &amp; An&aacute;lisis Diferencial
+                        </h3>
+                        <span style="font-size:.72rem;color:#94A3B8;">Permite comparar iteraciones, detectar qu&eacute; variables cambiaron y validar hip&oacute;tesis.</span>
+                    </div>
+                    <div style="display:flex;gap:.5rem;align-items:center;">
+                        <button type="button" id="btn-sim-set-baseline" class="btn-cyber-outline" style="padding:.3rem .75rem;font-size:.7rem;" title="Establecer el escenario actual como línea base de comparación">
+                            <i class="fa-solid fa-thumbtack" style="margin-right:.3rem;"></i>Fijar L&iacute;nea Base
+                        </button>
+                        <button type="button" id="btn-sim-run-all-scenarios" class="btn-cyber" style="padding:.3rem .75rem;font-size:.7rem;" title="Ejecutar automáticamente los 4 escenarios de la guía">
+                            <i class="fa-solid fa-play" style="margin-right:.3rem;"></i>Ejecutar Todo el Benchmark
+                        </button>
+                    </div>
+                </div>
+
+                <div id="sim-baseline-status" style="margin-bottom:1rem;padding:.65rem .85rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.55rem;font-size:.73rem;color:#A7F3D0;display:flex;align-items:center;gap:.6rem;">
+                    <i class="fa-solid fa-info-circle" style="color:#34D399;"></i>
+                    <span><strong>L&iacute;nea Base Activa:</strong> Escenario Inicial (U=18, S=1.0MB). Las siguientes ejecuciones destacar&aacute;n autom&aacute;ticamente el delta porcentual (&Delta;%) de latencia y costo.</span>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:.76rem;text-align:left;">
+                        <thead>
+                            <tr style="background:rgba(15,23,42,.95);border-bottom:1px solid rgba(56,189,248,.25);color:#94A3B8;text-transform:uppercase;font-size:.66rem;letter-spacing:.05em;">
+                                <th style="padding:.65rem .75rem;">ID Escenario</th>
+                                <th style="padding:.65rem .75rem;">Variables (U, S, N, B, H)</th>
+                                <th style="padding:.65rem .75rem;">Ganadora</th>
+                                <th style="padding:.65rem .75rem;">Latencia P95 (&Delta;)</th>
+                                <th style="padding:.65rem .75rem;">Costo (&Delta;)</th>
+                                <th style="padding:.65rem .75rem;">Cumplimiento</th>
+                                <th style="padding:.65rem .75rem;text-align:right;">Acci&oacute;n</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sim-scenarios-history-tbody">
+                            <!-- Injected dynamically by architecture-simulator.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 BLOQUE 9: MODELO MATEMÁTICO M/M/c Y PROTOCOLO DE VALIDACIÓN EMPÍRICA
+            ============================================================ -->
+            <div class="glow-card" style="padding:1.5rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-square-root-variable" style="color:#FBBF24;"></i> Formulaci&oacute;n Matem&aacute;tica M/M/c y Protocolo de Validaci&oacute;n Emp&iacute;rica
+                        </h3>
+                        <span style="font-size:.72rem;color:#94A3B8;">Ecuaciones computacionales, par&aacute;metros emp&iacute;ricos y bater&iacute;a de pruebas de estr&eacute;s seg&uacute;n la Gu&iacute;a de la Actividad 9.</span>
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;font-size:.78rem;color:#CBD5E1;line-height:1.7;">
+                    <!-- Ecuaciones del Modelo -->
+                    <div>
+                        <strong style="color:#fff;font-size:.84rem;display:block;margin-bottom:.4rem;">1. F&oacute;rmulas Computacionales (Teor&iacute;a de Colas M/M/c):</strong>
+                        <ul style="padding-left:1.2rem;margin-bottom:.85rem;">
+                            <li><strong>Tasa de Llegada (&lambda;):</strong> <code>&lambda; = (U / 12) &times; B</code> &nbsp;|&nbsp; <code>T_base = (45 + 1.45&middot;N_files + 26&middot;S_MB + 14&middot;L_complexity) / c</code></li>
+                            <li><strong>Sobrecarga de Red Inter-Servicio:</strong> <code>T_net = H_hops &times; (L_hop + 2.8&middot;S_MB + 0.04&middot;N_files)</code>
+                                <br><span style="font-size:.7rem;color:#94A3B8;">&bull; Monolito MVC: H = 0 saltos (0 ms sobrecarga red).</span>
+                                <br><span style="font-size:.7rem;color:#94A3B8;">&bull; Microservicios: H = 3 saltos RPC (12ms base + serializaci&oacute;n).</span>
+                                <br><span style="font-size:.7rem;color:#94A3B8;">&bull; Event-Driven (EDA): H = 1 salto as&iacute;ncrono broker Kafka/RabbitMQ.</span>
+                            </li>
+                            <li><strong>Utilizaci&oacute;n (&rho;) y Puntuaci&oacute;n:</strong> <code>&rho; = &lambda; / (c &times; &mu;_nodo)</code> &nbsp;|&nbsp; <code>Score = &Sigma;(w_i &middot; Indicador_i) - Penalizaciones</code></li>
+                        </ul>
+                    </div>
+
+                    <!-- Protocolo de Validación Empírica de la Guía -->
+                    <div>
+                        <strong style="color:#fff;font-size:.84rem;display:block;margin-bottom:.4rem;">2. Bater&iacute;a de Casos de Prueba de la Gu&iacute;a (Requisito 9 y 10):</strong>
+                        <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.72rem;">
+                            <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:220px;">
+                                    <strong style="color:var(--tech-cyan);">Prueba 1 (TEST-SIM-01) — Cero Saltos de Red / Baja Concurrencia:</strong>
+                                    <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito MVC gana por cero latencia RPC (&Delta; = 168ms vs 261ms).</span>
+                                </div>
+                                <button type="button" data-sim-test-case="1" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(56,189,248,.4);color:var(--tech-cyan);flex-shrink:0;">
+                                    <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #1
+                                </button>
+                            </div>
+                            <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:220px;">
+                                    <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) — Degeneraci&oacute;n del Monolito por Concurrencia:</strong>
+                                    <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El monolito satura (&rho; &gt; 100%), Microservicios escala horizontalmente.</span>
+                                </div>
+                                <button type="button" data-sim-test-case="2" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(129,140,248,.4);color:#818CF8;flex-shrink:0;">
+                                    <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #2
+                                </button>
+                            </div>
+                            <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:220px;">
+                                    <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) — R&aacute;fagas Cr&iacute;ticas Apache JMeter:</strong>
+                                    <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, R&aacute;faga=2.5x. Resultado verificado: EDA Serverless amortigua la cola as&iacute;ncrona con m&aacute;xima resiliencia (99.98%).</span>
+                                </div>
+                                <button type="button" data-sim-test-case="3" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(52,211,153,.4);color:#34D399;flex-shrink:0;">
+                                    <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #3
+                                </button>
+                            </div>
+                            <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:220px;">
+                                    <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) — Penalizaci&oacute;n por Restricci&oacute;n de Presupuesto:</strong>
+                                    <span style="color:#94A3B8;display:block;">Entrada: Presupuesto M&aacute;ximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricci&oacute;n financiera del proyecto.</span>
+                                </div>
+                                <button type="button" data-sim-test-case="4" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(251,191,36,.4);color:#FBBF24;flex-shrink:0;">
+                                    <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #4
+                                </button>
+                            </div>
+                            <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                <div style="flex:1;min-width:220px;">
+                                    <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) — Rechazo Determinista de Entradas Inv&aacute;lidas:</strong>
+                                    <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecuci&oacute;n y despliega alerta de control (HTTP 400 / UI Alert).</span>
+                                </div>
+                                <button type="button" data-sim-test-case="5" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(251,113,133,.4);color:#FB7185;flex-shrink:0;">
+                                    <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #5
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast Container for Notifications -->
+    <div id="toast-container" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:99999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none;"></div>
+
+    <!-- ============================================================
+         AUTH MODAL (SUPABASE LOGIN / REGISTRO / GOOGLE OAUTH)
+    ============================================================ -->
+    <div id="sim-auth-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sim-auth-modal-title">
+        <div class="auth-modal-backdrop" id="sim-auth-modal-backdrop"></div>
+        <div class="auth-card-cyber">
+            <div class="auth-modal-header">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2rem;height:2rem;border-radius:.45rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 id="sim-auth-modal-title" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">Acceso a DocuMind AI</h3>
+                        <p style="font-size:.72rem;color:#94A3B8;margin:.15rem 0 0 0;">Inicia sesión para guardar tu historial de simulaciones</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-sim-auth" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+
+            <div id="sim-auth-alert-box" style="display:none;margin-top:1rem;padding:.75rem 1rem;border-radius:.55rem;font-size:.78rem;"></div>
+
+            <div style="margin-top:1.5rem;">
+                <button type="button" id="btn-sim-google-oauth" class="btn-cyber-oauth" style="width:100%;justify-content:center;padding:.75rem 1rem;">
+                    <i class="fa-brands fa-google" style="color:#EA4335;"></i>
+                    <span>Continuar con Google</span>
+                </button>
+            </div>
+
+            <div style="margin-top:1.25rem;text-align:center;">
+                <a href="/" style="font-size:.78rem;color:#38BDF8;text-decoration:none;">O volver a la página de inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="js/architecture-simulator.js?v=4.0" charset="UTF-8"></script>
+    <script>
+        // Dedicated Lightweight Session & Auth Controller for Standalone Simulator
+        (async function initSimAuth() {
+            const authGuest = document.getElementById('sim-auth-guest');
+            const authUser = document.getElementById('sim-auth-user');
+            const userAvatar = document.getElementById('sim-nav-user-avatar');
+            const userEmail = document.getElementById('sim-nav-user-email');
+            const dropdownEmail = document.getElementById('sim-dropdown-user-email');
+            const userMenuBtn = document.getElementById('sim-user-menu-btn');
+            const userDropdown = document.getElementById('sim-user-dropdown-menu');
+            const btnOpenAuth = document.getElementById('btn-sim-open-auth');
+            const authModal = document.getElementById('sim-auth-modal');
+            const btnCloseAuth = document.getElementById('btn-close-sim-auth');
+            const backdrop = document.getElementById('sim-auth-modal-backdrop');
+            const btnGoogle = document.getElementById('btn-sim-google-oauth');
+            const btnLogout = document.getElementById('btn-sim-logout');
+            const alertBox = document.getElementById('sim-auth-alert-box');
+
+            function updateUI(user) {
+                if (user) {
+                    if (authGuest) authGuest.style.display = 'none';
+                    if (authUser) authUser.style.display = 'inline-flex';
+                    const email = user.email || 'usuario';
+                    const name = (user.user_metadata && user.user_metadata.full_name) || email;
+                    const initials = name.substring(0, 2).toUpperCase();
+                    if (userAvatar) userAvatar.textContent = initials;
+                    if (userEmail) userEmail.textContent = email;
+                    if (dropdownEmail) dropdownEmail.textContent = email;
+                } else {
+                    if (authGuest) authGuest.style.display = 'inline-flex';
+                    if (authUser) authUser.style.display = 'none';
+                    if (userDropdown) userDropdown.classList.add('hidden');
+                }
+            }
+
+            // User dropdown toggles
+            if (userMenuBtn && userDropdown) {
+                userMenuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('hidden');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!userDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                        userDropdown.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Modal handlers
+            function openAuth() {
+                if (authModal) authModal.classList.remove('hidden');
+            }
+            function closeAuth() {
+                if (authModal) authModal.classList.add('hidden');
+            }
+            if (btnOpenAuth) btnOpenAuth.addEventListener('click', openAuth);
+            if (btnCloseAuth) btnCloseAuth.addEventListener('click', closeAuth);
+            if (backdrop) backdrop.addEventListener('click', closeAuth);
+
+            try {
+                const res = await fetch('/api/config/supabase');
+                const cfg = await res.json();
+                if (cfg.configured && window.supabase) {
+                    const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+
+                    const { data: { session } } = await client.auth.getSession();
+                    updateUI(session && session.user);
+
+                    client.auth.onAuthStateChange((event, session) => {
+                        updateUI(session && session.user);
+                    });
+
+                    if (btnGoogle) {
+                        btnGoogle.addEventListener('click', async () => {
+                            btnGoogle.disabled = true;
+                            if (alertBox) {
+                                alertBox.style.display = 'block';
+                                alertBox.style.color = '#38BDF8';
+                                alertBox.style.background = 'rgba(56,189,248,.12)';
+                                alertBox.textContent = 'Conectando con Google...';
+                            }
+                            await client.auth.signInWithOAuth({
+                                provider: 'google',
+                                options: { redirectTo: window.location.origin + '/simulador' }
+                            });
+                        });
+                    }
+
+                    if (btnLogout) {
+                        btnLogout.addEventListener('click', async () => {
+                            await client.auth.signOut();
+                            updateUI(null);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.warn('Simulador Auth notice:', err);
+            }
+        })();
+    </script>
+</body>
+</html>

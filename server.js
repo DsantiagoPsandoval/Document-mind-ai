@@ -132,6 +132,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Dedicated Standalone Architecture Simulator Route
+app.get(['/simulador', '/simulador.html'], (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.sendFile(path.join(__dirname, 'simulador.html'));
+});
+
 // Serve frontend static files with explicit charset headers
 app.use(express.static(path.join(__dirname), {
     setHeaders: (res, filePath) => {
