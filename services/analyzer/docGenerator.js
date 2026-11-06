@@ -59,7 +59,18 @@ async function generateDocumentationSuite(analysisContext, options = {}) {
  * Invokes Gemini 2.5 Flash for deep engineering documentation.
  */
 async function generateWithGemini(client, ctx, categories) {
-    const { projectName, repoDescription, detectedLanguages, detectedFrameworks, detectedDatabases, detectedInfra, endpoints, dataModels, treeDiagram, keyFiles } = ctx;
+    const {
+        projectName = 'Proyecto',
+        repoDescription = '',
+        detectedLanguages = [],
+        detectedFrameworks = [],
+        detectedDatabases = [],
+        detectedInfra = [],
+        endpoints = [],
+        dataModels = [],
+        treeDiagram = '',
+        keyFiles = []
+    } = ctx || {};
 
     const rawBrief = (keyFiles || []).map(f => `FILE: ${f.path}\n${(f.content || '').substring(0, 2500)}`).join('\n---\n');
     // Pre-redact all detected secrets to guarantee zero secret leakage to LLM
@@ -165,14 +176,20 @@ Genera el resultado en formato JSON estricto con la siguiente estructura:
   }
 }`;
 
-    const response = await client.models.generateContent({
-        model: DEFAULT_MODEL,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: {
-            responseMimeType: 'application/json',
-            temperature: 0.2
-        }
-    });
+    const callGeminiWithTimeout = Promise.race([
+        client.models.generateContent({
+            model: DEFAULT_MODEL,
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            config: {
+                responseMimeType: 'application/json',
+                temperature: 0.2
+            }
+        }),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Gemini API timeout excedido (18s), activando motor determinista')), 18000)
+        )
+    ]);
+    const response = await callGeminiWithTimeout;
 
     const baseDocs = generateDeterministicDocs(ctx, categories);
 
@@ -240,7 +257,19 @@ Genera el resultado en formato JSON estricto con la siguiente estructura:
  * directly from parsed code and AST without requiring Gemini.
  */
 function generateDeterministicDocs(ctx, categories) {
-    const { projectName, repoDescription, detectedLanguages, detectedFrameworks, detectedDatabases, detectedInfra, endpoints, dataModels, treeDiagram, keyFiles, projectMap } = ctx;
+    const {
+        projectName = 'Proyecto',
+        repoDescription = '',
+        detectedLanguages = [],
+        detectedFrameworks = [],
+        detectedDatabases = [],
+        detectedInfra = [],
+        endpoints = [],
+        dataModels = [],
+        treeDiagram = '',
+        keyFiles = [],
+        projectMap = {}
+    } = ctx || {};
 
     const langStr = detectedLanguages.length > 0 ? detectedLanguages.join(', ') : 'No determinado';
     const frameworkStr = detectedFrameworks.length > 0 ? detectedFrameworks.join(', ') : 'Librerías estándar del lenguaje';

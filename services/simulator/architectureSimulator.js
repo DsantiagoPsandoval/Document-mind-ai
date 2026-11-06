@@ -434,7 +434,7 @@ function simulateArchitectureAlternative(altKey, sanitizedInputs, projectConfig 
         : (altKey === 'MICROSERVICES_K8S'
             ? (trafficBurstFactor < 2.0 ? 44 : (effectiveMaxNodes / 16) * 40)
             : (effectiveMaxNodes / 16) * 44);
-    const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 24 : 18);
+    const nonBlockingBonus = altKey === 'EDA_SERVERLESS' ? 26 : (altKey === 'MICROSERVICES_K8S' ? 26 : 18);
     const saturationPenalty = effectiveUtilization > 0.80 ? Math.min(55, (effectiveUtilization - 0.80) * 65) : 0;
     const memScalePenalty = memPressureRatio > 0 ? Math.min(20, Math.round(memPressureRatio * 12)) : 0;
     const scalabilityScore = Math.round(Math.max(15, Math.min(100, 22 + scaleElasticity + nonBlockingBonus + (headroomRatio * 22) - saturationPenalty - memScalePenalty)));
@@ -554,7 +554,8 @@ function runArchitectureSimulation(payload = {}) {
 
     // Normalización Multicriterio (MCDA - Simple Additive Weighting sensible a objetivos SLA y Restricciones)
     const minLatency = Math.min(...results.map(r => r.metrics.latencyMs));
-    const minCost = Math.min(...results.map(r => r.metrics.estimatedMonthlyCostUsd));
+    const viableResults = results.filter(r => r.compliance.allMandatoryPassed);
+    const minCost = viableResults.length > 0 ? Math.min(...viableResults.map(r => r.metrics.estimatedMonthlyCostUsd)) : Math.min(...results.map(r => r.metrics.estimatedMonthlyCostUsd));
     const minMem = Math.min(...results.map(r => r.metrics.memoryUsageMb));
 
     const weights = projectConfig.decisionWeights;
@@ -579,12 +580,12 @@ function runArchitectureSimulation(payload = {}) {
         // 4. Eficiencia de Recursos y Costo: combina comparación relativa con holgura presupuestaria y de RAM (Sección 1)
         const relCostScore = (minCost / Math.max(1, r.metrics.estimatedMonthlyCostUsd)) * 100;
         const budgetHeadroom = Math.max(0, Math.min(100, (1 - (r.metrics.estimatedMonthlyCostUsd / Math.max(15, cons.maxMonthlyBudgetUsd * 1.35))) * 108));
-        const costScore = (relCostScore * 0.65) + (budgetHeadroom * 0.35);
+        const costScore = (relCostScore * 0.30) + (budgetHeadroom * 0.70);
 
         const relMemScore = (minMem / Math.max(1, r.metrics.memoryUsageMb)) * 100;
         const maxMemMb = Math.max(256, (cons.maxMemoryGb || 8) * 1024);
         const memHeadroom = Math.max(0, Math.min(100, (1 - (r.metrics.memoryUsageMb / (maxMemMb * 1.25))) * 106));
-        const memEfficiencyScore = (relMemScore * 0.62) + (memHeadroom * 0.38);
+        const memEfficiencyScore = (relMemScore * 0.40) + (memHeadroom * 0.60);
 
         const efficiencyAndCostScore = (costScore * 0.65) + (memEfficiencyScore * 0.35);
         const securityAndContainersScore = r.metrics.securityAndContainerIndex;

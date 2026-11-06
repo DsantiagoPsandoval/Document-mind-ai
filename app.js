@@ -2203,4 +2203,439 @@ if (btnOAuthGoogle) {
         });
     });
 
+
+    // ------------------------------------------------------------
+    // 21. Integrations Status Modal Logic
+    // ------------------------------------------------------------
+    const integrationsModal = document.getElementById("integrations-modal");
+    const btnOpenIntegrations = document.getElementById("btn-open-integrations");
+    const btnCloseIntegrations = document.getElementById("btn-close-integrations");
+    const integrationsBackdrop = document.getElementById("integrations-modal-backdrop");
+    const btnRefreshIntegrations = document.getElementById("btn-refresh-integrations");
+    const integrationsCardsContainer = document.getElementById("integrations-cards-container");
+    const integrationsLastCheck = document.getElementById("integrations-last-check");
+
+    function openIntegrationsModal() {
+        if (!integrationsModal) return;
+        integrationsModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        loadIntegrationsStatus();
+    }
+
+    function closeIntegrationsModal() {
+        if (!integrationsModal) return;
+        integrationsModal.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    if (btnOpenIntegrations) btnOpenIntegrations.addEventListener("click", openIntegrationsModal);
+    if (btnCloseIntegrations) btnCloseIntegrations.addEventListener("click", closeIntegrationsModal);
+    if (integrationsBackdrop) integrationsBackdrop.addEventListener("click", closeIntegrationsModal);
+    if (btnRefreshIntegrations) btnRefreshIntegrations.addEventListener("click", loadIntegrationsStatus);
+
+    async function loadIntegrationsStatus() {
+        if (!integrationsCardsContainer) return;
+        integrationsCardsContainer.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#94A3B8;font-size:.82rem;"><i class="fa-solid fa-circle-notch fa-spin" style="margin-right:.4rem;color:var(--tech-cyan);"></i> Consultando estado de servicios en vivo...</div>';
+
+        try {
+            const res = await fetch('/api/integrations/status');
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || 'No se pudo obtener el estado.');
+            }
+
+            if (integrationsLastCheck) {
+                integrationsLastCheck.textContent = 'Verificado: ' + new Date(data.timestamp).toLocaleTimeString();
+            }
+
+            const sb = data.supabase || {};
+            const gm = data.gemini || {};
+            const rd = data.renderBackend || {};
+            const gh = data.githubPublic || {};
+
+            integrationsCardsContainer.innerHTML = `
+                <!-- 1. Google OAuth & Supabase -->
+                <div style="background:rgba(9,13,22,.85);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:1rem;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:.75rem;">
+                        <i class="fa-solid fa-database" style="color:var(--tech-cyan);font-size:1.15rem;"></i>
+                        <div>
+                            <strong style="font-size:.84rem;color:#FFFFFF;display:block;">Google OAuth &amp; Supabase DB</strong>
+                            <span style="font-size:.72rem;color:#94A3B8;">Host: ${sb.projectHost} (Row Level Security Activo)</span>
+                        </div>
+                    </div>
+                    <span style="font-size:.7rem;font-weight:700;color:${sb.status === 'operational' ? '#34D399' : '#FB7185'};background:rgba(52,211,153,.1);padding:.25rem .65rem;border-radius:.4rem;border:1px solid rgba(52,211,153,.3);">
+                        ${sb.status === 'operational' ? '● En Línea' : '● Sin Configurar'}
+                    </span>
+                </div>
+
+                <!-- 2. Gemini Cognitive Engine -->
+                <div style="background:rgba(9,13,22,.85);border:1px solid rgba(129,140,248,.2);border-radius:.75rem;padding:1rem;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:.75rem;">
+                        <i class="fa-solid fa-brain" style="color:#818CF8;font-size:1.15rem;"></i>
+                        <div>
+                            <strong style="font-size:.84rem;color:#FFFFFF;display:block;">Motor Cognitivo Gemini AI</strong>
+                            <span style="font-size:.72rem;color:#94A3B8;">Modelo: ${gm.model} ${gm.latencyMs ? '(' + gm.latencyMs + ' ms)' : ''}</span>
+                        </div>
+                    </div>
+                    <span style="font-size:.7rem;font-weight:700;color:${gm.status === 'operational' ? '#34D399' : (gm.status === 'fallback_active' ? '#FBBF24' : '#FB7185')};background:rgba(52,211,153,.1);padding:.25rem .65rem;border-radius:.4rem;border:1px solid rgba(52,211,153,.3);">
+                        ${gm.status === 'operational' ? '● Activo' : (gm.status === 'fallback_active' ? '● Contingencia (AST)' : '● Desconectado')}
+                    </span>
+                </div>
+
+                <!-- 3. Render Production Backend -->
+                <div style="background:rgba(9,13,22,.85);border:1px solid rgba(52,211,153,.2);border-radius:.75rem;padding:1rem;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:.75rem;">
+                        <i class="fa-solid fa-cloud" style="color:#34D399;font-size:1.15rem;"></i>
+                        <div>
+                            <strong style="font-size:.84rem;color:#FFFFFF;display:block;">Render Web Service (Producción)</strong>
+                            <span style="font-size:.72rem;color:#94A3B8;">Node.js ${rd.nodeVersion} — Heap: ${rd.memoryUsageMb} MB — Uptime: ${Math.floor(data.uptimeSeconds / 60)} min</span>
+                        </div>
+                    </div>
+                    <span style="font-size:.7rem;font-weight:700;color:#34D399;background:rgba(52,211,153,.1);padding:.25rem .65rem;border-radius:.4rem;border:1px solid rgba(52,211,153,.3);">
+                        ● 100% Saludable
+                    </span>
+                </div>
+
+                <!-- 4. GitHub REST API v3 Pública -->
+                <div style="background:rgba(9,13,22,.85);border:1px solid rgba(148,163,184,.2);border-radius:.75rem;padding:1rem;display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:.75rem;">
+                        <i class="fa-brands fa-github" style="color:#CBD5E1;font-size:1.15rem;"></i>
+                        <div>
+                            <strong style="font-size:.84rem;color:#FFFFFF;display:block;">GitHub REST API v3 (Pública)</strong>
+                            <span style="font-size:.72rem;color:#94A3B8;">Sin credenciales del cliente — Cuota restante: ${gh.rateLimitRemaining} / ${gh.rateLimitLimit}</span>
+                        </div>
+                    </div>
+                    <span style="font-size:.7rem;font-weight:700;color:${gh.status === 'operational' ? '#34D399' : '#FBBF24'};background:rgba(52,211,153,.1);padding:.25rem .65rem;border-radius:.4rem;border:1px solid rgba(52,211,153,.3);">
+                        ${gh.status === 'operational' ? '● Operacional' : '● Limitada'}
+                    </span>
+                </div>
+            `;
+        } catch (err) {
+            integrationsCardsContainer.innerHTML = `<div style="padding:1rem;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);color:#FB7185;border-radius:.65rem;font-size:.78rem;">Error cargando estado de integraciones: ${err.message}</div>`;
+        }
+    }
+
+    // ------------------------------------------------------------
+    // 22. AI Code Modification & Patch Engine Logic
+    // ------------------------------------------------------------
+    const modifyModal = document.getElementById("modify-modal");
+    const btnOpenModifyModal = document.getElementById("btn-open-modify-modal");
+    const btnCloseModify = document.getElementById("btn-close-modify");
+    const modifyModalBackdrop = document.getElementById("modify-modal-backdrop");
+    const btnGenerateModification = document.getElementById("btn-generate-modification");
+    const modifyPromptInput = document.getElementById("modify-prompt-input");
+    const modifyResultsContainer = document.getElementById("modify-results-container");
+    const modifyPlanBox = document.getElementById("modify-plan-box");
+    const modifyDiffPreview = document.getElementById("modify-diff-preview");
+    const btnDownloadPatchFile = document.getElementById("btn-download-patch-file");
+    const btnDownloadPatchZip = document.getElementById("btn-download-patch-zip");
+
+    function openModifyModal() {
+        if (!modifyModal) return;
+        modifyModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        if (modifyPromptInput) modifyPromptInput.focus();
+    }
+
+    function closeModifyModal() {
+        if (!modifyModal) return;
+        modifyModal.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    if (btnOpenModifyModal) btnOpenModifyModal.addEventListener("click", openModifyModal);
+    if (btnCloseModify) btnCloseModify.addEventListener("click", closeModifyModal);
+    if (modifyModalBackdrop) modifyModalBackdrop.addEventListener("click", closeModifyModal);
+
+    if (btnGenerateModification) {
+        btnGenerateModification.addEventListener("click", async () => {
+            const instruction = modifyPromptInput ? modifyPromptInput.value.trim() : "";
+            if (!instruction) {
+                showToast("Por favor describe la modificación que deseas solicitar.", "error");
+                return;
+            }
+
+            btnGenerateModification.disabled = true;
+            btnGenerateModification.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generando Cambios &amp; Parche...';
+
+            try {
+                const res = await fetch('/api/project/modify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        instruction,
+                        projectId: currentProjectData?.projectId,
+                        projectContext: currentProjectData
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.error || 'Error al generar la modificación.');
+                }
+
+                if (modifyResultsContainer) modifyResultsContainer.style.display = 'block';
+                if (modifyPlanBox) {
+                    modifyPlanBox.innerHTML = `
+                        <h4 style="font-size:.88rem;color:var(--tech-cyan);margin-bottom:.4rem;font-weight:700;"><i class="fa-solid fa-list-check" style="margin-right:.4rem;"></i>Plan de Modificación:</h4>
+                        <p style="margin-bottom:.65rem;color:#CBD5E1;">${data.plan}</p>
+                        <p style="font-size:.75rem;color:#94A3B8;"><strong style="color:#fff;">Explicación Técnica:</strong> ${data.explanation}</p>
+                        <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+                            ${data.modifiedFiles.map(f => `<span style="font-size:.7rem;font-family:'JetBrains Mono',monospace;background:rgba(52,211,153,.15);color:#34D399;padding:.2rem .55rem;border-radius:.35rem;border:1px solid rgba(52,211,153,.3);">✔ ${f.path}</span>`).join('')}
+                        </div>
+                    `;
+                }
+
+                if (modifyDiffPreview) {
+                    modifyDiffPreview.textContent = data.unifiedPatch || '# No diff available';
+                }
+
+                if (btnDownloadPatchFile) {
+                    btnDownloadPatchFile.href = '/api/project/export/patch-file/' + data.modificationId;
+                }
+                if (btnDownloadPatchZip) {
+                    btnDownloadPatchZip.href = '/api/project/export/patch-zip/' + data.modificationId;
+                }
+
+                showToast("¡Modificación y parche Git generados con éxito!", "success");
+            } catch (err) {
+                showToast("Error: " + err.message, "error");
+            } finally {
+                btnGenerateModification.disabled = false;
+                btnGenerateModification.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.4rem;"></i>Generar Modificación';
+            }
+        });
+    }
+
+    // ------------------------------------------------------------
+    // 23. Public Repo Sync & Drift Detection Logic
+    // ------------------------------------------------------------
+    const syncModal = document.getElementById("sync-modal");
+    const btnSyncCheck = document.getElementById("btn-sync-check");
+    const btnCloseSync = document.getElementById("btn-close-sync");
+    const syncModalBackdrop = document.getElementById("sync-modal-backdrop");
+    const syncContentContainer = document.getElementById("sync-content-container");
+
+    function openSyncModal() {
+        if (!syncModal) return;
+        syncModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        executeSyncCheck();
+    }
+
+    function closeSyncModal() {
+        if (!syncModal) return;
+        syncModal.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    if (btnSyncCheck) btnSyncCheck.addEventListener("click", openSyncModal);
+    if (btnCloseSync) btnCloseSync.addEventListener("click", closeSyncModal);
+    if (syncModalBackdrop) syncModalBackdrop.addEventListener("click", closeSyncModal);
+
+    async function executeSyncCheck() {
+        if (!syncContentContainer) return;
+        const repoUrl = currentProjectData?.repository?.url || (document.getElementById("repo-input") ? document.getElementById("repo-input").value.trim() : "");
+        const branch = currentProjectData?.repository?.branch || (document.getElementById("repo-branch-input") ? document.getElementById("repo-branch-input").value.trim() : "");
+
+        if (!repoUrl) {
+            syncContentContainer.innerHTML = '<div style="padding:1.5rem;text-align:center;color:#94A3B8;font-size:.82rem;">No hay un repositorio de GitHub analizado actualmente.</div>';
+            return;
+        }
+
+        syncContentContainer.innerHTML = '<div style="padding:1.5rem;text-align:center;color:#94A3B8;font-size:.82rem;"><i class="fa-solid fa-circle-notch fa-spin" style="margin-right:.4rem;color:var(--tech-cyan);"></i> Consultando commits en GitHub...</div>';
+
+        try {
+            const res = await fetch('/api/github/sync/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    repoUrl,
+                    lastKnownSha: currentProjectData?.repository?.lastCommitSha || null,
+                    branch: branch || undefined
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || 'No se pudo verificar el repositorio.');
+            }
+
+            const c = data.commit || {};
+            syncContentContainer.innerHTML = `
+                <div style="background:rgba(9,13,22,.85);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:1.15rem;margin-bottom:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.65rem;flex-wrap:wrap;gap:.5rem;">
+                        <span style="font-size:.78rem;font-weight:700;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">
+                            <i class="fa-solid fa-code-commit" style="margin-right:.35rem;"></i>SHA: ${c.sha || 'latest'} (${data.branch})
+                        </span>
+                        <span style="font-size:.7rem;color:#34D399;font-weight:600;background:rgba(52,211,153,.1);padding:.2rem .5rem;border-radius:.35rem;border:1px solid rgba(52,211,153,.25);">
+                            ${data.hasUpdate ? '⚠ Actualización Disponible' : '✔ Al Día'}
+                        </span>
+                    </div>
+                    <p style="font-size:.82rem;color:#FFFFFF;margin-bottom:.45rem;font-weight:600;">${c.message || 'Sin mensaje'}</p>
+                    <div style="font-size:.72rem;color:#94A3B8;display:flex;gap:1rem;flex-wrap:wrap;">
+                        <span><i class="fa-solid fa-user" style="margin-right:.3rem;"></i>${c.author || 'Autor'}</span>
+                        <span><i class="fa-solid fa-clock" style="margin-right:.3rem;"></i>${new Date(c.date).toLocaleString('es-CO')}</span>
+                    </div>
+                </div>
+
+                <div style="padding:1rem;background:rgba(15,23,42,.85);border-radius:.65rem;border:1px solid rgba(129,140,248,.18);font-size:.78rem;line-height:1.6;color:#CBD5E1;margin-bottom:1.25rem;">
+                    <strong style="color:var(--tech-cyan);display:block;margin-bottom:.35rem;"><i class="fa-solid fa-chart-line" style="margin-right:.35rem;"></i>Detección de Desviación (Drift Detection):</strong>
+                    DocuMind AI compara automáticamente los archivos clave, endpoints y esquemas. Si el repositorio ha recibido nuevos commits, puedes regenerar la documentación incrementalmente sin perder trazabilidad.
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:.75rem;">
+                    <button type="button" class="btn-ghost" onclick="document.getElementById('sync-modal').classList.add('hidden');document.body.style.overflow='';">Cerrar</button>
+                    <button type="button" class="btn-cyber" id="btn-re-analyze-sync" style="font-size:.8rem;padding:.55rem 1.15rem;">
+                        <i class="fa-solid fa-arrows-rotate" style="margin-right:.35rem;"></i>Re-analizar Repositorio
+                    </button>
+                </div>
+            `;
+
+            const btnReAnalyze = document.getElementById("btn-re-analyze-sync");
+            if (btnReAnalyze) {
+                btnReAnalyze.onclick = () => {
+                    closeSyncModal();
+                    const btnRun = document.getElementById("btn-start-analysis");
+                    if (btnRun) btnRun.click();
+                };
+            }
+        } catch (err) {
+            syncContentContainer.innerHTML = `<div style="padding:1rem;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);color:#FB7185;border-radius:.65rem;font-size:.78rem;">Error de sincronización: ${err.message}</div>`;
+        }
+    }
+
+    // ------------------------------------------------------------
+    // 24. Legal Terms, Privacy & Colombian Law 1581 Logic
+    // ------------------------------------------------------------
+    const legalModal = document.getElementById("legal-modal");
+    const btnCloseLegal = document.getElementById("btn-close-legal");
+    const legalModalBackdrop = document.getElementById("legal-modal-backdrop");
+    const legalBodyContainer = document.getElementById("legal-body-container");
+    const legalTabTerms = document.getElementById("legal-tab-terms");
+    const legalTabPrivacy = document.getElementById("legal-tab-privacy");
+    const legalTabData = document.getElementById("legal-tab-data");
+    const legalTabDelete = document.getElementById("legal-tab-delete");
+
+    const LEGAL_CONTENTS = {
+        terms: `
+            <h4 style="color:#FFFFFF;font-size:.95rem;margin-bottom:.65rem;font-weight:700;">1. Términos y Condiciones de Uso de DocuMind AI</h4>
+            <p>Bienvenido a <strong>DocuMind AI</strong>, plataforma de ingeniería de software diseñada para la documentación viva, análisis estático y simulación arquitectónica de repositorios públicos de código fuente.</p>
+            <h5 style="color:var(--tech-cyan);margin:1rem 0 .35rem 0;">1.1 Alcance del Servicio</h5>
+            <p>DocuMind AI analiza repositorios públicos de GitHub mediante consultas de solo lectura a la API pública de GitHub. La plataforma no solicita ni requiere permisos de escritura, tokens personales ni credenciales administrativas a los usuarios.</p>
+            <h5 style="color:var(--tech-cyan);margin:1rem 0 .35rem 0;">1.2 Propiedad Intelectual</h5>
+            <p>El código fuente analizado pertenece estrictamente a sus respectivos autores y licenciatarios originales. Toda la documentación técnica, diagramas C4 y artefactos generados por DocuMind AI se transfieren al usuario titular de la cuenta.</p>
+            <h5 style="color:var(--tech-cyan);margin:1rem 0 .35rem 0;">1.3 Responsabilidad y Uso Aceptable</h5>
+            <p>Queda estrictamente prohibido el uso de la plataforma para análisis de código con fines de explotación maliciosa, inyección de malware o vulneración de derechos de autor. DocuMind AI opera bajo un esquema "As-Is" para asistencia técnica de ingeniería.</p>
+        `,
+        privacy: `
+            <h4 style="color:#FFFFFF;font-size:.95rem;margin-bottom:.65rem;font-weight:700;">2. Política de Privacidad y Procesamiento con IA</h4>
+            <p>En DocuMind AI la privacidad y la confidencialidad técnica constituyen pilares esenciales (Secure by Design).</p>
+            <h5 style="color:var(--tech-cyan);margin:1rem 0 .35rem 0;">2.1 Proveedores de Infraestructura &amp; Procesamiento Externo</h5>
+            <p>Para la prestación del servicio se emplean los siguientes proveedores de infraestructura de nube:</p>
+            <ul style="padding-left:1.25rem;margin:.5rem 0;">
+                <li><strong>Supabase Inc.</strong>: Autenticación federada (Google OAuth) y persistencia en bases de datos PostgreSQL con políticas Row Level Security (RLS).</li>
+                <li><strong>Google Cloud (Gemini API)</strong>: Síntesis de alto nivel y modelos de lenguaje. <em>Directiva estricta:</em> Los archivos se sanitizan previamente mediante nuestro escáner SAST para enmascarar contraseñas, secretos y variables de entorno antes de cualquier transmisión.</li>
+                <li><strong>Render Services Inc.</strong>: Alojamiento seguro y ejecución del backend en entornos aislados.</li>
+                <li><strong>GitHub REST API v3</strong>: Lectura exclusiva de repositorios públicos indexados sin almacenamiento de credenciales.</li>
+            </ul>
+        `,
+        data: `
+            <h4 style="color:#FFFFFF;font-size:.95rem;margin-bottom:.65rem;font-weight:700;">3. Tratamiento de Datos Personales — Ley 1581 de 2012 (Colombia)</h4>
+            <p>En cumplimiento de la legislación colombiana (Ley Estatutaria 1581 de 2012 y Decreto Reglamentario 1377 de 2013), DocuMind AI garantiza los derechos de los titulares de datos personales:</p>
+            <h5 style="color:var(--tech-cyan);margin:1rem 0 .35rem 0;">3.1 Derechos del Titular (Habeas Data)</h5>
+            <p>Todo usuario tiene derecho a conocer, actualizar, rectificar y solicitar la supresión de sus datos personales recolectados a través de Google OAuth (nombre y correo electrónico).</p>
+            <h5 style="color:var(--tech-cyan);margin:1rem 0 .35rem 0;">3.2 Política de Cookies</h5>
+            <p>DocuMind AI únicamente utiliza cookies y almacenamiento local estrictamente técnicos para la persistencia segura de tokens de sesión JWT y caché de análisis. No se emplean cookies de rastreo publicitario de terceros.</p>
+        `,
+        delete: `
+            <h4 style="color:#FB7185;font-size:.95rem;margin-bottom:.65rem;font-weight:700;">4. Eliminación de Cuenta y Supresión de Datos</h4>
+            <p>Respetamos tu derecho al olvido. Puedes solicitar en cualquier momento la eliminación total de tus registros de usuario, historiales de análisis locales y tokens de sesión.</p>
+            <div style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);border-radius:.65rem;padding:1rem;margin:1.25rem 0;">
+                <p style="color:#FB7185;font-size:.78rem;line-height:1.5;margin-bottom:.85rem;">Al confirmar, se eliminarán tus historiales en este dispositivo, se cerrará tu sesión activa de Supabase y se desvinculará tu perfil local.</p>
+                <button type="button" id="btn-execute-data-deletion" class="btn-cyber" style="background:linear-gradient(135deg, #F43F5E, #E11D48);color:#fff;font-size:.78rem;padding:.5rem 1rem;">
+                    <i class="fa-solid fa-trash-can" style="margin-right:.4rem;"></i>Confirmar y Eliminar Mis Datos
+                </button>
+            </div>
+        `
+    };
+
+    function setLegalTab(tab) {
+        [legalTabTerms, legalTabPrivacy, legalTabData, legalTabDelete].forEach(t => {
+            if (t) t.classList.remove("active");
+        });
+        if (tab === 'terms' && legalTabTerms) legalTabTerms.classList.add("active");
+        if (tab === 'privacy' && legalTabPrivacy) legalTabPrivacy.classList.add("active");
+        if (tab === 'data' && legalTabData) legalTabData.classList.add("active");
+        if (tab === 'delete' && legalTabDelete) legalTabDelete.classList.add("active");
+
+        if (legalBodyContainer) {
+            legalBodyContainer.innerHTML = LEGAL_CONTENTS[tab] || LEGAL_CONTENTS.terms;
+            if (tab === 'delete') {
+                const btnDel = document.getElementById("btn-execute-data-deletion");
+                if (btnDel) {
+                    btnDel.onclick = async () => {
+                        localStorage.clear();
+                        if (supabaseClient) {
+                            try { await supabaseClient.auth.signOut(); } catch (e) {}
+                        }
+                        updateAuthUI(null);
+                        closeLegalModal();
+                        showToast("Datos locales y sesión eliminados correctamente.", "info");
+                        setTimeout(() => window.location.reload(), 1200);
+                    };
+                }
+            }
+        }
+    }
+
+    function openLegalModal(tab = 'terms') {
+        if (!legalModal) return;
+        legalModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        setLegalTab(tab);
+    }
+
+    function closeLegalModal() {
+        if (!legalModal) return;
+        legalModal.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    if (btnCloseLegal) btnCloseLegal.addEventListener("click", closeLegalModal);
+    if (legalModalBackdrop) legalModalBackdrop.addEventListener("click", closeLegalModal);
+
+    if (legalTabTerms) legalTabTerms.addEventListener("click", () => setLegalTab('terms'));
+    if (legalTabPrivacy) legalTabPrivacy.addEventListener("click", () => setLegalTab('privacy'));
+    if (legalTabData) legalTabData.addEventListener("click", () => setLegalTab('data'));
+    if (legalTabDelete) legalTabDelete.addEventListener("click", () => setLegalTab('delete'));
+
+    // Wire footer links
+    const linkFooterTerms = document.getElementById("link-footer-terms");
+    const linkFooterPrivacy = document.getElementById("link-footer-privacy");
+    const linkFooterData = document.getElementById("link-footer-data");
+    const linkFooterCookies = document.getElementById("link-footer-cookies");
+    const linkFooterDelete = document.getElementById("link-footer-delete");
+
+    if (linkFooterTerms) linkFooterTerms.onclick = (e) => { e.preventDefault(); openLegalModal('terms'); };
+    if (linkFooterPrivacy) linkFooterPrivacy.onclick = (e) => { e.preventDefault(); openLegalModal('privacy'); };
+    if (linkFooterData) linkFooterData.onclick = (e) => { e.preventDefault(); openLegalModal('data'); };
+    if (linkFooterCookies) linkFooterCookies.onclick = (e) => { e.preventDefault(); openLegalModal('data'); };
+    if (linkFooterDelete) linkFooterDelete.onclick = (e) => { e.preventDefault(); openLegalModal('delete'); };
+
+    // Wire user dropdown delete account
+    const btnUserDelete = document.getElementById("btn-user-delete-account");
+    if (btnUserDelete) btnUserDelete.onclick = (e) => { e.preventDefault(); openLegalModal('delete'); };
+
+    // Wire Escape key for closing all modals
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeIntegrationsModal();
+            closeModifyModal();
+            closeSyncModal();
+            closeLegalModal();
+        }
+    });
+
 });

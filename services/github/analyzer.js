@@ -131,7 +131,7 @@ function buildTreeDiagram(files) {
 /**
  * Main function: Analyzes a public GitHub repository.
  */
-async function fetchAndAnalyzeRepo(rawUrl) {
+async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     const parsed = parseGitHubUrl(rawUrl);
     if (!parsed.valid) {
         const err = new Error(parsed.error);
@@ -170,10 +170,10 @@ async function fetchAndAnalyzeRepo(rawUrl) {
         throw err;
     }
 
-    const defaultBranch = repoData.default_branch || 'main';
+    const targetBranch = branch || repoData.default_branch || 'main';
 
     // 2. Fetch Git Tree recursively
-    const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`;
+    const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(targetBranch)}?recursive=1`;
     let treeData = { tree: [] };
     try {
         const treeRes = await fetch(treeUrl, { headers });
@@ -305,6 +305,7 @@ async function fetchAndAnalyzeRepo(rawUrl) {
             forks: repoData.forks_count || 0,
             openIssues: repoData.open_issues_count || 0,
             defaultBranch,
+            branch: targetBranch,
             primaryLanguage: repoData.language || (detectedLanguages[0] || 'Multi-lenguaje'),
             createdAt: repoData.created_at,
             updatedAt: repoData.updated_at,

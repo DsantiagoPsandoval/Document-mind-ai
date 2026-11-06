@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -55,10 +55,15 @@
                     <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Analizador
                 </a>
 
-                <!-- Guest State: Iniciar Sesión Button -->
+                <button type="button" id="btn-open-integrations" class="btn-ghost" style="padding:.5rem .85rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.35rem;" aria-label="Ver estado de integraciones y servicios">
+                    <i class="fa-solid fa-server" style="color:var(--tech-cyan);font-size:.75rem;"></i>
+                    <span>Servicios</span>
+                </button>
+
+                <!-- Guest State: Iniciar SesiÃ³n Button -->
                 <div id="nav-auth-guest" style="display:inline-flex;align-items:center;">
                     <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.5rem 1.15rem;font-size:.8rem;">
-                        <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.45rem;"></i>Iniciar Sesión
+                        <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.45rem;"></i>Iniciar SesiÃ³n
                     </button>
                 </div>
 
@@ -81,11 +86,11 @@
                         </div>
                         <div class="user-dropdown-divider"></div>
                         <a href="#analizador" id="btn-user-history" class="user-dropdown-item">
-                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis Análisis Guardados
+                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis AnÃ¡lisis Guardados
                         </a>
                         <div class="user-dropdown-divider"></div>
                         <button type="button" id="btn-logout" class="user-dropdown-item" style="color:#FB7185;">
-                            <i class="fa-solid fa-right-from-bracket" style="color:#FB7185;"></i>Cerrar Sesión
+                            <i class="fa-solid fa-right-from-bracket" style="color:#FB7185;"></i>Cerrar SesiÃ³n
                         </button>
                     </div>
                 </div>
@@ -107,7 +112,7 @@
         <div style="border-top:1px solid rgba(129,140,248,.2);margin:0.75rem 0;padding-top:0.75rem;">
             <div id="mobile-auth-guest">
                 <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.65rem 1rem;">
-                    <i class="fa-solid fa-user-lock" style="margin-right:.45rem;"></i>Iniciar Sesión / Registro
+                    <i class="fa-solid fa-user-lock" style="margin-right:.45rem;"></i>Iniciar SesiÃ³n / Registro
                 </button>
             </div>
             <div id="mobile-auth-user" style="display:none;flex-direction:column;gap:0.6rem;">
@@ -115,7 +120,7 @@
                     <i class="fa-solid fa-user-check" style="color:#34D399;margin-right:.4rem;"></i><span id="mobile-user-email">usuario@correo.com</span>
                 </div>
                 <button type="button" id="btn-mobile-logout" class="btn-ghost" style="width:100%;justify-content:center;color:#FB7185;border:1px solid rgba(244,63,94,.3);">
-                    <i class="fa-solid fa-right-from-bracket" style="margin-right:.45rem;"></i>Cerrar Sesión
+                    <i class="fa-solid fa-right-from-bracket" style="margin-right:.45rem;"></i>Cerrar SesiÃ³n
                 </button>
             </div>
         </div>
@@ -201,7 +206,7 @@
                             </div>
                             <div style="display:flex;align-items:center;gap:.5rem;">
                                 <button type="button" id="ai-btn-reset" class="btn-ghost" style="padding:.2rem .55rem;font-size:.62rem;border-radius:.35rem;" title="Restablecer vista 3D"><i class="fa-solid fa-crosshairs" style="margin-right:.25rem;"></i>RESET VIEW</button>
-                                <button type="button" id="ai-btn-pause" class="btn-ghost" style="padding:.2rem .55rem;font-size:.62rem;border-radius:.35rem;" title="Pausar o reanudar simulación"><i class="fa-solid fa-pause" style="margin-right:.25rem;"></i>PAUSE</button>
+                                <button type="button" id="ai-btn-pause" class="btn-ghost" style="padding:.2rem .55rem;font-size:.62rem;border-radius:.35rem;" title="Pausar o reanudar simulaciÃ³n"><i class="fa-solid fa-pause" style="margin-right:.25rem;"></i>PAUSE</button>
                             </div>
                         </div>
 
@@ -268,7 +273,7 @@
                 <h3 id="ai-modal-title" style="font-size:1.15rem;font-weight:800;color:#fff;">Abstract Syntax Tree</h3>
             </div>
             <p id="ai-modal-desc" style="font-size:.85rem;color:#94A3B8;line-height:1.7;margin-bottom:1.5rem;">
-                Representación estructural del código utilizada para comprender clases, funciones, variables y relaciones.
+                RepresentaciÃ³n estructural del cÃ³digo utilizada para comprender clases, funciones, variables y relaciones.
             </p>
             <div style="display:flex;justify-content:flex-end;">
                 <button type="button" onclick="document.getElementById('ai-node-modal').style.display='none'" class="btn-cyber" style="padding:.55rem 1.35rem;font-size:.8rem;">Entendido</button>
@@ -411,14 +416,14 @@
     </section>
 
     <!-- ============================================================
-         5. CENTRO DE GENERACIÓN Y ANÁLISIS DE DOCUMENTACIÓN TÉCNICA
+         5. CENTRO DE GENERACIÃ“N Y ANÃLISIS DE DOCUMENTACIÃ“N TÃ‰CNICA
     ============================================================ -->
     <section id="analizador" style="padding:6rem 0;position:relative;">
         <div class="container">
             <div style="text-align:center;max-width:760px;margin:0 auto 3rem;" class="reveal">
-                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> Plataforma de Ingeniería de Software</span>
-                <h2 class="section-title">Generador y Analizador de Documentación Viva</h2>
-                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;">Analiza repositorios de GitHub, archivos y proyectos de software para generar automáticamente documentación técnica profesional, diagramas C4, contratos de API, modelos de datos, DevOps y suites de QA.</p>
+                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> Plataforma de IngenierÃ­a de Software</span>
+                <h2 class="section-title">Generador y Analizador de DocumentaciÃ³n Viva</h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;">Analiza repositorios de GitHub, archivos y proyectos de software para generar automÃ¡ticamente documentaciÃ³n tÃ©cnica profesional, diagramas C4, contratos de API, modelos de datos, DevOps y suites de QA.</p>
             </div>
 
             <div class="glow-card reveal reveal-delay-1" style="padding:2.25rem;max-width:1120px;margin:0 auto;">
@@ -428,16 +433,16 @@
                     <button type="button" id="tab-gh-btn" class="analyzer-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-gh">
                         <i class="fa-brands fa-github" style="color:#818CF8;"></i>
                         <span>Repositorio GitHub</span>
-                        <span class="tab-badge">URL Pública</span>
+                        <span class="tab-badge">URL PÃºblica</span>
                     </button>
                     <button type="button" id="tab-doc-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-doc">
                         <i class="fa-solid fa-folder-open" style="color:var(--tech-cyan);"></i>
                         <span>Subir Archivos / Proyecto</span>
-                        <span class="tab-badge">Código &bull; Docs &bull; ZIP</span>
+                        <span class="tab-badge">CÃ³digo &bull; Docs &bull; ZIP</span>
                     </button>
                     <button type="button" id="tab-manual-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-manual">
                         <i class="fa-solid fa-file-code" style="color:#34D399;"></i>
-                        <span>Especificación Manual</span>
+                        <span>EspecificaciÃ³n Manual</span>
                         <span class="tab-badge">Prompt / Contexto</span>
                     </button>
                     <button type="button" id="tab-history-btn" class="analyzer-tab-btn" style="margin-left:auto;" role="tab" aria-selected="false" aria-controls="panel-history">
@@ -448,7 +453,7 @@
                 </div>
 
                 <!-- ============================================================
-                     INPUT CONTAINER (Configuración del Análisis)
+                     INPUT CONTAINER (ConfiguraciÃ³n del AnÃ¡lisis)
                 ============================================================ -->
                 <div id="project-input-container">
                     
@@ -464,6 +469,15 @@
                                     <input type="text" id="repo-input" value="https://github.com/facebook/react" class="input-cyber" placeholder="https://github.com/usuario/repositorio" autocomplete="off">
                                 </div>
                             </div>
+                            <div style="width:200px;min-width:160px;">
+                                <label for="repo-branch-input" style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.55rem;">
+                                    <i class="fa-solid fa-code-branch" style="color:#818CF8;margin-right:.4rem;"></i>Rama (Opcional)
+                                </label>
+                                <div class="input-group-cyber">
+                                    <div class="input-addon-cyber"><i class="fa-solid fa-code-branch" style="font-size:.9rem;color:#818CF8;"></i></div>
+                                    <input type="text" id="repo-branch-input" class="input-cyber" placeholder="main (por defecto)" autocomplete="off">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -473,7 +487,7 @@
                         <div id="doc-dropzone" class="dropzone-cyber" style="margin-bottom:1.25rem;">
                             <div class="dropzone-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                             <h3 style="font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:.4rem;">Arrastra y suelta archivos de tu proyecto o un archivo comprimido (.ZIP)</h3>
-                            <p style="font-size:.82rem;color:#94A3B8;margin-bottom:1rem;">Admite código fuente, scripts, documentación (.md, .pdf, .docx, .txt) o el proyecto completo</p>
+                            <p style="font-size:.82rem;color:#94A3B8;margin-bottom:1rem;">Admite cÃ³digo fuente, scripts, documentaciÃ³n (.md, .pdf, .docx, .txt) o el proyecto completo</p>
                             <button type="button" id="btn-browse-file" class="btn-cyber" style="padding:.6rem 1.35rem;font-size:.82rem;">
                                 <i class="fa-solid fa-folder-open" style="margin-right:.45rem;"></i>Seleccionar Archivos
                             </button>
@@ -485,19 +499,19 @@
                     <div id="panel-manual" style="display:none;">
                         <div style="margin-bottom:1.25rem;">
                             <label for="manual-text-input" style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.55rem;">
-                                <i class="fa-solid fa-keyboard" style="color:#34D399;margin-right:.4rem;"></i>Descripción Técnica o Requisitos del Proyecto
+                                <i class="fa-solid fa-keyboard" style="color:#34D399;margin-right:.4rem;"></i>DescripciÃ³n TÃ©cnica o Requisitos del Proyecto
                             </label>
-                            <textarea id="manual-text-input" class="input-cyber" rows="4" style="height:auto;padding:.85rem;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.82rem;" placeholder="Escribe o pega aquí la descripción del software, requisitos, capas arquitectónicas, modelos de datos y endpoints para generar su documentación..."></textarea>
+                            <textarea id="manual-text-input" class="input-cyber" rows="4" style="height:auto;padding:.85rem;resize:vertical;font-family:'JetBrains Mono',monospace;font-size:.82rem;" placeholder="Escribe o pega aquÃ­ la descripciÃ³n del software, requisitos, capas arquitectÃ³nicas, modelos de datos y endpoints para generar su documentaciÃ³n..."></textarea>
                         </div>
                     </div>
 
-                    <!-- Category Selection Checklist ("¿Qué quieres generar?") -->
+                    <!-- Category Selection Checklist ("Â¿QuÃ© quieres generar?") -->
                     <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.16);">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
                             <h4 style="font-size:.84rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.45rem;">
-                                <i class="fa-solid fa-list-check" style="color:var(--tech-cyan);"></i> ¿Qué quieres generar?
+                                <i class="fa-solid fa-list-check" style="color:var(--tech-cyan);"></i> Â¿QuÃ© quieres generar?
                             </h4>
-                            <span style="font-size:.72rem;color:#64748B;">Selecciona los módulos requeridos para la suite documental</span>
+                            <span style="font-size:.72rem;color:#64748B;">Selecciona los mÃ³dulos requeridos para la suite documental</span>
                         </div>
 
                         <div class="category-selector-grid">
@@ -535,7 +549,7 @@
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-security" checked>
-                                <span><i class="fa-solid fa-shield-halved" style="color:#FB7185;margin-right:.3rem;"></i> Auditoría Seguridad</span>
+                                <span><i class="fa-solid fa-shield-halved" style="color:#FB7185;margin-right:.3rem;"></i> AuditorÃ­a Seguridad</span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-adr" checked>
@@ -543,13 +557,13 @@
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-user" checked>
-                                <span><i class="fa-solid fa-users" style="color:#38BDF8;margin-right:.3rem;"></i> Guía Usuario &amp; FAQ</span>
+                                <span><i class="fa-solid fa-users" style="color:#38BDF8;margin-right:.3rem;"></i> GuÃ­a Usuario &amp; FAQ</span>
                             </label>
                         </div>
 
                         <!-- Main Action Button -->
                         <button type="button" id="btn-run-analysis" class="btn-cyber-primary" style="width:100%;padding:1.1rem;font-size:.95rem;font-weight:800;letter-spacing:.06em;margin-top:1.25rem;">
-                            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.5rem;"></i> GENERAR DOCUMENTACIÓN
+                            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.5rem;"></i> GENERAR DOCUMENTACIÃ“N
                         </button>
                     </div>
 
@@ -573,7 +587,7 @@
                     <div class="stage-stepper-grid">
                         <div class="stage-step-pill active" id="step-1">
                             <span class="stage-step-num">ETAPA 1</span>
-                            <span class="stage-step-title">Iniciando Ingestión</span>
+                            <span class="stage-step-title">Iniciando IngestiÃ³n</span>
                         </div>
                         <div class="stage-step-pill" id="step-2">
                             <span class="stage-step-num">ETAPA 2</span>
@@ -601,7 +615,7 @@
                         </div>
                         <div class="stage-step-pill" id="step-8">
                             <span class="stage-step-num">ETAPA 8</span>
-                            <span class="stage-step-title">Documentación</span>
+                            <span class="stage-step-title">DocumentaciÃ³n</span>
                         </div>
                     </div>
                 </div>
@@ -628,10 +642,16 @@
                         <!-- Action Buttons -->
                         <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
                             <button type="button" id="btn-download-zip" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.82rem;">
-                                <i class="fa-solid fa-file-zipper" style="margin-right:.4rem;"></i>Descargar Documentación (.ZIP)
+                                <i class="fa-solid fa-file-zipper" style="margin-right:.4rem;"></i>Descargar (.ZIP)
                             </button>
                             <button type="button" id="btn-export-pdf" class="btn-cyber-outline" style="padding:.6rem 1.25rem;font-size:.82rem;">
                                 <i class="fa-solid fa-file-pdf" style="margin-right:.4rem;"></i>Exportar PDF
+                            </button>
+                            <button type="button" id="btn-sync-check" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.82rem;" title="Comprobar nuevos commits en el repositorio pÃºblico">
+                                <i class="fa-solid fa-rotate" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Sincronizar
+                            </button>
+                            <button type="button" id="btn-open-modify-modal" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.82rem;" title="Solicitar modificaciones de cÃ³digo con IA">
+                                <i class="fa-solid fa-code-pull-request" style="color:#34D399;margin-right:.4rem;"></i>Modificar con IA
                             </button>
                             <button type="button" id="btn-new-analysis" class="btn-ghost" style="padding:.6rem 1rem;font-size:.82rem;">
                                 <i class="fa-solid fa-arrow-rotate-left" style="margin-right:.35rem;"></i>Nuevo
@@ -662,7 +682,7 @@
                             <strong id="kpi-api" style="font-size:.92rem;color:#fff;">0</strong>
                         </div>
                         <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
-                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">Autenticación</span>
+                            <span style="font-size:.68rem;color:#64748B;font-weight:700;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.25rem;">AutenticaciÃ³n</span>
                             <strong id="kpi-auth" style="font-size:.92rem;color:#FB7185;">-</strong>
                         </div>
                         <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.95rem;">
@@ -681,7 +701,7 @@
                             <h4 style="font-size:.9rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
                                 <i class="fa-solid fa-network-wired" style="color:var(--tech-cyan);"></i> Mapa Visual del Proyecto (Project Map)
                             </h4>
-                            <span style="font-size:.72rem;color:#64748B;">Capas del sistema detectadas estáticamente</span>
+                            <span style="font-size:.72rem;color:#64748B;">Capas del sistema detectadas estÃ¡ticamente</span>
                         </div>
                         <div class="project-map-grid" id="project-map-grid">
                             <!-- Injected dynamically by app.js -->
@@ -699,15 +719,15 @@
                             <div style="display:flex;gap:.6rem;align-items:center;">
                                 <input type="text" id="file-search-input" class="input-cyber" placeholder="Buscar archivo..." style="height:2rem;padding:0 .75rem;font-size:.74rem;width:180px;">
                                 <select id="file-cat-filter" class="input-field" style="height:2rem;padding:0 .5rem;font-size:.74rem;">
-                                    <option value="ALL">Todas las Categorías</option>
-                                    <option value="SOURCE_CODE">Código Fuente</option>
+                                    <option value="ALL">Todas las CategorÃ­as</option>
+                                    <option value="SOURCE_CODE">CÃ³digo Fuente</option>
                                     <option value="API">API / Rutas</option>
                                     <option value="DATABASE">Base de Datos / Modelos</option>
-                                    <option value="AUTHENTICATION">Autenticación</option>
-                                    <option value="CONFIGURATION">Configuración</option>
+                                    <option value="AUTHENTICATION">AutenticaciÃ³n</option>
+                                    <option value="CONFIGURATION">ConfiguraciÃ³n</option>
                                     <option value="DEVOPS">DevOps</option>
                                     <option value="TEST">Tests</option>
-                                    <option value="DOCUMENTATION">Documentación</option>
+                                    <option value="DOCUMENTATION">DocumentaciÃ³n</option>
                                 </select>
                             </div>
                         </div>
@@ -749,7 +769,7 @@
                             <i class="fa-solid fa-scale-balanced"></i> ADRs
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="user">
-                            <i class="fa-solid fa-users"></i> Guía Usuario
+                            <i class="fa-solid fa-users"></i> GuÃ­a Usuario
                         </button>
                     </div>
 
@@ -786,7 +806,7 @@
 
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
                                 <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
-                                    <i class="fa-solid fa-user-check" style="color:#34D399;"></i> Historias de Usuario &amp; Criterios de Aceptación
+                                    <i class="fa-solid fa-user-check" style="color:#34D399;"></i> Historias de Usuario &amp; Criterios de AceptaciÃ³n
                                 </h4>
                                 <div id="content-user-stories" style="display:flex;flex-direction:column;gap:1rem;"></div>
                             </div>
@@ -797,7 +817,7 @@
                     <div id="doc-panel-architecture" class="doc-tab-panel">
                         <div style="display:flex;flex-direction:column;gap:1.5rem;">
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
-                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Visión General de Arquitectura</h4>
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">VisiÃ³n General de Arquitectura</h4>
                                 <p id="content-arch-overview" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
                             </div>
                             <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:1.25rem;">
@@ -871,7 +891,7 @@
                                                 <th style="padding:.75rem 1rem;">Tabla</th>
                                                 <th style="padding:.75rem 1rem;">Campo</th>
                                                 <th style="padding:.75rem 1rem;">Tipo</th>
-                                                <th style="padding:.75rem 1rem;">Descripción</th>
+                                                <th style="padding:.75rem 1rem;">DescripciÃ³n</th>
                                                 <th style="padding:.75rem 1rem;text-align:center;">Obligatorio</th>
                                                 <th style="padding:.75rem 1rem;text-align:center;">Clave</th>
                                             </tr>
@@ -901,7 +921,7 @@
                             </div>
 
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
-                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Especificación OpenAPI 3.0 (JSON)</h4>
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">EspecificaciÃ³n OpenAPI 3.0 (JSON)</h4>
                                 <pre id="openapi-spec-preview" style="background:rgba(9,13,22,.8);padding:1rem;border-radius:.6rem;border:1px solid rgba(129,140,248,.15);font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#CBD5E1;max-height:350px;overflow:auto;">...</pre>
                             </div>
                         </div>
@@ -940,11 +960,11 @@
                                 <p id="content-cicd" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
                             </div>
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
-                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">Contenedorización &amp; Docker</h4>
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">ContenedorizaciÃ³n &amp; Docker</h4>
                                 <p id="content-containerization" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</p>
                             </div>
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
-                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">Guía de Despliegue (Deployment Guide)</h4>
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:.85rem;">GuÃ­a de Despliegue (Deployment Guide)</h4>
                                 <div id="content-deployment-guide" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
                             </div>
                         </div>
@@ -964,7 +984,7 @@
                                         <thead>
                                             <tr style="border-bottom:1px solid rgba(129,140,248,.2);text-align:left;color:#94A3B8;">
                                                 <th style="padding:.65rem .85rem;">ID</th>
-                                                <th style="padding:.65rem .85rem;">Título</th>
+                                                <th style="padding:.65rem .85rem;">TÃ­tulo</th>
                                                 <th style="padding:.65rem .85rem;">Precondiciones</th>
                                                 <th style="padding:.65rem .85rem;">Resultado Esperado</th>
                                                 <th style="padding:.65rem .85rem;text-align:center;">Estado</th>
@@ -991,10 +1011,10 @@
                                     <span id="sec-header-timestamp" style="font-size:.72rem;color:#64748B;font-family:'JetBrains Mono',monospace;"></span>
                                 </div>
                                 <h3 style="font-size:1.35rem;font-weight:900;color:#fff;display:flex;align-items:center;gap:.6rem;margin-bottom:.25rem;">
-                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i> Centro de Seguridad &amp; Auditoría SAST
+                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i> Centro de Seguridad &amp; AuditorÃ­a SAST
                                 </h3>
                                 <p style="font-size:.82rem;color:#94A3B8;max-width:700px;margin:0;">
-                                    Evaluación integral Secure-by-Design: escaneo estático de código (SAST), detección de secretos criptográficos, auditoría de dependencias, modelado de amenazas STRIDE y matriz de requerimientos SEC-xxx.
+                                    EvaluaciÃ³n integral Secure-by-Design: escaneo estÃ¡tico de cÃ³digo (SAST), detecciÃ³n de secretos criptogrÃ¡ficos, auditorÃ­a de dependencias, modelado de amenazas STRIDE y matriz de requerimientos SEC-xxx.
                                 </p>
                             </div>
                             <!-- Export Buttons Toolbar -->
@@ -1030,9 +1050,9 @@
                                         <span class="badge" id="sec-grade-badge">Grado -</span>
                                         <span class="badge" id="sec-status-badge">Estado -</span>
                                     </div>
-                                    <h4 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Índice Global de Seguridad</h4>
+                                    <h4 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Ãndice Global de Seguridad</h4>
                                     <p style="font-size:.78rem;color:#94A3B8;line-height:1.5;margin:0;" id="sec-score-desc">
-                                        Cálculo determinista ponderado por severidad de hallazgos en código fuente y dependencias.
+                                        CÃ¡lculo determinista ponderado por severidad de hallazgos en cÃ³digo fuente y dependencias.
                                     </p>
                                 </div>
                             </div>
@@ -1041,7 +1061,7 @@
                             <div class="sec-kpis-container">
                                 <div class="sec-kpi-item kpi-critical">
                                     <div class="sec-kpi-num" id="sec-kpi-critical">0</div>
-                                    <div class="sec-kpi-label"><i class="fa-solid fa-skull-crossbones"></i> Críticas</div>
+                                    <div class="sec-kpi-label"><i class="fa-solid fa-skull-crossbones"></i> CrÃ­ticas</div>
                                 </div>
                                 <div class="sec-kpi-item kpi-high">
                                     <div class="sec-kpi-num" id="sec-kpi-high">0</div>
@@ -1068,7 +1088,7 @@
                                 <strong style="font-size:.85rem;color:#FB7185;display:flex;align-items:center;gap:.4rem;">
                                     <i class="fa-solid fa-scale-unbalanced"></i> Desglose de Penalizaciones de Puntaje
                                 </strong>
-                                <span style="font-size:.72rem;color:#64748B;">Impacto directo en índice de seguridad</span>
+                                <span style="font-size:.72rem;color:#64748B;">Impacto directo en Ã­ndice de seguridad</span>
                             </div>
                             <div id="sec-deductions-list" style="display:flex;flex-direction:column;gap:.35rem;"></div>
                         </div>
@@ -1076,7 +1096,7 @@
                         <!-- 8 Categories Breakdown Section -->
                         <div class="sec-subcard" style="margin-top:1.25rem;">
                             <h4 style="font-size:.92rem;font-weight:800;color:#fff;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;">
-                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> Evaluación por Dimensiones de Arquitectura
+                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> EvaluaciÃ³n por Dimensiones de Arquitectura
                             </h4>
                             <div class="sec-categories-grid" id="sec-categories-grid">
                                 <!-- 8 categories dynamically rendered -->
@@ -1088,14 +1108,14 @@
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
                                 <div>
                                     <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
-                                        <i class="fa-solid fa-key" style="color:#FBBF24;"></i> Secret Scanner &amp; Detección de Fugas de Credenciales
+                                        <i class="fa-solid fa-key" style="color:#FBBF24;"></i> Secret Scanner &amp; DetecciÃ³n de Fugas de Credenciales
                                     </h4>
                                     <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
-                                        Auditoría estática de cadenas sensibles. Los valores mostrados están enmascarados criptográficamente para proteger secretos en reposo.
+                                        AuditorÃ­a estÃ¡tica de cadenas sensibles. Los valores mostrados estÃ¡n enmascarados criptogrÃ¡ficamente para proteger secretos en reposo.
                                     </p>
                                 </div>
                                 <span class="badge badge-emerald" id="sec-secrets-shield-badge">
-                                    <i class="fa-solid fa-lock"></i> Redacción Automática Activa
+                                    <i class="fa-solid fa-lock"></i> RedacciÃ³n AutomÃ¡tica Activa
                                 </span>
                             </div>
                             <div id="sec-secrets-container">
@@ -1108,16 +1128,16 @@
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
                                 <div>
                                     <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
-                                        <i class="fa-solid fa-bug" style="color:#FB7185;"></i> Hallazgos de Vulnerabilidades de Código (SAST)
+                                        <i class="fa-solid fa-bug" style="color:#FB7185;"></i> Hallazgos de Vulnerabilidades de CÃ³digo (SAST)
                                     </h4>
                                     <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
-                                        Reglas estáticas OWASP Top 10 y ASVS. Diferenciación de certeza: <span style="color:#FB7185;font-weight:600;">Confirmado</span> vs <span style="color:#FBBF24;font-weight:600;">Uso Potencialmente Peligroso</span>.
+                                        Reglas estÃ¡ticas OWASP Top 10 y ASVS. DiferenciaciÃ³n de certeza: <span style="color:#FB7185;font-weight:600;">Confirmado</span> vs <span style="color:#FBBF24;font-weight:600;">Uso Potencialmente Peligroso</span>.
                                     </p>
                                 </div>
                                 <!-- Filter Pills -->
                                 <div class="sec-filter-group" role="group" aria-label="Filtrar hallazgos">
                                     <button type="button" class="sec-filter-btn active" data-sec-filter="ALL">Todos (<span id="count-flt-all">0</span>)</button>
-                                    <button type="button" class="sec-filter-btn btn-flt-crit" data-sec-filter="CRITICAL">Críticos (<span id="count-flt-crit">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-crit" data-sec-filter="CRITICAL">CrÃ­ticos (<span id="count-flt-crit">0</span>)</button>
                                     <button type="button" class="sec-filter-btn btn-flt-high" data-sec-filter="HIGH">Altos (<span id="count-flt-high">0</span>)</button>
                                     <button type="button" class="sec-filter-btn btn-flt-med" data-sec-filter="MEDIUM">Medios (<span id="count-flt-med">0</span>)</button>
                                     <button type="button" class="sec-filter-btn btn-flt-low" data-sec-filter="LOW">Bajos (<span id="count-flt-low">0</span>)</button>
@@ -1134,10 +1154,10 @@
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
                                 <div>
                                     <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
-                                        <i class="fa-solid fa-boxes-stacked" style="color:var(--tech-cyan);"></i> Auditoría de Dependencias de Software (SCA)
+                                        <i class="fa-solid fa-boxes-stacked" style="color:var(--tech-cyan);"></i> AuditorÃ­a de Dependencias de Software (SCA)
                                     </h4>
                                     <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
-                                        Inspección estática de paquetes obsoletos, versiones flotantes y dependencias con vulnerabilidades conocidas.
+                                        InspecciÃ³n estÃ¡tica de paquetes obsoletos, versiones flotantes y dependencias con vulnerabilidades conocidas.
                                     </p>
                                 </div>
                                 <span class="badge" id="sec-deps-status-badge">Sin manifiesto</span>
@@ -1154,7 +1174,7 @@
                                     <i class="fa-solid fa-chess-rook" style="color:#818CF8;"></i> Modelado de Amenazas STRIDE Mapeado a la Arquitectura
                                 </h4>
                                 <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
-                                    Análisis de vectores de ataque mapeado a los componentes detectados: Cliente Frontend, API Gateway, Backend y Base de Datos.
+                                    AnÃ¡lisis de vectores de ataque mapeado a los componentes detectados: Cliente Frontend, API Gateway, Backend y Base de Datos.
                                 </p>
                             </div>
                             <div class="table-responsive" style="overflow-x:auto;">
@@ -1164,7 +1184,7 @@
                                             <th style="padding:.65rem .75rem;text-align:left;width:150px;">Vector STRIDE</th>
                                             <th style="padding:.65rem .75rem;text-align:left;width:130px;">Componente</th>
                                             <th style="padding:.65rem .75rem;text-align:left;">Amenaza &amp; Vector de Ataque</th>
-                                            <th style="padding:.65rem .75rem;text-align:left;">Mitigación Recomendada</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">MitigaciÃ³n Recomendada</th>
                                             <th style="padding:.65rem .75rem;text-align:center;width:95px;">Severidad</th>
                                         </tr>
                                     </thead>
@@ -1182,18 +1202,18 @@
                                     <i class="fa-solid fa-list-check" style="color:#34D399;"></i> Matriz de Requerimientos de Seguridad (SEC-001... SEC-N)
                                 </h4>
                                 <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
-                                    Requerimientos no funcionales de seguridad listos para incorporar al backlog de ingeniería y verificación de cumplimiento.
+                                    Requerimientos no funcionales de seguridad listos para incorporar al backlog de ingenierÃ­a y verificaciÃ³n de cumplimiento.
                                 </p>
                             </div>
                             <div class="table-responsive" style="overflow-x:auto;">
                                 <table class="cyber-table" style="width:100%;font-size:.78rem;border-collapse:collapse;">
                                     <thead>
                                         <tr style="border-bottom:1px solid rgba(129,140,248,.2);background:rgba(15,23,42,.6);">
-                                            <th style="padding:.65rem .75rem;text-align:center;width:95px;">Código</th>
-                                            <th style="padding:.65rem .75rem;text-align:left;">Requerimiento Técnico</th>
-                                            <th style="padding:.65rem .75rem;text-align:left;width:140px;">Categoría</th>
+                                            <th style="padding:.65rem .75rem;text-align:center;width:95px;">CÃ³digo</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">Requerimiento TÃ©cnico</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;width:140px;">CategorÃ­a</th>
                                             <th style="padding:.65rem .75rem;text-align:center;width:95px;">Prioridad</th>
-                                            <th style="padding:.65rem .75rem;text-align:left;">Justificación / Estándar</th>
+                                            <th style="padding:.65rem .75rem;text-align:left;">JustificaciÃ³n / EstÃ¡ndar</th>
                                             <th style="padding:.65rem .75rem;text-align:center;width:95px;">Estado</th>
                                         </tr>
                                     </thead>
@@ -1210,7 +1230,7 @@
                     <div id="doc-panel-adr" class="doc-tab-panel">
                         <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
                             <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;">
-                                <i class="fa-solid fa-scale-balanced" style="color:#FBBF24;"></i> Registros de Decisiones Arquitectónicas (ADRs)
+                                <i class="fa-solid fa-scale-balanced" style="color:#FBBF24;"></i> Registros de Decisiones ArquitectÃ³nicas (ADRs)
                             </h4>
                             <div id="content-adrs" style="display:flex;flex-direction:column;gap:1.25rem;">
                                 <!-- Injected dynamically -->
@@ -1218,11 +1238,11 @@
                         </div>
                     </div>
 
-                    <!-- 11. Guía de Usuario & FAQ -->
+                    <!-- 11. GuÃ­a de Usuario & FAQ -->
                     <div id="doc-panel-user" class="doc-tab-panel">
                         <div style="display:flex;flex-direction:column;gap:1.5rem;">
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
-                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Manual y Guía de Usuario</h4>
+                                <h4 style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:1rem;">Manual y GuÃ­a de Usuario</h4>
                                 <div id="content-user-guide" class="markdown-body" style="font-size:.88rem;color:#CBD5E1;line-height:1.75;">...</div>
                             </div>
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
@@ -1238,31 +1258,31 @@
                             <div style="display:flex;align-items:center;gap:.6rem;">
                                 <div style="width:2.25rem;height:2.25rem;border-radius:.6rem;background:linear-gradient(135deg,#818CF8,#34D399);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.85rem;"><i class="fa-solid fa-terminal"></i></div>
                                 <div>
-                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;">Chat Técnico Grounded con el Proyecto</h4>
+                                    <h4 style="font-size:.88rem;font-weight:800;color:#fff;">Chat TÃ©cnico Grounded con el Proyecto</h4>
                                     <p style="font-size:.7rem;color:#64748B;">Pregunta sobre la arquitectura, rutas, base de datos y archivos reales con citas de evidencia</p>
                                 </div>
                             </div>
-                            <span class="badge badge-emerald" style="font-size:.68rem;"><i class="fa-solid fa-code-commit"></i> Análisis Grounded</span>
+                            <span class="badge badge-emerald" style="font-size:.68rem;"><i class="fa-solid fa-code-commit"></i> AnÃ¡lisis Grounded</span>
                         </div>
 
                         <!-- Quick Questions Chips -->
                         <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1rem;">
-                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">¿Cómo funciona la autenticación?</button>
-                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">¿Qué base de datos utiliza?</button>
-                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">Muéstrame el flujo arquitectónico</button>
-                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.25);color:#FB7185;border-radius:.45rem;">¿Qué archivos manejan la API?</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);border-radius:.45rem;">Â¿CÃ³mo funciona la autenticaciÃ³n?</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(129,140,248,.08);border:1px solid rgba(129,140,248,.25);color:#818CF8;border-radius:.45rem;">Â¿QuÃ© base de datos utiliza?</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);color:#34D399;border-radius:.45rem;">MuÃ©strame el flujo arquitectÃ³nico</button>
+                            <button type="button" class="gh-quick-q btn-ghost" style="padding:.3rem .7rem;font-size:.72rem;background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.25);color:#FB7185;border-radius:.45rem;">Â¿QuÃ© archivos manejan la API?</button>
                         </div>
 
                         <!-- Messages Scroll Area -->
                         <div id="project-chat-messages" class="chat-messages-area">
                             <div class="chat-bubble chat-bubble-ai">
-                                ¡Hola! He completado el análisis de la arquitectura del proyecto. Puedes consultarme sobre cualquier módulo, endpoint, modelo de datos o archivo fuente analizado.
+                                Â¡Hola! He completado el anÃ¡lisis de la arquitectura del proyecto. Puedes consultarme sobre cualquier mÃ³dulo, endpoint, modelo de datos o archivo fuente analizado.
                             </div>
                         </div>
 
                         <!-- Input Box -->
                         <div class="chat-input-wrapper">
-                            <input type="text" id="project-chat-input" class="input-cyber" placeholder="Escribe tu consulta técnica sobre este código..." autocomplete="off">
+                            <input type="text" id="project-chat-input" class="input-cyber" placeholder="Escribe tu consulta tÃ©cnica sobre este cÃ³digo..." autocomplete="off">
                             <button type="button" id="btn-project-chat-send" class="btn-cyber" style="padding:0 1.25rem;flex-shrink:0;">
                                 <i class="fa-solid fa-paper-plane"></i>
                             </button>
@@ -1278,7 +1298,7 @@
                     <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(129,140,248,.16);padding-bottom:1rem;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
                         <div>
                             <h3 style="font-size:1.15rem;font-weight:800;color:#fff;">Mis Proyectos Analizados</h3>
-                            <p style="font-size:.76rem;color:#94A3B8;">Accede a tus análisis guardados, compara versiones estructurales y exporta su documentación.</p>
+                            <p style="font-size:.76rem;color:#94A3B8;">Accede a tus anÃ¡lisis guardados, compara versiones estructurales y exporta su documentaciÃ³n.</p>
                         </div>
                         <button type="button" id="btn-clear-history" class="btn-ghost" style="font-size:.76rem;color:#FB7185;padding:.4rem .8rem;">
                             <i class="fa-solid fa-trash-can" style="margin-right:.3rem;"></i>Vaciar Historial
@@ -1289,7 +1309,7 @@
                     <div id="version-diff-container" style="display:none;background:rgba(15,23,42,.9);border:1px solid var(--tech-cyan);border-radius:.75rem;padding:1.25rem;margin-bottom:1.5rem;">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
                             <h4 style="font-size:.92rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
-                                <i class="fa-solid fa-code-compare" style="color:var(--tech-cyan);"></i> Comparación de Versiones
+                                <i class="fa-solid fa-code-compare" style="color:var(--tech-cyan);"></i> ComparaciÃ³n de Versiones
                             </h4>
                             <button type="button" id="btn-close-diff" class="btn-ghost" style="font-size:.72rem;"><i class="fa-solid fa-xmark"></i> Cerrar</button>
                         </div>
@@ -1299,7 +1319,7 @@
                     </div>
 
                     <div id="history-list" style="display:flex;flex-direction:column;gap:.75rem;">
-                        <p style="font-size:.82rem;color:#64748B;text-align:center;padding:2rem 0;">Aún no tienes proyectos registrados. Genera documentación para ver el historial aquí.</p>
+                        <p style="font-size:.82rem;color:#64748B;text-align:center;padding:2rem 0;">AÃºn no tienes proyectos registrados. Genera documentaciÃ³n para ver el historial aquÃ­.</p>
                     </div>
                 </div>
 
@@ -1355,54 +1375,54 @@
 
 
     <!-- ============================================================
-         5.5 SIMULADOR DE ARQUITECTURA Y DISEÑO TÉCNICO (GUÍA ACTIVIDAD 9)
-         Universidad Libre — Facultad de Ingeniería — Curso: Ingeniería Aplicada (2026-2)
+         5.5 SIMULADOR DE ARQUITECTURA Y DISEÃ‘O TÃ‰CNICO (GUÃA ACTIVIDAD 9)
+         Universidad Libre â€” Facultad de IngenierÃ­a â€” Curso: IngenierÃ­a Aplicada (2026-2)
     ============================================================ -->
     <section id="simulador-arquitectura" style="padding:6rem 0;position:relative;border-top:1px solid rgba(56,189,248,.18);background:radial-gradient(ellipse at 50% 0%,rgba(56,189,248,.07) 0%,rgba(9,13,22,.98) 70%);">
         <div class="container">
             <!-- Encabezado Institucional de la Actividad 9 -->
             <div style="text-align:center;max-width:840px;margin:0 auto 2.5rem;" class="reveal">
                 <div style="display:inline-flex;flex-wrap:wrap;justify-content:center;gap:.5rem;margin-bottom:1rem;">
-                    <span class="badge badge-cyan"><i class="fa-solid fa-microchip"></i> Universidad Libre &bull; Ingeniería Aplicada 2026-2</span>
-                    <span class="badge badge-emerald"><i class="fa-solid fa-sliders"></i> Guía Actividad 9 &bull; Simulador Funcional</span>
+                    <span class="badge badge-cyan"><i class="fa-solid fa-microchip"></i> Universidad Libre &bull; IngenierÃ­a Aplicada 2026-2</span>
+                    <span class="badge badge-emerald"><i class="fa-solid fa-sliders"></i> GuÃ­a Actividad 9 &bull; Simulador Funcional</span>
                 </div>
-                <h2 class="section-title">Simulador de <span class="gradient-text">Arquitectura y Diseño Técnico</span></h2>
+                <h2 class="section-title">Simulador de <span class="gradient-text">Arquitectura y DiseÃ±o TÃ©cnico</span></h2>
                 <p style="color:#94A3B8;margin-top:.85rem;font-size:.92rem;line-height:1.7;">
-                    Aplicativo interactivo de simulación matemática para evaluar y comparar <strong>3 alternativas arquitectónicas</strong> de <strong>Document-Mind AI</strong> (<em>Monolito Modular MVC</em>, <em>Microservicios en Contenedores Kubernetes</em> y <em>Arquitectura Orientada a Eventos EDA</em>) bajo modelos de colas M/M/c, sobrecarga de red inter-servicio y decisión multicriterio explicable.
+                    Aplicativo interactivo de simulaciÃ³n matemÃ¡tica para evaluar y comparar <strong>3 alternativas arquitectÃ³nicas</strong> de <strong>Document-Mind AI</strong> (<em>Monolito Modular MVC</em>, <em>Microservicios en Contenedores Kubernetes</em> y <em>Arquitectura Orientada a Eventos EDA</em>) bajo modelos de colas M/M/c, sobrecarga de red inter-servicio y decisiÃ³n multicriterio explicable.
                 </p>
             </div>
 
-            <!-- Nota Metodológica Obligatoria (Página 2 de la Guía) -->
+            <!-- Nota MetodolÃ³gica Obligatoria (PÃ¡gina 2 de la GuÃ­a) -->
             <div style="margin-bottom:2rem;padding:1rem 1.25rem;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.35);border-radius:.85rem;display:flex;align-items:flex-start;gap:.85rem;">
                 <i class="fa-solid fa-circle-info" style="color:#FBBF24;font-size:1.15rem;margin-top:.15rem;flex-shrink:0;"></i>
                 <div style="font-size:.78rem;color:#FDE68A;line-height:1.6;">
-                    <strong>Nota Metodológica (Criterio Fundamental de Evaluación):</strong> Los resultados presentados por este simulador corresponden a <strong>estimaciones analíticas del modelo computacional</strong> (basado en los estudios de <em>Al-Debagy &amp; Martinek</em>, <em>Gosha et al.</em> y pruebas de estrés <em>Apache JMeter</em>) y <strong>no a mediciones físicas de hardware en tiempo real</strong>. Al final de la sección se detalla el protocolo de validación empírica para contrastar estas proyecciones en un entorno real.
+                    <strong>Nota MetodolÃ³gica (Criterio Fundamental de EvaluaciÃ³n):</strong> Los resultados presentados por este simulador corresponden a <strong>estimaciones analÃ­ticas del modelo computacional</strong> (basado en los estudios de <em>Al-Debagy &amp; Martinek</em>, <em>Gosha et al.</em> y pruebas de estrÃ©s <em>Apache JMeter</em>) y <strong>no a mediciones fÃ­sicas de hardware en tiempo real</strong>. Al final de la secciÃ³n se detalla el protocolo de validaciÃ³n empÃ­rica para contrastar estas proyecciones en un entorno real.
                 </div>
             </div>
 
-            <!-- Alerta Dinámica de Control de Entradas Inválidas (Requisito 10) -->
+            <!-- Alerta DinÃ¡mica de Control de Entradas InvÃ¡lidas (Requisito 10) -->
             <div id="sim-validation-alert" style="display:none;margin-bottom:1.5rem;padding:1rem 1.25rem;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.45);border-radius:.85rem;"></div>
 
             <!-- ============================================================
-                 BLOQUE 1 Y 3: CONFIGURACIÓN DEL PROYECTO + VARIABLES DE ENTRADA + ESCENARIOS
+                 BLOQUE 1 Y 3: CONFIGURACIÃ“N DEL PROYECTO + VARIABLES DE ENTRADA + ESCENARIOS
             ============================================================ -->
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-bottom:2rem;">
                 
-                <!-- Columna Izquierda: 1. Configuración del Proyecto, Requisitos de Calidad y Restricciones -->
+                <!-- Columna Izquierda: 1. ConfiguraciÃ³n del Proyecto, Requisitos de Calidad y Restricciones -->
                 <div class="glow-card" style="padding:1.5rem;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);flex-wrap:wrap;gap:.5rem;">
                         <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
-                            <i class="fa-solid fa-clipboard-check" style="color:var(--tech-cyan);"></i> 1. Configuración y Restricciones del Proyecto
+                            <i class="fa-solid fa-clipboard-check" style="color:var(--tech-cyan);"></i> 1. ConfiguraciÃ³n y Restricciones del Proyecto
                         </h3>
-                        <span id="sim-config-live-badge" style="font-size:.64rem;color:#34D399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);padding:.18rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace;">● Sincronizado en Vivo</span>
+                        <span id="sim-config-live-badge" style="font-size:.64rem;color:#34D399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);padding:.18rem .55rem;border-radius:999px;font-family:'JetBrains Mono',monospace;">â— Sincronizado en Vivo</span>
                     </div>
 
-                    <!-- Perfiles Rápidos de Restricciones y Prioridades (1-Click) -->
+                    <!-- Perfiles RÃ¡pidos de Restricciones y Prioridades (1-Click) -->
                     <div style="margin-bottom:.85rem;">
-                        <span style="font-size:.66rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.4rem;text-transform:uppercase;">Perfiles Rápidos de Restricción &amp; SLA (Prueba cómo cambian los resultados):</span>
+                        <span style="font-size:.66rem;font-weight:700;color:#94A3B8;display:block;margin-bottom:.4rem;text-transform:uppercase;">Perfiles RÃ¡pidos de RestricciÃ³n &amp; SLA (Prueba cÃ³mo cambian los resultados):</span>
                         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;">
                             <button type="button" data-sim-config-preset="STANDARD" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
-                                <i class="fa-solid fa-sliders" style="color:#38BDF8;margin-right:.35rem;"></i>Estándar ($350 / 1800ms / 8GB)
+                                <i class="fa-solid fa-sliders" style="color:#38BDF8;margin-right:.35rem;"></i>EstÃ¡ndar ($350 / 1800ms / 8GB)
                             </button>
                             <button type="button" data-sim-config-preset="BOOTSTRAPPED" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
                                 <i class="fa-solid fa-piggy-bank" style="color:#FBBF24;margin-right:.35rem;"></i>Startup ($45 USD / 1GB RAM)
@@ -1411,7 +1431,7 @@
                                 <i class="fa-solid fa-bolt-lightning" style="color:#34D399;margin-right:.35rem;"></i>SLA Estricto (390ms / 99.85%)
                             </button>
                             <button type="button" data-sim-config-preset="CLOUD_SCALE" class="btn-cyber-outline" style="padding:.4rem .55rem;font-size:.68rem;justify-content:flex-start;">
-                                <i class="fa-solid fa-cloud-arrow-up" style="color:#818CF8;margin-right:.35rem;"></i>Alta Escala (Esc≥88 / $900)
+                                <i class="fa-solid fa-cloud-arrow-up" style="color:#818CF8;margin-right:.35rem;"></i>Alta Escala (Escâ‰¥88 / $900)
                             </button>
                         </div>
                     </div>
@@ -1419,7 +1439,7 @@
                     <div style="display:flex;flex-direction:column;gap:.8rem;">
                         <div>
                             <label for="sim-proj-name" style="display:block;font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.25rem;">Sistema Objeto de Estudio</label>
-                            <input type="text" id="sim-proj-name" value="Document-Mind AI — Plataforma Cognitiva AST + LLM + DevSecOps" class="input-field" style="font-size:.78rem;padding:.5rem .75rem;">
+                            <input type="text" id="sim-proj-name" value="Document-Mind AI â€” Plataforma Cognitiva AST + LLM + DevSecOps" class="input-field" style="font-size:.78rem;padding:.5rem .75rem;">
                         </div>
                         <div>
                             <label for="sim-proj-users" style="display:block;font-size:.68rem;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:.25rem;">Usuarios Previstos &amp; Perfil de Uso</label>
@@ -1430,7 +1450,7 @@
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.15rem;">
                             <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(56,189,248,.18);">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
-                                    <label for="sim-req-latency" style="font-size:.66rem;font-weight:700;color:#38BDF8;">Latencia P95 Máx (ms)</label>
+                                    <label for="sim-req-latency" style="font-size:.66rem;font-weight:700;color:#38BDF8;">Latencia P95 MÃ¡x (ms)</label>
                                     <span id="sim-lbl-req-latency" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">SLA</span>
                                 </div>
                                 <input type="number" id="sim-req-latency" value="1800" min="100" max="30000" step="50" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
@@ -1439,22 +1459,22 @@
                             <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(52,211,153,.18);">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
                                     <label for="sim-req-availability" style="font-size:.66rem;font-weight:700;color:#34D399;">Disponibilidad SLA (%)</label>
-                                    <span id="sim-lbl-req-avail" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Mín</span>
+                                    <span id="sim-lbl-req-avail" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">MÃ­n</span>
                                 </div>
                                 <input type="number" id="sim-req-availability" value="99.5" min="80" max="99.99" step="0.05" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
                                 <input type="range" id="sim-range-req-availability" min="95.0" max="99.95" step="0.05" value="99.5" style="width:100%;accent-color:#34D399;cursor:pointer;height:4px;">
                             </div>
                             <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(129,140,248,.18);">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
-                                    <label for="sim-req-scalability" style="font-size:.66rem;font-weight:700;color:#818CF8;">Escalabilidad Mín (0-100)</label>
-                                    <span id="sim-lbl-req-scale" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Índice</span>
+                                    <label for="sim-req-scalability" style="font-size:.66rem;font-weight:700;color:#818CF8;">Escalabilidad MÃ­n (0-100)</label>
+                                    <span id="sim-lbl-req-scale" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Ãndice</span>
                                 </div>
                                 <input type="number" id="sim-req-scalability" value="75" min="10" max="100" step="1" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
                                 <input type="range" id="sim-range-req-scalability" min="30" max="98" step="1" value="75" style="width:100%;accent-color:#818CF8;cursor:pointer;height:4px;">
                             </div>
                             <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(251,191,36,.18);">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
-                                    <label for="sim-con-budget" style="font-size:.66rem;font-weight:700;color:#FBBF24;">Presupuesto Máx ($ USD)</label>
+                                    <label for="sim-con-budget" style="font-size:.66rem;font-weight:700;color:#FBBF24;">Presupuesto MÃ¡x ($ USD)</label>
                                     <span id="sim-lbl-con-budget" style="font-size:.64rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Mes</span>
                                 </div>
                                 <input type="number" id="sim-con-budget" value="350" min="10" max="50000" step="5" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
@@ -1465,7 +1485,7 @@
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
                             <div style="background:rgba(9,13,22,.45);padding:.55rem .65rem;border-radius:.55rem;border:1px solid rgba(148,163,184,.18);">
                                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem;">
-                                    <label for="sim-con-memory" style="font-size:.66rem;font-weight:700;color:#CBD5E1;">Restricción RAM (GB)</label>
+                                    <label for="sim-con-memory" style="font-size:.66rem;font-weight:700;color:#CBD5E1;">RestricciÃ³n RAM (GB)</label>
                                     <span id="sim-lbl-con-memory" style="font-size:.64rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;">8,192 MB</span>
                                 </div>
                                 <input type="number" id="sim-con-memory" value="8" min="0.5" max="128" step="0.5" class="input-field" style="font-size:.8rem;padding:.38rem .55rem;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;">
@@ -1476,15 +1496,15 @@
                                     <i class="fa-solid fa-arrows-rotate" style="margin-right:.35rem;"></i>Recalcular Todo &amp; 3D
                                 </button>
                                 <button type="button" id="btn-sim-test-invalid" class="btn-cyber-outline" style="padding:.45rem .75rem;font-size:.69rem;border-color:rgba(251,113,133,.4);color:#FB7185;justify-content:center;width:100%;">
-                                    <i class="fa-solid fa-shield-virus" style="margin-right:.35rem;"></i>Probar Entrada Inválida
+                                    <i class="fa-solid fa-shield-virus" style="margin-right:.35rem;"></i>Probar Entrada InvÃ¡lida
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Pesos de Criterios de Decisión del Equipo -->
+                        <!-- Pesos de Criterios de DecisiÃ³n del Equipo -->
                         <div style="margin-top:.15rem;padding:.75rem;background:rgba(9,13,22,.65);border-radius:.65rem;border:1px solid rgba(148,163,184,.12);">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;">
-                                <span style="font-size:.66rem;font-weight:700;color:#94A3B8;text-transform:uppercase;">Pesos de Criterios de Decisión MCDA (%)</span>
+                                <span style="font-size:.66rem;font-weight:700;color:#94A3B8;text-transform:uppercase;">Pesos de Criterios de DecisiÃ³n MCDA (%)</span>
                                 <span id="sim-weights-sum-label" style="font-size:.64rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;">Total: 100% (Normalizado)</span>
                             </div>
                             <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;text-align:center;">
@@ -1509,7 +1529,7 @@
                                     <input type="number" id="sim-weight-security" value="15" min="1" max="100" class="input-field" style="padding:.3rem;font-size:.75rem;text-align:center;font-family:'JetBrains Mono',monospace;">
                                 </div>
                             </div>
-                            <!-- Barra visual de distribución de pesos -->
+                            <!-- Barra visual de distribuciÃ³n de pesos -->
                             <div id="sim-weights-visual-bar" style="display:flex;height:7px;border-radius:999px;overflow:hidden;margin-top:.55rem;background:rgba(148,163,184,.12);">
                                 <div style="width:25%;background:#38BDF8;" title="Latencia"></div>
                                 <div style="width:25%;background:#818CF8;" title="Escalabilidad"></div>
@@ -1521,7 +1541,7 @@
                     </div>
                 </div>
 
-                <!-- Columna Derecha: 3. Variables de Entrada Relevantes y 5. Ejecución de Escenarios -->
+                <!-- Columna Derecha: 3. Variables de Entrada Relevantes y 5. EjecuciÃ³n de Escenarios -->
                 <div class="glow-card" style="padding:1.5rem;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid rgba(148,163,184,.14);">
                         <h3 style="font-size:.98rem;font-weight:800;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
@@ -1544,10 +1564,10 @@
                                 <i class="fa-solid fa-cubes" style="color:#818CF8;margin-right:.4rem;"></i>2. Escala Empresarial (320 u)
                             </button>
                             <button type="button" data-sim-preset="EXTREME_STRESS_PUSH" class="btn-cyber-outline" style="padding:.48rem .65rem;font-size:.72rem;justify-content:flex-start;">
-                                <i class="fa-solid fa-fire" style="color:#FB7185;margin-right:.4rem;"></i>3. Estrés JMeter (650 u / 11MB)
+                                <i class="fa-solid fa-fire" style="color:#FB7185;margin-right:.4rem;"></i>3. EstrÃ©s JMeter (650 u / 11MB)
                             </button>
                             <button type="button" data-sim-preset="HYPER_CLOUD_SCALE" class="btn-cyber-outline" style="grid-column:1 / -1;padding:.48rem .65rem;font-size:.72rem;justify-content:center;border-color:rgba(52,211,153,.4);">
-                                <i class="fa-solid fa-cloud-bolt" style="color:#34D399;margin-right:.4rem;"></i>4. Hiper-Escala Masiva (850 u / 14MB — EDA &amp; Cloud Scale Viables)
+                                <i class="fa-solid fa-cloud-bolt" style="color:#34D399;margin-right:.4rem;"></i>4. Hiper-Escala Masiva (850 u / 14MB â€” EDA &amp; Cloud Scale Viables)
                             </button>
                         </div>
                     </div>
@@ -1561,17 +1581,17 @@
                                 <strong id="sim-val-users" style="color:#38BDF8;font-family:'JetBrains Mono',monospace;">60 usuarios</strong>
                             </div>
                             <input type="range" id="sim-input-users" min="5" max="1000" step="5" value="60" style="width:100%;accent-color:#38BDF8;cursor:pointer;">
-                            <span style="font-size:.65rem;color:#64748B;">Justificación: Determina la tasa de llegada λ y la contención en la cola del servidor.</span>
+                            <span style="font-size:.65rem;color:#64748B;">JustificaciÃ³n: Determina la tasa de llegada Î» y la contenciÃ³n en la cola del servidor.</span>
                         </div>
 
                         <!-- Variable 2 -->
                         <div>
                             <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:.2rem;">
-                                <label for="sim-input-payload" style="font-weight:700;color:#E2E8F0;">V2. Tamaño de Archivo / Repo (S_MB):</label>
+                                <label for="sim-input-payload" style="font-weight:700;color:#E2E8F0;">V2. TamaÃ±o de Archivo / Repo (S_MB):</label>
                                 <strong id="sim-val-payload" style="color:#818CF8;font-family:'JetBrains Mono',monospace;">2.5 MB</strong>
                             </div>
                             <input type="range" id="sim-input-payload" min="0.5" max="20" step="0.5" value="2.5" style="width:100%;accent-color:#818CF8;cursor:pointer;">
-                            <span style="font-size:.65rem;color:#64748B;">Justificación: Incrementa el tiempo de parseo PDF/ZIP y el costo de serialización entre microservicios.</span>
+                            <span style="font-size:.65rem;color:#64748B;">JustificaciÃ³n: Incrementa el tiempo de parseo PDF/ZIP y el costo de serializaciÃ³n entre microservicios.</span>
                         </div>
 
                         <!-- Variable 3 -->
@@ -1581,7 +1601,7 @@
                                 <strong id="sim-val-files" style="color:#34D399;font-family:'JetBrains Mono',monospace;">85 archivos</strong>
                             </div>
                             <input type="range" id="sim-input-files" min="10" max="600" step="5" value="85" style="width:100%;accent-color:#34D399;cursor:pointer;">
-                            <span style="font-size:.65rem;color:#64748B;">Justificación: Impacta directamente los ciclos de CPU del analizador estático AST y reglas SAST.</span>
+                            <span style="font-size:.65rem;color:#64748B;">JustificaciÃ³n: Impacta directamente los ciclos de CPU del analizador estÃ¡tico AST y reglas SAST.</span>
                         </div>
 
                         <!-- Variables 4 y 5 en fila -->
@@ -1592,15 +1612,15 @@
                                     <strong id="sim-val-aidepth" style="color:#FBBF24;font-family:'JetBrains Mono',monospace;">2</strong>
                                 </div>
                                 <input type="range" id="sim-input-aidepth" min="1" max="3" step="1" value="2" style="width:100%;accent-color:#FBBF24;cursor:pointer;">
-                                <span style="font-size:.62rem;color:#64748B;">1=Heurístico, 2=Gemini, 3=Full+STRIDE</span>
+                                <span style="font-size:.62rem;color:#64748B;">1=HeurÃ­stico, 2=Gemini, 3=Full+STRIDE</span>
                             </div>
                             <div>
                                 <div style="display:flex;justify-content:space-between;font-size:.7rem;margin-bottom:.2rem;">
-                                    <label for="sim-input-burst" style="font-weight:700;color:#E2E8F0;">V5. Factor Ráfaga (B):</label>
+                                    <label for="sim-input-burst" style="font-weight:700;color:#E2E8F0;">V5. Factor RÃ¡faga (B):</label>
                                     <strong id="sim-val-burst" style="color:#FB7185;font-family:'JetBrains Mono',monospace;">1.2x</strong>
                                 </div>
                                 <input type="range" id="sim-input-burst" min="1.0" max="3.5" step="0.1" value="1.2" style="width:100%;accent-color:#FB7185;cursor:pointer;">
-                                <span style="font-size:.62rem;color:#64748B;">Picos simultáneos de Git Push</span>
+                                <span style="font-size:.62rem;color:#64748B;">Picos simultÃ¡neos de Git Push</span>
                             </div>
                         </div>
 
@@ -1625,59 +1645,59 @@
             </div>
 
             <!-- ============================================================
-                 BANNER REACTIVO DE CONFIGURACIÓN Y RESTRICCIONES ACTIVAS (SECCIÓN 1 EN VIVO)
+                 BANNER REACTIVO DE CONFIGURACIÃ“N Y RESTRICCIONES ACTIVAS (SECCIÃ“N 1 EN VIVO)
             ============================================================ -->
             <div id="sim-active-config-banner" class="glow-card" style="padding:1rem 1.35rem;margin-bottom:1.75rem;border:1px solid rgba(56,189,248,.3);background:linear-gradient(90deg,rgba(15,23,42,.95),rgba(30,41,59,.85));">
-                <!-- Renderizado dinámico por js/architecture-simulator.js -->
+                <!-- Renderizado dinÃ¡mico por js/architecture-simulator.js -->
             </div>
 
             <!-- ============================================================
-                 LABORATORIO INTERACTIVO DE GRÁFICAS Y SIMULACIÓN 3D (THREE.JS WEBGL + CANVAS 3D)
+                 LABORATORIO INTERACTIVO DE GRÃFICAS Y SIMULACIÃ“N 3D (THREE.JS WEBGL + CANVAS 3D)
             ============================================================ -->
             <div class="glow-card" style="padding:1.5rem;margin-bottom:2rem;border:1px solid rgba(56,189,248,.35);background:radial-gradient(circle at 50% 0%,rgba(56,189,248,.09),rgba(9,13,22,.96) 75%);">
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.85rem;margin-bottom:1.1rem;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.16);">
                     <div>
                         <div style="display:inline-flex;align-items:center;gap:.45rem;font-size:.66rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;text-transform:uppercase;margin-bottom:.2rem;">
-                            <i class="fa-solid fa-cubes-stacked"></i> Motor Gráfico WebGL Three.js + Proyección 3D en Tiempo Real
+                            <i class="fa-solid fa-cubes-stacked"></i> Motor GrÃ¡fico WebGL Three.js + ProyecciÃ³n 3D en Tiempo Real
                         </div>
                         <h3 style="font-size:1.08rem;font-weight:800;color:#fff;margin:0;">
-                            Centro de Telemetría y Gráficas 3D de la Simulación Arquitectónica
+                            Centro de TelemetrÃ­a y GrÃ¡ficas 3D de la SimulaciÃ³n ArquitectÃ³nica
                         </h3>
                     </div>
 
-                    <!-- Controles de Modo 3D y Simulación en Vivo -->
+                    <!-- Controles de Modo 3D y SimulaciÃ³n en Vivo -->
                     <div style="display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;">
                         <button type="button" data-sim-3d-mode="BARS_3D" class="btn-cyber-outline sim-3d-mode-btn" style="padding:.42rem .75rem;font-size:.71rem;background:rgba(56,189,248,.2);border-color:#38BDF8;color:#fff;">
                             <i class="fa-solid fa-chart-column" style="margin-right:.35rem;color:#38BDF8;"></i>1. Torres 3D &amp; Plano SLA
                         </button>
                         <button type="button" data-sim-3d-mode="TOPOLOGY_3D" class="btn-cyber-outline sim-3d-mode-btn" style="padding:.42rem .75rem;font-size:.71rem;">
-                            <i class="fa-solid fa-network-wired" style="margin-right:.35rem;color:#818CF8;"></i>2. Topología 3D &amp; Paquetes
+                            <i class="fa-solid fa-network-wired" style="margin-right:.35rem;color:#818CF8;"></i>2. TopologÃ­a 3D &amp; Paquetes
                         </button>
                         <button type="button" data-sim-3d-mode="SURFACE_3D" class="btn-cyber-outline sim-3d-mode-btn" style="padding:.42rem .75rem;font-size:.71rem;">
                             <i class="fa-solid fa-mountain-sun" style="margin-right:.35rem;color:#34D399;"></i>3. Superficie 3D M/M/c
                         </button>
                         <button type="button" id="btn-sim-3d-live-sweep" class="btn-cyber" style="padding:.44rem .85rem;font-size:.72rem;">
-                            <i class="fa-solid fa-bolt" style="margin-right:.35rem;"></i>Simular Ráfaga 3D en Vivo
+                            <i class="fa-solid fa-bolt" style="margin-right:.35rem;"></i>Simular RÃ¡faga 3D en Vivo
                         </button>
                     </div>
                 </div>
 
-                <!-- Grid Principal 3D: Escena WebGL Principal + 2 Gráficas 3D Especializadas -->
+                <!-- Grid Principal 3D: Escena WebGL Principal + 2 GrÃ¡ficas 3D Especializadas -->
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem;align-items:stretch;">
                     
-                    <!-- Visor WebGL Three.js Interactivo (Arrastrar para rotar 360°, Rueda para Zoom) -->
+                    <!-- Visor WebGL Three.js Interactivo (Arrastrar para rotar 360Â°, Rueda para Zoom) -->
                     <div style="grid-column:span 1;min-height:380px;display:flex;flex-direction:column;justify-content:space-between;background:rgba(6,10,19,.92);border-radius:.85rem;border:1px solid rgba(56,189,248,.25);position:relative;overflow:hidden;">
                         <!-- HUD Superior del Visor 3D -->
                         <div style="position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5;flex-wrap:wrap;gap:.4rem;">
                             <div style="background:rgba(9,13,22,.82);backdrop-filter:blur(6px);padding:.35rem .65rem;border-radius:.5rem;border:1px solid rgba(56,189,248,.25);">
-                                <span id="sim-3d-hud-title" style="font-size:.68rem;font-weight:800;color:#38BDF8;font-family:'JetBrains Mono',monospace;display:block;">MODO: TORRES VOLUMÉTRICAS 3D + PLANO SLA</span>
-                                <span id="sim-3d-hud-subtitle" style="font-size:.63rem;color:#CBD5E1;">Arrastra con el mouse para rotar 360° &bull; Plano Ámbar/Rojo = Umbral SLA (Sección 1)</span>
+                                <span id="sim-3d-hud-title" style="font-size:.68rem;font-weight:800;color:#38BDF8;font-family:'JetBrains Mono',monospace;display:block;">MODO: TORRES VOLUMÃ‰TRICAS 3D + PLANO SLA</span>
+                                <span id="sim-3d-hud-subtitle" style="font-size:.63rem;color:#CBD5E1;">Arrastra con el mouse para rotar 360Â° &bull; Plano Ãmbar/Rojo = Umbral SLA (SecciÃ³n 1)</span>
                             </div>
                             <div style="display:flex;gap:.3rem;pointer-events:auto;">
-                                <button type="button" id="btn-sim-3d-cam-iso" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Isométrica">Iso</button>
+                                <button type="button" id="btn-sim-3d-cam-iso" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista IsomÃ©trica">Iso</button>
                                 <button type="button" id="btn-sim-3d-cam-front" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Frontal SLA">Frontal</button>
                                 <button type="button" id="btn-sim-3d-cam-top" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;" title="Vista Superior">Planta</button>
-                                <button type="button" id="btn-sim-3d-autorotate" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;color:#34D399;border-color:rgba(52,211,153,.4);" title="Alternar Auto-Rotación">↻ Auto</button>
+                                <button type="button" id="btn-sim-3d-autorotate" class="btn-cyber-outline" style="padding:.25rem .5rem;font-size:.63rem;color:#34D399;border-color:rgba(52,211,153,.4);" title="Alternar Auto-RotaciÃ³n">â†» Auto</button>
                             </div>
                         </div>
 
@@ -1688,31 +1708,31 @@
                         <!-- Leyenda Inferior del Visor WebGL -->
                         <div id="sim-3d-hud-footer" style="padding:.55rem .85rem;background:rgba(15,23,42,.95);border-top:1px solid rgba(148,163,184,.14);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;font-size:.67rem;font-family:'JetBrains Mono',monospace;">
                             <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                                <span style="color:#38BDF8;">● Monolito MVC</span>
-                                <span style="color:#818CF8;">● Microservicios K8s</span>
-                                <span style="color:#34D399;">● Orientada a Eventos (EDA)</span>
-                                <span style="color:#FBBF24;">▬ Plano Límite SLA/Presupuesto</span>
+                                <span style="color:#38BDF8;">â— Monolito MVC</span>
+                                <span style="color:#818CF8;">â— Microservicios K8s</span>
+                                <span style="color:#34D399;">â— Orientada a Eventos (EDA)</span>
+                                <span style="color:#FBBF24;">â–¬ Plano LÃ­mite SLA/Presupuesto</span>
                             </div>
-                            <span id="sim-3d-live-telemetry" style="color:#E2E8F0;font-weight:700;">λ = 6.0 req/s</span>
+                            <span id="sim-3d-live-telemetry" style="color:#E2E8F0;font-weight:700;">Î» = 6.0 req/s</span>
                         </div>
                     </div>
 
-                    <!-- Columna Derecha de Gráficas 3D: Superficie 3D de Latencia y Radar Volumétrico 3D MCDA -->
+                    <!-- Columna Derecha de GrÃ¡ficas 3D: Superficie 3D de Latencia y Radar VolumÃ©trico 3D MCDA -->
                     <div style="display:flex;flex-direction:column;gap:1rem;justify-content:space-between;">
                         
-                        <!-- Gráfica 3D 1: Superficie de Respuesta 3D (Usuarios × Carga vs Latencia P95 y Techo SLA) -->
+                        <!-- GrÃ¡fica 3D 1: Superficie de Respuesta 3D (Usuarios Ã— Carga vs Latencia P95 y Techo SLA) -->
                         <div style="background:rgba(6,10,19,.92);border-radius:.85rem;border:1px solid rgba(129,140,248,.25);padding:.8rem;display:flex;flex-direction:column;justify-content:space-between;">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;flex-wrap:wrap;gap:.3rem;">
-                                <span style="font-size:.73rem;font-weight:800;color:#fff;"><i class="fa-solid fa-cube" style="color:#818CF8;margin-right:.35rem;"></i>Proyección 3D: Curvas de Saturación M/M/c vs Techo SLA</span>
-                                <span id="sim-3d-surf-badge" style="font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;">SLA Máx: 1800 ms</span>
+                                <span style="font-size:.73rem;font-weight:800;color:#fff;"><i class="fa-solid fa-cube" style="color:#818CF8;margin-right:.35rem;"></i>ProyecciÃ³n 3D: Curvas de SaturaciÃ³n M/M/c vs Techo SLA</span>
+                                <span id="sim-3d-surf-badge" style="font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#38BDF8;">SLA MÃ¡x: 1800 ms</span>
                             </div>
                             <canvas id="sim-canvas-3d-surface" width="520" height="165" style="width:100%;height:165px;display:block;border-radius:.5rem;background:rgba(9,13,22,.8);cursor:ew-resize;" title="Arrastra horizontalmente para rotar la perspectiva 3D"></canvas>
                         </div>
 
-                        <!-- Gráfica 3D 2: Prisma / Radar Volumétrico 3D Multicriterio (Sensible a Pesos de Sección 1) -->
+                        <!-- GrÃ¡fica 3D 2: Prisma / Radar VolumÃ©trico 3D Multicriterio (Sensible a Pesos de SecciÃ³n 1) -->
                         <div style="background:rgba(6,10,19,.92);border-radius:.85rem;border:1px solid rgba(52,211,153,.25);padding:.8rem;display:flex;flex-direction:column;justify-content:space-between;">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;flex-wrap:wrap;gap:.3rem;">
-                                <span style="font-size:.73rem;font-weight:800;color:#fff;"><i class="fa-solid fa-draw-polygon" style="color:#34D399;margin-right:.35rem;"></i>Prisma Radar 3D Multicriterio (Ponderado por Sección 1)</span>
+                                <span style="font-size:.73rem;font-weight:800;color:#fff;"><i class="fa-solid fa-draw-polygon" style="color:#34D399;margin-right:.35rem;"></i>Prisma Radar 3D Multicriterio (Ponderado por SecciÃ³n 1)</span>
                                 <span id="sim-3d-radar-badge" style="font-size:.63rem;font-family:'JetBrains Mono',monospace;color:#34D399;">Ganadora #1</span>
                             </div>
                             <canvas id="sim-canvas-3d-radar" width="520" height="165" style="width:100%;height:165px;display:block;border-radius:.5rem;background:rgba(9,13,22,.8);cursor:ew-resize;" title="Arrastra horizontalmente para rotar el prisma 3D"></canvas>
@@ -1723,48 +1743,48 @@
             </div>
 
             <!-- ============================================================
-                 BLOQUE 2 Y 6: TARJETAS DE LAS 3 ALTERNATIVAS ARQUITECTÓNICAS E INDICADORES
+                 BLOQUE 2 Y 6: TARJETAS DE LAS 3 ALTERNATIVAS ARQUITECTÃ“NICAS E INDICADORES
             ============================================================ -->
             <div style="margin-bottom:2rem;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
                     <h3 style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">
-                        <i class="fa-solid fa-sitemap" style="color:var(--tech-cyan);margin-right:.45rem;"></i>2. Alternativas Arquitectónicas Evaluadas &amp; 6. Indicadores Cuantificables
+                        <i class="fa-solid fa-sitemap" style="color:var(--tech-cyan);margin-right:.45rem;"></i>2. Alternativas ArquitectÃ³nicas Evaluadas &amp; 6. Indicadores Cuantificables
                     </h3>
-                    <span style="font-size:.72rem;color:#94A3B8;">Comparación bajo condiciones de entrada idénticas y verificables</span>
+                    <span style="font-size:.72rem;color:#94A3B8;">ComparaciÃ³n bajo condiciones de entrada idÃ©nticas y verificables</span>
                 </div>
                 <div id="sim-alternatives-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:1.25rem;">
-                    <!-- Renderizado dinámico por js/architecture-simulator.js -->
+                    <!-- Renderizado dinÃ¡mico por js/architecture-simulator.js -->
                 </div>
             </div>
 
             <!-- ============================================================
-                 BLOQUE 8: APOYO A LA DECISIÓN Y RECOMENDACIÓN EXPLICABLE
+                 BLOQUE 8: APOYO A LA DECISIÃ“N Y RECOMENDACIÃ“N EXPLICABLE
             ============================================================ -->
             <div id="sim-decision-support-box" class="glow-card" style="padding:1.65rem;margin-bottom:2rem;border:1px solid rgba(52,211,153,.35);background:linear-gradient(180deg,rgba(15,23,42,.95),rgba(9,13,22,.95));">
-                <!-- Renderizado dinámico por js/architecture-simulator.js -->
+                <!-- Renderizado dinÃ¡mico por js/architecture-simulator.js -->
             </div>
 
             <!-- ============================================================
-                 BLOQUE 7: COMPARACIÓN GRÁFICA Y TABULAR + HISTORIAL DE ESCENARIOS
+                 BLOQUE 7: COMPARACIÃ“N GRÃFICA Y TABULAR + HISTORIAL DE ESCENARIOS
             ============================================================ -->
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-bottom:2rem;">
                 
-                <!-- Gráfico Comparativo de Barras Dinámicas -->
+                <!-- GrÃ¡fico Comparativo de Barras DinÃ¡micas -->
                 <div class="glow-card" style="padding:1.5rem;">
                     <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 1rem 0;display:flex;align-items:center;gap:.5rem;">
-                        <i class="fa-solid fa-chart-bar" style="color:#38BDF8;"></i> 7. Comparación Gráfica de Indicadores Clave
+                        <i class="fa-solid fa-chart-bar" style="color:#38BDF8;"></i> 7. ComparaciÃ³n GrÃ¡fica de Indicadores Clave
                     </h3>
                     <div id="sim-visual-bars">
-                        <!-- Renderizado dinámico -->
+                        <!-- Renderizado dinÃ¡mico -->
                     </div>
                 </div>
 
-                <!-- Bitácora Comparativa de Ejecución de Escenarios (Requisito 5) -->
+                <!-- BitÃ¡cora Comparativa de EjecuciÃ³n de Escenarios (Requisito 5) -->
                 <div class="glow-card" style="padding:1.5rem;overflow-x:auto;">
                     <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .5rem 0;display:flex;align-items:center;gap:.5rem;">
-                        <i class="fa-solid fa-layer-group" style="color:#818CF8;"></i> 5. Matriz de Ejecución Multi-Escenario (Referencia + 3 Escenarios)
+                        <i class="fa-solid fa-layer-group" style="color:#818CF8;"></i> 5. Matriz de EjecuciÃ³n Multi-Escenario (Referencia + 3 Escenarios)
                     </h3>
-                    <p style="font-size:.73rem;color:#94A3B8;margin-bottom:.85rem;">Registro automático que demuestra cómo cambia la arquitectura ganadora según las variables de entrada:</p>
+                    <p style="font-size:.73rem;color:#94A3B8;margin-bottom:.85rem;">Registro automÃ¡tico que demuestra cÃ³mo cambia la arquitectura ganadora segÃºn las variables de entrada:</p>
                     <table style="width:100%;border-collapse:collapse;font-size:.72rem;text-align:left;">
                         <thead>
                             <tr style="border-bottom:1px solid rgba(148,163,184,.2);color:#94A3B8;text-transform:uppercase;">
@@ -1773,11 +1793,11 @@
                                 <th style="padding:.45rem .65rem;">Monolito</th>
                                 <th style="padding:.45rem .65rem;">Micros K8s</th>
                                 <th style="padding:.45rem .65rem;">EDA Eventos</th>
-                                <th style="padding:.45rem .65rem;">Decisión Recomendada</th>
+                                <th style="padding:.45rem .65rem;">DecisiÃ³n Recomendada</th>
                             </tr>
                         </thead>
                         <tbody id="sim-scenarios-history-tbody">
-                            <!-- Renderizado dinámico -->
+                            <!-- Renderizado dinÃ¡mico -->
                         </tbody>
                     </table>
                 </div>
@@ -1791,7 +1811,7 @@
                 <table style="width:100%;border-collapse:collapse;font-size:.76rem;text-align:left;">
                     <thead>
                         <tr style="border-bottom:1px solid rgba(148,163,184,.25);color:#94A3B8;text-transform:uppercase;font-size:.68rem;">
-                            <th style="padding:.65rem .75rem;">Alternativa Arquitectónica</th>
+                            <th style="padding:.65rem .75rem;">Alternativa ArquitectÃ³nica</th>
                             <th style="padding:.65rem .75rem;">Latencia P95</th>
                             <th style="padding:.65rem .75rem;">Throughput / Cap.</th>
                             <th style="padding:.65rem .75rem;">Escalabilidad</th>
@@ -1803,38 +1823,38 @@
                         </tr>
                     </thead>
                     <tbody id="sim-comparison-tbody">
-                        <!-- Renderizado dinámico -->
+                        <!-- Renderizado dinÃ¡mico -->
                     </tbody>
                 </table>
             </div>
 
             <!-- ============================================================
-                 BLOQUE 4, 10 Y 11: DOCUMENTACIÓN DEL MODELO MATEMÁTICO, PRUEBAS Y VALIDACIÓN REAL
+                 BLOQUE 4, 10 Y 11: DOCUMENTACIÃ“N DEL MODELO MATEMÃTICO, PRUEBAS Y VALIDACIÃ“N REAL
             ============================================================ -->
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;">
                 
-                <!-- 4 & 11. Ecuaciones, Parámetros, Supuestos y Validación en Aplicación Real -->
+                <!-- 4 & 11. Ecuaciones, ParÃ¡metros, Supuestos y ValidaciÃ³n en AplicaciÃ³n Real -->
                 <div class="glow-card" style="padding:1.5rem;">
                     <h3 style="font-size:.95rem;font-weight:800;color:#fff;margin:0 0 .85rem 0;display:flex;align-items:center;gap:.5rem;">
-                        <i class="fa-solid fa-square-root-variable" style="color:#38BDF8;"></i> 4 y 11. Modelo Matemático, Fórmulas y Validación Empírica
+                        <i class="fa-solid fa-square-root-variable" style="color:#38BDF8;"></i> 4 y 11. Modelo MatemÃ¡tico, FÃ³rmulas y ValidaciÃ³n EmpÃ­rica
                     </h3>
                     <div style="display:flex;flex-direction:column;gap:.65rem;font-size:.75rem;color:#CBD5E1;line-height:1.55;">
                         <div style="padding:.6rem .75rem;background:rgba(9,13,22,.7);border-radius:.5rem;border-left:3px solid #38BDF8;">
-                            <strong style="color:#fff;display:block;">Ecuación 1 — Tasa de Llegada y Servicio Base:</strong>
-                            <code>λ = (U / 12) × B</code> &nbsp;|&nbsp; <code>T_base = (45 + 1.45·N_files + 26·S_MB + T_IA) × α_arq</code>
+                            <strong style="color:#fff;display:block;">EcuaciÃ³n 1 â€” Tasa de Llegada y Servicio Base:</strong>
+                            <code>Î» = (U / 12) Ã— B</code> &nbsp;|&nbsp; <code>T_base = (45 + 1.45Â·N_files + 26Â·S_MB + T_IA) Ã— Î±_arq</code>
                         </div>
                         <div style="padding:.6rem .75rem;background:rgba(9,13,22,.7);border-radius:.5rem;border-left:3px solid #818CF8;">
-                            <strong style="color:#fff;display:block;">Ecuación 2 — Penalización de Red Inter-Servicio (Al-Debagy &amp; Martinek):</strong>
-                            <code>T_net = H_hops × (L_hop + 2.8·S_MB + 0.04·N_files)</code>
-                            <div style="font-size:.68rem;color:#94A3B8;margin-top:.2rem;">Monolito: H=0 saltos (0 ms) | Microservicios K8s: H=4 saltos | EDA Eventos: H=3 saltos asíncronos.</div>
+                            <strong style="color:#fff;display:block;">EcuaciÃ³n 2 â€” PenalizaciÃ³n de Red Inter-Servicio (Al-Debagy &amp; Martinek):</strong>
+                            <code>T_net = H_hops Ã— (L_hop + 2.8Â·S_MB + 0.04Â·N_files)</code>
+                            <div style="font-size:.68rem;color:#94A3B8;margin-top:.2rem;">Monolito: H=0 saltos (0 ms) | Microservicios K8s: H=4 saltos | EDA Eventos: H=3 saltos asÃ­ncronos.</div>
                         </div>
                         <div style="padding:.6rem .75rem;background:rgba(9,13,22,.7);border-radius:.5rem;border-left:3px solid #34D399;">
-                            <strong style="color:#fff;display:block;">Ecuación 3 — Cola M/M/c No Lineal y Decisión Multicriterio (SAW):</strong>
-                            <code>ρ = λ / (c × μ_nodo)</code> &nbsp;|&nbsp; <code>Score = Σ(w_i · Indicador_i) - Penalización_Restricciones</code>
+                            <strong style="color:#fff;display:block;">EcuaciÃ³n 3 â€” Cola M/M/c No Lineal y DecisiÃ³n Multicriterio (SAW):</strong>
+                            <code>Ï = Î» / (c Ã— Î¼_nodo)</code> &nbsp;|&nbsp; <code>Score = Î£(w_i Â· Indicador_i) - PenalizaciÃ³n_Restricciones</code>
                         </div>
                         <div style="padding:.65rem .75rem;background:rgba(56,189,248,.06);border-radius:.5rem;border:1px solid rgba(56,189,248,.2);">
-                            <strong style="color:#38BDF8;display:block;margin-bottom:.25rem;"><i class="fa-solid fa-flask-vial" style="margin-right:.35rem;"></i>¿Qué información adicional se requiere para validar en la aplicación real?</strong>
-                            1) Ejecutar planes de prueba en <strong>Apache JMeter / k6</strong> con archivos PDF y repositorios ZIP reales midiendo P95/P99; 2) Recolectar telemetría APM (Prometheus / OpenTelemetry) del Event-Loop Lag en Node.js; y 3) Medir costos reales de facturación Cloud y latencia de red VPC entre contenedores bajo carga sostenida de 24 horas.
+                            <strong style="color:#38BDF8;display:block;margin-bottom:.25rem;"><i class="fa-solid fa-flask-vial" style="margin-right:.35rem;"></i>Â¿QuÃ© informaciÃ³n adicional se requiere para validar en la aplicaciÃ³n real?</strong>
+                            1) Ejecutar planes de prueba en <strong>Apache JMeter / k6</strong> con archivos PDF y repositorios ZIP reales midiendo P95/P99; 2) Recolectar telemetrÃ­a APM (Prometheus / OpenTelemetry) del Event-Loop Lag en Node.js; y 3) Medir costos reales de facturaciÃ³n Cloud y latencia de red VPC entre contenedores bajo carga sostenida de 24 horas.
                         </div>
                     </div>
                 </div>
@@ -1852,8 +1872,8 @@
                     <div style="display:flex;flex-direction:column;gap:.55rem;font-size:.73rem;">
                         <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
                             <div style="flex:1;min-width:220px;">
-                                <strong style="color:#38BDF8;">Prueba 1 (TEST-SIM-01) — Ventaja Monolítica en Nodo Único:</strong>
-                                <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito logra menor latencia (168 ms vs 219 ms Microservicios) y menor RAM (212 MB), validando la literatura científica.</span>
+                                <strong style="color:#38BDF8;">Prueba 1 (TEST-SIM-01) â€” Ventaja MonolÃ­tica en Nodo Ãšnico:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito logra menor latencia (168 ms vs 219 ms Microservicios) y menor RAM (212 MB), validando la literatura cientÃ­fica.</span>
                             </div>
                             <button type="button" data-sim-test-case="1" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(56,189,248,.4);color:#38BDF8;flex-shrink:0;">
                                 <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #1
@@ -1861,8 +1881,8 @@
                         </div>
                         <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
                             <div style="flex:1;min-width:220px;">
-                                <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) — Saturación del Event-Loop y Escalado K8s:</strong>
-                                <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El Monolito satura su cola (>100% ρ), mientras Microservicios escala horizontalmente a 6 pods manteniendo SLA >99.8%.</span>
+                                <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) â€” SaturaciÃ³n del Event-Loop y Escalado K8s:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El Monolito satura su cola (>100% Ï), mientras Microservicios escala horizontalmente a 6 pods manteniendo SLA >99.8%.</span>
                             </div>
                             <button type="button" data-sim-test-case="2" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(129,140,248,.4);color:#818CF8;flex-shrink:0;">
                                 <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #2
@@ -1870,8 +1890,8 @@
                         </div>
                         <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
                             <div style="flex:1;min-width:220px;">
-                                <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) — Resiliencia EDA bajo Estrés Extremo JMeter:</strong>
-                                <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, N=420, Ráfaga=2.5x. Resultado verificado: EDA absorbe la ráfaga con 14 workers asíncronos y logra la máxima disponibilidad (99.88%).</span>
+                                <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) â€” Resiliencia EDA bajo EstrÃ©s Extremo JMeter:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, N=420, RÃ¡faga=2.5x. Resultado verificado: EDA absorbe la rÃ¡faga con 14 workers asÃ­ncronos y logra la mÃ¡xima disponibilidad (99.88%).</span>
                             </div>
                             <button type="button" data-sim-test-case="3" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(52,211,153,.4);color:#34D399;flex-shrink:0;">
                                 <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #3
@@ -1879,8 +1899,8 @@
                         </div>
                         <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
                             <div style="flex:1;min-width:220px;">
-                                <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) — Penalización por Restricción de Presupuesto:</strong>
-                                <span style="color:#94A3B8;display:block;">Entrada: Presupuesto Máximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricción financiera del proyecto.</span>
+                                <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) â€” PenalizaciÃ³n por RestricciÃ³n de Presupuesto:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: Presupuesto MÃ¡ximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricciÃ³n financiera del proyecto.</span>
                             </div>
                             <button type="button" data-sim-test-case="4" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(251,191,36,.4);color:#FBBF24;flex-shrink:0;">
                                 <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #4
@@ -1888,8 +1908,8 @@
                         </div>
                         <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
                             <div style="flex:1;min-width:220px;">
-                                <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) — Rechazo Determinista de Entradas Inválidas:</strong>
-                                <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecución y despliega alerta de control (HTTP 400 / UI Alert).</span>
+                                <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) â€” Rechazo Determinista de Entradas InvÃ¡lidas:</strong>
+                                <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecuciÃ³n y despliega alerta de control (HTTP 400 / UI Alert).</span>
                             </div>
                             <button type="button" data-sim-test-case="5" class="btn-ghost" style="padding:.3rem .65rem;font-size:.68rem;border-color:rgba(251,113,133,.4);color:#FB7185;flex-shrink:0;">
                                 <i class="fa-solid fa-play" style="margin-right:.25rem;"></i>Probar #5
@@ -2028,8 +2048,8 @@
         <div class="container">
             <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-shield-halved"></i> Acceso y Licenciamiento Institucional</span>
-                <h2 class="section-title">Obtén tu <span class="gradient-text">Llave de Acceso</span></h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Genera tu credencial de acceso oficial a Document-Mind AI para tu equipo de ingeniería.</p>
+                <h2 class="section-title">ObtÃ©n tu <span class="gradient-text">Llave de Acceso</span></h2>
+                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Genera tu credencial de acceso oficial a Document-Mind AI para tu equipo de ingenierÃ­a.</p>
             </div>
             <div class="registro-grid-container reveal reveal-delay-1" id="registro-grid">
                 <div class="glow-card" style="padding:2rem;">
@@ -2212,7 +2232,7 @@
                         </div>
                     </div>
 
-                    <!-- Institución Académica -->
+                    <!-- InstituciÃ³n AcadÃ©mica -->
                     <div class="contact-item" style="justify-content:space-between;align-items:center;">
                         <div style="display:flex;align-items:center;gap:.75rem;">
                             <div class="contact-icon" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:#34D399;"><i class="fa-solid fa-building-columns"></i></div>
@@ -2234,10 +2254,10 @@
                 <div class="glow-card glow-card-purple" style="padding:2.25rem;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1.35rem;">
                     <div style="width:3rem;height:3rem;border-radius:.75rem;background:linear-gradient(135deg,rgba(56,189,248,.2),rgba(129,140,248,.2));border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;font-size:1.25rem;color:var(--tech-cyan);"><i class="fa-solid fa-brain"></i></div>
                     <div>
-                        <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Analiza tu código y documentos ahora</h3>
-                        <p style="font-size:.82rem;color:#64748B;line-height:1.65;">Analiza documentos técnicos o repositorios GitHub y descubre cómo Document-Mind AI transforma la documentación de tu equipo.</p>
+                        <h3 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Analiza tu cÃ³digo y documentos ahora</h3>
+                        <p style="font-size:.82rem;color:#64748B;line-height:1.65;">Analiza documentos tÃ©cnicos o repositorios GitHub y descubre cÃ³mo Document-Mind AI transforma la documentaciÃ³n de tu equipo.</p>
                     </div>
-                    <a href="#analizador" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Comenzar Análisis Ahora &rarr;</a>
+                    <a href="#analizador" class="btn-cyber" style="width:100%;padding:.9rem;justify-content:center;font-size:.9rem;"><i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>Comenzar AnÃ¡lisis Ahora &rarr;</a>
                     <a href="#registro" class="btn-cyber-outline" style="width:100%;padding:.9rem;justify-content:center;font-size:.85rem;"><i class="fa-solid fa-key" style="margin-right:.5rem;font-size:.75rem;color:var(--tech-cyan);"></i>Obtener Llave de Acceso</a>
                 </div>
             </div>
@@ -2269,6 +2289,16 @@
                         <li><a href="#analizador" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Analizador de IA</a></li>
                         <li><a href="#infografia" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Infografia UX/UI</a></li>
                         <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Legal &amp; Privacidad</h5>
+                    <ul style="display:flex;flex-direction:column;gap:.6rem;list-style:none;">
+                        <li><a href="#" id="link-footer-terms" style="font-size:.78rem;color:#64748B;">TÃ©rminos y Condiciones</a></li>
+                        <li><a href="#" id="link-footer-privacy" style="font-size:.78rem;color:#64748B;">PolÃ­tica de Privacidad</a></li>
+                        <li><a href="#" id="link-footer-data" style="font-size:.78rem;color:#64748B;">Tratamiento de Datos (Ley 1581)</a></li>
+                        <li><a href="#" id="link-footer-cookies" style="font-size:.78rem;color:#64748B;">PolÃ­tica de Cookies</a></li>
+                        <li><a href="#" id="link-footer-delete" style="font-size:.78rem;color:#64748B;">EliminaciÃ³n de Cuenta</a></li>
                     </ul>
                 </div>
                 <div>
@@ -2333,7 +2363,7 @@
     </script>
 
     <!-- ============================================================
-         CYBERPUNK AUTH MODAL (SUPABASE LOGIN / REGISTRO / RECUPERACIÓN)
+         CYBERPUNK AUTH MODAL (SUPABASE LOGIN / REGISTRO / RECUPERACIÃ“N)
     ============================================================ -->
     <div id="auth-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="auth-modal-backdrop" id="auth-modal-backdrop"></div>
@@ -2346,7 +2376,7 @@
                     </div>
                     <div>
                         <h3 id="auth-modal-title" style="font-size:1.05rem;font-weight:800;color:#fff;margin:0;">Acceso a la Plataforma</h3>
-                        <span style="font-size:.68rem;color:#64748B;font-family:'JetBrains Mono',monospace;">Autenticación Segura &bull; Supabase Cloud</span>
+                        <span style="font-size:.68rem;color:#64748B;font-family:'JetBrains Mono',monospace;">AutenticaciÃ³n Segura &bull; Supabase Cloud</span>
                     </div>
                 </div>
                 <button type="button" id="btn-close-auth-modal" class="auth-modal-close" aria-label="Cerrar modal">
@@ -2357,13 +2387,13 @@
             <!-- Supabase Unconfigured Alert (shows only if keys missing) -->
             <div id="auth-unconfigured-alert" style="display:none;margin-top:1.15rem;padding:.85rem 1rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:.65rem;font-size:.74rem;color:#FBBF24;line-height:1.5;">
                 <i class="fa-solid fa-triangle-exclamation" style="margin-right:.4rem;"></i>
-                <strong>Supabase pendiente de configuración:</strong> Agrega <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> a tu archivo <code>.env</code> para habilitar la sincronización en la nube.
+                <strong>Supabase pendiente de configuraciÃ³n:</strong> Agrega <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code> a tu archivo <code>.env</code> para habilitar la sincronizaciÃ³n en la nube.
             </div>
 
             <!-- Auth Mode Switcher Tabs -->
             <div class="auth-tabs" role="tablist" style="margin-top:1.25rem;">
                 <button type="button" id="auth-tab-login" class="auth-tab-btn active" role="tab" aria-selected="true">
-                    <i class="fa-solid fa-right-to-bracket" style="margin-right:.35rem;"></i>Iniciar Sesión
+                    <i class="fa-solid fa-right-to-bracket" style="margin-right:.35rem;"></i>Iniciar SesiÃ³n
                 </button>
                 <button type="button" id="auth-tab-signup" class="auth-tab-btn" role="tab" aria-selected="false">
                     <i class="fa-solid fa-user-plus" style="margin-right:.35rem;"></i>Crear Cuenta
@@ -2373,7 +2403,7 @@
             <!-- Form Message / Alert Container -->
             <div id="auth-alert-box" style="display:none;margin:1rem 0;padding:.75rem 1rem;border-radius:.6rem;font-size:.78rem;line-height:1.5;"></div>
 
-            <!-- Form: Iniciar Sesión / Registro -->
+            <!-- Form: Iniciar SesiÃ³n / Registro -->
             <form id="auth-form" style="margin-top:1rem;">
                 <!-- Full Name (Only for Signup) -->
                 <div id="auth-field-fullname" class="auth-field-group" style="display:none;margin-bottom:1rem;">
@@ -2386,7 +2416,7 @@
 
                 <!-- Email -->
                 <div class="auth-field-group" style="margin-bottom:1rem;">
-                    <label for="auth-email" class="auth-label">Correo Electrónico</label>
+                    <label for="auth-email" class="auth-label">Correo ElectrÃ³nico</label>
                     <div class="auth-input-wrapper">
                         <i class="fa-solid fa-envelope auth-input-icon"></i>
                         <input type="email" id="auth-email" class="auth-input" placeholder="tu@correo.com" required autocomplete="email">
@@ -2396,13 +2426,13 @@
                 <!-- Password -->
                 <div class="auth-field-group" style="margin-bottom:1.25rem;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;">
-                        <label for="auth-password" class="auth-label" style="margin-bottom:0;">Contraseña</label>
-                        <button type="button" id="btn-toggle-forgot" style="background:none;border:none;color:var(--tech-cyan);font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;">¿Olvidaste tu clave?</button>
+                        <label for="auth-password" class="auth-label" style="margin-bottom:0;">ContraseÃ±a</label>
+                        <button type="button" id="btn-toggle-forgot" style="background:none;border:none;color:var(--tech-cyan);font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;">Â¿Olvidaste tu clave?</button>
                     </div>
                     <div class="auth-input-wrapper">
                         <i class="fa-solid fa-lock auth-input-icon"></i>
-                        <input type="password" id="auth-password" class="auth-input" placeholder="••••••••" required autocomplete="current-password" minlength="6">
-                        <button type="button" id="btn-toggle-pwd" class="auth-pwd-toggle" aria-label="Mostrar contraseña">
+                        <input type="password" id="auth-password" class="auth-input" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required autocomplete="current-password" minlength="6">
+                        <button type="button" id="btn-toggle-pwd" class="auth-pwd-toggle" aria-label="Mostrar contraseÃ±a">
                             <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
@@ -2411,18 +2441,18 @@
                 <!-- Submit Button -->
                 <button type="submit" id="btn-auth-submit" class="btn-cyber" style="width:100%;padding:.8rem 1.25rem;font-size:.88rem;justify-content:center;">
                     <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:.45rem;"></i>
-                    <span id="auth-submit-label">Iniciar Sesión</span>
+                    <span id="auth-submit-label">Iniciar SesiÃ³n</span>
                 </button>
             </form>
 
             <!-- Social OAuth Divider & Providers -->
             <div id="oauth-container">
                 <div class="auth-divider">
-                    <span>O continúa con</span>
+                    <span>O continÃºa con</span>
                 </div>
 
                 <div class="oauth-buttons-grid">
-                    <button type="button" id="btn-oauth-google" class="btn-cyber-oauth" aria-label="Iniciar sesión con Google">
+                    <button type="button" id="btn-oauth-google" class="btn-cyber-oauth" aria-label="Iniciar sesiÃ³n con Google">
                         <i class="fa-brands fa-google" style="color:#EA4335;"></i>
                         <span>Continuar con Google</span>
                     </button>
@@ -2432,7 +2462,7 @@
 
             <!-- Forgot Password Mini-Form -->
             <form id="forgot-form" style="display:none;margin-top:1.25rem;">
-                <p style="font-size:.8rem;color:#94A3B8;margin-bottom:1rem;line-height:1.6;">Ingresa tu correo registrado y te enviaremos un enlace seguro vía Supabase Auth para restablecer tu contraseña.</p>
+                <p style="font-size:.8rem;color:#94A3B8;margin-bottom:1rem;line-height:1.6;">Ingresa tu correo registrado y te enviaremos un enlace seguro vÃ­a Supabase Auth para restablecer tu contraseÃ±a.</p>
                 <div class="auth-field-group" style="margin-bottom:1.25rem;">
                     <label for="forgot-email" class="auth-label">Correo Registrado</label>
                     <div class="auth-input-wrapper">
@@ -2450,14 +2480,170 @@
 
             <div class="auth-modal-footer">
                 <i class="fa-solid fa-shield-halved" style="color:var(--tech-cyan);margin-right:.35rem;"></i>
-                Seguridad criptográfica JWT con políticas Row Level Security (RLS) en PostgreSQL.
+                Seguridad criptogrÃ¡fica JWT con polÃ­ticas Row Level Security (RLS) en PostgreSQL.
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================================
+         MODAL 1: INTEGRATIONS & CLOUD HEALTH STATUS
+    ============================================================ -->
+    <div id="integrations-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="integrations-modal-title">
+        <div class="auth-modal-backdrop" id="integrations-modal-backdrop"></div>
+        <div class="auth-card-cyber" style="max-width:580px;">
+            <div class="auth-modal-header">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.6rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:.95rem;">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <div>
+                        <h3 id="integrations-modal-title" style="font-size:1.05rem;font-weight:800;color:#FFFFFF;margin:0;">Panel de Integraciones &amp; Servicios</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Estado operacional en tiempo real de infraestructura Cloud e IA</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-integrations" class="auth-modal-close" aria-label="Cerrar modal de integraciones">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div id="integrations-cards-container" style="display:flex;flex-direction:column;gap:.85rem;margin-top:1.25rem;">
+                <div style="text-align:center;padding:1.5rem;color:#94A3B8;font-size:.82rem;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="margin-right:.4rem;color:var(--tech-cyan);"></i> Verificando servicios...
+                </div>
+            </div>
+
+            <div style="margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;padding-top:.85rem;border-top:1px solid rgba(129,140,248,.14);">
+                <span id="integrations-last-check" style="font-size:.68rem;color:#64748B;font-family:'JetBrains Mono',monospace;">Ãšltima verificaciÃ³n: --</span>
+                <button type="button" id="btn-refresh-integrations" class="btn-ghost" style="padding:.35rem .75rem;font-size:.72rem;">
+                    <i class="fa-solid fa-rotate" style="margin-right:.3rem;"></i>Refrescar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 2: AI CODE MODIFICATION & PATCH ENGINE
+    ============================================================ -->
+    <div id="modify-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modify-modal-title">
+        <div class="auth-modal-backdrop" id="modify-modal-backdrop"></div>
+        <div class="auth-card-cyber" style="max-width:720px;max-height:90vh;overflow-y:auto;">
+            <div class="auth-modal-header">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.6rem;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;color:#34D399;font-size:.95rem;">
+                        <i class="fa-solid fa-code-pull-request"></i>
+                    </div>
+                    <div>
+                        <h3 id="modify-modal-title" style="font-size:1.05rem;font-weight:800;color:#FFFFFF;margin:0;">ModificaciÃ³n de CÃ³digo Asistida por IA</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">GeneraciÃ³n de planes, cÃ³digo modificado y parches Git (.patch / .zip)</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-modify" class="auth-modal-close" aria-label="Cerrar modal de modificaciÃ³n">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div style="margin-top:1.25rem;">
+                <label for="modify-prompt-input" style="display:block;font-size:.75rem;font-weight:700;color:#CBD5E1;margin-bottom:.45rem;">
+                    Â¿QuÃ© modificaciÃ³n deseas incorporar al proyecto?
+                </label>
+                <textarea id="modify-prompt-input" class="input-cyber" rows="3" style="height:auto;padding:.85rem;resize:vertical;font-size:.82rem;font-family:'JetBrains Mono',monospace;" placeholder="Ej. Agrega recuperaciÃ³n de contraseÃ±a al mÃ³dulo de autenticaciÃ³n con expiraciÃ³n de 15 minutos y actualiza la documentaciÃ³n."></textarea>
+                
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.85rem;flex-wrap:wrap;gap:.5rem;">
+                    <span style="font-size:.7rem;color:#64748B;">DocuMind analizarÃ¡ el contexto real, validarÃ¡ sintaxis y generarÃ¡ el diff.</span>
+                    <button type="button" id="btn-generate-modification" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.82rem;">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.4rem;"></i>Generar ModificaciÃ³n
+                    </button>
+                </div>
+            </div>
+
+            <div id="modify-results-container" style="display:none;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.16);">
+                <div id="modify-plan-box" style="padding:1rem;background:rgba(9,13,22,.85);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;margin-bottom:1rem;font-size:.8rem;line-height:1.6;color:#E2E8F0;"></div>
+                
+                <div style="margin-bottom:1rem;">
+                    <h5 style="font-size:.78rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;">Vista Previa del Parche Unificado (Git Diff):</h5>
+                    <pre id="modify-diff-preview" style="background:#090D16;padding:1rem;border-radius:.65rem;border:1px solid rgba(129,140,248,.18);color:#38BDF8;font-size:.75rem;overflow-x:auto;max-height:220px;font-family:'JetBrains Mono',monospace;line-height:1.45;"></pre>
+                </div>
+
+                <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:flex-end;">
+                    <a id="btn-download-patch-file" href="#" class="btn-cyber-outline" style="padding:.6rem 1.15rem;font-size:.8rem;">
+                        <i class="fa-solid fa-file-code" style="margin-right:.35rem;"></i>Descargar Parche (.patch)
+                    </a>
+                    <a id="btn-download-patch-zip" href="#" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.8rem;">
+                        <i class="fa-solid fa-file-zipper" style="margin-right:.35rem;"></i>Descargar Paquete (.ZIP)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 3: GITHUB SYNC & DRIFT DETECTION
+    ============================================================ -->
+    <div id="sync-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sync-modal-title">
+        <div class="auth-modal-backdrop" id="sync-modal-backdrop"></div>
+        <div class="auth-card-cyber" style="max-width:620px;">
+            <div class="auth-modal-header">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.6rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:.95rem;">
+                        <i class="fa-solid fa-rotate"></i>
+                    </div>
+                    <div>
+                        <h3 id="sync-modal-title" style="font-size:1.05rem;font-weight:800;color:#FFFFFF;margin:0;">SincronizaciÃ³n de Repositorio PÃºblico</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">DetecciÃ³n de nuevos commits y desviaciÃ³n (Drift) documental</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-sync" class="auth-modal-close" aria-label="Cerrar modal de sincronizaciÃ³n">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="sync-content-container" style="margin-top:1.25rem;">
+                <div style="text-align:center;padding:1.5rem;color:#94A3B8;font-size:.82rem;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="margin-right:.4rem;color:var(--tech-cyan);"></i> Consultando commits en GitHub...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL 4: TÃ‰RMINOS LEGALES, PRIVACIDAD & LEY 1581 (COLOMBIA)
+    ============================================================ -->
+    <div id="legal-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+        <div class="auth-modal-backdrop" id="legal-modal-backdrop"></div>
+        <div class="auth-card-cyber" style="max-width:760px;max-height:88vh;overflow-y:auto;">
+            <div class="auth-modal-header">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.6rem;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;color:#818CF8;font-size:.95rem;">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h3 id="legal-modal-title" style="font-size:1.05rem;font-weight:800;color:#FFFFFF;margin:0;">Marco Legal &amp; PolÃ­ticas de Privacidad</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Cumplimiento regulatorio, protecciÃ³n de datos (Ley 1581 de 2012) y tÃ©rminos</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-legal" class="auth-modal-close" aria-label="Cerrar modal legal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="auth-tabs" style="margin-top:1.25rem;">
+                <button type="button" id="legal-tab-terms" class="auth-tab-btn active">TÃ©rminos de Servicio</button>
+                <button type="button" id="legal-tab-privacy" class="auth-tab-btn">Privacidad &amp; IA</button>
+                <button type="button" id="legal-tab-data" class="auth-tab-btn">Ley 1581 (Colombia)</button>
+                <button type="button" id="legal-tab-delete" class="auth-tab-btn" style="color:#FB7185;">Eliminar Datos</button>
+            </div>
+
+            <div id="legal-body-container" style="margin-top:1.25rem;font-size:.82rem;line-height:1.7;color:#CBD5E1;max-height:50vh;overflow-y:auto;padding-right:.5rem;">
+                <!-- Dynamically loaded legal section -->
             </div>
         </div>
     </div>
 
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=5.2"></script>
-    <script src="app.js?v=5.3"></script>
+    <script src="app.js?v=5.4"></script>
     <script src="js/architecture-simulator.js?v=3.3"></script>
 </body>
 </html>
+

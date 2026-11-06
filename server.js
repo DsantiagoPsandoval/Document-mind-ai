@@ -51,6 +51,12 @@ const {
     generateSimulationMarkdownReport
 } = require('./services/simulator/architectureSimulator');
 
+const { getBranchList, checkRepoUpdate, calculateRepoDrift } = require('./services/github/syncService');
+const { generateCodeModification, createModificationZip } = require('./services/code/codeModificationService');
+const { getIntegrationsStatus } = require('./services/integrations/statusService');
+
+const modificationCache = new Map();
+
 const app = express();
 
 // ============================================================
@@ -187,7 +193,8 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
 
         // Mode A: GitHub Repository
         if (repoUrl && typeof repoUrl === 'string' && repoUrl.trim().length > 5) {
-            projectData = await fetchAndAnalyzeRepo(repoUrl.trim());
+            const targetBranch = req.body.branch ? String(req.body.branch).trim() : null;
+            projectData = await fetchAndAnalyzeRepo(repoUrl.trim(), targetBranch);
         } 
         // Mode B: Uploaded Files or Manual Context (with SafeZip & Anti-Traversal)
         else if (req.files && req.files.length > 0) {
@@ -643,7 +650,7 @@ app.post('/api/documents/chat', async (req, res, next) => {
  */
 app.post('/api/github/analyze', async (req, res, next) => {
     try {
-        const { repoUrl } = req.body;
+        const { repoUrl, branch } = req.body;
 
         if (!repoUrl || typeof repoUrl !== 'string' || repoUrl.trim() === '') {
             return res.status(400).json({
@@ -652,7 +659,7 @@ app.post('/api/github/analyze', async (req, res, next) => {
             });
         }
 
-        const repoData = await fetchAndAnalyzeRepo(repoUrl.trim());
+        const repoData = await fetchAndAnalyzeRepo(repoUrl.trim(), branch ? String(branch).trim() : null);
         const security = await runSecurityAnalysis(repoData);
         repoData.security = security;
         const analysis = await analyzeRepository(repoData);
@@ -735,6 +742,165 @@ app.post('/api/github/chat', async (req, res, next) => {
             model: result.model || null,
             notice: result.notice || null
         });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// ============================================================
+// GITHUB BRANCHES, SYNC & DRIFT DETECTION ENDPOINTS
+// ============================================================
+
+/**
+ * GET /api/github/branches
+ * Lists available branches of a public repository.
+ */
+app.get('/api/github/branches', async (req, res, next) => {
+    try {
+        const repoUrl = req.query.repoUrl;
+        if (!repoUrl) {
+            return res.status(400).json({ success: false, error: 'Parámetro repoUrl requerido.' });
+        }
+        const data = await getBranchList(repoUrl);
+        res.json({ success: true, ...data });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * POST /api/github/sync/check
+ * Checks if a public repo has newer commits compared to lastKnownSha.
+ */
+app.post('/api/github/sync/check', async (req, res, next) => {
+    try {
+        const { repoUrl, lastKnownSha, branch } = req.body;
+        if (!repoUrl) {
+            return res.status(400).json({ success: false, error: 'Parámetro repoUrl requerido.' });
+        }
+        const data = await checkRepoUpdate(repoUrl, lastKnownSha, branch);
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * POST /api/github/sync/drift
+ * Computes architectural and document drift between two analysis snapshots.
+ */
+app.post('/api/github/sync/drift', (req, res, next) => {
+    try {
+        const { oldAnalysis, newAnalysis } = req.body;
+        const drift = calculateRepoDrift(oldAnalysis, newAnalysis);
+        res.json({ success: true, ...drift });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// ============================================================
+// AI CODE MODIFICATION & PATCH GENERATION ENDPOINTS
+// ============================================================
+
+/**
+ * POST /api/project/modify
+ * Takes a natural language instruction and generates code modifications + git patch.
+ */
+app.post('/api/project/modify', async (req, res, next) => {
+    try {
+        const { instruction, projectId, projectContext } = req.body;
+        if (!instruction || typeof instruction !== 'string' || instruction.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                error: 'Por favor ingresa una instrucción clara de modificación en lenguaje natural.'
+            });
+        }
+
+        const ctx = (projectId ? getCachedAnalysis(projectId) : null) || projectContext || {};
+        const modification = await generateCodeModification({
+            instruction: instruction.trim(),
+            projectContext: ctx
+        });
+
+        const modId = 'mod_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+        modificationCache.set(modId, {
+            ...modification,
+            instruction: instruction.trim(),
+            projectName: ctx.projectName || 'proyecto',
+            createdAt: new Date().toISOString()
+        });
+
+        res.json({
+            success: true,
+            modificationId: modId,
+            plan: modification.plan,
+            explanation: modification.explanation,
+            modifiedFiles: modification.modifiedFiles.map(f => ({
+                path: f.path,
+                syntaxOk: f.syntaxOk,
+                syntaxError: f.syntaxError,
+                modifiedPreview: (f.modifiedContent || '').substring(0, 500)
+            })),
+            unifiedPatch: modification.unifiedPatch,
+            engine: modification.engine
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /api/project/export/patch-zip/:modificationId
+ * Downloads complete modification package (patch, modified files, instructions).
+ */
+app.get('/api/project/export/patch-zip/:modificationId', async (req, res, next) => {
+    try {
+        const mod = modificationCache.get(req.params.modificationId);
+        if (!mod) {
+            return res.status(404).json({ success: false, error: 'La modificación solicitada no fue encontrada o ha expirado.' });
+        }
+        const buffer = await createModificationZip(mod, mod.projectName);
+        const cleanName = (mod.projectName || 'proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_modificaciones.zip"`);
+        res.send(buffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * GET /api/project/export/patch-file/:modificationId
+ * Downloads standalone unified .patch file for `git apply`.
+ */
+app.get('/api/project/export/patch-file/:modificationId', (req, res, next) => {
+    try {
+        const mod = modificationCache.get(req.params.modificationId);
+        if (!mod) {
+            return res.status(404).json({ success: false, error: 'El parche solicitado no fue encontrado o ha expirado.' });
+        }
+        const cleanName = (mod.projectName || 'proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        res.setHeader('Content-Type', 'text/x-diff; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_cambios.patch"`);
+        res.send(mod.unifiedPatch);
+    } catch (err) {
+        next(err);
+    }
+});
+
+// ============================================================
+// INTEGRATIONS HEALTH STATUS ENDPOINT
+// ============================================================
+
+/**
+ * GET /api/integrations/status
+ * Returns verified operational status of Supabase, Gemini, Render, and GitHub Public API.
+ */
+app.get('/api/integrations/status', async (req, res, next) => {
+    try {
+        const status = await getIntegrationsStatus();
+        res.json({ success: true, ...status });
     } catch (err) {
         next(err);
     }
