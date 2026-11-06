@@ -19,7 +19,8 @@ const {
     chatWithDocument,
     analyzeRepository,
     chatWithRepository,
-    getGenAIClient
+    getGenAIClient,
+    getAiDiagnostics
 } = require('./services/ai/gemini');
 const { setCachedAnalysis, getCachedAnalysis, getTargetedChatContext, compareAnalyses } = require('./services/analyzer/cacheService');
 const { createDocumentationZip } = require('./services/analyzer/exportService');
@@ -936,6 +937,20 @@ app.get('/api/integrations/status', async (req, res, next) => {
         res.json({ success: true, ...status });
     } catch (err) {
         next(err);
+    }
+});
+
+/**
+ * GET /api/ai/diagnostics
+ * Returns verified operational metrics of Gemini AI engine, token usage, latency,
+ * cache rate, and telemetry without exposing secrets.
+ */
+app.get('/api/ai/diagnostics', (req, res) => {
+    try {
+        const diagnostics = getAiDiagnostics();
+        res.json({ success: true, ...diagnostics });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

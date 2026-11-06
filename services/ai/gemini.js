@@ -3,22 +3,11 @@
  * Integrates Google Gemini 2.5 Flash via official @google/genai SDK with intelligent heuristic fallback.
  */
 
-const { GoogleGenAI } = require('@google/genai');
+const { getGenAIClient, getModelName, executeSpecializedTask, getAiDiagnostics } = require('./geminiClient');
 const { generateDocumentationSuite } = require('../analyzer/docGenerator');
 const { redactAllSecrets } = require('../analyzer/security/secretScanner');
 
-/**
- * Returns an initialized GoogleGenAI instance if GEMINI_API_KEY is present in process.env.
- */
-function getGenAIClient() {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey.trim() === '' || apiKey.trim().startsWith('tu_clave')) {
-        return null;
-    }
-    return new GoogleGenAI({ apiKey: apiKey.trim() });
-}
-
-const DEFAULT_MODEL = process.env.AI_MODEL || 'gemini-2.5-flash';
+const DEFAULT_MODEL = getModelName();
 
 // ============================================================
 // 1. DOCUMENT ANALYSIS
@@ -406,5 +395,7 @@ module.exports = {
     chatWithDocument,
     analyzeRepository,
     chatWithRepository,
-    getGenAIClient
+    getGenAIClient,
+    getAiDiagnostics,
+    executeSpecializedTask
 };
