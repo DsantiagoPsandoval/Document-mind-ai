@@ -24,6 +24,7 @@ const {
 } = require('./services/ai/gemini');
 const { setCachedAnalysis, getCachedAnalysis, getTargetedChatContext, compareAnalyses } = require('./services/analyzer/cacheService');
 const { createDocumentationZip } = require('./services/analyzer/exportService');
+const { generateWordDocumentBuffer } = require('./services/export/docxGenerator');
 const { generateDocumentationSuite } = require('./services/analyzer/docGenerator');
 const { classifyFile, computeFileHash } = require('./services/analyzer/fileClassifier');
 const { sanitizeContent } = require('./services/analyzer/sanitizer');
@@ -514,7 +515,7 @@ app.post('/api/project/chat', async (req, res, next) => {
 /**
  * Download Documentation ZIP Package Endpoint (GET /api/project/export/zip/:projectId)
  */
-app.get('/api/project/export/zip/:projectId', (req, res, next) => {
+app.get('/api/project/export/zip/:projectId', async (req, res, next) => {
     try {
         const { projectId } = req.params;
         const analysis = getCachedAnalysis(projectId);
@@ -530,10 +531,66 @@ app.get('/api/project/export/zip/:projectId', (req, res, next) => {
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_documentacion.zip"`);
 
-        const archive = createDocumentationZip(analysis);
+        let docxBuf = null;
+        try {
+            docxBuf = await generateWordDocumentBuffer(analysis, 'all');
+        } catch (docxErr) {
+            console.warn('[DocuMind Export] Word DOCX generation failed for ZIP package:', docxErr.message);
+        }
+
+        const archive = createDocumentationZip(analysis, docxBuf);
         archive.pipe(res);
         archive.finalize();
     } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Download Professional Microsoft Word Document Endpoint (GET /api/project/export/docx/:projectId)
+ */
+app.get('/api/project/export/docx/:projectId', async (req, res, next) => {
+    try {
+        const { projectId } = req.params;
+        const scope = req.query.scope || 'all';
+        const analysis = getCachedAnalysis(projectId);
+
+        if (!analysis) {
+            return res.status(404).json({
+                success: false,
+                error: 'El proyecto solicitado ha expirado o no fue encontrado en memoria. Por favor realiza el análisis nuevamente o exporta desde la vista previa.'
+            });
+        }
+
+        const docxBuffer = await generateWordDocumentBuffer(analysis, scope);
+        const cleanName = (analysis.projectName || 'DocuMind').replace(/[^a-zA-Z0-9_\-]/g, '_');
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_Documento_Word_${scope}.docx"`);
+        res.send(docxBuffer);
+    } catch (err) {
+        console.error('[DocuMind Export] Error generating DOCX for project:', err);
+        next(err);
+    }
+});
+
+/**
+ * Export Customized or In-Session Microsoft Word Document Endpoint (POST /api/project/export/docx)
+ */
+app.post('/api/project/export/docx', async (req, res, next) => {
+    try {
+        const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
+        const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
+        if (customDoc) payload.customDoc = customDoc;
+
+        const docxBuffer = await generateWordDocumentBuffer(payload, scope);
+        const cleanName = (projectName || payload.projectName || 'DocuMind').replace(/[^a-zA-Z0-9_\-]/g, '_');
+
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_Documento_Word_${scope}.docx"`);
+        res.send(docxBuffer);
+    } catch (err) {
+        console.error('[DocuMind Export] Error generating DOCX from POST payload:', err);
         next(err);
     }
 });

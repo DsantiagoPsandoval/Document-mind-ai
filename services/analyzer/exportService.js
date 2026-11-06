@@ -22,15 +22,21 @@ function getZipArchive(options = { zlib: { level: 9 } }) {
 /**
  * Creates a ZIP archive containing all generated documentation and diagrams.
  * @param {object} analysis - Complete project analysis with doc suites
+ * @param {Buffer} [docxBuffer] - Optional compiled Microsoft Word .docx buffer
  * @returns {archiver.Archiver} Active archiver stream
  */
-function createDocumentationZip(analysis) {
+function createDocumentationZip(analysis, docxBuffer = null) {
     const archive = getZipArchive({
         zlib: { level: 9 }
     });
 
     const doc = analysis.documentation || {};
     const rootFolder = 'documentacion';
+
+    // 0. Word (.docx) complete document if provided
+    if (docxBuffer && Buffer.isBuffer(docxBuffer)) {
+        archive.append(docxBuffer, { name: `${rootFolder}/Documentacion_Tecnica.docx` });
+    }
 
     // 1. Root documents
     if (doc.development && doc.development.readme) {

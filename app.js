@@ -2207,33 +2207,91 @@ if (btnOAuthGoogle) {
     }
 
     // ============================================================
-    // 17. DOCUMENTATION PREVIEW & PDF/MARKDOWN EXPORT CENTER
+    // 17. MICROSOFT WORD (.DOCX) VIEWER, EDITOR & EXPORT CENTER
     // ============================================================
     const previewModal = document.getElementById("doc-preview-modal");
     const previewPaper = document.getElementById("preview-paper-sheet");
     const previewScopeSelect = document.getElementById("preview-doc-scope");
+    const btnPreviewDownloadDocx = document.getElementById("btn-preview-download-docx");
     const btnPreviewPrint = document.getElementById("btn-preview-print");
     const btnPreviewDownloadMd = document.getElementById("btn-preview-download-md");
+    const btnPreviewEditMode = document.getElementById("btn-preview-edit-mode");
+    const btnPreviewSaveEdits = document.getElementById("btn-preview-save-edits");
+    const btnPreviewResetEdits = document.getElementById("btn-preview-reset-edits");
+    const docEditAlert = document.getElementById("doc-edit-alert");
     const btnCloseDocPreview = document.getElementById("btn-close-doc-preview");
     const previewZoomBtns = document.querySelectorAll(".preview-zoom-btn");
     const previewPageCount = document.getElementById("preview-page-count");
 
     let currentPreviewScope = "all";
+    let isEditModeActive = false;
+
+    function updateWordTocSidebar(scope = "all") {
+        const tocListEl = document.getElementById("word-toc-nav-list");
+        const tocCountEl = document.getElementById("word-toc-count");
+        if (!tocListEl || typeof DocuMindExporter === "undefined") return;
+
+        const sections = (typeof DocuMindExporter.getSectionsList === 'function')
+            ? DocuMindExporter.getSectionsList(currentAnalysisData, scope)
+            : [];
+
+        if (tocCountEl) tocCountEl.textContent = `${sections.length} cap.`;
+
+        tocListEl.innerHTML = "";
+        sections.forEach(s => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "btn-ghost";
+            btn.style.cssText = "text-align:left;padding:.42rem .65rem;border-radius:.35rem;font-size:.73rem;color:#94A3B8;display:flex;align-items:center;gap:.45rem;width:100%;transition:all .15s ease;border:1px solid transparent;background:transparent;";
+            btn.innerHTML = `<span style="width:18px;height:18px;border-radius:50%;background:#0284C7;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;">${s.num}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${s.title}</span>`;
+            
+            btn.addEventListener("click", () => {
+                tocListEl.querySelectorAll("button").forEach(b => {
+                    b.style.color = "#94A3B8";
+                    b.style.background = "transparent";
+                    b.style.borderColor = "transparent";
+                });
+                btn.style.color = "#38BDF8";
+                btn.style.background = "rgba(56,189,248,.12)";
+                btn.style.borderColor = "rgba(56,189,248,.25)";
+
+                const targetEl = document.getElementById(`section-${s.id}`);
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            });
+
+            tocListEl.appendChild(btn);
+        });
+    }
 
     function renderDocumentPreview(scope = "all") {
         if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
         currentPreviewScope = scope;
 
         if (previewPaper) {
-            const fullHtml = DocuMindExporter.buildDocumentHtml(currentAnalysisData, scope);
-            const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-            previewPaper.innerHTML = bodyMatch ? bodyMatch[1] : fullHtml;
+            // Check if there are user session edits saved
+            if (currentAnalysisData.customDoc && currentAnalysisData.customDoc.html && scope === "all") {
+                previewPaper.innerHTML = currentAnalysisData.customDoc.html;
+            } else {
+                const fullHtml = DocuMindExporter.buildDocumentHtml(currentAnalysisData, scope);
+                const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+                previewPaper.innerHTML = bodyMatch ? bodyMatch[1] : fullHtml;
+            }
+
+            if (isEditModeActive) {
+                previewPaper.setAttribute("contenteditable", "true");
+            } else {
+                previewPaper.removeAttribute("contenteditable");
+            }
         }
 
         if (previewPageCount) {
             const metrics = DocuMindExporter.analyzeLayoutQuality(currentAnalysisData, scope);
             previewPageCount.textContent = `~${metrics.pageEstimate} págs`;
         }
+
+        updateWordTocSidebar(scope);
     }
 
     function openDocPreviewModal(defaultScope = "all") {
@@ -2258,6 +2316,10 @@ if (btnOAuthGoogle) {
 
         renderDocumentPreview(defaultScope);
 
+        if (btnPreviewResetEdits) {
+            btnPreviewResetEdits.style.display = (currentAnalysisData.customDoc) ? "inline-flex" : "none";
+        }
+
         if (previewModal) {
             previewModal.style.display = "flex";
             previewModal.classList.add("active");
@@ -2277,19 +2339,114 @@ if (btnOAuthGoogle) {
         });
     }
 
+    // 1. Export Microsoft Word (.docx)
+    if (btnPreviewDownloadDocx) {
+        btnPreviewDownloadDocx.addEventListener("click", async () => {
+            if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
+            try {
+                showToast("Compilando documento formal Microsoft Word (.docx)...", "info");
+                btnPreviewDownloadDocx.disabled = true;
+                await DocuMindExporter.downloadWordDocx(currentAnalysisData, currentPreviewScope);
+                showToast("¡Documento Word (.docx) descargado con éxito!", "success");
+            } catch (err) {
+                console.error("Error exporting Word docx:", err);
+                showToast("Error al compilar documento Word: " + err.message, "error");
+            } finally {
+                btnPreviewDownloadDocx.disabled = false;
+            }
+        });
+    }
+
+    // 2. Export Print / PDF
     if (btnPreviewPrint) {
         btnPreviewPrint.addEventListener("click", () => {
             if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
             DocuMindExporter.printDocument(currentAnalysisData, currentPreviewScope);
-            showToast("Generando documento editorial listo para imprimir o guardar...", "info");
+            showToast("Generando vista de impresión lista para PDF...", "info");
         });
     }
 
+    // 3. Export Clean Markdown
     if (btnPreviewDownloadMd) {
         btnPreviewDownloadMd.addEventListener("click", () => {
             if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
             DocuMindExporter.downloadMarkdownFile(currentAnalysisData, currentPreviewScope);
             showToast("Descargando archivo Markdown...", "success");
+        });
+    }
+
+    // 4. In-App Interactive Editor Toggle
+    if (btnPreviewEditMode) {
+        btnPreviewEditMode.addEventListener("click", () => {
+            isEditModeActive = !isEditModeActive;
+            if (isEditModeActive) {
+                if (previewPaper) {
+                    previewPaper.setAttribute("contenteditable", "true");
+                    previewPaper.style.outline = "2px dashed #F59E0B";
+                }
+                btnPreviewEditMode.innerHTML = '<i class="fa-solid fa-eye" style="margin-right:.35rem;"></i>Modo Lectura';
+                btnPreviewEditMode.style.borderColor = "#38BDF8";
+                btnPreviewEditMode.style.color = "#38BDF8";
+                if (btnPreviewSaveEdits) btnPreviewSaveEdits.style.display = "inline-flex";
+                if (btnPreviewResetEdits) btnPreviewResetEdits.style.display = "inline-flex";
+                if (docEditAlert) docEditAlert.style.display = "flex";
+                showToast("Modo Edición activo: Haz clic sobre cualquier título, texto o celda para editarlo.", "info");
+            } else {
+                if (previewPaper) {
+                    previewPaper.removeAttribute("contenteditable");
+                    previewPaper.style.outline = "none";
+                }
+                btnPreviewEditMode.innerHTML = '<i class="fa-solid fa-pen-to-square" style="margin-right:.35rem;"></i>Modo Edición';
+                btnPreviewEditMode.style.borderColor = "rgba(245,158,11,.45)";
+                btnPreviewEditMode.style.color = "#FBBF24";
+                if (btnPreviewSaveEdits) btnPreviewSaveEdits.style.display = "none";
+                if (docEditAlert) docEditAlert.style.display = "none";
+            }
+        });
+    }
+
+    // 5. Save Edits Locally
+    if (btnPreviewSaveEdits) {
+        btnPreviewSaveEdits.addEventListener("click", () => {
+            if (!currentAnalysisData || !previewPaper) return;
+            
+            currentAnalysisData.customDoc = currentAnalysisData.customDoc || {};
+            currentAnalysisData.customDoc.html = previewPaper.innerHTML;
+            currentAnalysisData.customDoc.timestamp = new Date().toISOString();
+
+            // Extract structured sections
+            const sectionEls = previewPaper.querySelectorAll(".doc-section");
+            const customSections = [];
+            sectionEls.forEach(el => {
+                const titleEl = el.querySelector(".doc-section-title");
+                const rawTitle = titleEl ? titleEl.textContent.trim().replace(/^\d+\s*/, '') : 'Sección';
+                const contentEl = el.cloneNode(true);
+                const headerInClone = contentEl.querySelector(".doc-section-header");
+                if (headerInClone) headerInClone.remove();
+                customSections.push({
+                    title: rawTitle,
+                    content: contentEl.innerText.trim()
+                });
+            });
+            if (customSections.length > 0) {
+                currentAnalysisData.customDoc.sections = customSections;
+            }
+
+            showToast("¡Modificaciones guardadas en la sesión! Se incluirán en tus descargas Word y PDF.", "success");
+            if (btnPreviewResetEdits) btnPreviewResetEdits.style.display = "inline-flex";
+        });
+    }
+
+    // 6. Reset Edits to Original
+    if (btnPreviewResetEdits) {
+        btnPreviewResetEdits.addEventListener("click", () => {
+            if (!currentAnalysisData) return;
+            if (confirm("¿Deseas restaurar la documentación original generada y descartar tus ediciones?")) {
+                delete currentAnalysisData.customDoc;
+                renderDocumentPreview(currentPreviewScope);
+                btnPreviewResetEdits.style.display = "none";
+                showToast("Documento restaurado a su versión original.", "info");
+            }
         });
     }
 
@@ -2305,16 +2462,30 @@ if (btnOAuthGoogle) {
         });
     }
 
+    // 7. Zoom Controls
     previewZoomBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             previewZoomBtns.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
-            const zoom = parseFloat(btn.dataset.zoom) || 1.0;
-            if (previewPaper) {
-                previewPaper.style.transform = `scale(${zoom})`;
+            const zoomVal = btn.dataset.zoom;
+            if (zoomVal === "fit") {
+                const container = document.getElementById("word-desktop-viewport");
+                const contW = container ? container.clientWidth - 48 : 880;
+                const scale = Math.max(0.6, Math.min(1.25, contW / 880));
+                if (previewPaper) previewPaper.style.transform = `scale(${scale})`;
+            } else {
+                const zoom = parseFloat(zoomVal) || 1.0;
+                if (previewPaper) previewPaper.style.transform = `scale(${zoom})`;
             }
         });
     });
+
+    const btnExportWord = document.getElementById("btn-export-word");
+    if (btnExportWord) {
+        btnExportWord.addEventListener("click", () => {
+            openDocPreviewModal("all");
+        });
+    }
 
     const btnExportPdf = document.getElementById("btn-export-pdf");
     if (btnExportPdf) {

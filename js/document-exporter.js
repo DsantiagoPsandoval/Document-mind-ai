@@ -987,7 +987,7 @@
             <div class="toc-card">
                 <div class="toc-title">Índice de Secciones Incluidas</div>
                 <ul class="toc-list">
-                    ${sections.map(s => `<li><strong>${s.num}.</strong> ${s.title}</li>`).join('')}
+                    ${sections.map(s => `<li><a href="#section-${s.id}" style="color:#0369A1;text-decoration:none;font-weight:600;"><strong>${s.num}.</strong> ${s.title}</a></li>`).join('')}
                 </ul>
             </div>
         ` : ''}
@@ -1193,6 +1193,81 @@
         };
     }
 
+    /**
+     * Returns structured list of sections for sidebar navigation.
+     */
+    function getSectionsList(analysisData, filter = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) return [];
+        const list = [];
+        if (filter === 'all' || filter === 'prd' || filter === 'srs') {
+            list.push({ id: 'prd', num: '1', title: 'Requisitos de Producto (PRD & SRS)', icon: 'fa-clipboard-list' });
+        }
+        if (filter === 'all' || filter === 'arch') {
+            list.push({ id: 'arch', num: '2', title: 'Arquitectura de Software & C4', icon: 'fa-sitemap' });
+        }
+        if (filter === 'all' || filter === 'db') {
+            list.push({ id: 'db', num: '3', title: 'Modelo de Datos & Diccionario', icon: 'fa-database' });
+        }
+        if (filter === 'all' || filter === 'api') {
+            list.push({ id: 'api', num: '4', title: 'Catálogo de APIs & OpenAPI', icon: 'fa-plug' });
+        }
+        if (filter === 'all' || filter === 'readme' || filter === 'dev') {
+            list.push({ id: 'dev', num: '5', title: 'Guía de Desarrollo & README', icon: 'fa-book' });
+        }
+        if (filter === 'all' || filter === 'devops') {
+            list.push({ id: 'devops', num: '6', title: 'Pipeline DevOps & Despliegue', icon: 'fa-rocket' });
+        }
+        if (filter === 'all' || filter === 'qa') {
+            list.push({ id: 'qa', num: '7', title: 'Estrategia de Calidad & QA', icon: 'fa-vial-circle-check' });
+        }
+        if (filter === 'all' || filter === 'sec') {
+            list.push({ id: 'sec', num: '8', title: 'Seguridad DevSecOps & SAST', icon: 'fa-shield-halved' });
+        }
+        if (filter === 'all' || filter === 'adrs') {
+            list.push({ id: 'adrs', num: '9', title: 'Decisiones de Arquitectura (ADR)', icon: 'fa-scale-balanced' });
+        }
+        if (filter === 'all' || filter === 'user') {
+            list.push({ id: 'user', num: '10', title: 'Manual de Usuario & FAQ', icon: 'fa-circle-question' });
+        }
+        return list;
+    }
+
+    /**
+     * Downloads genuine Microsoft Word (.docx) file via API endpoint.
+     */
+    async function downloadWordDocx(analysisData, scope = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) throw new Error('No hay datos disponibles para exportar.');
+        const projectName = d.meta.projectName || 'Proyecto';
+
+        const response = await fetch('/api/project/export/docx', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                analysisData: analysisData,
+                scope: scope,
+                customDoc: analysisData.customDoc || null,
+                projectName: projectName
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en el servidor al generar el documento Word (' + response.status + ')');
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const cleanName = projectName.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        a.download = cleanName + '_Documento_Word_' + scope + '.docx';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
     return {
         normalizeData,
         buildDocumentHtml,
@@ -1200,6 +1275,8 @@
         downloadMarkdownFile,
         printDocument,
         analyzeLayoutQuality,
-        PRINT_AND_PREVIEW_CSS
+        PRINT_AND_PREVIEW_CSS,
+        getSectionsList,
+        downloadWordDocx
     };
 }));
