@@ -775,8 +775,9 @@ CREATE TABLE users (
     const analyticsService = require('../services/analytics/analyticsService');
 
     await test('Analítica Real: registro anónimo de visitantes, deduplicación en recarga y cálculo de métricas', async () => {
-        const vId1 = 'test_visitor_uuid_alpha_1';
-        const vId2 = 'test_visitor_uuid_beta_2';
+        const nonce = Date.now();
+        const vId1 = `test_visitor_uuid_alpha_${nonce}`;
+        const vId2 = `test_visitor_uuid_beta_${nonce}`;
 
         // Registro visitante 1
         const res1 = await analyticsService.recordVisit({

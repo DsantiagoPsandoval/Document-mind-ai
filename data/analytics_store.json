@@ -3,8 +3,8 @@
     "test_visitor_uuid_alpha_1": {
       "visitorId": "test_visitor_uuid_alpha_1",
       "firstSeen": 1793941285117,
-      "lastSeen": 1793941285119,
-      "totalVisits": 2,
+      "lastSeen": 1793942168236,
+      "totalVisits": 3,
       "ipHash": "d6454fbbb44bf945",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0"
     },
@@ -12,6 +12,22 @@
       "visitorId": "test_visitor_uuid_beta_2",
       "firstSeen": 1793941285119,
       "lastSeen": 1793941285119,
+      "totalVisits": 1,
+      "ipHash": "cd42be93a336805b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+    },
+    "test_visitor_uuid_alpha_1793942234565": {
+      "visitorId": "test_visitor_uuid_alpha_1793942234565",
+      "firstSeen": 1793942234566,
+      "lastSeen": 1793942234568,
+      "totalVisits": 2,
+      "ipHash": "d6454fbbb44bf945",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0"
+    },
+    "test_visitor_uuid_beta_1793942234565": {
+      "visitorId": "test_visitor_uuid_beta_1793942234565",
+      "firstSeen": 1793942234568,
+      "lastSeen": 1793942234568,
       "totalVisits": 1,
       "ipHash": "cd42be93a336805b",
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
@@ -29,6 +45,27 @@
       "visitorId": "test_visitor_uuid_beta_2",
       "date": "2026-11-06",
       "timestamp": 1793941285119,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_alpha_1",
+      "date": "2026-11-06",
+      "timestamp": 1793942168236,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_alpha_1793942234565",
+      "date": "2026-11-06",
+      "timestamp": 1793942234566,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_beta_1793942234565",
+      "date": "2026-11-06",
+      "timestamp": 1793942234568,
       "path": "/",
       "referrer": ""
     }
