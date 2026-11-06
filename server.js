@@ -120,8 +120,32 @@ const upload = multer({
     }
 });
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname)));
+// Explicit UTF-8 & Security Headers for static assets
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+});
+
+// Explicit root route with UTF-8 Content-Type
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Serve frontend static files with explicit charset headers
+app.use(express.static(path.join(__dirname), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+        } else if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+        } else if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+        } else if (filePath.endsWith('.json')) {
+            res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+        }
+    }
+}));
 
 
 // ============================================================

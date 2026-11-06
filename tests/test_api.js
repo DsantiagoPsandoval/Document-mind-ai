@@ -834,6 +834,10 @@ CREATE TABLE users (
         assert.ok(typeof hb.activeNow === 'number' && hb.activeNow >= 1, 'activeNow debe retornar número de visitantes activos');
     });
 
+    // Ejecutar suite completa de Arquitectura Orientada a Eventos (EDA)
+    const { runEdaTests } = require('./test_eda');
+    await runEdaTests();
+
     console.log('='.repeat(60));
     console.log(`RESULTADOS FINALES: ${passed} pruebas exitosas, ${failed} pruebas fallidas.\n`);
     if (failed > 0) {

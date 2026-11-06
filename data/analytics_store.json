@@ -31,6 +31,77 @@
       "totalVisits": 1,
       "ipHash": "cd42be93a336805b",
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+    },
+    "test_visitor_uuid_gamma_3": {
+      "visitorId": "test_visitor_uuid_gamma_3",
+      "firstSeen": 1793942234571,
+      "lastSeen": 1793942234571,
+      "totalVisits": 1,
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5)"
+    },
+    "test_visitor_uuid_alpha_1793942958776": {
+      "visitorId": "test_visitor_uuid_alpha_1793942958776",
+      "firstSeen": 1793942958777,
+      "lastSeen": 1793942958779,
+      "totalVisits": 2,
+      "ipHash": "d6454fbbb44bf945",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0"
+    },
+    "test_visitor_uuid_beta_1793942958776": {
+      "visitorId": "test_visitor_uuid_beta_1793942958776",
+      "firstSeen": 1793942958779,
+      "lastSeen": 1793942958779,
+      "totalVisits": 1,
+      "ipHash": "cd42be93a336805b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+    },
+    "test_visitor_uuid_alpha_1793943079256": {
+      "visitorId": "test_visitor_uuid_alpha_1793943079256",
+      "firstSeen": 1793943079256,
+      "lastSeen": 1793943079258,
+      "totalVisits": 2,
+      "ipHash": "d6454fbbb44bf945",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0"
+    },
+    "test_visitor_uuid_beta_1793943079256": {
+      "visitorId": "test_visitor_uuid_beta_1793943079256",
+      "firstSeen": 1793943079259,
+      "lastSeen": 1793943079259,
+      "totalVisits": 1,
+      "ipHash": "cd42be93a336805b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+    },
+    "test_visitor_uuid_alpha_1793943549880": {
+      "visitorId": "test_visitor_uuid_alpha_1793943549880",
+      "firstSeen": 1793943549880,
+      "lastSeen": 1793943549883,
+      "totalVisits": 2,
+      "ipHash": "d6454fbbb44bf945",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0"
+    },
+    "test_visitor_uuid_beta_1793943549880": {
+      "visitorId": "test_visitor_uuid_beta_1793943549880",
+      "firstSeen": 1793943549884,
+      "lastSeen": 1793943549884,
+      "totalVisits": 1,
+      "ipHash": "cd42be93a336805b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+    },
+    "test_visitor_uuid_alpha_1793943614805": {
+      "visitorId": "test_visitor_uuid_alpha_1793943614805",
+      "firstSeen": 1793943614805,
+      "lastSeen": 1793943614807,
+      "totalVisits": 2,
+      "ipHash": "d6454fbbb44bf945",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0"
+    },
+    "test_visitor_uuid_beta_1793943614805": {
+      "visitorId": "test_visitor_uuid_beta_1793943614805",
+      "firstSeen": 1793943614808,
+      "lastSeen": 1793943614808,
+      "totalVisits": 1,
+      "ipHash": "cd42be93a336805b",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
     }
   },
   "dailyVisits": [
@@ -66,6 +137,62 @@
       "visitorId": "test_visitor_uuid_beta_1793942234565",
       "date": "2026-11-06",
       "timestamp": 1793942234568,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_alpha_1793942958776",
+      "date": "2026-11-06",
+      "timestamp": 1793942958777,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_beta_1793942958776",
+      "date": "2026-11-06",
+      "timestamp": 1793942958779,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_alpha_1793943079256",
+      "date": "2026-11-06",
+      "timestamp": 1793943079256,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_beta_1793943079256",
+      "date": "2026-11-06",
+      "timestamp": 1793943079259,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_alpha_1793943549880",
+      "date": "2026-11-06",
+      "timestamp": 1793943549880,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_beta_1793943549880",
+      "date": "2026-11-06",
+      "timestamp": 1793943549884,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_alpha_1793943614805",
+      "date": "2026-11-06",
+      "timestamp": 1793943614805,
+      "path": "/",
+      "referrer": ""
+    },
+    {
+      "visitorId": "test_visitor_uuid_beta_1793943614805",
+      "date": "2026-11-06",
+      "timestamp": 1793943614808,
       "path": "/",
       "referrer": ""
     }

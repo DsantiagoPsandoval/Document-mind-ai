@@ -1,0 +1,786 @@
+[
+  {
+    "log_id": "3f8fa025-3b33-4fa6-89f0-67706d1f533d",
+    "event_id": "9ad0bacc-73e7-4992-ae9d-ceda6316ec56",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:27:53.971Z"
+  },
+  {
+    "log_id": "63f5a05c-3d88-4c34-9fc0-cc336ee19e7f",
+    "event_id": "9ad0bacc-73e7-4992-ae9d-ceda6316ec56",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:27:53.971Z"
+  },
+  {
+    "log_id": "fd361636-656c-4e2c-8ad9-ec65e740e6ae",
+    "event_id": "ev_idemp_1793942874041",
+    "consumer_id": "IdempotentConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:27:54.041Z"
+  },
+  {
+    "log_id": "d1ab1853-93eb-47c2-94b6-85a891a35287",
+    "event_id": "ev_idemp_1793942874041",
+    "consumer_id": "IdempotentConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:27:54.041Z"
+  },
+  {
+    "log_id": "4037b2c0-5375-4d49-9626-6eaa450fa9fc",
+    "event_id": "ev_retry_1793942874167",
+    "consumer_id": "RetryConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:27:54.167Z"
+  },
+  {
+    "log_id": "281f85cd-ece2-4718-86b1-e55b7ee3d155",
+    "event_id": "ev_retry_1793942874167",
+    "consumer_id": "RetryConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 1,
+    "details": {
+      "error": "Fallo transitorio simulado de red",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:27:54.168Z"
+  },
+  {
+    "log_id": "3ba6949f-d4d6-4100-9af6-a7c2892f6c9e",
+    "event_id": "ev_dlq_1793942874294",
+    "consumer_id": "DlqConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:27:54.294Z"
+  },
+  {
+    "log_id": "57d3fde0-d31f-4a4b-a87d-3a22e618c674",
+    "event_id": "ev_dlq_1793942874294",
+    "consumer_id": "DlqConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Error fatal permanente no recuperable",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:27:54.294Z"
+  },
+  {
+    "log_id": "92e21aa7-b8fd-4bf8-84ee-cb6865957763",
+    "event_id": "b6a73f13-b5e3-47ab-9a65-7cfce23a035d",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:28:34.381Z"
+  },
+  {
+    "log_id": "6a309309-ba85-4518-9be8-5f1c113799b4",
+    "event_id": "b6a73f13-b5e3-47ab-9a65-7cfce23a035d",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 1,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:28:34.381Z"
+  },
+  {
+    "log_id": "944365d6-256b-487c-a80d-120742a25fdf",
+    "event_id": "ev_idemp_1793942914456",
+    "consumer_id": "IdempotentConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:28:34.456Z"
+  },
+  {
+    "log_id": "0ed1f4c6-e5ef-45db-ba3c-7cfaae249c69",
+    "event_id": "ev_idemp_1793942914456",
+    "consumer_id": "IdempotentConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:28:34.456Z"
+  },
+  {
+    "log_id": "3abf613b-589c-45a9-b1e1-d58ae4ce1137",
+    "event_id": "ev_retry_1793942914581",
+    "consumer_id": "RetryConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:28:34.581Z"
+  },
+  {
+    "log_id": "433e4cc0-0a75-4d4a-8780-62d83956b69e",
+    "event_id": "ev_retry_1793942914581",
+    "consumer_id": "RetryConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Fallo transitorio simulado de red",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:28:34.581Z"
+  },
+  {
+    "log_id": "ffabf703-db92-4431-a7f3-9ed6097551c7",
+    "event_id": "ev_dlq_1793942914706",
+    "consumer_id": "DlqConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:28:34.707Z"
+  },
+  {
+    "log_id": "fd5b6d1d-468d-4833-b78e-5ae683013e94",
+    "event_id": "ev_dlq_1793942914706",
+    "consumer_id": "DlqConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 1,
+    "details": {
+      "error": "Error fatal permanente no recuperable",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:28:34.707Z"
+  },
+  {
+    "log_id": "77a49ead-7eeb-43fb-8edc-3cdd532404ad",
+    "event_id": "8ccb6f89-4f21-4ce6-8e80-8bb6cb20bf31",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:29:20.075Z"
+  },
+  {
+    "log_id": "011918b6-33ea-4363-88e7-0611773f3d28",
+    "event_id": "ev_idemp_1793942959896",
+    "consumer_id": "IdempotentConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:29:20.355Z"
+  },
+  {
+    "log_id": "1aca389b-45dd-4895-a8c3-486f6f3bf35e",
+    "event_id": "8ccb6f89-4f21-4ce6-8e80-8bb6cb20bf31",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 482,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:29:20.560Z"
+  },
+  {
+    "log_id": "1adfd46b-5f11-460a-950b-1b986fb09f54",
+    "event_id": "ev_retry_1793942960195",
+    "consumer_id": "RetryConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:29:20.640Z"
+  },
+  {
+    "log_id": "f255d441-3e03-4035-b494-3143990573fc",
+    "event_id": "ev_dlq_1793942960555",
+    "consumer_id": "DlqConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:29:21.045Z"
+  },
+  {
+    "log_id": "c9f59d34-711c-4c24-8650-bc008deae140",
+    "event_id": "ev_idemp_1793942959896",
+    "consumer_id": "IdempotentConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 454,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:29:21.104Z"
+  },
+  {
+    "log_id": "a8a4a3a4-f69f-49b8-abfd-9777d79e05a9",
+    "event_id": "e05ce1d8-d0d5-482b-a4dc-63e2c5eeadd8",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:31:02.020Z"
+  },
+  {
+    "log_id": "46b39994-df33-4a84-9f96-3ff63c2ca2c2",
+    "event_id": "e05ce1d8-d0d5-482b-a4dc-63e2c5eeadd8",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:31:02.020Z"
+  },
+  {
+    "log_id": "d82e9ed2-601d-4798-87d0-ac21253a1cb8",
+    "event_id": "ev_idemp_1793943062222",
+    "consumer_id": "IdempotentConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:31:02.222Z"
+  },
+  {
+    "log_id": "ba19a796-6e5e-4016-8de3-0e42ee9f7404",
+    "event_id": "ev_idemp_1793943062222",
+    "consumer_id": "IdempotentConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 1,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:31:02.223Z"
+  },
+  {
+    "log_id": "d15142ff-291b-456b-a58c-e8a6ac980574",
+    "event_id": "ev_retry_1793943062629",
+    "consumer_id": "RetryConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:31:02.629Z"
+  },
+  {
+    "log_id": "7f4dd8e4-6874-4150-978a-13f5e6d50bd3",
+    "event_id": "ev_retry_1793943062629",
+    "consumer_id": "RetryConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 1,
+    "details": {
+      "error": "Fallo transitorio simulado de red",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:31:02.630Z"
+  },
+  {
+    "log_id": "11b822b0-a6df-4833-8f24-12d515d07e50",
+    "event_id": "ev_dlq_1793943062896",
+    "consumer_id": "DlqConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:31:02.896Z"
+  },
+  {
+    "log_id": "ef4cad28-8f9d-48d6-bbd0-14da7678fb5e",
+    "event_id": "ev_dlq_1793943062896",
+    "consumer_id": "DlqConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Error fatal permanente no recuperable",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:31:02.896Z"
+  },
+  {
+    "log_id": "69510802-0ba5-4819-b295-a2ba49f196fc",
+    "event_id": "95e04307-bc1f-402f-b766-be0cf169bd01",
+    "consumer_id": "DocGenerationWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:31:03.353Z"
+  },
+  {
+    "log_id": "bfa9d344-4d2f-432b-8b36-4467e6e0290a",
+    "event_id": "95e04307-bc1f-402f-b766-be0cf169bd01",
+    "consumer_id": "DocGenerationWorker",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 2,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:31:03.355Z"
+  },
+  {
+    "log_id": "22e3a5f5-c078-4454-a4ce-1508a2c06f9c",
+    "event_id": "9d8e5fae-ba4d-4608-b8fe-af4b326c3b57",
+    "consumer_id": "SecurityScanWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:31:03.355Z"
+  },
+  {
+    "log_id": "7957023d-cb10-4202-95a5-6c5608289d8d",
+    "event_id": "9d8e5fae-ba4d-4608-b8fe-af4b326c3b57",
+    "consumer_id": "SecurityScanWorker",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 4,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:31:03.359Z"
+  },
+  {
+    "log_id": "c4a2e756-7ef9-4ec4-818c-3f7f1bdf7274",
+    "event_id": "7a3f2355-ccf0-48b9-81dc-cedf5d4bfece",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:38:59.327Z"
+  },
+  {
+    "log_id": "b5668e5f-280f-4d4f-a6f5-b4463002d294",
+    "event_id": "7a3f2355-ccf0-48b9-81dc-cedf5d4bfece",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:38:59.327Z"
+  },
+  {
+    "log_id": "3ad0f99d-057e-44c3-b300-a9d349072083",
+    "event_id": "ev_idemp_1793943539529",
+    "consumer_id": "IdempotentConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:38:59.529Z"
+  },
+  {
+    "log_id": "15656c16-25e5-48af-8203-4eb683bd7390",
+    "event_id": "ev_idemp_1793943539529",
+    "consumer_id": "IdempotentConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:38:59.529Z"
+  },
+  {
+    "log_id": "70f80390-0060-4969-bf1f-3b3804f1096b",
+    "event_id": "ev_retry_1793943539937",
+    "consumer_id": "RetryConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:38:59.938Z"
+  },
+  {
+    "log_id": "e401258e-36bf-4b5b-9531-9a49ff1d770a",
+    "event_id": "ev_retry_1793943539937",
+    "consumer_id": "RetryConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Fallo transitorio simulado de red",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:38:59.938Z"
+  },
+  {
+    "log_id": "def8fdfa-474a-4241-94f7-07933505b804",
+    "event_id": "ev_dlq_1793943540191",
+    "consumer_id": "DlqConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:39:00.191Z"
+  },
+  {
+    "log_id": "7e522256-2149-4de6-89ad-02d3c3bc8072",
+    "event_id": "ev_dlq_1793943540191",
+    "consumer_id": "DlqConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Error fatal permanente no recuperable",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:39:00.191Z"
+  },
+  {
+    "log_id": "ce692ef6-8f15-4499-9262-6f6b422e8275",
+    "event_id": "ab75ba49-e040-41c0-951c-3d582cc1dadf",
+    "consumer_id": "DocGenerationWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:39:00.648Z"
+  },
+  {
+    "log_id": "bc322071-15e6-4bf3-bc89-8ade557670ab",
+    "event_id": "ab75ba49-e040-41c0-951c-3d582cc1dadf",
+    "consumer_id": "DocGenerationWorker",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 2,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:39:00.650Z"
+  },
+  {
+    "log_id": "67f066f3-176a-45cd-830c-953c86942580",
+    "event_id": "6ce77933-d791-4d00-8a41-625b2cc1c806",
+    "consumer_id": "SecurityScanWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:39:00.650Z"
+  },
+  {
+    "log_id": "121e3617-ba31-40e3-86ef-f5f9ead50278",
+    "event_id": "6ce77933-d791-4d00-8a41-625b2cc1c806",
+    "consumer_id": "SecurityScanWorker",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 4,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:39:00.654Z"
+  },
+  {
+    "log_id": "6a45d161-6e22-4cd7-bc93-d0496d976ccc",
+    "event_id": "3b769014-2a0d-4c4a-ab93-6dc9b0a94e75",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:14.826Z"
+  },
+  {
+    "log_id": "49863800-8c09-4809-a8a3-31fdb80da330",
+    "event_id": "3b769014-2a0d-4c4a-ab93-6dc9b0a94e75",
+    "consumer_id": "TestSimulationConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 1,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:40:14.826Z"
+  },
+  {
+    "log_id": "03077c70-b468-4439-b8fe-b9ea2e0cf913",
+    "event_id": "ev_idemp_1793943615028",
+    "consumer_id": "IdempotentConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:15.029Z"
+  },
+  {
+    "log_id": "610cb602-0de1-40e4-a0cb-b2efa6371cd8",
+    "event_id": "ev_idemp_1793943615028",
+    "consumer_id": "IdempotentConsumer",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 0,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:40:15.029Z"
+  },
+  {
+    "log_id": "62d507f8-430d-4e0f-b877-7e602911ebff",
+    "event_id": "ev_retry_1793943615434",
+    "consumer_id": "RetryConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:15.435Z"
+  },
+  {
+    "log_id": "c43eb4e7-fb0a-40d6-af8c-48e727a0b062",
+    "event_id": "ev_retry_1793943615434",
+    "consumer_id": "RetryConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Fallo transitorio simulado de red",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:40:15.435Z"
+  },
+  {
+    "log_id": "2835979a-55b8-4a9b-9494-29b00eb46475",
+    "event_id": "ev_dlq_1793943615686",
+    "consumer_id": "DlqConsumer",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:15.686Z"
+  },
+  {
+    "log_id": "f208da43-04ec-4dff-a4c8-53d727fbf96a",
+    "event_id": "ev_dlq_1793943615686",
+    "consumer_id": "DlqConsumer",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "Error fatal permanente no recuperable",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:40:15.687Z"
+  },
+  {
+    "log_id": "1a895daa-5b5a-4d68-b887-1be7f100a7af",
+    "event_id": "bfc634a4-4d43-4382-903e-698dbb3c0cfa",
+    "consumer_id": "DocGenerationWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:16.169Z"
+  },
+  {
+    "log_id": "8f685b29-ccf6-413e-b235-2423fa80c473",
+    "event_id": "bfc634a4-4d43-4382-903e-698dbb3c0cfa",
+    "consumer_id": "DocGenerationWorker",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 259,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:40:16.428Z"
+  },
+  {
+    "log_id": "a5089f99-04b5-463b-84a2-38b43551cdff",
+    "event_id": "d5a654dc-1240-4d8b-a897-5003b8472cb4",
+    "consumer_id": "SecurityScanWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:16.428Z"
+  },
+  {
+    "log_id": "3520312c-8e4f-418c-95e0-628cdfed19ab",
+    "event_id": "d5a654dc-1240-4d8b-a897-5003b8472cb4",
+    "consumer_id": "SecurityScanWorker",
+    "step": "COMPLETED",
+    "status": "SUCCESS",
+    "duration_ms": 2,
+    "details": {
+      "resultSummary": "Procesado con éxito"
+    },
+    "created_at": "2026-11-06T05:40:16.430Z"
+  },
+  {
+    "log_id": "fa682287-e205-4fa1-ac1c-7bfe69908513",
+    "event_id": "ev_orphan_1793942874403",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:26.171Z"
+  },
+  {
+    "log_id": "8e8c99d1-06f0-41ea-b475-ac20c2732d93",
+    "event_id": "ev_orphan_1793942914817",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:26.171Z"
+  },
+  {
+    "log_id": "3587cb45-adf0-4631-a886-66f82a65a097",
+    "event_id": "ev_orphan_1793942874403",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "projectData ausente en analysis.requested.",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:40:26.171Z"
+  },
+  {
+    "log_id": "463acc98-db4c-4ba2-a155-3e7a35c5572b",
+    "event_id": "ev_orphan_1793942914817",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "projectData ausente en analysis.requested.",
+      "retry": 1
+    },
+    "created_at": "2026-11-06T05:40:26.171Z"
+  },
+  {
+    "log_id": "4c101b57-d125-4e12-aff4-350349fdd9af",
+    "event_id": "ev_orphan_1793942914817",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:28.324Z"
+  },
+  {
+    "log_id": "0929088a-915f-402d-8c09-8d840360a5f0",
+    "event_id": "ev_orphan_1793942914817",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "projectData ausente en analysis.requested.",
+      "retry": 2
+    },
+    "created_at": "2026-11-06T05:40:28.324Z"
+  },
+  {
+    "log_id": "a341ca51-7f00-44f6-8803-dbcc21266c84",
+    "event_id": "ev_orphan_1793942874403",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:28.432Z"
+  },
+  {
+    "log_id": "6ba8771f-0278-43e3-bc5e-c6b4f59f706d",
+    "event_id": "ev_orphan_1793942874403",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 1,
+    "details": {
+      "error": "projectData ausente en analysis.requested.",
+      "retry": 2
+    },
+    "created_at": "2026-11-06T05:40:28.433Z"
+  },
+  {
+    "log_id": "4bba8596-8935-4180-a861-3d0101e98814",
+    "event_id": "ev_orphan_1793942914817",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:32.642Z"
+  },
+  {
+    "log_id": "e6ef3c29-17b9-4a3d-ab2e-e89c9660b585",
+    "event_id": "ev_orphan_1793942914817",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 0,
+    "details": {
+      "error": "projectData ausente en analysis.requested.",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:40:32.642Z"
+  },
+  {
+    "log_id": "55e7be78-14ed-43a1-aa28-a05ac90002b3",
+    "event_id": "ev_orphan_1793942874403",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "STARTED",
+    "status": "PROCESSING",
+    "duration_ms": 0,
+    "details": {},
+    "created_at": "2026-11-06T05:40:32.831Z"
+  },
+  {
+    "log_id": "d3a50cec-7679-41e5-9127-01d0ec2b4093",
+    "event_id": "ev_orphan_1793942874403",
+    "consumer_id": "DirectAstAnalysisWorker",
+    "step": "FAILED",
+    "status": "ERROR",
+    "duration_ms": 1,
+    "details": {
+      "error": "projectData ausente en analysis.requested.",
+      "retry": 3
+    },
+    "created_at": "2026-11-06T05:40:32.831Z"
+  }
+]

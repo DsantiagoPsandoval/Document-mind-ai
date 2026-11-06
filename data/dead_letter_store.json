@@ -1,0 +1,100 @@
+[
+  {
+    "dlq_id": "0b2af208-7791-467d-8dfe-0fd12ac3385c",
+    "original_event_id": "ev_dlq_1793942874294",
+    "event_type": "test.fatal.failure",
+    "aggregate_id": "system",
+    "correlation_id": "corr_3aa3e42a-814c-4ddc-a797-3101ca5702a3",
+    "payload": {
+      "critical": true
+    },
+    "error_stack": "Error: Error fatal permanente no recuperable\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\tests\\test_eda.js:177:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:27:54.294Z",
+    "resolved": false
+  },
+  {
+    "dlq_id": "f255d54a-08ba-4e03-bc6e-f4a3b8822216",
+    "original_event_id": "ev_dlq_1793942914706",
+    "event_type": "test.fatal.failure",
+    "aggregate_id": "system",
+    "correlation_id": "corr_e6b69b72-f61a-431c-8287-14aeb076ecdb",
+    "payload": {
+      "critical": true
+    },
+    "error_stack": "Error: Error fatal permanente no recuperable\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\tests\\test_eda.js:177:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:28:34.707Z",
+    "resolved": false
+  },
+  {
+    "dlq_id": "c97c9dfa-95e6-48d7-be89-73507bf167c6",
+    "original_event_id": "ev_dlq_1793943062896",
+    "event_type": "test.fatal.failure",
+    "aggregate_id": "system",
+    "correlation_id": "corr_b80d1b58-7465-4d6c-9be0-50b2474b736d",
+    "payload": {
+      "critical": true
+    },
+    "error_stack": "Error: Error fatal permanente no recuperable\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\tests\\test_eda.js:177:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:31:02.896Z",
+    "resolved": false
+  },
+  {
+    "dlq_id": "dbc06135-de26-44e7-b2f8-41949332c7d2",
+    "original_event_id": "ev_dlq_1793943540191",
+    "event_type": "test.fatal.failure",
+    "aggregate_id": "system",
+    "correlation_id": "corr_a90dd55b-3e86-4865-809e-ce17f473a666",
+    "payload": {
+      "critical": true
+    },
+    "error_stack": "Error: Error fatal permanente no recuperable\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\tests\\test_eda.js:177:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:39:00.192Z",
+    "resolved": false
+  },
+  {
+    "dlq_id": "7b217e92-6fc2-40e5-a21f-7aa03f1ad738",
+    "original_event_id": "ev_dlq_1793943615686",
+    "event_type": "test.fatal.failure",
+    "aggregate_id": "system",
+    "correlation_id": "corr_d8cdabcb-7811-4a11-a56b-791712bfd3bf",
+    "payload": {
+      "critical": true
+    },
+    "error_stack": "Error: Error fatal permanente no recuperable\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\tests\\test_eda.js:177:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:40:15.687Z",
+    "resolved": false
+  },
+  {
+    "dlq_id": "7b24f4c4-b67a-4584-aa64-0ced7f6deadd",
+    "original_event_id": "ev_orphan_1793942914817",
+    "event_type": "analysis.requested",
+    "aggregate_id": "system",
+    "correlation_id": "corr_ec924d7d-62e1-4c1c-9887-3a526bdd5980",
+    "payload": {
+      "orphan": true
+    },
+    "error_stack": "Error: projectData ausente en analysis.requested.\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\workers\\astAnalysisWorker.js:62:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:40:32.642Z",
+    "resolved": false
+  },
+  {
+    "dlq_id": "1ddc4be0-1c3e-4261-8700-d8ee9751ddc8",
+    "original_event_id": "ev_orphan_1793942874403",
+    "event_type": "analysis.requested",
+    "aggregate_id": "system",
+    "correlation_id": "corr_76ca658e-b2bc-4c7e-9dd4-c5c48363d5ef",
+    "payload": {
+      "orphan": true
+    },
+    "error_stack": "Error: projectData ausente en analysis.requested.\n    at eventBus.subscribe.name (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\workers\\astAnalysisWorker.js:62:19)\n    at EventBus.wrappedHandler (C:\\Users\\danis\\Documents\\IngenieriaAplicada\\services\\eda\\eventBus.js:65:42)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)",
+    "retry_count": 3,
+    "failed_at": "2026-11-06T05:40:32.831Z",
+    "resolved": false
+  }
+]
