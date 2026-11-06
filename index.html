@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=5.2">
+    <link rel="stylesheet" href="styles.css?v=6.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- ai-core-3d deferred to body end -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -138,85 +138,6 @@
                     <i class="fa-solid fa-user-check" style="color:#34D399;margin-right:.4rem;"></i><span id="mobile-user-email">usuario@correo.com</span>
                 </div>
                 <button type="button" id="btn-mobile-logout" class="btn-ghost" style="width:100%;justify-content:center;color:#FB7185;border:1px solid rgba(244,63,94,.3);border-radius:0.6rem;">
-                    <i class="fa-solid fa-right-from-bracket" style="margin-right:.45rem;"></i>Cerrar Sesión
-                </button>
-            </div>
-        </div>
-    </nav>
-            <div class="nav-actions">
-                <a href="#analizador" class="btn-cyber-outline" style="padding:.5rem 1rem;font-size:.8rem;">
-                    <i class="fa-solid fa-play" style="font-size:.65rem;margin-right:.4rem;color:var(--tech-cyan)"></i>Analizador
-                </a>
-
-                <button type="button" id="btn-open-tour" class="btn-ghost" style="padding:.5rem .85rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.35rem;color:#38BDF8;" aria-label="Guía de inicio rápido y tour de la plataforma">
-                    <i class="fa-solid fa-circle-question" style="color:#38BDF8;font-size:.78rem;"></i>
-                    <span>Guía Rápida</span>
-                </button>
-                <button type="button" id="btn-open-integrations" class="btn-ghost" style="padding:.5rem .85rem;font-size:.78rem;display:inline-flex;align-items:center;gap:.35rem;" aria-label="Ver estado de integraciones y servicios">
-                    <i class="fa-solid fa-server" style="color:var(--tech-cyan);font-size:.75rem;"></i>
-                    <span>Servicios</span>
-                </button>
-
-                <!-- Guest State: Iniciar Sesión Button -->
-                <div id="nav-auth-guest" style="display:inline-flex;align-items:center;">
-                    <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.5rem 1.15rem;font-size:.8rem;">
-                        <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.45rem;"></i>Iniciar Sesión
-                    </button>
-                </div>
-
-                <!-- Authenticated State: User Capsule with Dropdown -->
-                <div id="nav-auth-user" class="user-nav-capsule" style="display:none;position:relative;">
-                    <button type="button" id="user-menu-btn" class="user-menu-trigger" aria-haspopup="true" aria-expanded="false">
-                        <div class="user-avatar-badge" id="nav-user-avatar">US</div>
-                        <span class="user-email-text" id="nav-user-email">usuario@correo.com</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size:.65rem;color:#94A3B8;margin-left:.25rem;"></i>
-                    </button>
-                    <!-- Dropdown Menu -->
-                    <div id="user-dropdown-menu" class="user-dropdown-cyber hidden">
-                        <div class="user-dropdown-header">
-                            <span style="font-size:.68rem;color:#64748B;text-transform:uppercase;letter-spacing:.05em;">Conectado como</span>
-                            <strong id="dropdown-user-email" style="display:block;font-size:.78rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">usuario@correo.com</strong>
-                            <div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.35rem;font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">
-                                <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 8px #34D399;"></span>
-                                Supabase DB Sync
-                            </div>
-                        </div>
-                        <div class="user-dropdown-divider"></div>
-                        <a href="#analizador" id="btn-user-history" class="user-dropdown-item">
-                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis Análisis Guardados
-                        </a>
-                        <div class="user-dropdown-divider"></div>
-                        <button type="button" id="btn-logout" class="user-dropdown-item" style="color:#FB7185;">
-                            <i class="fa-solid fa-right-from-bracket" style="color:#FB7185;"></i>Cerrar Sesión
-                        </button>
-                    </div>
-                </div>
-
-                <button id="mobile-menu-btn" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
-            </div>
-        </div>
-    </header>
-
-    <nav id="mobile-menu" aria-label="Menu movil">
-        <a href="#como-funciona">Cómo funciona</a>
-        <a href="#solucion">Solución</a>
-        <a href="#analizador">Analizador de IA</a>
-        <a href="#simulador-arquitectura" style="color:#34D399;font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.4rem;"></i>Simulador de Arquitectura (Act. 9)</a>
-        <a href="#equipo">Equipo</a>
-        <a href="#metricas" style="color:var(--tech-cyan);">Estadísticas en Vivo</a>
-        <a href="#contacto">Contacto</a>
-        <!-- Mobile Auth Actions -->
-        <div style="border-top:1px solid rgba(129,140,248,.2);margin:0.75rem 0;padding-top:0.75rem;">
-            <div id="mobile-auth-guest">
-                <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.65rem 1rem;">
-                    <i class="fa-solid fa-user-lock" style="margin-right:.45rem;"></i>Iniciar Sesión / Registro
-                </button>
-            </div>
-            <div id="mobile-auth-user" style="display:none;flex-direction:column;gap:0.6rem;">
-                <div style="font-size:.75rem;color:#94A3B8;padding:.25rem 0;word-break:break-all;">
-                    <i class="fa-solid fa-user-check" style="color:#34D399;margin-right:.4rem;"></i><span id="mobile-user-email">usuario@correo.com</span>
-                </div>
-                <button type="button" id="btn-mobile-logout" class="btn-ghost" style="width:100%;justify-content:center;color:#FB7185;border:1px solid rgba(244,63,94,.3);">
                     <i class="fa-solid fa-right-from-bracket" style="margin-right:.45rem;"></i>Cerrar Sesión
                 </button>
             </div>
@@ -2739,9 +2660,9 @@
     </div>
 
     <!-- Client Controller Application -->
-    <script src="js/ai-core-3d.js?v=5.3" charset="UTF-8"></script>
-    <script src="app.js?v=5.9" charset="UTF-8"></script>
-    <script src="js/architecture-simulator.js?v=3.3" charset="UTF-8"></script>
+    <script src="js/ai-core-3d.js?v=6.0" charset="UTF-8"></script>
+    <script src="app.js?v=6.0" charset="UTF-8"></script>
+    <script src="js/architecture-simulator.js?v=4.0" charset="UTF-8"></script>
 </body>
 </html>
 

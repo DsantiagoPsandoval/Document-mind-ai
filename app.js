@@ -574,8 +574,7 @@ if (btnOAuthGoogle) {
     }
 
     window.addEventListener("scroll", updateActiveNavLink, { passive: true });
-    setTimeout(updateActiveNavLink, 200););
-    }
+    setTimeout(updateActiveNavLink, 200);
 
     // ------------------------------------------------------------
     // 5. Real Site Analytics & Real-Time Active Visitor Tracking
