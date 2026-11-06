@@ -6,6 +6,7 @@
 
 const { sanitizeContent, sanitizeEnvFile } = require('../analyzer/sanitizer');
 const { classifyFile, shouldIgnoreFile, computeFileHash } = require('../analyzer/fileClassifier');
+const { extractSafeZipFiles } = require('../analyzer/safeZip');
 const {
     detectLanguages,
     detectFrameworks,
@@ -152,10 +153,9 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
             err.statusCode = 404;
             throw err;
         }
-        if (res.status === 403) {
-            const err = new Error('Límite de solicitudes de la API de GitHub alcanzado. Intenta de nuevo más tarde o configura un GITHUB_TOKEN en el archivo .env.');
-            err.statusCode = 429;
-            throw err;
+        if (res.status === 403 || res.status === 429) {
+            console.log(`[GitHub Analyzer] GitHub REST API rate limit reached (${res.status}). Activating public zipball fallback for ${owner}/${repo}`);
+            return await fetchAndAnalyzeViaZipball(owner, repo, branch, cleanUrl);
         }
         if (!res.ok) {
             const err = new Error(`Error de GitHub API (${res.status}): ${res.statusText}`);
@@ -327,6 +327,135 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
         treeDiagram,
         relevantFilesList: relevantFiles.map(f => ({ path: f.path, category: f.category, size: f.size })),
         ignoredFilesList: ignoredFiles.slice(0, 100),
+        prioritizedFiles,
+        endpoints,
+        dataModels,
+        projectMap
+    };
+}
+
+
+/**
+ * Seamless fallback that downloads and extracts public GitHub zipball directly
+ * when GitHub REST API rate limits (60 req/h per IP) are reached on cloud environments like Render.
+ */
+async function fetchAndAnalyzeViaZipball(owner, repo, branch, cleanUrl) {
+    const candidateBranches = [branch, 'main', 'master', 'dev', 'trunk'].filter(Boolean);
+    const uniqueBranches = Array.from(new Set(candidateBranches));
+
+    let zipRes = null;
+    let resolvedBranch = branch || 'main';
+
+    for (const b of uniqueBranches) {
+        const zipUrl = `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${encodeURIComponent(b)}`;
+        try {
+            const r = await fetch(zipUrl);
+            if (r.ok) {
+                zipRes = r;
+                resolvedBranch = b;
+                break;
+            }
+        } catch (e) {}
+    }
+
+    if (!zipRes || !zipRes.ok) {
+        for (const b of uniqueBranches) {
+            const altZipUrl = `https://github.com/${owner}/${repo}/archive/refs/heads/${encodeURIComponent(b)}.zip`;
+            try {
+                const r = await fetch(altZipUrl);
+                if (r.ok) {
+                    zipRes = r;
+                    resolvedBranch = b;
+                    break;
+                }
+            } catch (e) {}
+        }
+    }
+
+    if (!zipRes || !zipRes.ok) {
+        const err = new Error(`El repositorio "${owner}/${repo}" no fue encontrado o es privado. Asegúrate de que sea un repositorio público.`);
+        err.statusCode = 404;
+        throw err;
+    }
+
+    const arrayBuffer = await zipRes.arrayBuffer();
+    const rawZipFiles = extractSafeZipFiles(Buffer.from(arrayBuffer));
+
+    // Strip root archive directory prefix (e.g. "express-master/lib/express.js" -> "lib/express.js")
+    const files = rawZipFiles.map(f => {
+        const parts = f.path.split('/');
+        parts.shift();
+        return {
+            ...f,
+            path: parts.join('/')
+        };
+    }).filter(f => f.path && !shouldIgnoreFile(f.path));
+
+    const manifests = {};
+    files.forEach(f => {
+        const fileName = f.path.split('/').pop().toLowerCase();
+        if (MANIFEST_FILES.includes(fileName)) {
+            manifests[fileName] = f.content;
+        }
+    });
+
+    const detectedLanguages = detectLanguages(files);
+    const detectedFrameworks = detectFrameworks(manifests, files);
+    const detectedDatabases = detectDatabases(manifests, files);
+    const detectedInfra = detectInfrastructure(manifests, files);
+
+    const allDetectedTechnologies = Array.from(new Set([
+        ...detectedLanguages,
+        ...detectedFrameworks,
+        ...detectedDatabases,
+        ...detectedInfra
+    ]));
+
+    const endpoints = extractEndpoints(files);
+    const dataModels = extractDataModels(files);
+    const projectMap = buildProjectMap(files, allDetectedTechnologies, endpoints, dataModels);
+    const treeDiagram = buildTreeDiagram(files);
+
+    const prioritizedFiles = files.slice(0, MAX_KEY_FILES).map(f => ({
+        path: f.path,
+        size: f.size,
+        category: f.category || classifyFile(f.path),
+        hash: computeFileHash(f.content || ''),
+        content: f.content
+    }));
+
+    return {
+        repository: {
+            name: repo,
+            fullName: `${owner}/${repo}`,
+            owner: owner,
+            description: `Repositorio público ${owner}/${repo} (analizado vía descarga de código fuente directo)`,
+            url: cleanUrl,
+            stars: 0,
+            forks: 0,
+            openIssues: 0,
+            defaultBranch: resolvedBranch,
+            branch: resolvedBranch,
+            primaryLanguage: detectedLanguages[0] || 'Multi-lenguaje',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            analysisDate: new Date().toISOString()
+        },
+        stats: {
+            totalFiles: files.length,
+            relevantFilesCount: files.length,
+            ignoredFilesCount: 0,
+            analyzedFilesCount: prioritizedFiles.length,
+            technologiesCount: allDetectedTechnologies.length
+        },
+        detectedLanguages,
+        detectedFrameworks,
+        detectedDatabases,
+        detectedInfra,
+        detectedTechnologies: allDetectedTechnologies,
+        treeDiagram,
+        relevantFilesList: files.map(f => ({ path: f.path, category: f.category || classifyFile(f.path), size: f.size })),
+        ignoredFilesList: [],
         prioritizedFiles,
         endpoints,
         dataModels,
