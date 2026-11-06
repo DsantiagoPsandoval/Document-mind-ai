@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const forgotForm = document.getElementById("forgot-form");
     const forgotEmail = document.getElementById("forgot-email");
     const btnCancelForgot = document.getElementById("btn-cancel-forgot");
-
+    const btnOAuthGoogle = document.getElementById("btn-oauth-google");
     function setAuthAlert(message, type = "error") {
         if (!authAlertBox) return;
         if (!message) {
@@ -267,6 +267,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (authTabLogin) authTabLogin.addEventListener("click", () => switchAuthTab("login"));
     if (authTabSignup) authTabSignup.addEventListener("click", () => switchAuthTab("signup"));
+    // Google OAuth Login
+if (btnOAuthGoogle) {
+    btnOAuthGoogle.addEventListener("click", async () => {
+        if (!supabaseClient || !isSupabaseConfigured) {
+            setAuthAlert("Supabase no está conectado. Inténtalo nuevamente.");
+            return;
+        }
+
+        btnOAuthGoogle.disabled = true;
+        setAuthAlert("Conectando con Google...", "info");
+
+        try {
+            const redirectTo = window.location.origin + window.location.pathname;
+
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo: redirectTo
+                }
+            });
+
+            if (error) throw error;
+
+        } catch (err) {
+            console.error("Google OAuth error:", err);
+            setAuthAlert(err.message || "No se pudo iniciar sesión con Google.");
+            btnOAuthGoogle.disabled = false;
+        }
+    });
+}
 
     // Password Toggle
     if (btnTogglePwd && authPassword) {

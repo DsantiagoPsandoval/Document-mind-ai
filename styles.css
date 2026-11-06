@@ -1487,6 +1487,60 @@ img, svg, video, canvas {
     color: var(--tech-cyan);
 }
 
+
+/* OAuth Social Authentication */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 1.25rem 0 1rem;
+    color: #64748B;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(129, 140, 248, 0.18);
+}
+.auth-divider span {
+    padding: 0 0.75rem;
+}
+.oauth-buttons-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.btn-cyber-oauth {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(129, 140, 248, 0.28);
+    border-radius: 0.65rem;
+    color: #E2E8F0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-cyber-oauth:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: var(--tech-cyan);
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+    color: #FFFFFF;
+}
+.btn-cyber-oauth:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .auth-modal-footer {
     margin-top: 1.5rem;
     border-top: 1px solid rgba(129, 140, 248, 0.14);

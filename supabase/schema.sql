@@ -152,3 +152,38 @@ create policy "Aislamiento RLS de conversaciones por usuario"
     on public.chat_conversations for all
     using (auth.uid() = user_id)
     with check (auth.uid() = user_id);
+
+-- ============================================================
+-- 6. SEGURIDAD ADICIONAL DE PERFILES
+-- ============================================================
+
+-- El rol siempre será developer al registrarse.
+-- Nunca confiar en el rol enviado por el usuario.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+    insert into public.profiles (id, email, full_name, role)
+    values (
+        new.id,
+        new.email,
+        coalesce(
+            new.raw_user_meta_data->>'full_name',
+            split_part(new.email, '@', 1)
+        ),
+        'developer'
+    );
+    return new;
+end;
+$$;
+
+-- Los usuarios no pueden insertar perfiles arbitrarios
+-- ni modificar su rol.
+revoke insert, update on public.profiles from authenticated;
+
+-- Solo pueden actualizar sus datos personales.
+grant update (full_name, avatar_url, updated_at)
+on public.profiles to authenticated;
