@@ -178,14 +178,26 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     let treeData = { tree: [] };
     try {
         const treeRes = await fetch(treeUrl, { headers });
+        if (treeRes.status === 403 || treeRes.status === 429) {
+            console.log(`[GitHub Analyzer] GitHub tree rate limit reached (${treeRes.status}). Activating public zipball fallback for ${owner}/${repo}`);
+            return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
+        }
         if (treeRes.ok) {
             treeData = await treeRes.json();
+        } else {
+            console.warn(`[GitHub Analyzer] Warning tree response not ok (${treeRes.status}). Activating public zipball fallback for ${owner}/${repo}`);
+            return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
         }
     } catch (treeErr) {
         console.warn(`[GitHub Analyzer] Warning fetching tree for ${owner}/${repo}:`, treeErr.message);
+        return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
     }
 
     const rawTree = Array.isArray(treeData.tree) ? treeData.tree : [];
+    if (rawTree.length === 0) {
+        console.log(`[GitHub Analyzer] Empty Git tree received for ${owner}/${repo}. Activating public zipball fallback`);
+        return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
+    }
 
     // 3. Filter relevant files and classify them
     const relevantFiles = [];

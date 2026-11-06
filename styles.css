@@ -2287,39 +2287,103 @@ img, svg, video, canvas {
 .sec-vuln-card.vuln-low  { border-left-color: #38BDF8; }
 
 @media print {
+    @page {
+        size: A4;
+        margin: 14mm 12mm 14mm 12mm;
+    }
     body {
         background: #FFFFFF !important;
         color: #0F172A !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        font-size: 11pt !important;
+        line-height: 1.5 !important;
     }
-    #navbar, #hero, #cursor-spotlight, .nav-actions, .mermaid-toolbar,
-    .doc-suite-nav, .chat-input-wrapper, #btn-download-zip, #btn-export-pdf,
-    #btn-new-analysis, #equipo, #metricas, #infografia, #registro, #contacto, footer,
-    .sec-export-toolbar, .sec-filter-group {
+
+    /* Strictly hide all landing page sections, hero, forms, and marketing clutter */
+    #navbar, #hero, #cursor-spotlight, #problema, #como-funciona, #solucion,
+    #analizador .container > div:first-child, .analyzer-tab-group,
+    #project-input-container, #project-input-section, #progress-container,
+    #doc-editor-section, #equipo, #metricas, #infografia, #contacto, footer,
+    #feedback-fab, .nav-actions, .mermaid-toolbar, .doc-suite-nav, .chat-input-wrapper,
+    #btn-download-zip, #btn-export-pdf, #btn-sync-check, #btn-toggle-editor,
+    #btn-open-modify-modal, #btn-new-analysis, .sec-export-toolbar, .sec-filter-group,
+    .modal, .toast, .demo-repo-wrapper, .doc-lang-selector, .cat-grid,
+    #eda-fab-pill, #eda-events-modal, #three-canvas-container, .canvas-wrapper {
         display: none !important;
     }
+
+    /* Print only the analyzed repository results container */
+    #analizador {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    #analizador .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    #project-results {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-top: none !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Ensure executive card styling on paper */
     .glow-card, .mermaid-viewer-wrapper, .project-map-container, .file-tree-wrapper,
-    .sec-score-card, .sec-subcard, .sec-kpi-item, .sec-vuln-card, .sec-cat-card {
+    .sec-score-card, .sec-subcard, .sec-kpi-item, .sec-vuln-card, .sec-cat-card,
+    .kpi-card, .sec-overview-grid {
         border: 1px solid #CBD5E1 !important;
         box-shadow: none !important;
         background: #FFFFFF !important;
         color: #0F172A !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
+
     .sec-score-val, .sec-kpi-num, h1, h2, h3, h4, h5, strong {
         color: #0F172A !important;
     }
+
+    /* Render every documentation tab sequentially with clean page breaks */
     .doc-tab-panel {
         display: block !important;
         page-break-after: always;
+        break-after: page;
+        margin-bottom: 2rem !important;
     }
+    .doc-tab-panel:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+
     table {
         border-collapse: collapse;
         width: 100%;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin: 1rem 0;
     }
     th, td {
         border: 1px solid #CBD5E1 !important;
         padding: 6px 10px;
         color: #0F172A !important;
     }
+    th {
+        background: #F1F5F9 !important;
+        font-weight: 700;
+    }
+
+    pre, code {
+        background: #F8FAFC !important;
+        color: #0F172A !important;
+        border: 1px solid #E2E8F0 !important;
+        font-family: "JetBrains Mono", Consolas, monospace !important;
+        font-size: 9.5pt !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
 }
-
-
