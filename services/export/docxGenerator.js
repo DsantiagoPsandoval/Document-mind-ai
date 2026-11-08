@@ -17,6 +17,7 @@ const {
     Packer,
     Paragraph,
     TextRun,
+    ImageRun,
     Table,
     TableRow,
     TableCell,
@@ -30,6 +31,7 @@ const {
     PageBreak,
     ShadingType
 } = require('docx');
+const { buildDiagramSuite, renderDiagramToPngBuffer } = require('./diagramEngine');
 
 // --- COLOR PALETTE & TYPOGRAPHY CONSTANTS ---
 const COLORS = {
@@ -766,7 +768,16 @@ async function generateWordDocumentBuffer(analysisData, scope = 'all') {
         fullName: repo.fullName || repo.name || analysisData.projectName || 'Proyecto',
         branch: repo.branch || repo.defaultBranch || 'main',
         language: repo.primaryLanguage || (analysisData.detectedLanguages && analysisData.detectedLanguages[0]) || 'Multi-lenguaje',
-        technologies: analysisData.detectedTechnologies || [],
+        technologies: Array.isArray(analysisData.detectedTechnologies)
+            ? analysisData.detectedTechnologies
+            : (analysisData.detectedTechnologies && typeof analysisData.detectedTechnologies === 'object'
+                ? [
+                    ...(analysisData.detectedTechnologies.languages || []),
+                    ...(analysisData.detectedTechnologies.frameworks || []),
+                    ...(analysisData.detectedTechnologies.databases || []),
+                    ...(analysisData.detectedTechnologies.infrastructure || [])
+                ]
+                : []),
         filesCount: stats.relevantFilesCount || stats.totalFiles || (analysisData.relevantFilesList || []).length || 0,
         date: new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
         version: '2.5.0-Enterprise',
@@ -994,9 +1005,49 @@ async function generateWordDocumentBuffer(analysisData, scope = 'all') {
         chapNum++;
     }
 
+    const diagramSuite = buildDiagramSuite(analysisData);
+    const findDiag = (key) => diagramSuite.find(d => d.key === key);
+    let figCounter = 1;
+
+    function embedWordDiagram(diagKey, fallbackTitle, fallbackDesc) {
+        const diag = findDiag(diagKey);
+        if (!diag) return [];
+        const currentFig = figCounter++;
+        const elements = [];
+        try {
+            const pngBuf = renderDiagramToPngBuffer({
+                ...diag,
+                figureNumber: `FIGURA ${currentFig}`
+            });
+            elements.push(
+                new Paragraph({
+                    alignment: AlignmentType.CENTER,
+                    spacing: { before: 180, after: 80 },
+                    children: [
+                        new ImageRun({
+                            data: pngBuf,
+                            transformation: { width: 560, height: 310 },
+                            type: 'png'
+                        })
+                    ]
+                })
+            );
+        } catch (_) {
+            // Safe fallback if ImageRun is skipped
+        }
+        elements.push(
+            figureCaption(
+                String(currentFig),
+                diag.title || fallbackTitle,
+                diag.description || fallbackDesc
+            )
+        );
+        return elements;
+    }
+
     // --- CHAPTER: ARCHITECTURE ---
-    if (isScope('all') || isScope('arch')) {
-        bodyChildren.push(heading1(`${chapNum}. Arquitectura de Software & Modelo C4`));
+    if (isScope('all') || isScope('arch') || isScope('c4') || isScope('uml')) {
+        bodyChildren.push(heading1(`${chapNum}. Arquitectura de Software, Modelo C4 & Diseño UML`));
         bodyChildren.push(paragraph('Describe la organización estructural, los límites de los módulos, las responsabilidades por capa y el flujo de control entre componentes.'));
 
         const arch = doc.architecture || {};
@@ -1005,17 +1056,25 @@ async function generateWordDocumentBuffer(analysisData, scope = 'all') {
             bodyChildren.push(...markdownToDocxElements(arch.overview));
         }
 
+        bodyChildren.push(heading2(`${chapNum}.2 Modelo C4: Nivel 1 — Contexto del Sistema`));
         if (arch.c4Context) {
-            bodyChildren.push(heading2(`${chapNum}.2 Modelo C4: Nivel 1 — Contexto del Sistema`));
             bodyChildren.push(...markdownToDocxElements(arch.c4Context));
-            bodyChildren.push(figureCaption('1', 'Diagrama de Contexto del Sistema (C4 Level 1)', 'Interacción entre usuarios, frontend, API Gateway y servicios de IA externos'));
         }
+        bodyChildren.push(...embedWordDiagram('c4Context', 'Diagrama de Contexto del Sistema (C4 Level 1)', 'Interacción entre usuarios, frontend, API Gateway y servicios externos'));
 
+        bodyChildren.push(heading2(`${chapNum}.3 Modelo C4: Nivel 2 — Contenedores y Servicios`));
         if (arch.c4Container) {
-            bodyChildren.push(heading2(`${chapNum}.3 Modelo C4: Nivel 2 — Contenedores y Servicios`));
             bodyChildren.push(...markdownToDocxElements(arch.c4Container));
-            bodyChildren.push(figureCaption('2', 'Topología de Contenedores y Procesos (C4 Level 2)', 'Estructura de ejecución de Express.js, Supabase PostgreSQL, Workers y Gemini'));
         }
+        bodyChildren.push(...embedWordDiagram('c4Container', 'Topología de Contenedores y Procesos (C4 Level 2)', 'Estructura de ejecución de contenedores, servicios y persistencia'));
+
+        bodyChildren.push(heading2(`${chapNum}.4 Modelo C4: Nivel 3 — Componentes Internos y UML`));
+        if (arch.c4Component) {
+            bodyChildren.push(...markdownToDocxElements(arch.c4Component));
+        }
+        bodyChildren.push(...embedWordDiagram('c4Component', 'Diagrama de Componentes Internos (C4 Level 3)', 'Descomposición modular de controladores, servicios y adaptadores'));
+        bodyChildren.push(...embedWordDiagram('umlClass', 'Diagrama UML 2.5 de Clases y Dominio', 'Estructura de clases, responsabilidades y contratos internos'));
+        bodyChildren.push(...embedWordDiagram('sequenceMain', 'Diagrama UML de Secuencia — Flujo Principal', 'Trazabilidad cronológica extremo a extremo de solicitudes'));
 
         bodyChildren.push(new Paragraph({ children: [new PageBreak()] }));
         chapNum++;
@@ -1051,14 +1110,16 @@ async function generateWordDocumentBuffer(analysisData, scope = 'all') {
     }
 
     // --- CHAPTER: DATABASE ---
-    if (isScope('all') || isScope('db')) {
-        bodyChildren.push(heading1(`${chapNum}. Modelo de Datos & Diccionario de Base de Datos`));
-        bodyChildren.push(paragraph('Estructura relacional, esquemas de persistencia y diccionario técnico de atributos del sistema.'));
+    if (isScope('all') || isScope('db') || isScope('erd')) {
+        bodyChildren.push(heading1(`${chapNum}. Modelo de Datos, ERD & Diccionario de Base de Datos`));
+        bodyChildren.push(paragraph('Estructura relacional, diagrama Entidad-Relación (ERD), esquemas de persistencia y diccionario técnico de atributos del sistema.'));
 
         const dbDoc = doc.database || {};
         if (dbDoc.overview) {
             bodyChildren.push(...markdownToDocxElements(dbDoc.overview));
         }
+
+        bodyChildren.push(...embedWordDiagram('erd', 'Diagrama Entidad-Relación (ERD)', 'Entidades, claves primarias (PK), foráneas (FK) y relaciones cardinales'));
 
         const dictRows = Array.isArray(dbDoc.dataDictionary) ? dbDoc.dataDictionary : [];
         if (dictRows.length > 0) {
@@ -1152,10 +1213,12 @@ async function generateWordDocumentBuffer(analysisData, scope = 'all') {
         chapNum++;
     }
 
-    // --- CHAPTER: DEVOPS ---
-    if (isScope('all') || isScope('devops')) {
-        bodyChildren.push(heading1(`${chapNum}. DevOps, Contenerización & Despliegue CI/CD`));
-        bodyChildren.push(paragraph('Especificación del ciclo de vida de desarrollo, construcción de artefactos, configuración de Docker y despliegue automatizado.'));
+    // --- CHAPTER: DEVOPS & EDA ---
+    if (isScope('all') || isScope('devops') || isScope('deploy') || isScope('eda')) {
+        bodyChildren.push(heading1(`${chapNum}. DevOps, Arquitectura de Eventos (EDA) & Despliegue CI/CD`));
+        bodyChildren.push(paragraph('Especificación del ciclo de vida de desarrollo, topología orientada a eventos, construcción de artefactos, configuración de contenedores y despliegue automatizado.'));
+
+        bodyChildren.push(...embedWordDiagram('edaTopology', 'Arquitectura Orientada a Eventos (EDA) y Flujo de Procesos', 'Productores, bus de eventos, consumidores y políticas de resiliencia'));
 
         const devops = doc.devops || {};
         if (devops.ciCdPipeline) {
@@ -1170,6 +1233,8 @@ async function generateWordDocumentBuffer(analysisData, scope = 'all') {
             bodyChildren.push(heading2(`${chapNum}.3 Guía de Despliegue en Servidores / Cloud`));
             bodyChildren.push(...markdownToDocxElements(devops.deploymentGuide));
         }
+
+        bodyChildren.push(...embedWordDiagram('deploymentInfra', 'Diagrama de Despliegue Cloud, CI/CD y Seguridad Perimetral', 'Topología productiva, WAF/CSP, OAuth 2.0 y persistencia gestionada'));
 
         bodyChildren.push(new Paragraph({ children: [new PageBreak()] }));
         chapNum++;

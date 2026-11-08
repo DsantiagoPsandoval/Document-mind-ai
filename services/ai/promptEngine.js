@@ -72,7 +72,71 @@ Tu objetivo es formalizar el contrato OpenAPI 3.0.3 del backend analizado.
 DIRECTIVAS INMUTABLES:
 1. Extraer ÚNICAMENTE las rutas, métodos HTTP (GET, POST, PUT, DELETE, PATCH), parámetros y cuerpos de solicitud que existan en el código.
 2. No inventar endpoints ni parámetros que no estén implementados en los controladores o routers.
-3. Producir una especificación OpenAPI 3.0.3 válida en formato JSON estricto.`
+3. Producir una especificación OpenAPI 3.0.3 válida en formato JSON estricto.`,
+
+    c4: `Eres un Principal Software Architect experto en el Modelo C4 de Simon Brown (Contexto, Contenedores, Componentes).
+Tu objetivo es documentar las 3 vistas jerárquicas del Modelo C4 basadas estrictamente en los módulos y dependencias reales del repositorio.
+DIRECTIVAS INMUTABLES:
+1. Etiquetar cada elemento con [Encontrado], [Inferido] o [Recomendado].
+2. Especificar actores, fronteras del sistema, protocolos de comunicación y tecnologías verificadas.`,
+
+    uml: `Eres un Ingeniero de Modelado de Software certificado en OMG UML 2.5.
+Tu objetivo es generar especificaciones formales de diagramas UML de Clases, Secuencia y Actividad fieles al código fuente analizado.
+DIRECTIVAS INMUTABLES:
+1. Reflejar clases, módulos, métodos y flujos de invocación reales del repositorio.
+2. No inventar clases ni métodos que no existan en los archivos inspeccionados.`,
+
+    erd: `Eres un Data Architect especialista en Modelado Entidad-Relación (ERD) e Ingeniería de Datos.
+Tu objetivo es extraer y documentar las entidades, atributos, tipos de datos, claves primarias (PK), claves foráneas (FK) y relaciones cardinales del repositorio.
+DIRECTIVAS INMUTABLES:
+1. Basar el modelo en esquemas SQL, modelos ORM o estructuras de datos reales detectadas.
+2. Si el sistema es stateless o en memoria, declararlo explícitamente y documentar las estructuras de dominio.`,
+
+    devops: `Eres un Staff DevOps / SRE Platform Architect especializado en CI/CD, Docker, automatización y observabilidad.
+Tu objetivo es documentar el pipeline de integración y despliegue continuo, variables de entorno, scripts de construcción y estrategia operativa del repositorio.
+DIRECTIVAS INMUTABLES:
+1. Distinguir entre pipelines implementados en el repositorio ([Encontrado]) y mejoras operativas sugeridas ([Recomendado]).`,
+
+    stride: `Eres un Principal Cybersecurity Architect especialista en Modelado de Amenazas STRIDE (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege).
+Tu objetivo es evaluar cada componente real del repositorio frente a las 6 categorías STRIDE y definir controles de mitigación verificables.`,
+
+    adr: `Eres un Principal Staff Engineer especialista en Gobierno Arquitectónico y Architectural Decision Records (MADR).
+Tu objetivo es redactar los registros de decisión arquitectónica (ADR) que sustentan el diseño, stack tecnológico y patrones observados en el repositorio.`,
+
+    database: `Eres un Principal Database Engineer y Administrador de Datos (ISO/IEC 11179).
+Tu objetivo es elaborar el documento técnico de Base de Datos: diccionario de datos completo, integridad referencial, índices, políticas de acceso y respaldo.`,
+
+    techManual: `Eres un Staff Software Engineer responsable del Manual Técnico de Ingeniería y Mantenimiento (IEEE 1063).
+Tu objetivo es documentar la estructura interna del código, configuración del entorno de desarrollo, arquitectura modular, dependencias y guía de diagnóstico.`,
+
+    userManual: `Eres un Especialista Senior en Comunicación Técnica (ISO/IEC/IEEE 26514).
+Tu objetivo es redactar un Manual de Usuario claro, estructurado por flujos de trabajo reales, guías paso a paso y preguntas frecuentes (FAQ) verificadas.`,
+
+    deployment: `Eres un Cloud Infrastructure & Release Engineer especialista en Runbooks de Despliegue Productivo.
+Tu objetivo es documentar los requisitos de infraestructura, configuración de variables de entorno, topología de red, healthchecks y plan de rollback.`
+};
+
+const PROMPT_ENGINE_VERSION = '3.0.0';
+
+const PROMPT_STANDARDS = {
+    repoAnalysis: 'ISO/IEC 25010 & AST Static Forensics',
+    prd: 'IEEE 830 / Agile Product Discovery',
+    srs: 'ISO/IEC/IEEE 29148 & IEEE Std 830-1998',
+    architecture: 'ISO/IEC/IEEE 42010 & C4 Model',
+    c4: 'Simon Brown C4 Model (Levels 1-3)',
+    uml: 'OMG UML 2.5 Specification',
+    erd: 'Crow\'s Foot Entity-Relationship Standard',
+    openapi: 'OpenAPI Specification (OAS) 3.0.3',
+    devops: 'DORA & Twelve-Factor CI/CD Standard',
+    qa: 'ISO/IEC/IEEE 29119 Software Testing',
+    security: 'OWASP Top 10:2021 & ASVS 4.0',
+    stride: 'Microsoft STRIDE Threat Modeling',
+    adr: 'MADR Architectural Decision Records',
+    database: 'ISO/IEC 11179 Data Dictionary Standard',
+    eda: 'AsyncAPI & CloudEvents EDA Standard',
+    techManual: 'IEEE 1063 Technical Maintainer Standard',
+    userManual: 'ISO/IEC/IEEE 26514 User Documentation',
+    deployment: 'Cloud-Native Release & Runbook Standard'
 };
 
 /**
@@ -511,12 +575,57 @@ Reglas estrictas:
 }`;
             break;
 
+        case 'c4':
+            specificInstructions = `Genera la documentación completa del Modelo C4 (Nivel 1 Contexto, Nivel 2 Contenedores, Nivel 3 Componentes) fundamentada en el código fuente. Clasifica cada componente con [Encontrado], [Inferido] o [Recomendado].`;
+            responseSchemaGuide = `{ "c4Context": "...", "c4Container": "...", "c4Component": "...", "c4Mermaid": "flowchart TD\\n..." }`;
+            break;
+
+        case 'uml':
+            specificInstructions = `Genera la especificación formal UML 2.5 de Clases, Secuencia y Actividad basada en los módulos y controladores reales del repositorio.`;
+            responseSchemaGuide = `{ "classDiagram": "...", "sequenceDiagram": "...", "activityDiagram": "...", "umlNotes": "..." }`;
+            break;
+
+        case 'erd':
+        case 'database':
+            specificInstructions = `Extrae y documenta el Modelo Entidad-Relación (ERD) y el Diccionario de Datos completo (ISO/IEC 11179) a partir de los modelos y esquemas detectados.`;
+            responseSchemaGuide = `{ "overview": "...", "erdMermaid": "erDiagram\\n...", "dataDictionary": [{ "table": "...", "field": "...", "type": "...", "description": "...", "required": true, "isPk": false }] }`;
+            break;
+
+        case 'devops':
+        case 'deployment':
+            specificInstructions = `Documenta la estrategia DevOps, pipeline CI/CD, variables de entorno, contenerización, despliegue productivo, healthchecks y rollback.`;
+            responseSchemaGuide = `{ "ciCdPipeline": "...", "deploymentGuide": "...", "environmentVariables": [], "rollbackStrategy": "..." }`;
+            break;
+
+        case 'stride':
+            specificInstructions = `Ejecuta un modelado de amenazas STRIDE (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) sobre los componentes reales del sistema.`;
+            responseSchemaGuide = `{ "methodology": "STRIDE", "threats": [{ "id": "STRIDE-01", "category": "Spoofing", "component": "...", "scenario": "...", "recommendedControl": "..." }] }`;
+            break;
+
+        case 'adr':
+            specificInstructions = `Genera los Registros de Decisión de Arquitectura (ADR) que justifican las decisiones técnicas, patrones y tecnologías observadas en el repositorio.`;
+            responseSchemaGuide = `{ "adrs": [{ "id": "ADR-001", "title": "...", "status": "Aceptada", "context": "...", "decision": "...", "consequences": "..." }] }`;
+            break;
+
+        case 'techManual':
+            specificInstructions = `Elabora el Manual Técnico de Ingeniería y Mantenimiento (IEEE 1063): estructura de directorios, instalación local, scripts, arquitectura interna y troubleshooting.`;
+            responseSchemaGuide = `{ "readme": "...", "contributing": "...", "troubleshooting": "..." }`;
+            break;
+
+        case 'userManual':
+            specificInstructions = `Elabora el Manual de Usuario Final (ISO/IEC/IEEE 26514) con guía operativa paso a paso y preguntas frecuentes (FAQ) verificadas.`;
+            responseSchemaGuide = `{ "guide": "...", "faq": [{ "question": "...", "answer": "..." }] }`;
+            break;
+
         default:
             specificInstructions = `Analiza el proyecto y genera un informe técnico estructurado en JSON.`;
             responseSchemaGuide = `{ "summary": "Resumen técnico" }`;
     }
 
+    const standardUsed = PROMPT_STANDARDS[taskType] || 'ISO/IEC/IEEE Software Engineering Standard';
+
     const promptText = `=== SOLICITUD DE ANÁLISIS ESPECIALIZADO (${taskType.toUpperCase()}) ===
+ESTÁNDAR TÉCNICO DE REFERENCIA: ${standardUsed} | VERSIÓN DE PROMPT: ${PROMPT_ENGINE_VERSION}
 IDIOMA DE RESPUESTA: ${language === 'en' ? 'ENGLISH (Professional Engineering Standard)' : 'ESPAÑOL (Estándar Profesional de Ingeniería de Software)'}
 
 ${projectMetadata}
@@ -541,6 +650,8 @@ ${responseSchemaGuide}`;
         systemInstruction,
         promptText,
         taskType,
+        promptVersion: PROMPT_ENGINE_VERSION,
+        standard: standardUsed,
         tokenEstimate,
         packedFilesCount: packedFiles.length,
         omittedFilesCount: omittedCount
@@ -548,6 +659,8 @@ ${responseSchemaGuide}`;
 }
 
 module.exports = {
+    PROMPT_ENGINE_VERSION,
+    PROMPT_STANDARDS,
     SYSTEM_ROLES,
     buildProjectContext,
     buildSpecializedPrompt

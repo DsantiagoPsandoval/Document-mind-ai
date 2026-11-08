@@ -25,6 +25,8 @@ const {
 const { setCachedAnalysis, getCachedAnalysis, getTargetedChatContext, compareAnalyses } = require('./services/analyzer/cacheService');
 const { createDocumentationZip } = require('./services/analyzer/exportService');
 const { generateWordDocumentBuffer } = require('./services/export/docxGenerator');
+const { exportDocumentByFormat } = require('./services/export/multiFormatExporter');
+const { buildUnifiedDocumentModel } = require('./services/export/unifiedDocModel');
 const { generateDocumentationSuite } = require('./services/analyzer/docGenerator');
 const { classifyFile, computeFileHash } = require('./services/analyzer/fileClassifier');
 const { sanitizeContent } = require('./services/analyzer/sanitizer');
@@ -445,12 +447,19 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
             endpoints: projectData.endpoints || [],
             dataModels: projectData.dataModels || [],
             projectMap: projectData.projectMap || {},
+            unifiedDocument: typeof responseUnifiedDoc !== 'undefined' ? responseUnifiedDoc : undefined,
+            qualityReview: typeof responseQualityReview !== 'undefined' ? responseQualityReview : undefined,
             documentation,
             security
         };
 
         // Cache in memory for targeted token-saving chat and ZIP download
+        let unifiedDocument = buildUnifiedDocumentModel(fullAnalysisResult, 'all');
+        fullAnalysisResult.unifiedDocument = unifiedDocument;
+        fullAnalysisResult.qualityReview = unifiedDocument.qualityReview;
         setCachedAnalysis(projectId, fullAnalysisResult);
+        var responseUnifiedDoc = unifiedDocument;
+        var responseQualityReview = unifiedDocument ? unifiedDocument.qualityReview : undefined;
 
         res.json({
             success: true,
@@ -464,6 +473,8 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
             endpoints: projectData.endpoints || [],
             dataModels: projectData.dataModels || [],
             projectMap: projectData.projectMap || {},
+            unifiedDocument: typeof responseUnifiedDoc !== 'undefined' ? responseUnifiedDoc : undefined,
+            qualityReview: typeof responseQualityReview !== 'undefined' ? responseQualityReview : undefined,
             documentation,
             security
         });
@@ -598,6 +609,111 @@ app.post('/api/project/export/docx', async (req, res, next) => {
 /**
  * Download Security Report JSON Endpoint (GET /api/project/export/security-json/:projectId)
  */
+/**
+ * Download Direct Binary PDF Document Endpoint (GET /api/project/export/pdf/:projectId)
+ */
+app.get('/api/project/export/pdf/:projectId', async (req, res, next) => {
+    try {
+        const { projectId } = req.params;
+        const scope = req.query.scope || 'all';
+        const analysis = getCachedAnalysis(projectId);
+
+        if (!analysis) {
+            return res.status(404).json({
+                success: false,
+                error: 'El proyecto solicitado ha expirado o no fue encontrado en memoria.'
+            });
+        }
+
+        const exported = await exportDocumentByFormat(analysis, 'pdf', scope);
+        res.setHeader('Content-Type', exported.contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+        res.send(exported.buffer);
+    } catch (err) {
+        console.error('[DocuMind Export] Error generating PDF for project:', err);
+        next(err);
+    }
+});
+
+/**
+ * Direct Binary PDF Export from Session Payload (POST /api/project/export/pdf)
+ */
+app.post('/api/project/export/pdf', async (req, res, next) => {
+    try {
+        const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
+        const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
+        if (customDoc) payload.customDoc = customDoc;
+
+        const exported = await exportDocumentByFormat(payload, 'pdf', scope);
+        res.setHeader('Content-Type', exported.contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+        res.send(exported.buffer);
+    } catch (err) {
+        console.error('[DocuMind Export] Error generating PDF from POST payload:', err);
+        next(err);
+    }
+});
+
+/**
+ * Unified Multi-Format Export Endpoint (GET /api/project/export/format/:format/:projectId)
+ * Supports: docx, pdf, html, md, json, txt
+ */
+app.get('/api/project/export/format/:format/:projectId', async (req, res, next) => {
+    try {
+        const { format, projectId } = req.params;
+        const scope = req.query.scope || 'all';
+        const analysis = getCachedAnalysis(projectId);
+
+        if (!analysis) {
+            return res.status(404).json({
+                success: false,
+                error: 'El proyecto solicitado ha expirado o no fue encontrado en memoria.'
+            });
+        }
+
+        const exported = await exportDocumentByFormat(analysis, format, scope);
+        res.setHeader('Content-Type', exported.contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+        res.send(exported.buffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Unified Multi-Format Export Endpoint (POST /api/project/export/format/:format)
+ * Supports: docx, pdf, html, md, json, txt
+ */
+app.post('/api/project/export/format/:format', async (req, res, next) => {
+    try {
+        const { format } = req.params;
+        const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
+        const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
+        if (customDoc) payload.customDoc = customDoc;
+
+        const exported = await exportDocumentByFormat(payload, format, scope);
+        res.setHeader('Content-Type', exported.contentType);
+        res.setHeader('Content-Disposition', `attachment; filename="${exported.filename}"`);
+        res.send(exported.buffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Unified Document Model Endpoint (POST /api/project/export/unified-model)
+ */
+app.post('/api/project/export/unified-model', (req, res, next) => {
+    try {
+        const { analysisData, scope = 'all', projectId } = req.body || {};
+        const source = (projectId ? getCachedAnalysis(projectId) : null) || analysisData || {};
+        const model = buildUnifiedDocumentModel(source, scope);
+        res.json({ success: true, model });
+    } catch (err) {
+        next(err);
+    }
+});
+
 app.get('/api/project/export/security-json/:projectId', (req, res, next) => {
     try {
         const { projectId } = req.params;

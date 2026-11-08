@@ -747,6 +747,45 @@
 
                         <!-- Action Buttons -->
                         <div style="display:flex;gap:.65rem;flex-wrap:wrap;">
+                            <!-- Botón Principal: Exportar documento (Menú Desplegable Multi-Formato) -->
+                            <div class="export-dropdown-wrapper" style="position:relative;display:inline-block;">
+                                <button type="button" id="btn-export-dropdown-trigger" class="btn-cyber" style="padding:.6rem 1.3rem;font-size:.84rem;background:linear-gradient(135deg,#0284C7,#4F46E5);border-color:#38BDF8;display:inline-flex;align-items:center;gap:.45rem;" aria-expanded="false" aria-haspopup="true">
+                                    <i class="fa-solid fa-file-export"></i>
+                                    <span>Exportar documento</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size:.7rem;margin-left:.15rem;"></i>
+                                </button>
+                                <div id="export-dropdown-menu" class="export-dropdown-menu" style="display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:255px;background:#0F172A;border:1px solid rgba(56,189,248,.4);border-radius:.65rem;box-shadow:0 18px 40px rgba(0,0,0,.85);padding:.45rem;z-index:9999;">
+                                    <div style="padding:.35rem .65rem;font-size:.68rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid rgba(148,163,184,.12);margin-bottom:.3rem;">Formatos de Exportación Directa</div>
+                                    <button type="button" class="export-menu-item" data-export-format="docx" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-file-word" style="color:#38BDF8;width:20px;"></i>Descargar Word</span>
+                                        <span class="badge badge-cyan" style="font-size:.62rem;">.docx</span>
+                                    </button>
+                                    <button type="button" class="export-menu-item" data-export-format="pdf" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-file-pdf" style="color:#F87171;width:20px;"></i>Descargar PDF</span>
+                                        <span class="badge" style="font-size:.62rem;background:rgba(248,113,113,.15);color:#F87171;">.pdf</span>
+                                    </button>
+                                    <button type="button" class="export-menu-item" data-export-format="md" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-file-lines" style="color:#34D399;width:20px;"></i>Descargar Markdown</span>
+                                        <span class="badge" style="font-size:.62rem;background:rgba(52,211,153,.15);color:#34D399;">.md</span>
+                                    </button>
+                                    <button type="button" class="export-menu-item" data-export-format="html" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-code" style="color:#FBBF24;width:20px;"></i>Descargar HTML</span>
+                                        <span class="badge" style="font-size:.62rem;background:rgba(251,191,36,.15);color:#FBBF24;">.html</span>
+                                    </button>
+                                    <button type="button" class="export-menu-item" data-export-format="json" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-brackets-curly" style="color:#A78BFA;width:20px;"></i>Descargar JSON</span>
+                                        <span class="badge" style="font-size:.62rem;background:rgba(167,139,250,.15);color:#A78BFA;">.json</span>
+                                    </button>
+                                    <button type="button" class="export-menu-item" data-export-format="txt" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-align-left" style="color:#94A3B8;width:20px;"></i>Descargar TXT</span>
+                                        <span class="badge" style="font-size:.62rem;background:rgba(148,163,184,.15);color:#94A3B8;">.txt</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <span id="export-progress-badge" style="display:none;align-items:center;gap:.4rem;padding:.4rem .85rem;border-radius:999px;background:rgba(2,132,199,.18);border:1px solid rgba(56,189,248,.4);color:#38BDF8;font-size:.76rem;font-weight:700;">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                <span id="export-progress-text">Generando documento...</span>
+                            </span>
                             <button type="button" id="btn-download-zip" class="btn-cyber" style="padding:.6rem 1.25rem;font-size:.82rem;">
                                 <i class="fa-solid fa-file-zipper" style="margin-right:.4rem;"></i>Descargar (.ZIP)
                             </button>
@@ -2204,7 +2243,7 @@
                     </div>
                     <div>
                         <h3 style="font-size:1.02rem;font-weight:900;color:#fff;margin:0;display:flex;align-items:center;gap:.5rem;">
-                            Visor &amp; Editor Microsoft Word (.docx)
+                            Previsualización Editorial A4 &amp; Centro de Exportación
                             <span class="badge badge-cyan" style="font-size:.65rem;">A4 Word Editorial</span>
                         </h3>
                         <p style="font-size:.72rem;color:#94A3B8;margin:.1rem 0 0 0;">Maquetación formal con portada, control documental, índice jerárquico y descarga editable</p>
@@ -2215,24 +2254,52 @@
                 <div style="display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;">
                     <select id="preview-doc-scope" class="cyber-input" style="padding:.45rem .8rem;font-size:.78rem;width:auto;min-width:200px;background:#0F172A;border:1px solid rgba(56,189,248,.3);color:#E2E8F0;border-radius:.45rem;">
                         <option value="all">📚 Suite Completa (Todos los Módulos)</option>
-                        <option value="prd">📋 PRD &amp; SRS (IEEE 830)</option>
-                        <option value="arch">🏛️ Arquitectura de Software &amp; C4</option>
-                        <option value="db">🗄️ Base de Datos &amp; Diccionario</option>
-                        <option value="api">🔌 Catálogo de APIs &amp; OpenAPI</option>
-                        <option value="readme">📖 README &amp; Guía de Desarrollo</option>
-                        <option value="devops">🚀 DevOps &amp; CI/CD</option>
+                        <option value="prd">📋 PRD — Requisitos de Producto</option>
+                        <option value="srs">📐 SRS — Especificación IEEE 830 / 29148</option>
+                        <option value="arch">🏛️ Arquitectura de Software (ISO 42010)</option>
+                        <option value="c4">🗺️ Diagramas C4 (Contexto, Contenedores, Componentes)</option>
+                        <option value="uml">🧩 Diagramas UML (Clases &amp; Secuencia)</option>
+                        <option value="erd">🗄️ Modelo Entidad-Relación (ERD)</option>
+                        <option value="db">📊 Diccionario de Datos &amp; Persistencia</option>
+                        <option value="api">🔌 Catálogo de APIs &amp; OpenAPI 3.0</option>
+                        <option value="eda">⚡ Arquitectura Orientada a Eventos (EDA)</option>
+                        <option value="readme">📖 Manual Técnico &amp; Guía de Desarrollo</option>
+                        <option value="devops">🚀 DevOps, CI/CD &amp; Despliegue</option>
                         <option value="qa">🧪 Plan de Calidad &amp; Matriz QA</option>
-                        <option value="sec">🛡️ Seguridad DevSecOps (SAST)</option>
+                        <option value="sec">🛡️ Seguridad DevSecOps (OWASP / SAST)</option>
+                        <option value="stride">🔒 Modelo de Amenazas STRIDE</option>
                         <option value="adrs">⚖️ Decisiones de Arquitectura (ADR)</option>
-                        <option value="user">👤 Guía de Usuario &amp; FAQ</option>
+                        <option value="user">👤 Manual de Usuario &amp; Operación</option>
+
+
+
+
+
+
+                        <option value="qa">🧪 Plan de Calidad &amp; Matriz QA</option>
+
+                        <option value="adrs">⚖️ Decisiones de Arquitectura (ADR)</option>
+
                     </select>
 
                     <!-- Export Actions -->
                     <button type="button" id="btn-preview-download-docx" class="btn-cyber" style="padding:.45rem 1.05rem;font-size:.8rem;background:linear-gradient(135deg,#0284C7,#0369A1);border-color:#38BDF8;" title="Descargar documento editable en formato Microsoft Word (.docx)">
                         <i class="fa-solid fa-file-word" style="margin-right:.4rem;color:#fff;"></i>Descargar Word (.docx)
                     </button>
-                    <button type="button" id="btn-preview-print" class="btn-cyber-outline" style="padding:.45rem .9rem;font-size:.8rem;" title="Imprimir o exportar documento a PDF">
-                        <i class="fa-solid fa-file-pdf" style="margin-right:.35rem;color:#F87171;"></i>PDF / Imprimir
+                    <button type="button" id="btn-preview-print" class="btn-cyber-outline" style="padding:.45rem .9rem;font-size:.8rem;border-color:rgba(248,113,113,.45);color:#F87171;" title="Descargar archivo PDF real directamente al dispositivo (sin ventana de impresión)">
+                        <i class="fa-solid fa-file-pdf" style="margin-right:.35rem;color:#F87171;"></i>Descargar PDF (.pdf)
+                    </button>
+                    <button type="button" id="btn-preview-download-html" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar documento en formato HTML A4 autónomo" data-export-format="html">
+                        <i class="fa-solid fa-code" style="margin-right:.3rem;color:#FBBF24;"></i>HTML (.html)
+                    </button>
+                    <button type="button" id="btn-preview-download-json" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar modelo documental estructurado en JSON" data-export-format="json">
+                        <i class="fa-solid fa-brackets-curly" style="margin-right:.3rem;color:#A78BFA;"></i>JSON (.json)
+                    </button>
+                    <button type="button" id="btn-preview-download-txt" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar documento en texto plano (.txt)" data-export-format="txt">
+                        <i class="fa-solid fa-align-left" style="margin-right:.3rem;color:#94A3B8;"></i>TXT (.txt)
+                    </button>
+                    <!-- Fin botones exportación directa -->
+                    <span style="display:none;">
                     </button>
                     <button type="button" id="btn-preview-download-md" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar documento en formato Markdown">
                         <i class="fa-solid fa-file-lines" style="margin-right:.3rem;color:var(--tech-cyan);"></i>Markdown (.md)
@@ -2267,6 +2334,20 @@
                     <button type="button" class="btn-ghost preview-zoom-btn active" data-zoom="1.0" style="padding:.12rem .45rem;font-size:.72rem;background:rgba(56,189,248,.18);color:var(--tech-cyan);border-radius:.3rem;">100%</button>
                     <button type="button" class="btn-ghost preview-zoom-btn" data-zoom="1.25" style="padding:.12rem .45rem;font-size:.72rem;border-radius:.3rem;">125%</button>
                     <button type="button" class="btn-ghost preview-zoom-btn" data-zoom="fit" style="padding:.12rem .45rem;font-size:.72rem;border-radius:.3rem;">Ancho</button>
+                    <span style="margin:0 .3rem;color:rgba(148,163,184,.25);">|</span>
+                    <button type="button" id="btn-toggle-preview-toc" class="btn-ghost" style="padding:.15rem .5rem;font-size:.72rem;border-radius:.3rem;color:#38BDF8;" title="Mostrar/Ocultar índice de capítulos">
+                        <i class="fa-solid fa-list-ol" style="margin-right:.25rem;"></i>Índice
+                    </button>
+                    <button type="button" id="btn-preview-prev-page" class="btn-ghost" style="padding:.15rem .45rem;font-size:.72rem;border-radius:.3rem;" title="Ir a la página anterior">
+                        <i class="fa-solid fa-chevron-up"></i>
+                    </button>
+                    <span id="preview-page-indicator" style="font-size:.72rem;color:#E2E8F0;font-family:'JetBrains Mono',monospace;">Pág 1</span>
+                    <button type="button" id="btn-preview-next-page" class="btn-ghost" style="padding:.15rem .45rem;font-size:.72rem;border-radius:.3rem;" title="Ir a la página siguiente">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <button type="button" id="btn-preview-fullscreen" class="btn-ghost" style="padding:.15rem .55rem;font-size:.72rem;border-radius:.3rem;color:#A78BFA;" title="Alternar pantalla completa">
+                        <i class="fa-solid fa-expand" style="margin-right:.25rem;"></i>Pantalla completa
+                    </button>
                 </div>
             </div>
 

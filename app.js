@@ -2348,8 +2348,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnPreviewPrint) {
         btnPreviewPrint.addEventListener("click", () => {
             if (!currentAnalysisData || typeof DocuMindExporter === "undefined") return;
-            DocuMindExporter.printDocument(currentAnalysisData, currentPreviewScope);
-            showToast("Generando vista de impresión lista para PDF...", "info");
+            (async () => {
+                try {
+                    showToast("Generando archivo PDF real directamente (sin ventana de impresión)...", "info");
+                    btnPreviewPrint.disabled = true;
+                    await DocuMindExporter.downloadDirectPdf(currentAnalysisData, currentPreviewScope);
+                    showToast("¡Documento PDF (.pdf) descargado directamente con éxito!", "success");
+                } catch (err) {
+                    console.error("Error exporting direct PDF:", err);
+                    showToast("Error al generar PDF: " + err.message, "error");
+                } finally {
+                    btnPreviewPrint.disabled = false;
+                }
+            })();
+            // Direct PDF handled above
         });
     }
 
@@ -2483,6 +2495,114 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Security Center Exports
     const btnExportSecJson = document.getElementById("btn-export-sec-json");
+
+    // 8. Primary "Exportar documento" Dropdown & Multi-Format Direct Export Engine
+    const btnExportDropdownTrigger = document.getElementById("btn-export-dropdown-trigger");
+    const exportDropdownMenu = document.getElementById("export-dropdown-menu");
+    const exportProgressBadge = document.getElementById("export-progress-badge");
+    const exportProgressText = document.getElementById("export-progress-text");
+
+    if (btnExportDropdownTrigger && exportDropdownMenu) {
+        btnExportDropdownTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = exportDropdownMenu.style.display === "block";
+            exportDropdownMenu.style.display = isOpen ? "none" : "block";
+            btnExportDropdownTrigger.setAttribute("aria-expanded", String(!isOpen));
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!exportDropdownMenu.contains(e.target) && e.target !== btnExportDropdownTrigger) {
+                exportDropdownMenu.style.display = "none";
+                btnExportDropdownTrigger.setAttribute("aria-expanded", "false");
+            }
+        });
+    }
+
+    const formatLabels = {
+        docx: "Microsoft Word (.docx)",
+        pdf: "Documento PDF (.pdf)",
+        md: "Markdown Técnico (.md)",
+        html: "Documento HTML A4 (.html)",
+        json: "Modelo Estructurado (.json)",
+        txt: "Texto Plano (.txt)"
+    };
+
+    document.querySelectorAll("[data-export-format]").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            if (exportDropdownMenu) {
+                exportDropdownMenu.style.display = "none";
+            }
+            if (!currentAnalysisData || typeof DocuMindExporter === "undefined") {
+                showToast("Primero genera el análisis del proyecto antes de exportar.", "warning");
+                return;
+            }
+            const fmt = (btn.getAttribute("data-export-format") || "docx").toLowerCase();
+            const label = formatLabels[fmt] || fmt.toUpperCase();
+            const activeScope = (previewModal && previewModal.classList.contains("active")) ? currentPreviewScope : "all";
+
+            try {
+                btn.disabled = true;
+                if (exportProgressBadge && exportProgressText) {
+                    exportProgressText.textContent = `Generando ${label}...`;
+                    exportProgressBadge.style.display = "inline-flex";
+                }
+                showToast(`Generando y descargando ${label}...`, "info");
+                await DocuMindExporter.exportByFormat(currentAnalysisData, fmt, activeScope);
+                showToast(`¡Descarga de ${label} completada con éxito!`, "success");
+            } catch (err) {
+                console.error(`Error exporting format ${fmt}:`, err);
+                showToast(`Error al exportar ${label}: ${err.message}`, "error");
+            } finally {
+                btn.disabled = false;
+                if (exportProgressBadge) {
+                    setTimeout(() => { exportProgressBadge.style.display = "none"; }, 1200);
+                }
+            }
+        });
+    });
+
+    // 9. A4 Preview Page Navigation, Mobile TOC Drawer & Fullscreen Controls
+    let currentPreviewPageIdx = 0;
+    const btnPreviewPrevPage = document.getElementById("btn-preview-prev-page");
+    const btnPreviewNextPage = document.getElementById("btn-preview-next-page");
+    const previewPageIndicator = document.getElementById("preview-page-indicator");
+    const btnPreviewFullscreen = document.getElementById("btn-preview-fullscreen");
+    const btnTogglePreviewToc = document.getElementById("btn-toggle-preview-toc");
+
+    function navigatePreviewPage(delta) {
+        if (!previewPaper) return;
+        const pages = previewPaper.querySelectorAll(".a4-page-sheet, .doc-section");
+        if (!pages.length) return;
+        currentPreviewPageIdx = Math.max(0, Math.min(pages.length - 1, currentPreviewPageIdx + delta));
+        const targetEl = pages[currentPreviewPageIdx];
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        if (previewPageIndicator) {
+            previewPageIndicator.textContent = `Pág ${currentPreviewPageIdx + 1}/${pages.length}`;
+        }
+    }
+
+    if (btnPreviewPrevPage) {
+        btnPreviewPrevPage.addEventListener("click", () => navigatePreviewPage(-1));
+    }
+    if (btnPreviewNextPage) {
+        btnPreviewNextPage.addEventListener("click", () => navigatePreviewPage(1));
+    }
+    if (btnPreviewFullscreen && previewModal) {
+        btnPreviewFullscreen.addEventListener("click", () => {
+            const isFull = previewModal.classList.toggle("is-fullscreen");
+            btnPreviewFullscreen.innerHTML = isFull
+                ? '<i class="fa-solid fa-compress" style="margin-right:.25rem;"></i>Salir Pantalla Completa'
+                : '<i class="fa-solid fa-expand" style="margin-right:.25rem;"></i>Pantalla completa';
+        });
+    }
+    if (btnTogglePreviewToc && wordTocSidebar) {
+        btnTogglePreviewToc.addEventListener("click", () => {
+            wordTocSidebar.classList.toggle("toc-mobile-open");
+        });
+    }
     if (btnExportSecJson) {
         btnExportSecJson.addEventListener("click", () => {
             if (currentProjectId) {

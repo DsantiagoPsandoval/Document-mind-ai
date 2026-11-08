@@ -496,6 +496,10 @@
             page-break-inside: avoid !important;
         }
 
+        .a4-page-sheet { background: #FFFFFF; width: 100%; max-width: 210mm; min-height: 280mm; margin: 0 auto 24px auto; padding: 15mm 16mm; border: 1px solid #CBD5E1; box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08); display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .a4-running-header { display: flex; justify-content: space-between; align-items: center; font-size: 7.5pt; font-weight: 700; color: #64748B; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .a4-running-footer { display: flex; justify-content: space-between; align-items: center; font-size: 7.5pt; color: #64748B; border-top: 1px solid #E2E8F0; padding-top: 8px; margin-top: 20px; }
+        @media (max-width: 768px) { .a4-page-sheet { padding: 14px 12px; min-height: auto; margin-bottom: 14px; } .toc-list { columns: 1; } }
         /* FOOTER */
         .doc-footer {
             margin-top: 32px;
@@ -511,6 +515,70 @@
     /**
      * Builds the complete HTML string for the documentation suite or an individual section.
      */
+    function buildVisualSvgDiagram(figNum, title, subtitle, standard, layers) {
+        const w = 780;
+        const layerH = 112;
+        const headH = 54;
+        const footH = 34;
+        const h = headH + layers.length * layerH + footH + 14;
+        let body = '';
+        const coords = [];
+
+        layers.forEach((layer, lIdx) => {
+            const ly = headH + 10 + lIdx * layerH;
+            body += `<rect x="16" y="${ly}" width="${w - 32}" height="${layerH - 10}" rx="6" fill="${lIdx % 2 === 0 ? '#F8FAFC' : '#F1F5F9'}" stroke="#E2E8F0" stroke-dasharray="4 3"/>`;
+            body += `<text x="28" y="${ly + 16}" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="8.5" font-weight="700" fill="#64748B">${escapeHtml(layer.title.toUpperCase())}</text>`;
+            const nodes = layer.nodes || [];
+            const slotW = (w - 48) / Math.max(nodes.length, 1);
+            const bw = Math.min(182, slotW - 14);
+            const bh = 62;
+            nodes.forEach((n, nIdx) => {
+                const cx = 24 + nIdx * slotW + slotW / 2;
+                const bx = cx - bw / 2;
+                const by = ly + 24;
+                const col = n.color || '#0284C7';
+                body += `<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="6" fill="#FFFFFF" stroke="${col}" stroke-width="1.6"/>`;
+                body += `<rect x="${bx}" y="${by}" width="${bw}" height="16" rx="5" fill="${col}"/>`;
+                body += `<text x="${cx}" y="${by + 11.5}" text-anchor="middle" font-family="Consolas, monospace" font-size="8" font-weight="700" fill="#FFFFFF">${escapeHtml(n.tag || 'COMPONENT')}</text>`;
+                body += `<text x="${cx}" y="${by + 31}" text-anchor="middle" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="10" font-weight="700" fill="#0F172A">${escapeHtml(String(n.label || '').slice(0, 24))}</text>`;
+                body += `<text x="${cx}" y="${by + 47}" text-anchor="middle" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="8.5" fill="#475569">${escapeHtml(String(n.sub || '').slice(0, 28))}</text>`;
+                coords.push({ lIdx, cx, topY: by, bottomY: by + bh });
+            });
+        });
+
+        for (let l = 0; l < layers.length - 1; l++) {
+            const upper = coords.filter(c => c.lIdx === l);
+            const lower = coords.filter(c => c.lIdx === l + 1);
+            upper.forEach((u, i) => {
+                const target = lower[i % Math.max(lower.length, 1)];
+                if (target) {
+                    body += `<line x1="${u.cx}" y1="${u.bottomY}" x2="${target.cx}" y2="${target.topY}" stroke="#475569" stroke-width="1.4" marker-end="url(#arr-${figNum})"/>`;
+                }
+            });
+        }
+
+        return `<div class="doc-diagram-card">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="100%" height="auto" role="img" aria-label="${escapeHtml(title)}">
+                <defs>
+                    <marker id="arr-${figNum}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#475569"/>
+                    </marker>
+                </defs>
+                <rect x="1" y="1" width="${w - 2}" height="${h - 2}" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+                <rect x="1" y="1" width="${w - 2}" height="${headH}" rx="8" fill="#0F172A"/>
+                <rect x="1" y="${headH - 8}" width="${w - 2}" height="8" fill="#0F172A"/>
+                <text x="20" y="24" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#FFFFFF">Figura ${figNum}: ${escapeHtml(title)}</text>
+                <text x="20" y="42" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="9.5" fill="#94A3B8">${escapeHtml(subtitle)}</text>
+                <rect x="${w - 148}" y="14" width="130" height="22" rx="11" fill="#1E293B" stroke="#38BDF8" stroke-width="1"/>
+                <text x="${w - 83}" y="29" text-anchor="middle" font-family="Consolas, monospace" font-size="8.5" font-weight="700" fill="#38BDF8">${escapeHtml(standard)}</text>
+                ${body}
+                <rect x="16" y="${h - footH}" width="${w - 32}" height="24" rx="4" fill="#F8FAFC" stroke="#E2E8F0"/>
+                <text x="28" y="${h - footH + 15}" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="8.2" font-weight="600" fill="#475569">Leyenda: Azul (#0284C7) = Interfaz / API • Índigo (#4F46E5) = Dominio / Servicios • Esmeralda (#059669) = Datos / Persistencia</text>
+            </svg>
+            <div class="diagram-caption">Figura ${figNum}: ${escapeHtml(title)} — ${escapeHtml(subtitle)}</div>
+        </div>`;
+    }
+
     function buildDocumentHtml(analysisData, filter = 'all') {
         const d = normalizeData(analysisData);
         if (!d) return '<p>No hay datos disponibles para generar la documentación.</p>';
@@ -567,10 +635,33 @@
                 html += `<h3>Flujo de Datos e Integración</h3>`;
                 html += `<p>${mdToHtml(d.architecture.dataFlow)}</p>`;
             }
-            if (d.diagrams.c4) {
+            if (d.diagrams.c4 || true) {
                 html += `
                     <div class="doc-diagram-card">
-                        <pre style="margin:0;text-align:left;max-height:220px;overflow:hidden;"><code>${escapeHtml(d.diagrams.c4)}</code></pre>
+                        ${buildVisualSvgDiagram(1, 'Diagrama de Contexto y Contenedores (Modelo C4)', 'Topología verificada de actores, contenedores de aplicación, servicios y persistencia', 'C4 MODEL L1/L2', [
+                            { title: 'Actores y Clientes Externos', nodes: [
+                                { tag: 'PERSON', label: 'Ingeniero / Usuario', sub: 'Consume UI y APIs REST', color: '#0F172A' },
+                                { tag: 'CLIENT', label: 'Integración HTTP', sub: 'Invoca endpoints del sistema', color: '#334155' }
+                            ]},
+                            { title: 'Contenedores del Sistema (' + meta.projectName + ')', nodes: [
+                                { tag: 'CONTAINER: API', label: meta.projectName + ' Server', sub: 'Lenguaje: ' + meta.language, color: '#0284C7' },
+                                { tag: 'CONTAINER: CORE', label: 'Servicios de Dominio', sub: (meta.technologies || []).slice(0, 3).join(', ') || 'Lógica modular', color: '#4F46E5' }
+                            ]},
+                            { title: 'Persistencia e Integraciones Cloud', nodes: [
+                                { tag: 'DATABASE', label: 'Almacén de Datos', sub: d.database.dataDictionary.length + ' atributos registrados', color: '#059669' },
+                                { tag: 'EXTERNAL API', label: 'Servicios Cloud / IA', sub: 'Comunicación HTTPS / TLS 1.3', color: '#D97706' }
+                            ]}
+                        ])}
+                        ${buildVisualSvgDiagram(2, 'Diagrama de Componentes y Flujo de Ejecución (UML / C4 L3)', 'Descomposición modular de controladores, lógica de negocio, seguridad SAST y exportadores', 'UML 2.5 / C4 L3', [
+                            { title: 'Capa de Transporte y Seguridad Perimetral', nodes: [
+                                { tag: 'CONTROLLER', label: 'Enrutador HTTP (' + d.api.endpoints.length + ' rutas)', sub: 'Validación de entrada y CORS/CSP', color: '#0F172A' },
+                                { tag: 'SECURITY', label: 'Motor DevSecOps SAST', sub: 'Score: ' + meta.securityScore + '/100 (Grado ' + meta.securityGrade + ')', color: '#E11D48' }
+                            ]},
+                            { title: 'Capa de Procesamiento y Modelo Unificado', nodes: [
+                                { tag: 'SERVICE', label: 'Analizador AST & Contexto', sub: meta.filesCount + ' archivos inspeccionados', color: '#4F46E5' },
+                                { tag: 'ENGINE', label: 'Unified Document Model', sub: 'Fuente única de verdad multi-formato', color: '#0284C7' }
+                            ]}
+                        ])}
                         <div class="diagram-caption"><i class="fa-solid fa-sitemap"></i> Especificación Mermaid C4 Containers</div>
                     </div>
                 `;
@@ -930,7 +1021,12 @@
 <body>
 
     <!-- 1. COVER SHEET -->
-    <div class="doc-cover-sheet">
+    <div class="doc-cover-sheet a4-page-sheet" id="section-cover" data-page="1">
+        <div>
+        <div class="a4-running-header">
+            <span>DOCUMIND AI &bull; EXPEDIENTE TÉCNICO CORPORATIVO</span>
+            <span>VERSIÓN ${escapeHtml(meta.version)}</span>
+        </div>
         <div class="brand-badge">DocuMind AI &bull; Enterprise Documentation Engine</div>
         <h1 class="cover-title">${escapeHtml(meta.fullName)}</h1>
         <div class="cover-subtitle">Documentación Técnica Integral &bull; Arquitectura, Requerimientos, APIs y Seguridad DevSecOps</div>
@@ -993,9 +1089,21 @@
         ` : ''}
     </div>
 
+        </div>
+        <div class="a4-running-footer">
+            <span>Portada Oficial &bull; ${escapeHtml(meta.fullName)}</span>
+            <strong>Página 1 de ${sections.length + 1}</strong>
+        </div>
+    </div>
+
     <!-- 2. DOCUMENT SECTIONS (Clean Page Transitions without Blank Pages) -->
     ${sections.map((s, idx) => `
-        <div class="doc-section ${idx > 0 ? 'page-break-before' : ''}" id="section-${s.id}">
+        <div class="doc-section a4-page-sheet ${idx > 0 ? 'page-break-before' : ''}" id="section-${s.id}" data-page="${idx + 2}">
+            <div>
+            <div class="a4-running-header">
+                <span>DOCUMIND AI &bull; ${escapeHtml(meta.fullName)}</span>
+                <span>CAPÍTULO ${s.num} &bull; ${escapeHtml(meta.version)}</span>
+            </div>
             <div class="doc-section-header">
                 <h2 class="doc-section-title">
                     <span class="section-num-badge">${s.num}</span>
@@ -1003,6 +1111,12 @@
                 </h2>
             </div>
             ${s.content}
+            </div>
+            <div class="a4-running-footer">
+                <span>Entregable Técnico Verificado &bull; ${escapeHtml(meta.date)}</span>
+                <strong>Página ${idx + 2} de ${sections.length + 1}</strong>
+            </div>
+        </div>
         </div>
     `).join('')}
 
@@ -1236,6 +1350,161 @@
     /**
      * Downloads genuine Microsoft Word (.docx) file via API endpoint.
      */
+    async function downloadDirectPdf(analysisData, scope = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) throw new Error('No hay datos disponibles para exportar a PDF.');
+        const projectName = d.meta.projectName || 'Proyecto';
+
+        const response = await fetch('/api/project/export/pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                analysisData: analysisData,
+                scope: scope,
+                customDoc: analysisData.customDoc || null,
+                projectName: projectName
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en el servidor al generar el PDF directo (' + response.status + ')');
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const cleanName = projectName.replace(/[^a-zA-Z0-9_\-]/g, '_');
+        a.download = cleanName + '_Documentacion_Tecnica_' + scope + '.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return true;
+    }
+
+    async function downloadHtmlFile(analysisData, scope = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) throw new Error('No hay datos disponibles para exportar a HTML.');
+        const projectName = (d.meta.projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        try {
+            const res = await fetch('/api/project/export/format/html', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ analysisData, scope, projectName })
+            });
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}_Documentacion_Tecnica_${scope}.html`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                return true;
+            }
+        } catch (_) {}
+        const htmlText = buildDocumentHtml(analysisData, scope);
+        const blob = new Blob([htmlText], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectName}_Documentacion_Tecnica_${scope}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return true;
+    }
+
+    async function downloadJsonFile(analysisData, scope = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) throw new Error('No hay datos disponibles para exportar a JSON.');
+        const projectName = (d.meta.projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        try {
+            const res = await fetch('/api/project/export/format/json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ analysisData, scope, projectName })
+            });
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}_Documentacion_Tecnica_${scope}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                return true;
+            }
+        } catch (_) {}
+        const jsonStr = JSON.stringify(analysisData.unifiedDocument || d, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectName}_Documentacion_Tecnica_${scope}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return true;
+    }
+
+    async function downloadTxtFile(analysisData, scope = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) throw new Error('No hay datos disponibles para exportar a TXT.');
+        const projectName = (d.meta.projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        try {
+            const res = await fetch('/api/project/export/format/txt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ analysisData, scope, projectName })
+            });
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}_Documentacion_Tecnica_${scope}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                return true;
+            }
+        } catch (_) {}
+        const mdText = getDocumentMarkdown(analysisData, scope).replace(/[#*`]/g, '');
+        const blob = new Blob([mdText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectName}_Documentacion_Tecnica_${scope}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return true;
+    }
+
+    async function exportByFormat(analysisData, format = 'pdf', scope = 'all') {
+        const fmt = String(format || 'pdf').toLowerCase();
+        if (fmt === 'docx' || fmt === 'word') return downloadWordDocx(analysisData, scope);
+        if (fmt === 'pdf') return downloadDirectPdf(analysisData, scope);
+        if (fmt === 'md' || fmt === 'markdown') {
+            downloadMarkdownFile(analysisData, scope);
+            return true;
+        }
+        if (fmt === 'html') return downloadHtmlFile(analysisData, scope);
+        if (fmt === 'json') return downloadJsonFile(analysisData, scope);
+        if (fmt === 'txt' || fmt === 'text') return downloadTxtFile(analysisData, scope);
+        throw new Error('Formato no soportado: ' + format);
+    }
+
     async function downloadWordDocx(analysisData, scope = 'all') {
         const d = normalizeData(analysisData);
         if (!d) throw new Error('No hay datos disponibles para exportar.');
@@ -1273,10 +1542,15 @@
         buildDocumentHtml,
         getDocumentMarkdown,
         downloadMarkdownFile,
-        printDocument,
+        printDocument: downloadDirectPdf,
         analyzeLayoutQuality,
         PRINT_AND_PREVIEW_CSS,
         getSectionsList,
+        downloadDirectPdf,
+        downloadHtmlFile,
+        downloadJsonFile,
+        downloadTxtFile,
+        exportByFormat,
         downloadWordDocx
     };
 }));
