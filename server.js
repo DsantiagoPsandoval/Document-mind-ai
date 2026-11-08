@@ -73,10 +73,11 @@ app.use(helmet({
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+            scriptSrcAttr: ["'unsafe-inline'"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https://*"],
-            connectSrc: ["'self'", "https://*.supabase.co", "https://generativelanguage.googleapis.com", "https://api.github.com", "data:"],
+            imgSrc: ["'self'", "data:", "blob:", "https://*"],
+            connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "https://generativelanguage.googleapis.com", "https://api.github.com", "data:", "blob:"],
             objectSrc: ["'none'"],
             upgradeInsecureRequests: []
         }

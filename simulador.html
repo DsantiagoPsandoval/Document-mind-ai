@@ -371,14 +371,16 @@
             <!-- ============================================================
                  BANNER DE RESUMEN DE CONFIGURACIÓN ACTIVA Y ACCIONES
             ============================================================ -->
-            <div id="sim-active-config-banner" style="margin-bottom:2rem;padding:1rem 1.35rem;background:rgba(15,23,42,.92);border:1px solid rgba(56,189,248,.25);border-radius:.85rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
-                <div style="display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;">
-                    <div style="width:2.2rem;height:2.2rem;border-radius:.55rem;background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
-                    <div>
-                        <strong style="color:#fff;font-size:.88rem;display:block;">Configuraci&oacute;n Activa del Simulador:</strong>
-                        <span id="sim-config-summary-text" style="font-size:.75rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Presupuesto: $350 USD | SLA: 1800ms | RAM: 8GB | Carga: U=18, S=1.0MB</span>
+            <div style="margin-bottom:2rem;padding:1rem 1.35rem;background:rgba(15,23,42,.92);border:1px solid rgba(56,189,248,.25);border-radius:.85rem;display:flex;flex-direction:column;gap:1rem;">
+                <div id="sim-active-config-banner">
+                    <div style="display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;">
+                        <div style="width:2.2rem;height:2.2rem;border-radius:.55rem;background:rgba(56,189,248,.15);border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <strong style="color:#fff;font-size:.88rem;display:block;">Configuraci&oacute;n Activa del Simulador:</strong>
+                            <span id="sim-config-summary-text" style="font-size:.75rem;color:#94A3B8;font-family:'JetBrains Mono',monospace;">Presupuesto: $350 USD | SLA: 1800ms | RAM: 8GB | Carga: U=18, S=1.0MB</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -392,6 +394,9 @@
                     <button type="button" id="btn-sim-export-md" class="btn-cyber-outline" style="padding:.4rem .85rem;font-size:.72rem;">
                         <i class="fa-solid fa-file-arrow-down" style="margin-right:.35rem;"></i>Exportar Informe Markdown
                     </button>
+                    <button type="button" id="btn-sim-export-json" class="btn-ghost" style="padding:.4rem .85rem;font-size:.72rem;">
+                        <i class="fa-solid fa-file-code" style="margin-right:.35rem;"></i>Exportar JSON
+                    </button>
                 </div>
             </div>
 
@@ -401,6 +406,8 @@
             <div id="sim-decision-support-box" style="margin-bottom:2rem;">
                 <!-- Injected dynamically by architecture-simulator.js -->
             </div>
+            <div id="sim-alternatives-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem;margin-bottom:2rem;"></div>
+            <div id="sim-visual-bars" class="glow-card" style="padding:1.5rem;margin-bottom:2rem;"></div>
 
             <!-- ============================================================
                  BLOQUE 6: TABLA COMPARATIVA DE LAS 3 ALTERNATIVAS ARQUITECTÓNICAS

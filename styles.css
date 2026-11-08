@@ -2804,15 +2804,17 @@ img, svg, video, canvas {
     }
 
     /* Prevent horizontal overflow on all cards, tables, diagrams, and code blocks */
-    .container, .glow-card, .doc-tab-panel, #project-results {
+    .container, .doc-tab-panel {
         max-width: 100% !important;
         overflow-x: hidden !important;
     }
 
+    .glow-card, #project-results {
+        max-width: 100% !important;
+    }
+
     table {
-        display: block;
         width: 100% !important;
-        overflow-x: auto !important;
         -webkit-overflow-scrolling: touch;
     }
 

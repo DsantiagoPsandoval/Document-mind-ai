@@ -169,6 +169,34 @@
             badge: 'Escenario 4 (850 Usuarios)',
             description: 'Carga masiva extrema de 850 usuarios concurrentes, 14 MB, 420 archivos y ráfaga de 2.5x: demuestra cómo EDA Serverless (~854 ms) sigue cumpliendo todos los SLAs sin colapsar.',
             inputs: { concurrentUsers: 850, payloadSizeMb: 14.0, repoComplexityFiles: 420, aiDepthFactor: 3, trafficBurstFactor: 2.5 }
+        },
+        ESC_1_LOW: {
+            id: 'ESC_1_LOW',
+            name: '1. Baja Carga / 1 Nodo (18 u)',
+            badge: 'Escenario 1 (1 Nodo)',
+            description: 'Carga ligera (18 usuarios, 1.0 MB, 35 archivos): el Monolito MVC gana al evitar saltos de red RPC.',
+            inputs: { concurrentUsers: 18, payloadSizeMb: 1.0, repoComplexityFiles: 35, aiDepthFactor: 1, trafficBurstFactor: 1.0 }
+        },
+        ESC_2_ENTERPRISE: {
+            id: 'ESC_2_ENTERPRISE',
+            name: '2. Escala Empresarial B2B (320 u)',
+            badge: 'Escenario 2 (320 Usuarios)',
+            description: '320 usuarios corporativos analizando repositorios de 240 archivos (6.0 MB): Microservicios K8s y EDA cumplen restricciones.',
+            inputs: { concurrentUsers: 320, payloadSizeMb: 6.0, repoComplexityFiles: 240, aiDepthFactor: 2, trafficBurstFactor: 1.6 }
+        },
+        ESC_3_STRESS: {
+            id: 'ESC_3_STRESS',
+            name: '3. Estrés JMeter (650 u / 11MB)',
+            badge: 'Escenario 3 (JMeter Stress)',
+            description: 'Simulación de estrés severo: 650 usuarios concurrentes y ráfaga de 2.5x.',
+            inputs: { concurrentUsers: 650, payloadSizeMb: 11.0, repoComplexityFiles: 340, aiDepthFactor: 3, trafficBurstFactor: 2.5 }
+        },
+        ESC_4_BURST: {
+            id: 'ESC_4_BURST',
+            name: '4. Ráfagas Continuas (4.0x)',
+            badge: 'Escenario 4 (Ráfaga 4.0x)',
+            description: 'Pico continuo de ráfaga 4.0x sobre 450 usuarios concurrentes: demuestra absorción asíncrona mediante cola EDA Serverless.',
+            inputs: { concurrentUsers: 450, payloadSizeMb: 8.0, repoComplexityFiles: 280, aiDepthFactor: 3, trafficBurstFactor: 4.0 }
         }
     };
 
@@ -598,17 +626,24 @@
             }
         };
 
-        clampField('sim-req-latency', 'sim-range-req-latency', 100, 15000, 1800);
-        clampField('sim-req-availability', 'sim-range-req-availability', 80, 99.999, 99.5);
-        clampField('sim-req-scalability', 'sim-range-req-scalability', 10, 100, 75);
-        clampField('sim-con-budget', 'sim-range-con-budget', 15, 25000, 350);
-        clampField('sim-con-memory', 'sim-range-con-memory', 0.5, 128, 8);
+        clampField('sim-req-latency', 'sim-range-req-latency', 100, 15000, 1800, 'sim-lbl-req-latency', ' ms');
+        clampField('sim-req-availability', 'sim-range-req-availability', 80, 99.999, 99.5, 'sim-lbl-req-avail', '%');
+        clampField('sim-req-avail', null, 80, 99.999, 99.5, 'sim-lbl-req-avail', '%');
+        clampField('sim-req-scalability', 'sim-range-req-scalability', 10, 100, 75, 'sim-lbl-req-scale', ' / 100');
+        clampField('sim-req-scale', null, 10, 100, 75, 'sim-lbl-req-scale', ' / 100');
+        clampField('sim-con-budget', 'sim-range-con-budget', 15, 25000, 350, 'sim-lbl-con-budget', ' USD/mes');
+        clampField('sim-con-memory', 'sim-range-con-memory', 0.5, 128, 8, 'sim-lbl-con-memory', ' GB');
 
         clampField('sim-input-users', null, 1, 5000, 60, 'sim-val-users', ' usuarios');
+        clampField('sim-input-users', null, 1, 5000, 60, 'sim-lbl-users', ' usuarios');
         clampField('sim-input-payload', null, 0.1, 20, 2.5, 'sim-val-payload', ' MB');
+        clampField('sim-input-size', null, 0.1, 20, 2.5, 'sim-lbl-size', ' MB');
         clampField('sim-input-files', null, 1, 2000, 85, 'sim-val-files', ' archivos');
+        clampField('sim-input-files', null, 1, 2000, 85, 'sim-lbl-files', ' archivos');
         clampField('sim-input-aidepth', null, 1, 5, 2, 'sim-val-aidepth', '');
+        clampField('sim-input-hops', null, 1, 10, 3, 'sim-lbl-hops', ' saltos');
         clampField('sim-input-burst', null, 1.0, 4.0, 1.2, 'sim-val-burst', 'x');
+        clampField('sim-input-burst', null, 1.0, 4.0, 1.2, 'sim-lbl-burst', 'x');
     }
 
     function clearInvalidDemoState(skipFieldId = null) {
@@ -620,16 +655,16 @@
     }
 
     function readFormState() {
-        const getVal = (id, def) => {
-            const el = document.getElementById(id);
+        const getVal = (id, def, altId = null) => {
+            const el = document.getElementById(id) || (altId ? document.getElementById(altId) : null);
             return el ? el.value : def;
         };
 
-        const wLat = Math.max(0, Number(getVal('sim-weight-latency', 25)));
-        const wScale = Math.max(0, Number(getVal('sim-weight-scalability', 25)));
-        const wAvail = Math.max(0, Number(getVal('sim-weight-availability', 20)));
-        const wCost = Math.max(0, Number(getVal('sim-weight-cost', 15)));
-        const wSec = Math.max(0, Number(getVal('sim-weight-security', 15)));
+        const wLat = Math.max(0, Number(getVal('sim-weight-latency', 25, 'sim-w-lat')));
+        const wScale = Math.max(0, Number(getVal('sim-weight-scalability', 20, 'sim-w-scale')));
+        const wAvail = Math.max(0, Number(getVal('sim-weight-availability', 20, 'sim-w-avail')));
+        const wCost = Math.max(0, Number(getVal('sim-weight-cost', 20, 'sim-w-cost')));
+        const wSec = Math.max(0, Number(getVal('sim-weight-security', 15, 'sim-w-ram')) + Number(getVal('sim-w-cmplx', 0)));
         const totalW = Math.max(1, wLat + wScale + wAvail + wCost + wSec);
 
         // Actualizar barra visual de pesos en Sección 1
@@ -657,21 +692,21 @@
         return {
             rawValidationData: {
                 concurrentUsers: getVal('sim-input-users', 60),
-                payloadSizeMb: getVal('sim-input-payload', 2.5),
+                payloadSizeMb: getVal('sim-input-payload', 2.5, 'sim-input-size'),
                 repoComplexityFiles: getVal('sim-input-files', 85),
-                aiDepthFactor: getVal('sim-input-aidepth', 2),
+                aiDepthFactor: Math.min(5, Math.max(1, Number(getVal('sim-input-aidepth', 2, 'sim-input-hops')))),
                 trafficBurstFactor: getVal('sim-input-burst', 1.2),
                 maxLatencyMs: getVal('sim-req-latency', 1800),
-                minAvailabilityPct: getVal('sim-req-availability', 99.5),
-                minScalabilityScore: getVal('sim-req-scalability', 75),
+                minAvailabilityPct: getVal('sim-req-availability', 99.5, 'sim-req-avail'),
+                minScalabilityScore: getVal('sim-req-scalability', 75, 'sim-req-scale'),
                 maxMonthlyBudgetUsd: getVal('sim-con-budget', 350),
                 maxMemoryGb: getVal('sim-con-memory', 8)
             },
             inputs: {
                 concurrentUsers: Math.round(Number(getVal('sim-input-users', 60))),
-                payloadSizeMb: Number(Number(getVal('sim-input-payload', 2.5)).toFixed(2)),
+                payloadSizeMb: Number(Number(getVal('sim-input-payload', 2.5, 'sim-input-size')).toFixed(2)),
                 repoComplexityFiles: Math.round(Number(getVal('sim-input-files', 85))),
-                aiDepthFactor: Math.round(Number(getVal('sim-input-aidepth', 2))),
+                aiDepthFactor: Math.min(5, Math.max(1, Math.round(Number(getVal('sim-input-aidepth', 2, 'sim-input-hops'))))),
                 trafficBurstFactor: Number(Number(getVal('sim-input-burst', 1.2)).toFixed(2))
             },
             projectConfig: {
@@ -679,8 +714,8 @@
                 targetUsers: (getVal('sim-proj-users', 'Desarrolladores Full-Stack, CTOs y Equipos QA') || 'Desarrolladores y Equipos QA').trim(),
                 qualityRequirements: {
                     maxLatencyMs: Number(getVal('sim-req-latency', 1800)),
-                    minAvailabilityPct: Number(getVal('sim-req-availability', 99.5)),
-                    minScalabilityScore: Number(getVal('sim-req-scalability', 75)),
+                    minAvailabilityPct: Number(getVal('sim-req-availability', 99.5, 'sim-req-avail')),
+                    minScalabilityScore: Number(getVal('sim-req-scalability', 75, 'sim-req-scale')),
                     minSecurityScore: 90
                 },
                 constraints: {
@@ -1157,7 +1192,8 @@
         });
 
         // Filas 2..5: Los 4 escenarios oficiales re-evaluados con las restricciones actuales de la Sección 1
-        Object.keys(PRESET_SCENARIOS).forEach(key => {
+        const mainScenarioKeys = ['SINGLE_MACHINE_LIGHT', 'ENTERPRISE_SCALE', 'EXTREME_STRESS_PUSH', 'HYPER_CLOUD_SCALE'];
+        mainScenarioKeys.forEach(key => {
             const preset = PRESET_SCENARIOS[key];
             const simPreset = executeSimulation(preset.inputs, cfg);
             rows.push({
@@ -2039,15 +2075,22 @@
         setField('sim-proj-users', null, cfg.projUsers);
         setField('sim-req-latency', 'sim-range-req-latency', cfg.maxLatencyMs);
         setField('sim-req-availability', 'sim-range-req-availability', cfg.minAvailabilityPct);
+        setField('sim-req-avail', null, cfg.minAvailabilityPct);
         setField('sim-req-scalability', 'sim-range-req-scalability', cfg.minScalabilityScore);
+        setField('sim-req-scale', null, cfg.minScalabilityScore);
         setField('sim-con-budget', 'sim-range-con-budget', cfg.maxMonthlyBudgetUsd);
         setField('sim-con-memory', 'sim-range-con-memory', cfg.maxMemoryGb);
 
         setField('sim-weight-latency', null, cfg.weights.latency);
+        setField('sim-w-lat', null, cfg.weights.latency);
         setField('sim-weight-scalability', null, cfg.weights.scalability);
+        setField('sim-w-scale', null, cfg.weights.scalability);
         setField('sim-weight-availability', null, cfg.weights.availability);
+        setField('sim-w-avail', null, cfg.weights.availability);
         setField('sim-weight-cost', null, cfg.weights.cost);
+        setField('sim-w-cost', null, cfg.weights.cost);
         setField('sim-weight-security', null, cfg.weights.security);
+        setField('sim-w-ram', null, cfg.weights.security);
 
         sanitizeOutOfBoundsDomFields();
         const state = readFormState();
@@ -2081,10 +2124,15 @@
         };
 
         setInput('sim-input-users', preset.inputs.concurrentUsers, 'sim-val-users', ' usuarios');
+        setInput('sim-input-users', preset.inputs.concurrentUsers, 'sim-lbl-users', ' usuarios');
         setInput('sim-input-payload', preset.inputs.payloadSizeMb, 'sim-val-payload', ' MB');
+        setInput('sim-input-size', preset.inputs.payloadSizeMb, 'sim-lbl-size', ' MB');
         setInput('sim-input-files', preset.inputs.repoComplexityFiles, 'sim-val-files', ' archivos');
+        setInput('sim-input-files', preset.inputs.repoComplexityFiles, 'sim-lbl-files', ' archivos');
         setInput('sim-input-aidepth', preset.inputs.aiDepthFactor, 'sim-val-aidepth', '');
+        setInput('sim-input-hops', preset.inputs.aiDepthFactor, 'sim-lbl-hops', ' saltos');
         setInput('sim-input-burst', preset.inputs.trafficBurstFactor, 'sim-val-burst', 'x');
+        setInput('sim-input-burst', preset.inputs.trafficBurstFactor, 'sim-lbl-burst', 'x');
 
         const state = readFormState();
         const validation = validateInputs(state.rawValidationData);
@@ -2194,11 +2242,13 @@
     function setupSimulatorEvents() {
         // 1. Sliders de Variables de Entrada (Sección 3)
         const sliders = [
-            { id: 'sim-input-users', label: 'sim-val-users', suffix: ' usuarios' },
-            { id: 'sim-input-payload', label: 'sim-val-payload', suffix: ' MB' },
-            { id: 'sim-input-files', label: 'sim-val-files', suffix: ' archivos' },
-            { id: 'sim-input-aidepth', label: 'sim-val-aidepth', suffix: '' },
-            { id: 'sim-input-burst', label: 'sim-val-burst', suffix: 'x' }
+            { id: 'sim-input-users', label: 'sim-val-users', altLabel: 'sim-lbl-users', suffix: ' usuarios' },
+            { id: 'sim-input-payload', label: 'sim-val-payload', altLabel: 'sim-lbl-size', suffix: ' MB' },
+            { id: 'sim-input-size', label: 'sim-lbl-size', altLabel: 'sim-val-payload', suffix: ' MB' },
+            { id: 'sim-input-files', label: 'sim-val-files', altLabel: 'sim-lbl-files', suffix: ' archivos' },
+            { id: 'sim-input-aidepth', label: 'sim-val-aidepth', altLabel: 'sim-lbl-hops', suffix: '' },
+            { id: 'sim-input-hops', label: 'sim-lbl-hops', altLabel: 'sim-val-aidepth', suffix: ' saltos' },
+            { id: 'sim-input-burst', label: 'sim-val-burst', altLabel: 'sim-lbl-burst', suffix: 'x' }
         ];
 
         sliders.forEach(s => {
@@ -2208,30 +2258,57 @@
                     clearInvalidDemoState();
                     const lbl = document.getElementById(s.label);
                     if (lbl) lbl.textContent = el.value + s.suffix;
+                    if (s.altLabel) {
+                        const altLbl = document.getElementById(s.altLabel);
+                        if (altLbl) altLbl.textContent = el.value + s.suffix;
+                    }
                     highlightActivePresetButton('');
                     triggerInteractiveRun('Ajuste Interactivo de Variables de Carga');
                 });
             }
         });
 
+        const btnResetInputs = document.getElementById('btn-sim-reset-inputs');
+        if (btnResetInputs) {
+            btnResetInputs.addEventListener('click', () => {
+                applyScenarioPreset('ESC_1_LOW');
+            });
+        }
+
+        const btnRestoreTop = document.getElementById('btn-sim-restore-valid');
+        if (btnRestoreTop) {
+            btnRestoreTop.addEventListener('click', () => {
+                isInvalidDemoActive = false;
+                resetTestInvalidButtonLabel();
+                sanitizeOutOfBoundsDomFields();
+                applyConfigPreset('STANDARD', true);
+                applyScenarioPreset('ESC_1_LOW', true);
+                showSimFeedback('Datos válidos restaurados correctamente.');
+            });
+        }
+
         // 2. Sincronización Bidireccional Número <-> Slider en Sección 1 (Configuración y Restricciones)
         const syncedConfigPairs = [
-            { numId: 'sim-req-latency', rangeId: 'sim-range-req-latency', label: 'Cambio de Meta Latencia SLA' },
-            { numId: 'sim-req-availability', rangeId: 'sim-range-req-availability', label: 'Cambio de Meta Disponibilidad SLA' },
-            { numId: 'sim-req-scalability', rangeId: 'sim-range-req-scalability', label: 'Cambio de Meta Escalabilidad' },
-            { numId: 'sim-con-budget', rangeId: 'sim-range-con-budget', label: 'Cambio de Tope de Presupuesto Cloud' },
-            { numId: 'sim-con-memory', rangeId: 'sim-range-con-memory', label: 'Cambio de Restricción de Memoria RAM' }
+            { numId: 'sim-req-latency', rangeId: 'sim-range-req-latency', lblId: 'sim-lbl-req-latency', fmt: v => `${v} ms`, label: 'Cambio de Meta Latencia SLA' },
+            { numId: 'sim-req-availability', rangeId: 'sim-range-req-availability', lblId: 'sim-lbl-req-avail', fmt: v => `${Number(v).toFixed(2)}%`, label: 'Cambio de Meta Disponibilidad SLA' },
+            { numId: 'sim-req-avail', rangeId: null, lblId: 'sim-lbl-req-avail', fmt: v => `${Number(v).toFixed(2)}%`, label: 'Cambio de Meta Disponibilidad SLA' },
+            { numId: 'sim-req-scalability', rangeId: 'sim-range-req-scalability', lblId: 'sim-lbl-req-scale', fmt: v => `${v} / 100`, label: 'Cambio de Meta Escalabilidad' },
+            { numId: 'sim-req-scale', rangeId: null, lblId: 'sim-lbl-req-scale', fmt: v => `${v} / 100`, label: 'Cambio de Meta Escalabilidad' },
+            { numId: 'sim-con-budget', rangeId: 'sim-range-con-budget', lblId: 'sim-lbl-con-budget', fmt: v => `$${v} USD/mes`, label: 'Cambio de Tope de Presupuesto Cloud' },
+            { numId: 'sim-con-memory', rangeId: 'sim-range-con-memory', lblId: 'sim-lbl-con-memory', fmt: v => `${Number(v).toFixed(1)} GB`, label: 'Cambio de Restricción de Memoria RAM' }
         ];
 
         syncedConfigPairs.forEach(pair => {
             const numEl = document.getElementById(pair.numId);
-            const rangeEl = document.getElementById(pair.rangeId);
+            const rangeEl = pair.rangeId ? document.getElementById(pair.rangeId) : null;
+            const lblEl = pair.lblId ? document.getElementById(pair.lblId) : null;
             if (numEl) {
                 const onNumChange = () => {
                     clearInvalidDemoState(pair.numId);
                     if (rangeEl && Number.isFinite(Number(numEl.value))) {
                         rangeEl.value = numEl.value;
                     }
+                    if (lblEl && pair.fmt) lblEl.textContent = pair.fmt(numEl.value);
                     highlightActiveConfigPresetButton('');
                     triggerInteractiveRun(pair.label);
                 };
@@ -2242,6 +2319,7 @@
                 rangeEl.addEventListener('input', () => {
                     clearInvalidDemoState();
                     if (numEl) numEl.value = rangeEl.value;
+                    if (lblEl && pair.fmt) lblEl.textContent = pair.fmt(rangeEl.value);
                     highlightActiveConfigPresetButton('');
                     triggerInteractiveRun(pair.label);
                 });
@@ -2251,13 +2329,26 @@
         // 3. Campos de Texto y Pesos de Decisión en Sección 1
         const extraConfigInputs = [
             'sim-proj-name', 'sim-proj-users',
-            'sim-weight-latency', 'sim-weight-scalability', 'sim-weight-availability', 'sim-weight-cost', 'sim-weight-security'
+            'sim-weight-latency', 'sim-weight-scalability', 'sim-weight-availability', 'sim-weight-cost', 'sim-weight-security',
+            'sim-w-lat', 'sim-w-cost', 'sim-w-avail', 'sim-w-scale', 'sim-w-ram', 'sim-w-cmplx'
         ];
+        const weightLabelMap = {
+            'sim-w-lat': 'sim-lbl-w-lat',
+            'sim-w-cost': 'sim-lbl-w-cost',
+            'sim-w-avail': 'sim-lbl-w-avail',
+            'sim-w-scale': 'sim-lbl-w-scale',
+            'sim-w-ram': 'sim-lbl-w-ram',
+            'sim-w-cmplx': 'sim-lbl-w-cmplx'
+        };
         extraConfigInputs.forEach(cid => {
             const el = document.getElementById(cid);
             if (el) {
                 const handler = () => {
                     clearInvalidDemoState();
+                    if (weightLabelMap[cid]) {
+                        const wLbl = document.getElementById(weightLabelMap[cid]);
+                        if (wLbl) wLbl.textContent = `${el.value}%`;
+                    }
                     highlightActiveConfigPresetButton('');
                     triggerInteractiveRun('Actualización de Configuración / Pesos (Sección 1)');
                 };

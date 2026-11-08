@@ -2569,6 +2569,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const previewPageIndicator = document.getElementById("preview-page-indicator");
     const btnPreviewFullscreen = document.getElementById("btn-preview-fullscreen");
     const btnTogglePreviewToc = document.getElementById("btn-toggle-preview-toc");
+    const wordTocSidebar = document.getElementById("word-toc-sidebar");
 
     function navigatePreviewPage(delta) {
         if (!previewPaper) return;
@@ -3077,8 +3078,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         instruction,
-                        projectId: currentProjectData?.projectId,
-                        projectContext: currentProjectData
+                        projectId: currentAnalysisData?.projectId || currentProjectId,
+                        projectContext: currentAnalysisData
                     })
                 });
 
@@ -3148,8 +3149,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function executeSyncCheck() {
         if (!syncContentContainer) return;
-        const repoUrl = currentProjectData?.repository?.url || (document.getElementById("repo-input") ? document.getElementById("repo-input").value.trim() : "");
-        const branch = currentProjectData?.repository?.branch || (document.getElementById("repo-branch-input") ? document.getElementById("repo-branch-input").value.trim() : "");
+        const repoUrl = currentAnalysisData?.repository?.url || (document.getElementById("repo-input") ? document.getElementById("repo-input").value.trim() : "");
+        const branch = currentAnalysisData?.repository?.branch || (document.getElementById("repo-branch-input") ? document.getElementById("repo-branch-input").value.trim() : "");
 
         if (!repoUrl) {
             syncContentContainer.innerHTML = '<div style="padding:1.5rem;text-align:center;color:#94A3B8;font-size:.82rem;">No hay un repositorio de GitHub analizado actualmente.</div>';
@@ -3164,7 +3165,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     repoUrl,
-                    lastKnownSha: currentProjectData?.repository?.lastCommitSha || null,
+                    lastKnownSha: currentAnalysisData?.repository?.lastCommitSha || null,
                     branch: branch || undefined
                 })
             });
@@ -3209,7 +3210,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (btnReAnalyze) {
                 btnReAnalyze.onclick = () => {
                     closeSyncModal();
-                    const btnRun = document.getElementById("btn-start-analysis");
+                    const btnRun = document.getElementById("btn-run-analysis");
                     if (btnRun) btnRun.click();
                 };
             }
@@ -3659,6 +3660,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const DOC_KEY_MAP = {
         'doc-tab-readme': { key: 'readme', title: 'README.md', contentId: 'content-readme' },
+        'product': { key: 'prd', title: 'PRD & Especificación', contentId: 'content-prd', get: (doc) => doc?.product?.prd || doc?.prd || '', set: (doc, val) => { if (!doc.product) doc.product = {}; doc.product.prd = val; } },
+        'architecture': { key: 'architecture', title: 'Arquitectura C4', contentId: 'content-arch-overview', get: (doc) => doc?.architecture?.overview || '', set: (doc, val) => { if (!doc.architecture) doc.architecture = {}; doc.architecture.overview = val; } },
+        'diagrams': { key: 'diagrams', title: 'Diagramas Mermaid', contentId: 'mermaid-raw-code', get: (doc) => doc?.diagrams?.c4Mermaid || '', set: (doc, val) => { if (!doc.diagrams) doc.diagrams = {}; doc.diagrams.c4Mermaid = val; } },
+        'database': { key: 'database', title: 'Base de Datos', contentId: 'content-db-overview', get: (doc) => doc?.database?.overview || '', set: (doc, val) => { if (!doc.database) doc.database = {}; doc.database.overview = val; } },
+        'api': { key: 'api', title: 'Endpoints & OpenAPI', contentId: 'openapi-spec-preview', get: (doc) => typeof doc?.api?.openApiJson === 'string' ? doc.api.openApiJson : JSON.stringify(doc?.api?.openApiJson || {}, null, 2), set: (doc, val) => { if (!doc.api) doc.api = {}; doc.api.openApiJson = val; } },
+        'development': { key: 'readme', title: 'README.md & Desarrollo', contentId: 'content-readme', get: (doc) => doc?.development?.readme || doc?.readme || '', set: (doc, val) => { if (!doc.development) doc.development = {}; doc.development.readme = val; } },
+        'devops': { key: 'devops', title: 'Guía DevOps & Despliegue', contentId: 'content-deployment-guide', get: (doc) => doc?.devops?.deploymentGuide || '', set: (doc, val) => { if (!doc.devops) doc.devops = {}; doc.devops.deploymentGuide = val; } },
+        'qa': { key: 'qa', title: 'Matriz QA & Plan de Pruebas', contentId: 'content-test-plan', get: (doc) => doc?.qa?.testPlan || '', set: (doc, val) => { if (!doc.qa) doc.qa = {}; doc.qa.testPlan = val; } },
+        'security': { key: 'security', title: 'Reporte de Seguridad SAST', contentId: 'sec-score-desc', get: () => currentAnalysisData?.security?.classificationDescription || '', set: (doc, val) => { if (currentAnalysisData?.security) currentAnalysisData.security.classificationDescription = val; } },
+        'adr': { key: 'adr', title: 'Decisiones Arquitectónicas (ADR)', contentId: 'content-adrs', get: (doc) => JSON.stringify(doc?.adrs || [], null, 2), set: (doc, val) => { try { doc.adrs = JSON.parse(val); } catch (e) {} } },
+        'user': { key: 'userGuide', title: 'Manual de Usuario', contentId: 'content-user-guide', get: (doc) => doc?.userGuide?.guide || '', set: (doc, val) => { if (!doc.userGuide) doc.userGuide = {}; doc.userGuide.guide = val; } },
         'doc-tab-product': { key: 'prd', title: 'PRD & Especificación', contentId: 'content-prd' },
         'doc-tab-srs': { key: 'srs', title: 'SRS (IEEE 830)', contentId: 'content-srs' },
         'doc-tab-architecture': { key: 'architecture', title: 'Arquitectura C4', contentId: 'content-architecture' },
@@ -3670,11 +3682,14 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function getCurrentlyActiveDocInfo() {
-        const activeTab = document.querySelector(".doc-tab-btn.active");
+        const activeTab = document.querySelector(".doc-nav-tab.active") || document.querySelector(".doc-tab-btn.active");
+        if (activeTab && activeTab.dataset.docTab && DOC_KEY_MAP[activeTab.dataset.docTab]) {
+            return DOC_KEY_MAP[activeTab.dataset.docTab];
+        }
         if (activeTab && DOC_KEY_MAP[activeTab.id]) {
             return DOC_KEY_MAP[activeTab.id];
         }
-        return DOC_KEY_MAP['doc-tab-readme'];
+        return DOC_KEY_MAP['product'] || DOC_KEY_MAP['doc-tab-readme'];
     }
 
     function openDocEditor() {
@@ -3689,7 +3704,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Fetch current markdown content
         const docObj = currentAnalysisData.documentation || {};
-        let rawContent = docObj[info.key] || "";
+        let rawContent = typeof info.get === "function" ? info.get(docObj) : (docObj[info.key] || "");
         if (typeof rawContent !== "string") {
             try { rawContent = JSON.stringify(rawContent, null, 2); } catch(e) { rawContent = ""; }
         }
@@ -3736,7 +3751,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const info = getCurrentlyActiveDocInfo();
 
             if (!currentAnalysisData.documentation) currentAnalysisData.documentation = {};
-            currentAnalysisData.documentation[info.key] = updatedText;
+            if (typeof info.set === "function") {
+                info.set(currentAnalysisData.documentation, updatedText);
+            } else {
+                currentAnalysisData.documentation[info.key] = updatedText;
+            }
 
             // Update visible rendered panel if exists
             const panelEl = document.getElementById(info.contentId);
