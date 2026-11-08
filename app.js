@@ -164,7 +164,272 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function openAuthModal() {
+    let currentUserProfile = null;
+    let currentAuthView = "login";
+    let pendingVerificationEmail = "";
+    let authFailedAttempts = 0;
+    let authLockoutUntil = 0;
+    const MAX_AUTH_ATTEMPTS = 5;
+    const AUTH_LOCKOUT_MS = 30000;
+
+    // DOM Elements - Auth Multi-View System
+    const authTabsContainer = document.getElementById("auth-tabs-container");
+    const tabAuthLogin = document.getElementById("tab-auth-login");
+    const tabAuthSignup = document.getElementById("tab-auth-signup");
+    const authViewLogin = document.getElementById("auth-view-login");
+    const authViewSignup = document.getElementById("auth-view-signup");
+    const authViewForgot = document.getElementById("auth-view-forgot");
+    const authViewVerify = document.getElementById("auth-view-verify");
+    const authViewReset = document.getElementById("auth-view-reset");
+    const authOauthDivider = document.getElementById("auth-oauth-divider");
+    const authModalTitle = document.getElementById("auth-modal-title");
+
+    function isValidEmail(email) {
+        if (!email || typeof email !== "string") return false;
+        const trimmed = email.trim();
+        if (trimmed.length > 254) return false;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed);
+    }
+
+    function validatePasswordPolicy(password) {
+        const pwd = String(password || "");
+        const hasMinLen = pwd.length >= 8;
+        const hasUpper = /[A-Z]/.test(pwd);
+        const hasLower = /[a-z]/.test(pwd);
+        const hasNumber = /[0-9]/.test(pwd);
+        const hasSymbol = /[^A-Za-z0-9]/.test(pwd);
+
+        let score = 0;
+        if (hasMinLen) score++;
+        if (hasUpper && hasLower) score++;
+        if (hasNumber) score++;
+        if (hasSymbol || pwd.length >= 12) score++;
+
+        const missing = [];
+        if (!hasMinLen) missing.push("mínimo 8 caracteres");
+        if (!hasUpper) missing.push("una letra mayúscula");
+        if (!hasLower) missing.push("una letra minúscula");
+        if (!hasNumber && !hasSymbol) missing.push("al menos un número o símbolo");
+
+        const valid = hasMinLen && hasUpper && hasLower && (hasNumber || hasSymbol);
+        let label = "Seguridad: muy débil";
+        let color = "#FB7185";
+        if (score === 2) { label = "Seguridad: media"; color = "#FBBF24"; }
+        else if (score === 3) { label = "Seguridad: alta"; color = "#34D399"; }
+        else if (score >= 4) { label = "Seguridad: excelente"; color = "#38BDF8"; }
+
+        return { valid, score, label, color, missing };
+    }
+
+    function getSafeRedirectUrl(queryParams = "") {
+        try {
+            const origin = window.location.origin;
+            const pathname = window.location.pathname || "/";
+            const parsed = new URL(pathname, origin);
+            if (parsed.origin !== origin) {
+                return origin + "/";
+            }
+            return parsed.href + (queryParams ? (queryParams.startsWith("?") ? queryParams : "?" + queryParams) : "");
+        } catch (_) {
+            return window.location.origin + "/";
+        }
+    }
+
+    function isUserVerified(user) {
+        if (!user) return false;
+        const provider = user.app_metadata?.provider || user.user_metadata?.auth_provider || "email";
+        if (provider === "google") return true;
+        return Boolean(user.email_confirmed_at || user.confirmed_at);
+    }
+
+    function checkAuthRateLimit() {
+        const now = Date.now();
+        if (authLockoutUntil > now) {
+            const secs = Math.ceil((authLockoutUntil - now) / 1000);
+            setAuthAlert(`Demasiados intentos fallidos. Por seguridad, espera ${secs} segundos antes de volver a intentarlo.`, "error");
+            return false;
+        }
+        if (authLockoutUntil !== 0 && now >= authLockoutUntil) {
+            authFailedAttempts = 0;
+            authLockoutUntil = 0;
+        }
+        return true;
+    }
+
+    function registerFailedAuthAttempt() {
+        authFailedAttempts++;
+        if (authFailedAttempts >= MAX_AUTH_ATTEMPTS) {
+            authLockoutUntil = Date.now() + AUTH_LOCKOUT_MS;
+        }
+    }
+
+    function resetAuthAttempts() {
+        authFailedAttempts = 0;
+        authLockoutUntil = 0;
+    }
+
+    function clearAuthFieldErrors() {
+        document.querySelectorAll("#auth-modal .auth-field-error").forEach(el => {
+            el.textContent = "";
+            el.classList.remove("visible");
+        });
+        document.querySelectorAll("#auth-modal .auth-saas-input").forEach(el => {
+            el.classList.remove("input-error");
+        });
+    }
+
+    function setFieldError(inputId, errId, message) {
+        const inputEl = document.getElementById(inputId);
+        const errEl = document.getElementById(errId);
+        if (inputEl) {
+            if (message) inputEl.classList.add("input-error");
+            else inputEl.classList.remove("input-error");
+        }
+        if (errEl) {
+            errEl.textContent = message || "";
+            if (message) errEl.classList.add("visible");
+            else errEl.classList.remove("visible");
+        }
+    }
+
+    function switchAuthView(viewName, options = {}) {
+        currentAuthView = viewName || "login";
+        if (!options.keepAlert) setAuthAlert("");
+        clearAuthFieldErrors();
+
+        const views = {
+            login: authViewLogin,
+            signup: authViewSignup,
+            forgot: authViewForgot,
+            verify: authViewVerify,
+            reset: authViewReset
+        };
+
+        Object.entries(views).forEach(([key, panel]) => {
+            if (!panel) return;
+            if (key === currentAuthView) {
+                panel.classList.remove("hidden");
+                panel.classList.add("active");
+            } else {
+                panel.classList.add("hidden");
+                panel.classList.remove("active");
+            }
+        });
+
+        const showTabsAndOAuth = currentAuthView === "login" || currentAuthView === "signup";
+        if (authTabsContainer) authTabsContainer.style.display = showTabsAndOAuth ? "grid" : "none";
+        if (authOauthDivider) authOauthDivider.style.display = showTabsAndOAuth ? "flex" : "none";
+        if (btnOAuthGoogle && btnOAuthGoogle.parentElement) {
+            btnOAuthGoogle.parentElement.style.display = showTabsAndOAuth ? "block" : "none";
+        }
+
+        if (tabAuthLogin) {
+            const active = currentAuthView === "login";
+            tabAuthLogin.classList.toggle("active", active);
+            tabAuthLogin.setAttribute("aria-selected", active ? "true" : "false");
+        }
+        if (tabAuthSignup) {
+            const active = currentAuthView === "signup";
+            tabAuthSignup.classList.toggle("active", active);
+            tabAuthSignup.setAttribute("aria-selected", active ? "true" : "false");
+        }
+
+        if (authModalTitle) {
+            if (currentAuthView === "signup") authModalTitle.textContent = "Crear cuenta en DocuMind AI";
+            else if (currentAuthView === "forgot") authModalTitle.textContent = "Recuperar contraseña";
+            else if (currentAuthView === "verify") authModalTitle.textContent = "Verificación pendiente";
+            else if (currentAuthView === "reset") authModalTitle.textContent = "Nueva contraseña";
+            else authModalTitle.textContent = "DocuMind AI";
+        }
+
+        if (currentAuthView === "verify" && options.email) {
+            pendingVerificationEmail = options.email;
+        }
+        const verifyEmailDisplay = document.getElementById("auth-verify-email-display");
+        if (verifyEmailDisplay && pendingVerificationEmail) {
+            verifyEmailDisplay.textContent = pendingVerificationEmail;
+        }
+    }
+
+    function requireVerifiedAuth(featureName = "esta función privada") {
+        if (!currentUser) {
+            openAuthModal("login");
+            setAuthAlert(`Inicia sesión para acceder a ${featureName}.`, "info");
+            return false;
+        }
+        if (!isUserVerified(currentUser)) {
+            pendingVerificationEmail = currentUser.email || pendingVerificationEmail;
+            openAuthModal("verify", { email: pendingVerificationEmail, keepAlert: true });
+            setAuthAlert(`Tu cuenta requiere verificación de correo electrónico antes de acceder a ${featureName}.`, "error");
+            return false;
+        }
+        return true;
+    }
+
+    async function syncUserProfile(user, extraMeta = {}) {
+        if (!supabaseClient || !user || !user.id) return null;
+        try {
+            const meta = user.user_metadata || {};
+            const email = user.email || "";
+            const provider = user.app_metadata?.provider || meta.auth_provider || extraMeta.auth_provider || "email";
+            const fallbackName = extraMeta.full_name || meta.full_name || meta.name || (email ? email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
+            const avatarUrl = meta.avatar_url || meta.picture || null;
+
+            // Consultar perfil existente en tabla profiles
+            const { data: existingProfile } = await supabaseClient
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .maybeSingle();
+
+            if (existingProfile) {
+                currentUserProfile = existingProfile;
+                return existingProfile;
+            }
+
+            // Crear o sincronizar registro en tabla profiles
+            const profilePayload = {
+                id: user.id,
+                email: email,
+                full_name: fallbackName,
+                auth_provider: provider,
+                avatar_url: avatarUrl,
+                created_at: user.created_at || new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+
+            const { data: insertedProfile, error: upsertError } = await supabaseClient
+                .from("profiles")
+                .upsert(profilePayload, { onConflict: "id" })
+                .select("*")
+                .maybeSingle();
+
+            if (!upsertError && insertedProfile) {
+                currentUserProfile = insertedProfile;
+                return insertedProfile;
+            }
+            currentUserProfile = profilePayload;
+            return profilePayload;
+        } catch (err) {
+            console.warn("Profile sync note:", err);
+            return null;
+        }
+    }
+
+    function openAuthModal(initialView = "login", options = {}) {
+        if (!authModal) return;
+        const targetView = typeof initialView === "string" ? initialView : "login";
+        if (btnOAuthGoogle) btnOAuthGoogle.disabled = false;
+        if (googleBtnText) googleBtnText.textContent = "Continuar con Google";
+        switchAuthView(targetView, options);
+        if (authUnconfiguredAlert) {
+            authUnconfiguredAlert.style.display = isSupabaseConfigured ? "none" : "block";
+        }
+        authModal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function _legacyOpenAuthModalUnused() {
         if (!authModal) return;
         setAuthAlert("");
         if (authUnconfiguredAlert) {
@@ -182,7 +447,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openAccountModal() {
-        if (!currentUser || !accountModal) return;
+        if (!accountModal) return;
+        if (!requireVerifiedAuth("Mi Cuenta")) return;
         const meta = currentUser.user_metadata || {};
         const email = currentUser.email || "";
         const fullName = meta.full_name || meta.name || (email ? email.split("@")[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
@@ -203,6 +469,17 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 accAvatar.innerHTML = `<span>${initials}</span>`;
             }
+        }
+        const accBadge = document.getElementById("acc-modal-auth-badge");
+        const accProvider = document.getElementById("acc-modal-provider");
+        const accProjectsCount = document.getElementById("acc-modal-projects-count");
+        const providerRaw = currentUser.app_metadata?.provider || meta.auth_provider || "email";
+        const isGoogle = providerRaw === "google";
+        if (accBadge) accBadge.textContent = isGoogle ? "Autenticado con Google" : "Cuenta Verificada (Correo y Contraseña)";
+        if (accProvider) accProvider.textContent = isGoogle ? "Google OAuth 2.0" : "Correo y Contraseña (Supabase Auth)";
+        if (accProjectsCount && typeof getLocalHistory === "function") {
+            const count = getLocalHistory().length;
+            accProjectsCount.textContent = `${count} ${count === 1 ? "proyecto" : "proyectos"}`;
         }
         accountModal.classList.remove("hidden");
         document.body.style.overflow = "hidden";
@@ -274,7 +551,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // Close auth modal smoothly if open
-            closeAuthModal();
+            if (isUserVerified(user) && currentAuthView !== "reset") {
+                closeAuthModal();
+            } else if (!isUserVerified(user)) {
+                if (userWelcomeBanner) userWelcomeBanner.style.display = "none";
+            }
+            if (typeof updateHistoryBadge === "function") updateHistoryBadge();
+            if (typeof renderHistoryList === "function") renderHistoryList();
 
         } else {
             if (navAuthGuest) navAuthGuest.style.display = "inline-flex";
@@ -289,6 +572,40 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar historial de análisis
     async function loadSupabaseHistory() {
         try {
+            if (supabaseClient && currentUser && currentUser.id && isUserVerified(currentUser)) {
+                await syncUserProfile(currentUser);
+                const { data: remoteRows, error: remoteErr } = await supabaseClient
+                    .from("analyses")
+                    .select("*")
+                    .eq("user_id", currentUser.id)
+                    .order("created_at", { ascending: false })
+                    .limit(15);
+
+                if (!remoteErr && Array.isArray(remoteRows) && remoteRows.length > 0) {
+                    const localItems = typeof getLocalHistory === "function" ? getLocalHistory() : [];
+                    const existingNames = new Set(localItems.map(item => item.name));
+                    const merged = [...localItems];
+                    remoteRows.forEach(row => {
+                        const rowData = row.data || {};
+                        const itemName = row.title || rowData.repository?.fullName || rowData.repository?.name || "Proyecto";
+                        if (!existingNames.has(itemName)) {
+                            existingNames.add(itemName);
+                            merged.push({
+                                id: rowData.projectId || row.id,
+                                name: itemName,
+                                date: row.created_at || new Date().toISOString(),
+                                lang: rowData.repository?.primaryLanguage || "JavaScript",
+                                filesCount: rowData.stats?.relevantFilesCount || 0,
+                                data: rowData
+                            });
+                        }
+                    });
+                    localStorage.setItem(getHistoryStorageKey(), JSON.stringify(merged.slice(0, 15)));
+                }
+            }
+            if (typeof updateHistoryBadge === "function") {
+                updateHistoryBadge();
+            }
             if (typeof renderHistoryList === "function") {
                 renderHistoryList();
             }
@@ -302,12 +619,28 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch("/api/config/supabase");
             const config = await res.json();
-            if (config.configured && window.supabase) {
-                supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+            if (window.__DOCUMIND_MOCK_SUPABASE__ || (config.configured && window.supabase)) {
+                supabaseClient = window.__DOCUMIND_MOCK_SUPABASE__ || window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
                 isSupabaseConfigured = true;
 
                 // Check active session on startup
+                // Check if previous login unchecked "Recordar sesión" and browser session restarted
+                const rememberPref = localStorage.getItem("documind_remember_session");
+                const ephemeralActive = sessionStorage.getItem("documind_ephemeral_session");
+                if (rememberPref === "false" && !ephemeralActive) {
+                    try { await supabaseClient.auth.signOut(); } catch (_) {}
+                    localStorage.removeItem("documind_remember_session");
+                }
+
                 const { data: { session } } = await supabaseClient.auth.getSession();
+                const urlHash = window.location.hash || "";
+                const urlSearch = window.location.search || "";
+                if (urlHash.includes("type=recovery") || urlSearch.includes("auth_action=reset_password")) {
+                    setTimeout(() => {
+                        openAuthModal("reset", { keepAlert: true });
+                        setAuthAlert("Enlace de recuperación activo. Establece tu nueva contraseña.", "info");
+                    }, 120);
+                }
                 if (session && session.user) {
                     updateAuthUI(session.user);
                     await loadSupabaseHistory();
@@ -324,7 +657,18 @@ document.addEventListener("DOMContentLoaded", () => {
                         updateAuthUI(null);
                     }
 
-                    if (event === "SIGNED_IN") {
+                    if (event === "PASSWORD_RECOVERY") {
+                        openAuthModal("reset", { keepAlert: true });
+                        setAuthAlert("Enlace de recuperación verificado. Introduce tu nueva contraseña.", "info");
+                    } else if (event === "SIGNED_IN") {
+                        if (user && !isUserVerified(user)) {
+                            pendingVerificationEmail = user.email || pendingVerificationEmail;
+                            openAuthModal("verify", { email: pendingVerificationEmail, keepAlert: true });
+                        } else if (user) {
+                            showToast(`¡Bienvenido a DocuMind AI!`, "success");
+                            await loadSupabaseHistory();
+                        }
+                    } else if (false) {
                         showToast(`¡Bienvenido a DocuMind AI!`, "success");
                         await loadSupabaseHistory();
                     } else if (event === "SIGNED_OUT") {
@@ -343,7 +687,563 @@ document.addEventListener("DOMContentLoaded", () => {
     initSupabase();
 
     // Event Listeners for Auth Modal
-    if (btnOpenAuthModal) btnOpenAuthModal.addEventListener("click", openAuthModal);
+    if (btnOpenAuthModal) btnOpenAuthModal.addEventListener("click", () => openAuthModal("login"));
+
+    // View Switching Controls inside Auth Modal
+    if (tabAuthLogin) tabAuthLogin.addEventListener("click", () => switchAuthView("login"));
+    if (tabAuthSignup) tabAuthSignup.addEventListener("click", () => switchAuthView("signup"));
+
+    const linkGoSignup = document.getElementById("link-go-signup");
+    const linkGoLogin = document.getElementById("link-go-login");
+    const linkForgotPassword = document.getElementById("link-forgot-password");
+    const linkBackLogin = document.getElementById("link-back-login");
+    const btnVerifyBackLogin = document.getElementById("btn-verify-back-login");
+    const linkResetBackLogin = document.getElementById("link-reset-back-login");
+    const linkSignupTerms = document.getElementById("link-signup-terms");
+    const linkSignupPrivacy = document.getElementById("link-signup-privacy");
+    const btnAccChangePassword = document.getElementById("btn-acc-change-password");
+
+    if (linkGoSignup) linkGoSignup.addEventListener("click", () => switchAuthView("signup"));
+    if (linkGoLogin) linkGoLogin.addEventListener("click", () => switchAuthView("login"));
+    if (linkForgotPassword) linkForgotPassword.addEventListener("click", () => {
+        const loginEmailVal = document.getElementById("auth-login-email")?.value?.trim() || "";
+        switchAuthView("forgot");
+        const forgotInput = document.getElementById("auth-forgot-email");
+        if (forgotInput && loginEmailVal) forgotInput.value = loginEmailVal;
+    });
+    if (linkBackLogin) linkBackLogin.addEventListener("click", () => switchAuthView("login"));
+    if (btnVerifyBackLogin) btnVerifyBackLogin.addEventListener("click", () => switchAuthView("login"));
+    if (linkResetBackLogin) linkResetBackLogin.addEventListener("click", () => switchAuthView("login"));
+    if (linkSignupTerms) linkSignupTerms.addEventListener("click", (e) => { e.preventDefault(); openPrivacyModal(); });
+    if (linkSignupPrivacy) linkSignupPrivacy.addEventListener("click", (e) => { e.preventDefault(); openPrivacyModal(); });
+    if (btnAccChangePassword) {
+        btnAccChangePassword.addEventListener("click", () => {
+            closeAccountModal();
+            openAuthModal("reset");
+            setAuthAlert("Introduce tu nueva contraseña para actualizar tus credenciales.", "info");
+        });
+    }
+
+    // Show / Hide Password Toggles
+    function bindPasswordToggle(btnId, inputId) {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+        if (!btn || !input) return;
+        btn.addEventListener("click", () => {
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+            const icon = btn.querySelector("i");
+            if (icon) {
+                icon.className = isPassword ? "fa-regular fa-eye-slash" : "fa-regular fa-eye";
+            }
+        });
+    }
+    bindPasswordToggle("btn-toggle-login-pass", "auth-login-password");
+    bindPasswordToggle("btn-toggle-signup-pass", "auth-signup-password");
+    bindPasswordToggle("btn-toggle-signup-confirm", "auth-signup-confirm");
+    bindPasswordToggle("btn-toggle-reset-pass", "auth-reset-password");
+    bindPasswordToggle("btn-toggle-reset-confirm", "auth-reset-confirm");
+
+    // Real-Time Password Strength Indicator on Signup
+    const signupPasswordInput = document.getElementById("auth-signup-password");
+    const strengthBar = document.getElementById("auth-password-strength-bar");
+    const strengthLabel = document.getElementById("auth-password-strength-label");
+    if (signupPasswordInput) {
+        signupPasswordInput.addEventListener("input", () => {
+            const val = signupPasswordInput.value;
+            if (!val) {
+                if (strengthBar) { strengthBar.style.width = "0%"; strengthBar.style.background = "#64748B"; }
+                if (strengthLabel) { strengthLabel.textContent = "Seguridad: ingrese contraseña"; strengthLabel.style.color = "#64748B"; }
+                return;
+            }
+            const evalRes = validatePasswordPolicy(val);
+            if (strengthBar) {
+                strengthBar.style.width = `${Math.max(15, evalRes.score * 25)}%`;
+                strengthBar.style.background = evalRes.color;
+            }
+            if (strengthLabel) {
+                strengthLabel.textContent = evalRes.label;
+                strengthLabel.style.color = evalRes.color;
+            }
+        });
+    }
+
+    // ============================================================
+    // 1. REGISTRO CON CORREO Y CONTRASEÑA (signUp)
+    // ============================================================
+    const formAuthSignup = document.getElementById("form-auth-signup");
+    if (formAuthSignup) {
+        formAuthSignup.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearAuthFieldErrors();
+            setAuthAlert("");
+
+            if (!checkAuthRateLimit()) return;
+
+            const nameInput = document.getElementById("auth-signup-name");
+            const emailInput = document.getElementById("auth-signup-email");
+            const passInput = document.getElementById("auth-signup-password");
+            const confirmInput = document.getElementById("auth-signup-confirm");
+            const termsInput = document.getElementById("auth-signup-terms");
+            const submitBtn = document.getElementById("btn-signup-submit");
+            const submitText = document.getElementById("signup-btn-text");
+
+            const fullName = (nameInput?.value || "").trim();
+            const email = (emailInput?.value || "").trim().toLowerCase();
+            const password = passInput?.value || "";
+            const confirmPassword = confirmInput?.value || "";
+            const acceptedTerms = Boolean(termsInput?.checked);
+
+            let hasErrors = false;
+            if (!fullName || fullName.length < 2) {
+                setFieldError("auth-signup-name", "err-signup-name", "El nombre completo es obligatorio (mínimo 2 caracteres).");
+                hasErrors = true;
+            }
+            if (!email) {
+                setFieldError("auth-signup-email", "err-signup-email", "El correo electrónico es obligatorio.");
+                hasErrors = true;
+            } else if (!isValidEmail(email)) {
+                setFieldError("auth-signup-email", "err-signup-email", "Introduce un formato de correo electrónico válido (ejemplo@dominio.com).");
+                hasErrors = true;
+            }
+
+            const pwdCheck = validatePasswordPolicy(password);
+            if (!password) {
+                setFieldError("auth-signup-password", "err-signup-password", "La contraseña es obligatoria.");
+                hasErrors = true;
+            } else if (!pwdCheck.valid) {
+                setFieldError("auth-signup-password", "err-signup-password", `La contraseña debe incluir: ${pwdCheck.missing.join(", ")}.`);
+                hasErrors = true;
+            }
+
+            if (!confirmPassword) {
+                setFieldError("auth-signup-confirm", "err-signup-confirm", "Debes confirmar tu contraseña.");
+                hasErrors = true;
+            } else if (password !== confirmPassword) {
+                setFieldError("auth-signup-confirm", "err-signup-confirm", "Las contraseñas no coinciden. Verifica ambos campos.");
+                hasErrors = true;
+            }
+
+            if (!acceptedTerms) {
+                setFieldError("auth-signup-terms", "err-signup-terms", "Debes aceptar los Términos de Servicio y la Política de Privacidad.");
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                setAuthAlert("Revisa los campos marcados antes de crear tu cuenta.", "error");
+                return;
+            }
+
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase no está configurado. Define SUPABASE_URL y SUPABASE_ANON_KEY en el servidor.", "error");
+                return;
+            }
+
+            if (submitBtn) submitBtn.disabled = true;
+            if (submitText) submitText.textContent = "Creando cuenta...";
+
+            try {
+                const redirectTo = getSafeRedirectUrl();
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        emailRedirectTo: redirectTo,
+                        data: {
+                            full_name: fullName,
+                            auth_provider: "email"
+                        }
+                    }
+                });
+
+                if (error) {
+                    registerFailedAuthAttempt();
+                    const msg = String(error.message || "").toLowerCase();
+                    if (msg.includes("already registered") || msg.includes("already exists") || msg.includes("duplicate")) {
+                        setFieldError("auth-signup-email", "err-signup-email", "Este correo ya está registrado.");
+                        setAuthAlert("Ya existe una cuenta registrada con este correo electrónico. Inicia sesión con tu contraseña o mediante Google OAuth.", "error");
+                    } else if (msg.includes("rate limit") || msg.includes("too many")) {
+                        setAuthAlert("Se ha alcanzado el límite de solicitudes de correo. Espera unos minutos antes de reintentar.", "error");
+                    } else {
+                        setAuthAlert(error.message || "No se pudo completar el registro.", "error");
+                    }
+                    return;
+                }
+
+                // Supabase devuelve identities: [] cuando el correo ya existe y email confirmation está activo
+                if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+                    registerFailedAuthAttempt();
+                    setFieldError("auth-signup-email", "err-signup-email", "Este correo ya está asociado a una cuenta existente.");
+                    setAuthAlert("Ya existe una cuenta registrada con este correo electrónico. Inicia sesión con tu contraseña o continúa con Google.", "error");
+                    return;
+                }
+
+                resetAuthAttempts();
+                if (passInput) passInput.value = "";
+                if (confirmInput) confirmInput.value = "";
+
+                if (data?.user) {
+                    await syncUserProfile(data.user, { full_name: fullName, auth_provider: "email" });
+                }
+
+                const needsVerification = !data?.session || !isUserVerified(data?.user);
+                if (needsVerification) {
+                    pendingVerificationEmail = email;
+                    if (data?.user) {
+                        currentUser = data.user;
+                    }
+                    switchAuthView("verify", { email, keepAlert: true });
+                    setAuthAlert("Cuenta creada exitosamente. Por favor verifica tu correo electrónico para activar el acceso completo.", "success");
+                } else if (data?.user) {
+                    updateAuthUI(data.user);
+                    await loadSupabaseHistory();
+                    showToast(`¡Cuenta creada! Bienvenido, ${fullName}.`, "success");
+                }
+            } catch (err) {
+                console.error("Signup error:", err);
+                setAuthAlert(err.message || "Error inesperado al registrar la cuenta.", "error");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+                if (submitText) submitText.textContent = "Crear cuenta";
+            }
+        });
+    }
+
+    // Reenviar correo de verificación (resend)
+    const btnResendVerification = document.getElementById("btn-resend-verification");
+    if (btnResendVerification) {
+        btnResendVerification.addEventListener("click", async () => {
+            const targetEmail = pendingVerificationEmail || currentUser?.email || document.getElementById("auth-signup-email")?.value?.trim();
+            if (!targetEmail || !isValidEmail(targetEmail)) {
+                setAuthAlert("No se encontró un correo válido para reenviar la verificación.", "error");
+                return;
+            }
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase Auth no está configurado.", "error");
+                return;
+            }
+
+            const resendText = document.getElementById("resend-btn-text");
+            btnResendVerification.disabled = true;
+            if (resendText) resendText.textContent = "Reenviando enlace...";
+
+            try {
+                const { error } = await supabaseClient.auth.resend({
+                    type: "signup",
+                    email: targetEmail,
+                    options: {
+                        emailRedirectTo: getSafeRedirectUrl()
+                    }
+                });
+                if (error) throw error;
+                setAuthAlert(`Enlace de verificación reenviado a ${targetEmail}. Revisa tu bandeja de entrada.`, "success");
+            } catch (err) {
+                setAuthAlert(err.message || "No se pudo reenviar el correo de verificación en este momento.", "error");
+            } finally {
+                setTimeout(() => {
+                    btnResendVerification.disabled = false;
+                    if (resendText) resendText.textContent = "Reenviar correo de verificación";
+                }, 1500);
+            }
+        });
+    }
+
+    // ============================================================
+    // 2. INICIO DE SESIÓN CON CORREO Y CONTRASEÑA (signInWithPassword)
+    // ============================================================
+    const formAuthLogin = document.getElementById("form-auth-login");
+    if (formAuthLogin) {
+        formAuthLogin.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearAuthFieldErrors();
+            setAuthAlert("");
+
+            if (!checkAuthRateLimit()) return;
+
+            const emailInput = document.getElementById("auth-login-email");
+            const passInput = document.getElementById("auth-login-password");
+            const rememberInput = document.getElementById("auth-remember-me");
+            const submitBtn = document.getElementById("btn-login-submit");
+            const submitText = document.getElementById("login-btn-text");
+
+            const email = (emailInput?.value || "").trim().toLowerCase();
+            const password = passInput?.value || "";
+            const rememberMe = rememberInput ? Boolean(rememberInput.checked) : true;
+
+            let hasErrors = false;
+            if (!email) {
+                setFieldError("auth-login-email", "err-login-email", "Introduce tu correo electrónico.");
+                hasErrors = true;
+            } else if (!isValidEmail(email)) {
+                setFieldError("auth-login-email", "err-login-email", "Introduce un correo electrónico válido.");
+                hasErrors = true;
+            }
+            if (!password) {
+                setFieldError("auth-login-password", "err-login-password", "Introduce tu contraseña.");
+                hasErrors = true;
+            }
+
+            if (hasErrors) return;
+
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase Auth no está configurado.", "error");
+                return;
+            }
+
+            if (submitBtn) submitBtn.disabled = true;
+            if (submitText) submitText.textContent = "Verificando credenciales...";
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) {
+                    registerFailedAuthAttempt();
+                    const msg = String(error.message || "").toLowerCase();
+                    if (msg.includes("email not confirmed") || msg.includes("not confirmed")) {
+                        pendingVerificationEmail = email;
+                        switchAuthView("verify", { email, keepAlert: true });
+                        setAuthAlert("Tu correo electrónico aún no ha sido verificado. Revisa tu bandeja de entrada o reenvía el enlace.", "error");
+                        return;
+                    }
+                    if (msg.includes("invalid login credentials") || msg.includes("invalid credentials") || msg.includes("invalid password")) {
+                        setFieldError("auth-login-password", "err-login-password", "Credenciales incorrectas.");
+                        setAuthAlert("Correo electrónico o contraseña incorrectos. Si te registraste con Google, utiliza el botón 'Continuar con Google'.", "error");
+                        return;
+                    }
+                    setAuthAlert(error.message || "No se pudo iniciar sesión.", "error");
+                    return;
+                }
+
+                if (!data?.user) {
+                    registerFailedAuthAttempt();
+                    setAuthAlert("No se pudo recuperar la sesión del usuario.", "error");
+                    return;
+                }
+
+                // Verificar que la cuenta esté confirmada antes de conceder acceso completo
+                if (!isUserVerified(data.user)) {
+                    pendingVerificationEmail = email;
+                    currentUser = data.user;
+                    switchAuthView("verify", { email, keepAlert: true });
+                    setAuthAlert("Debes verificar tu correo electrónico antes de acceder a las funcionalidades protegidas.", "error");
+                    return;
+                }
+
+                resetAuthAttempts();
+                if (passInput) passInput.value = "";
+
+                // Configurar persistencia según casilla "Recordar sesión"
+                localStorage.setItem("documind_remember_session", rememberMe ? "true" : "false");
+                if (!rememberMe) {
+                    sessionStorage.setItem("documind_ephemeral_session", "active");
+                } else {
+                    sessionStorage.removeItem("documind_ephemeral_session");
+                }
+
+                await syncUserProfile(data.user, { auth_provider: "email" });
+                updateAuthUI(data.user);
+                await loadSupabaseHistory();
+
+                // Restaurar proyectos/documentos guardados del usuario si existen
+                const userProjects = typeof getLocalHistory === "function" ? getLocalHistory() : [];
+                if (userProjects.length > 0 && userProjects[0]?.data && typeof renderProjectResults === "function") {
+                    currentAnalysisData = userProjects[0].data;
+                    currentProjectId = userProjects[0].id;
+                    renderProjectResults(userProjects[0].data);
+                }
+
+                const analizadorSection = document.getElementById("analizador");
+                if (analizadorSection) {
+                    analizadorSection.scrollIntoView({ behavior: "smooth" });
+                }
+            } catch (err) {
+                console.error("Login error:", err);
+                setAuthAlert(err.message || "Error inesperado al iniciar sesión.", "error");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+                if (submitText) submitText.textContent = "Iniciar sesión";
+            }
+        });
+    }
+
+    // ============================================================
+    // 3. RECUPERACIÓN DE CONTRASEÑA (resetPasswordForEmail & updateUser)
+    // ============================================================
+    const formAuthForgot = document.getElementById("form-auth-forgot");
+    if (formAuthForgot) {
+        formAuthForgot.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearAuthFieldErrors();
+            setAuthAlert("");
+
+            if (!checkAuthRateLimit()) return;
+
+            const emailInput = document.getElementById("auth-forgot-email");
+            const submitBtn = document.getElementById("btn-forgot-submit");
+            const submitText = document.getElementById("forgot-btn-text");
+            const email = (emailInput?.value || "").trim().toLowerCase();
+
+            if (!email || !isValidEmail(email)) {
+                setFieldError("auth-forgot-email", "err-forgot-email", "Introduce un correo electrónico válido para enviar el enlace.");
+                return;
+            }
+
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase Auth no está configurado.", "error");
+                return;
+            }
+
+            if (submitBtn) submitBtn.disabled = true;
+            if (submitText) submitText.textContent = "Enviando enlace...";
+
+            try {
+                const redirectTo = getSafeRedirectUrl("?auth_action=reset_password");
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo
+                });
+
+                if (error) {
+                    registerFailedAuthAttempt();
+                    throw error;
+                }
+
+                setAuthAlert("Si el correo está registrado en DocuMind AI, recibirás un enlace seguro para restablecer tu contraseña en unos instantes.", "success");
+            } catch (err) {
+                console.error("Password reset request error:", err);
+                setAuthAlert(err.message || "No se pudo procesar la solicitud de recuperación.", "error");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+                if (submitText) submitText.textContent = "Enviar enlace de recuperación";
+            }
+        });
+    }
+
+    const formAuthReset = document.getElementById("form-auth-reset");
+    if (formAuthReset) {
+        formAuthReset.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearAuthFieldErrors();
+            setAuthAlert("");
+
+            const passInput = document.getElementById("auth-reset-password");
+            const confirmInput = document.getElementById("auth-reset-confirm");
+            const submitBtn = document.getElementById("btn-reset-submit");
+            const submitText = document.getElementById("reset-btn-text");
+
+            const newPassword = passInput?.value || "";
+            const confirmPassword = confirmInput?.value || "";
+
+            const pwdCheck = validatePasswordPolicy(newPassword);
+            let hasErrors = false;
+            if (!newPassword || !pwdCheck.valid) {
+                setFieldError("auth-reset-password", "err-reset-password", `La nueva contraseña debe incluir: ${pwdCheck.missing.join(", ")}.`);
+                hasErrors = true;
+            }
+            if (!confirmPassword || newPassword !== confirmPassword) {
+                setFieldError("auth-reset-confirm", "err-reset-confirm", "La confirmación no coincide con la nueva contraseña.");
+                hasErrors = true;
+            }
+            if (hasErrors) return;
+
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase Auth no está configurado.", "error");
+                return;
+            }
+
+            if (submitBtn) submitBtn.disabled = true;
+            if (submitText) submitText.textContent = "Actualizando contraseña...";
+
+            try {
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    password: newPassword
+                });
+                if (error) throw error;
+
+                if (passInput) passInput.value = "";
+                if (confirmInput) confirmInput.value = "";
+
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
+                setAuthAlert("¡Tu contraseña se ha actualizado correctamente!", "success");
+                showToast("Contraseña actualizada con éxito.", "success");
+
+                setTimeout(() => {
+                    if (currentUser && data?.user && currentUser.id === data.user.id && isUserVerified(data.user)) {
+                        updateAuthUI(data.user);
+                        closeAuthModal();
+                    } else {
+                        switchAuthView("login", { keepAlert: true });
+                    }
+                }, 900);
+            } catch (err) {
+                console.error("Password update error:", err);
+                setAuthAlert(err.message || "No se pudo actualizar la contraseña. El enlace puede haber expirado.", "error");
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+                if (submitText) submitText.textContent = "Actualizar contraseña";
+            }
+        });
+    }
+
+    // Exponer API diagnóstica controlada de autenticación
+    window.DocuMindAuth = {
+        openAuthModal,
+        closeAuthModal,
+        switchAuthView,
+        isValidEmail,
+        validatePasswordPolicy,
+        isUserVerified,
+        requireVerifiedAuth,
+        getCurrentUser: () => currentUser,
+        getCurrentProfile: () => currentUserProfile,
+        getHistoryStorageKey,
+        resetAuthAttempts,
+        handleLogout,
+        setSupabaseClient: async (customClient) => {
+            supabaseClient = customClient;
+            isSupabaseConfigured = Boolean(customClient);
+            if (authUnconfiguredAlert) {
+                authUnconfiguredAlert.style.display = isSupabaseConfigured ? "none" : "block";
+            }
+            if (customClient && customClient.auth) {
+                const { data: { session } } = await customClient.auth.getSession();
+                if (session && session.user) {
+                    updateAuthUI(session.user);
+                    await loadSupabaseHistory();
+                } else {
+                    updateAuthUI(null);
+                }
+                customClient.auth.onAuthStateChange(async (event, session) => {
+                    const user = session ? session.user : null;
+                    if (user) {
+                        updateAuthUI(user);
+                    } else if (event === "SIGNED_OUT") {
+                        updateAuthUI(null);
+                    }
+                    if (event === "PASSWORD_RECOVERY") {
+                        openAuthModal("reset", { keepAlert: true });
+                        setAuthAlert("Enlace de recuperación verificado. Introduce tu nueva contraseña.", "info");
+                    } else if (event === "SIGNED_IN") {
+                        if (user && !isUserVerified(user)) {
+                            pendingVerificationEmail = user.email || pendingVerificationEmail;
+                            openAuthModal("verify", { email: pendingVerificationEmail, keepAlert: true });
+                        } else if (user) {
+                            showToast(`¡Bienvenido a DocuMind AI!`, "success");
+                            await loadSupabaseHistory();
+                        }
+                    } else if (event === "SIGNED_OUT") {
+                        showToast("Sesión finalizada.", "info");
+                        if (typeof renderHistoryList === "function") renderHistoryList();
+                    }
+                });
+            }
+        }
+    };
     if (btnMobileOpenAuth) btnMobileOpenAuth.addEventListener("click", () => {
         if (mobileMenu) mobileMenu.classList.add("hidden");
         openAuthModal();
@@ -408,6 +1308,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnUserHistory) {
         btnUserHistory.addEventListener("click", () => {
             if (userDropdownMenu) userDropdownMenu.classList.add("hidden");
+            if (!requireVerifiedAuth("tu historial de proyectos sincronizado")) return;
             switchTab("history");
             const analizadorSection = document.getElementById("analizador");
             if (analizadorSection) analizadorSection.scrollIntoView({ behavior: "smooth" });
@@ -449,6 +1350,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         updateAuthUI(null);
         closeAccountModal();
+        currentUserProfile = null;
+        pendingVerificationEmail = "";
+        if (typeof updateHistoryBadge === "function") updateHistoryBadge();
+        if (typeof renderHistoryList === "function") renderHistoryList();
         showToast("Sesión cerrada correctamente.", "info");
     }
     if (btnLogout) btnLogout.addEventListener("click", handleLogout);
@@ -2761,9 +3666,43 @@ document.addEventListener("DOMContentLoaded", () => {
     // ------------------------------------------------------------
     const LOCAL_HISTORY_KEY = "documind_ai_project_history_v2";
 
+    function getHistoryStorageKey() {
+        if (currentUser && currentUser.id) {
+            return `${LOCAL_HISTORY_KEY}_user_${currentUser.id}`;
+        }
+        return `${LOCAL_HISTORY_KEY}_guest`;
+    }
+
+    async function syncAnalysisToSupabaseCloud(item) {
+        if (!supabaseClient || !currentUser || !currentUser.id) return;
+        const verified = Boolean(
+            currentUser.app_metadata?.provider === "google" ||
+            currentUser.email_confirmed_at ||
+            currentUser.confirmed_at
+        );
+        if (!verified) return;
+        try {
+            await supabaseClient.from("analyses").insert({
+                user_id: currentUser.id,
+                type: "project",
+                title: item.name,
+                meta: `${item.lang || "JavaScript"} (${item.filesCount || 0} archivos)`,
+                data: item.data
+            });
+        } catch (err) {
+            console.warn("Cloud history sync note:", err);
+        }
+    }
+
     function getLocalHistory() {
         try {
-            return JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || '[]');
+            const scopedKey = getHistoryStorageKey();
+            const raw = localStorage.getItem(scopedKey);
+            if (raw !== null) return JSON.parse(raw || '[]');
+            if (!currentUser) {
+                return JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY) || '[]');
+            }
+            return [];
         } catch (e) {
             return [];
         }
@@ -2780,7 +3719,8 @@ document.addEventListener("DOMContentLoaded", () => {
             data
         };
         const updated = [item, ...history.filter(h => h.name !== item.name)].slice(0, 15);
-        localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(updated));
+        localStorage.setItem(getHistoryStorageKey(), JSON.stringify(updated));
+        syncAnalysisToSupabaseCloud(item);
         updateHistoryBadge();
     }
 
@@ -2846,7 +3786,7 @@ document.addEventListener("DOMContentLoaded", () => {
             card.querySelector('.btn-delete-history').addEventListener('click', () => {
                 const cur = getLocalHistory();
                 cur.splice(idx, 1);
-                localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify(cur));
+                localStorage.setItem(getHistoryStorageKey(), JSON.stringify(cur));
                 renderHistoryList();
                 updateHistoryBadge();
                 showToast("Proyecto eliminado del historial.", "info");
@@ -2859,7 +3799,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnClearHistory = document.getElementById("btn-clear-history");
     if (btnClearHistory) {
         btnClearHistory.addEventListener("click", () => {
-            localStorage.removeItem(LOCAL_HISTORY_KEY);
+            localStorage.removeItem(getHistoryStorageKey());
+            if (!currentUser) localStorage.removeItem(LOCAL_HISTORY_KEY);
             renderHistoryList();
             updateHistoryBadge();
             showToast("Historial vaciado.", "info");

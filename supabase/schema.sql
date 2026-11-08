@@ -14,10 +14,13 @@ create table if not exists public.profiles (
     email text not null,
     full_name text,
     role text default 'developer',
+    auth_provider text default 'email',
     avatar_url text,
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );
+
+alter table public.profiles add column if not exists auth_provider text default 'email';
 
 alter table public.profiles enable row level security;
 
@@ -166,16 +169,33 @@ security definer
 set search_path = ''
 as $$
 begin
-    insert into public.profiles (id, email, full_name, role)
+    insert into public.profiles (id, email, full_name, role, auth_provider, avatar_url)
     values (
         new.id,
         new.email,
         coalesce(
-            new.raw_user_meta_data->>'full_name',
+            nullif(new.raw_user_meta_data->>'full_name', ''),
+            nullif(new.raw_user_meta_data->>'name', ''),
             split_part(new.email, '@', 1)
         ),
-        'developer'
-    );
+        'developer',
+        coalesce(
+            nullif(new.raw_app_meta_data->>'provider', ''),
+            nullif(new.raw_user_meta_data->>'auth_provider', ''),
+            'email'
+        ),
+        coalesce(
+            new.raw_user_meta_data->>'avatar_url',
+            new.raw_user_meta_data->>'picture',
+            null
+        )
+    )
+    on conflict (id) do update
+    set
+        email = excluded.email,
+        full_name = coalesce(nullif(public.profiles.full_name, ''), excluded.full_name),
+        avatar_url = coalesce(public.profiles.avatar_url, excluded.avatar_url),
+        updated_at = now();
     return new;
 end;
 $$;
@@ -184,6 +204,9 @@ $$;
 -- ni modificar su rol.
 revoke insert, update on public.profiles from authenticated;
 
--- Solo pueden actualizar sus datos personales.
-grant update (full_name, avatar_url, updated_at)
+-- Solo pueden insertar/actualizar sus propios datos personales (protegidos por RLS).
+grant insert (id, email, full_name, avatar_url, auth_provider, created_at, updated_at)
+on public.profiles to authenticated;
+
+grant update (full_name, avatar_url, auth_provider, updated_at)
 on public.profiles to authenticated;

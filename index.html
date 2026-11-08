@@ -1918,7 +1918,7 @@
     ============================================================ -->
     <div id="auth-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="auth-modal-backdrop" id="auth-modal-backdrop"></div>
-        <div class="auth-card-cyber" style="max-width:440px;padding:2.25rem 2rem;background:linear-gradient(180deg,#0F172A 0%,#0A0F1D 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;box-shadow:0 25px 60px -15px rgba(0,0,0,.85),0 0 40px rgba(56,189,248,.08);position:relative;">
+        <div class="auth-card-cyber auth-saas-card" style="max-width:460px;padding:1.85rem 1.75rem;background:linear-gradient(180deg,#0F172A 0%,#0A0F1D 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;box-shadow:0 25px 60px -15px rgba(0,0,0,.85),0 0 40px rgba(56,189,248,.08);position:relative;">
             
             <!-- Modal Close Button -->
             <button type="button" id="btn-close-auth-modal" class="auth-modal-close" style="position:absolute;top:1.25rem;right:1.25rem;" aria-label="Cerrar modal">
@@ -1943,7 +1943,248 @@
             </div>
 
             <!-- Form Message / Alert Container -->
-            <div id="auth-alert-box" style="display:none;margin-bottom:1.25rem;padding:.75rem 1rem;border-radius:.65rem;font-size:.78rem;line-height:1.5;"></div>
+            <div id="auth-alert-box" role="alert" aria-live="polite" style="display:none;margin-bottom:1rem;padding:.75rem 1rem;border-radius:.65rem;font-size:.78rem;line-height:1.5;"></div>
+
+            <!-- View Switcher Tabs (Shown on Login / Signup) -->
+            <div id="auth-tabs-container" class="auth-saas-tabs" role="tablist" aria-label="Método de acceso">
+                <button type="button" id="tab-auth-login" class="auth-saas-tab active" role="tab" aria-selected="true" data-auth-view="login">
+                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
+                </button>
+                <button type="button" id="tab-auth-signup" class="auth-saas-tab" role="tab" aria-selected="false" data-auth-view="signup">
+                    <i class="fa-solid fa-user-plus"></i> Crear cuenta
+                </button>
+            </div>
+
+            <!-- ==========================================
+                 VISTA A: INICIAR SESIÓN (EMAIL & PASSWORD)
+            =========================================== -->
+            <div id="auth-view-login" class="auth-view-panel active" data-view="login">
+                <form id="form-auth-login" class="auth-saas-form" novalidate>
+                    <div class="auth-field-group">
+                        <label for="auth-login-email" class="auth-field-label">Correo electrónico</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-regular fa-envelope auth-input-icon"></i>
+                            <input type="email" id="auth-login-email" class="auth-saas-input" placeholder="nombre@empresa.com" autocomplete="email" required />
+                        </div>
+                        <span id="err-login-email" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <div class="auth-label-row">
+                            <label for="auth-login-password" class="auth-field-label">Contraseña</label>
+                            <button type="button" id="link-forgot-password" class="auth-inline-link">¿Olvidaste tu contraseña?</button>
+                        </div>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-solid fa-lock auth-input-icon"></i>
+                            <input type="password" id="auth-login-password" class="auth-saas-input has-toggle" placeholder="••••••••" autocomplete="current-password" required />
+                            <button type="button" id="btn-toggle-login-pass" class="auth-pass-toggle" aria-label="Mostrar u ocultar contraseña" title="Mostrar/Ocultar contraseña">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span id="err-login-password" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-options-row">
+                        <label class="auth-checkbox-label" for="auth-remember-me">
+                            <input type="checkbox" id="auth-remember-me" checked />
+                            <span>Recordar sesión en este dispositivo</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" id="btn-login-submit" class="btn-auth-primary">
+                        <i class="fa-solid fa-right-to-bracket" id="login-btn-icon"></i>
+                        <span id="login-btn-text">Iniciar sesión</span>
+                    </button>
+
+                    <div class="auth-switch-prompt">
+                        ¿Aún no tienes una cuenta?
+                        <button type="button" id="link-go-signup" class="auth-inline-link strong">Crear una cuenta</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ==========================================
+                 VISTA B: CREAR CUENTA (REGISTRO)
+            =========================================== -->
+            <div id="auth-view-signup" class="auth-view-panel hidden" data-view="signup">
+                <form id="form-auth-signup" class="auth-saas-form" novalidate>
+                    <div class="auth-field-group">
+                        <label for="auth-signup-name" class="auth-field-label">Nombre completo</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-regular fa-user auth-input-icon"></i>
+                            <input type="text" id="auth-signup-name" class="auth-saas-input" placeholder="Ej. Ana García" autocomplete="name" required />
+                        </div>
+                        <span id="err-signup-name" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="auth-signup-email" class="auth-field-label">Correo electrónico</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-regular fa-envelope auth-input-icon"></i>
+                            <input type="email" id="auth-signup-email" class="auth-saas-input" placeholder="nombre@empresa.com" autocomplete="email" required />
+                        </div>
+                        <span id="err-signup-email" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="auth-signup-password" class="auth-field-label">Contraseña</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-solid fa-key auth-input-icon"></i>
+                            <input type="password" id="auth-signup-password" class="auth-saas-input has-toggle" placeholder="Mínimo 8 caracteres, mayúscula y número" autocomplete="new-password" required />
+                            <button type="button" id="btn-toggle-signup-pass" class="auth-pass-toggle" aria-label="Mostrar u ocultar contraseña">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="auth-password-strength-wrap" class="auth-strength-wrap">
+                            <div class="auth-strength-track">
+                                <div id="auth-password-strength-bar" class="auth-strength-fill" style="width:0%;"></div>
+                            </div>
+                            <div class="auth-strength-meta">
+                                <span id="auth-password-strength-label" class="auth-strength-text">Seguridad: ingrese contraseña</span>
+                                <span id="auth-password-reqs" class="auth-strength-reqs">8+ car. · A-z · 0-9</span>
+                            </div>
+                        </div>
+                        <span id="err-signup-password" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="auth-signup-confirm" class="auth-field-label">Confirmar contraseña</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-solid fa-shield-halved auth-input-icon"></i>
+                            <input type="password" id="auth-signup-confirm" class="auth-saas-input has-toggle" placeholder="Repite tu contraseña" autocomplete="new-password" required />
+                            <button type="button" id="btn-toggle-signup-confirm" class="auth-pass-toggle" aria-label="Mostrar u ocultar confirmación">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span id="err-signup-confirm" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label class="auth-checkbox-label" for="auth-signup-terms">
+                            <input type="checkbox" id="auth-signup-terms" required />
+                            <span>Acepto los <a href="#terminos" id="link-signup-terms" class="auth-inline-link">Términos de Servicio</a> y la <a href="#privacidad" id="link-signup-privacy" class="auth-inline-link">Política de Privacidad</a>.</span>
+                        </label>
+                        <span id="err-signup-terms" class="auth-field-error"></span>
+                    </div>
+
+                    <button type="submit" id="btn-signup-submit" class="btn-auth-primary">
+                        <i class="fa-solid fa-user-check" id="signup-btn-icon"></i>
+                        <span id="signup-btn-text">Crear cuenta</span>
+                    </button>
+
+                    <div class="auth-switch-prompt">
+                        ¿Ya tienes una cuenta?
+                        <button type="button" id="link-go-login" class="auth-inline-link strong">Iniciar sesión</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ==========================================
+                 VISTA C: RECUPERAR CONTRASEÑA
+            =========================================== -->
+            <div id="auth-view-forgot" class="auth-view-panel hidden" data-view="forgot">
+                <form id="form-auth-forgot" class="auth-saas-form" novalidate>
+                    <div class="auth-info-banner">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                        <span>Introduce el correo asociado a tu cuenta y te enviaremos un enlace seguro para restablecer tu contraseña.</span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="auth-forgot-email" class="auth-field-label">Correo electrónico de recuperación</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-regular fa-envelope auth-input-icon"></i>
+                            <input type="email" id="auth-forgot-email" class="auth-saas-input" placeholder="nombre@empresa.com" autocomplete="email" required />
+                        </div>
+                        <span id="err-forgot-email" class="auth-field-error"></span>
+                    </div>
+
+                    <button type="submit" id="btn-forgot-submit" class="btn-auth-primary">
+                        <i class="fa-solid fa-paper-plane" id="forgot-btn-icon"></i>
+                        <span id="forgot-btn-text">Enviar enlace de recuperación</span>
+                    </button>
+
+                    <div class="auth-switch-prompt">
+                        <button type="button" id="link-back-login" class="auth-inline-link strong">
+                            <i class="fa-solid fa-arrow-left" style="margin-right:.3rem;"></i>Volver a iniciar sesión
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ==========================================
+                 VISTA D: VERIFICACIÓN DE CORREO PENDIENTE
+            =========================================== -->
+            <div id="auth-view-verify" class="auth-view-panel hidden" data-view="verify">
+                <div class="auth-verify-box">
+                    <div class="auth-verify-icon">
+                        <i class="fa-solid fa-envelope-circle-check"></i>
+                    </div>
+                    <h4 class="auth-verify-title">Verifica tu correo electrónico</h4>
+                    <p class="auth-verify-desc">
+                        Hemos enviado un enlace de confirmación a <strong id="auth-verify-email-display">tu correo</strong>.
+                        Debes verificar tu cuenta antes de acceder a las funciones privadas de sincronización y proyectos.
+                    </p>
+                    <div class="auth-verify-actions">
+                        <button type="button" id="btn-resend-verification" class="btn-auth-secondary">
+                            <i class="fa-solid fa-rotate-right" id="resend-btn-icon"></i>
+                            <span id="resend-btn-text">Reenviar correo de verificación</span>
+                        </button>
+                        <button type="button" id="btn-verify-back-login" class="auth-inline-link strong" style="margin-top:.5rem;">
+                            <i class="fa-solid fa-arrow-left" style="margin-right:.3rem;"></i>Ya verifiqué mi correo · Iniciar sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 VISTA E: ESTABLECER NUEVA CONTRASEÑA
+            =========================================== -->
+            <div id="auth-view-reset" class="auth-view-panel hidden" data-view="reset">
+                <form id="form-auth-reset" class="auth-saas-form" novalidate>
+                    <div class="auth-info-banner">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Establece una nueva contraseña segura para tu cuenta de DocuMind AI.</span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="auth-reset-password" class="auth-field-label">Nueva contraseña</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-solid fa-lock auth-input-icon"></i>
+                            <input type="password" id="auth-reset-password" class="auth-saas-input has-toggle" placeholder="Mínimo 8 caracteres, mayúscula y número" autocomplete="new-password" required />
+                            <button type="button" id="btn-toggle-reset-pass" class="auth-pass-toggle" aria-label="Mostrar u ocultar nueva contraseña">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span id="err-reset-password" class="auth-field-error"></span>
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="auth-reset-confirm" class="auth-field-label">Confirmar nueva contraseña</label>
+                        <div class="auth-input-wrapper">
+                            <i class="fa-solid fa-shield-halved auth-input-icon"></i>
+                            <input type="password" id="auth-reset-confirm" class="auth-saas-input has-toggle" placeholder="Repite tu nueva contraseña" autocomplete="new-password" required />
+                            <button type="button" id="btn-toggle-reset-confirm" class="auth-pass-toggle" aria-label="Mostrar u ocultar confirmación">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span id="err-reset-confirm" class="auth-field-error"></span>
+                    </div>
+
+                    <button type="submit" id="btn-reset-submit" class="btn-auth-primary">
+                        <i class="fa-solid fa-check-double" id="reset-btn-icon"></i>
+                        <span id="reset-btn-text">Actualizar contraseña</span>
+                    </button>
+
+                    <div class="auth-switch-prompt">
+                        <button type="button" id="link-reset-back-login" class="auth-inline-link">Cancelar y volver al inicio de sesión</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Separador Visual entre Correo/Contraseña y Google OAuth -->
+            <div id="auth-oauth-divider" class="auth-divider">
+                <span>o continúa con</span>
+            </div>
 
             <!-- Google OAuth Primary Button -->
             <div style="margin-bottom:1.5rem;">
@@ -2016,7 +2257,7 @@
                     <p id="acc-modal-email" style="font-size:.78rem;color:#94A3B8;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">correo@dominio.com</p>
                     <div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.4rem;font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">
                         <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 6px #34D399;"></span>
-                        Autenticado con Google
+                        <span id="acc-modal-auth-badge">Sesión Verificada</span>
                     </div>
                 </div>
             </div>
@@ -2025,7 +2266,11 @@
             <div style="background:rgba(9,13,22,.6);border:1px solid rgba(148,163,184,.1);border-radius:.75rem;padding:.85rem 1rem;margin-bottom:1.5rem;font-size:.76rem;color:#94A3B8;display:flex;flex-direction:column;gap:.5rem;">
                 <div style="display:flex;justify-content:space-between;">
                     <span>Proveedor:</span>
-                    <strong style="color:#fff;">Google OAuth 2.0</strong>
+                    <strong id="acc-modal-provider" style="color:#fff;">Supabase Auth</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span>Proyectos en Historial:</span>
+                    <strong id="acc-modal-projects-count" style="color:#38BDF8;">0 proyectos</strong>
                 </div>
                 <div style="display:flex;justify-content:space-between;">
                     <span>ID de Usuario:</span>
@@ -2039,6 +2284,7 @@
 
             <!-- Action Buttons -->
             <div style="display:flex;justify-content:flex-end;gap:.65rem;">
+                <button type="button" id="btn-acc-change-password" class="btn-ghost" style="padding:.5rem .85rem;font-size:.76rem;color:#38BDF8;margin-right:auto;"><i class="fa-solid fa-key" style="margin-right:.35rem;"></i>Cambiar Contraseña</button>
                 <button type="button" id="btn-acc-close-action" class="btn-ghost" style="padding:.5rem 1rem;font-size:.8rem;">Cerrar</button>
                 <button type="button" id="btn-acc-logout" class="btn-cyber-outline" style="padding:.5rem 1.15rem;font-size:.8rem;color:#FB7185;border-color:#FB7185;">
                     <i class="fa-solid fa-right-from-bracket" style="margin-right:.35rem;"></i>Cerrar Sesión
