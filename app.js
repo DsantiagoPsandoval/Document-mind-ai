@@ -4851,12 +4851,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const nameEl = document.getElementById("checkout-plan-name");
         const cycleEl = document.getElementById("checkout-cycle-label");
         const priceEl = document.getElementById("checkout-total-price");
+        const featuresEl = document.getElementById("checkout-features-list");
+        const paymentAccordion = document.getElementById("payment-methods-accordion");
+
+        if (paymentAccordion) paymentAccordion.style.display = "none";
 
         if (nameEl) nameEl.textContent = planId === 'enterprise' ? 'Plan Enterprise — Corporativo' : 'Plan Pro — Profesional';
         if (cycleEl) cycleEl.textContent = cycle === 'annual' ? 'Facturación Anual (Ahorro 20%)' : 'Facturación Mensual';
 
         let amount = planId === 'enterprise' ? (cycle === 'annual' ? '$4,788.00' : '$499.00') : (cycle === 'annual' ? '$279.00' : '$29.00');
         if (priceEl) priceEl.textContent = amount;
+
+        if (featuresEl) {
+            if (planId === 'enterprise') {
+                featuresEl.innerHTML = `
+                    <li>Organizaciones ilimitadas con roles RBAC (Admin, Architect, Auditor)</li>
+                    <li>Soporte de llaves propias (BYOK) para Gemini, Vertex AI, Azure y Ollama</li>
+                    <li>Modo Efímero Zero-Retention con destrucción de memoria RAM</li>
+                    <li>Marca Blanca Corporativa y soporte de ingeniería 24/7</li>
+                `;
+            } else {
+                featuresEl.innerHTML = `
+                    <li>Análisis de repositorios privados y públicos ilimitados</li>
+                    <li>Exportación completa a Word (.docx) y PDF con diagramas</li>
+                    <li>Análisis de impacto y Blast Radius con navegación a código</li>
+                    <li>Historial persistente en la nube y soporte prioritario</li>
+                `;
+            }
+        }
 
         if (modal) {
             modal.classList.remove("hidden");
@@ -4882,6 +4904,32 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnCloseCheckout) btnCloseCheckout.addEventListener("click", hideCheckout);
     if (btnCancelCheckout) btnCancelCheckout.addEventListener("click", hideCheckout);
     if (checkoutBackdrop) checkoutBackdrop.addEventListener("click", hideCheckout);
+
+    // ¿Cómo puedo pagar? accordion toggle
+    const btnHowToPay = document.getElementById("btn-how-to-pay");
+    const paymentAccordion = document.getElementById("payment-methods-accordion");
+    if (btnHowToPay && paymentAccordion) {
+        btnHowToPay.addEventListener("click", () => {
+            const isHidden = paymentAccordion.style.display === "none" || !paymentAccordion.style.display;
+            paymentAccordion.style.display = isHidden ? "block" : "none";
+        });
+    }
+
+    // Quick Actions in User Welcome Dashboard
+    const btnDashBlast = document.getElementById("btn-dash-open-blast");
+    if (btnDashBlast) {
+        btnDashBlast.addEventListener("click", () => {
+            const m = document.getElementById("blast-radius-modal");
+            if (m) { m.classList.remove("hidden"); m.style.display = "flex"; }
+        });
+    }
+    const btnDashSettings = document.getElementById("btn-dash-open-settings");
+    if (btnDashSettings) {
+        btnDashSettings.addEventListener("click", () => {
+            const m = document.getElementById("enterprise-settings-modal");
+            if (m) { m.classList.remove("hidden"); m.style.display = "flex"; }
+        });
+    }
 
     // Enviar pago a backend
     const btnSubmitPayment = document.getElementById("btn-submit-payment");

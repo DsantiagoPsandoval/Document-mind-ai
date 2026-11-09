@@ -185,7 +185,8 @@ async function runFase1Tests() {
             const ctaAnalyze = document.querySelector('#btn-hero-analyze')?.getAttribute('href');
             const ctaPlanes = document.querySelector('#hero a[href="#planes"]');
             const trustPills = Array.from(document.querySelectorAll('#hero .reveal-delay-4 > div')).length;
-            return { titleOk: title.includes('Documenta tus repositorios'), ctaAnalyze: ctaAnalyze === '#analizador', ctaPlanesOk: !!ctaPlanes, trustPills };
+            const titleOk = title.toLowerCase().includes('documentación de software') || title.toLowerCase().includes('documenta tus repositorios');
+            return { titleOk, ctaAnalyze: ctaAnalyze === '#analizador', ctaPlanesOk: !!ctaPlanes, trustPills };
         })()`);
 
         if (heroCheck.titleOk && heroCheck.ctaAnalyze && heroCheck.ctaPlanesOk && heroCheck.trustPills >= 4) {

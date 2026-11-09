@@ -45,13 +45,14 @@
             <!-- Center Navigation Links -->
             <nav class="nav-center-nav" aria-label="Navegación principal">
                 <ul class="nav-links">
+                    <li><a href="#hero" class="nav-link" data-section="hero">Inicio</a></li>
                     <li><a href="#como-funciona" class="nav-link" data-section="como-funciona">Cómo funciona</a></li>
-                    <li><a href="#solucion" class="nav-link" data-section="solucion">Solución</a></li>
+                    <li><a href="#solucion" class="nav-link" data-section="solucion">Soluciones</a></li>
                     <li><a href="#empresas-seguridad" class="nav-link" data-section="empresas-seguridad">Empresas</a></li>
                     <li><a href="#analizador" class="nav-link" data-section="analizador">Analizador</a></li>
+                    <li><a href="/simulador" target="_blank" rel="noopener noreferrer" class="nav-link" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.35rem;font-size:.75rem;"></i>Simulador <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
                     <li><a href="#planes" class="nav-link" data-section="planes">Planes &amp; Precios</a></li>
                     <li><a href="#faq" class="nav-link" data-section="faq">FAQ</a></li>
-                    <li><a href="/simulador" target="_blank" rel="noopener noreferrer" class="nav-link" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.35rem;font-size:.75rem;"></i>Simulador <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
                     <li><a href="#contacto" class="nav-link" data-section="contacto">Contacto</a></li>
                 </ul>
             </nav>
@@ -185,26 +186,26 @@
                     </div>
 
                     <h1 class="hero-title reveal reveal-delay-1" style="font-size:clamp(2.35rem, 4.4vw, 3.6rem);font-weight:900;line-height:1.15;letter-spacing:-0.03em;margin-bottom:1.15rem;color:#FFFFFF;">
-                        Documenta tus repositorios <span class="gradient-text">con Inteligencia Artificial</span>
+                        La inteligencia detrás de <span class="gradient-text">la documentación de software</span>
                     </h1>
 
                     <p style="font-size:clamp(.98rem,1.35vw,1.12rem);color:#CBD5E1;line-height:1.75;max-width:540px;margin-bottom:2rem;font-weight:400;" class="reveal reveal-delay-2">
-                        Convierte cualquier repositorio en documentación técnica viva, diagramas C4, contratos OpenAPI, modelos de datos y auditorías SAST con calidad editorial en Word y PDF, sincronizados automáticamente en cada <code style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);padding:.15rem .45rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#818CF8;">git push</code>.
+                        Transforma repositorios de código en documentación técnica inteligente. Analiza arquitecturas, descubre dependencias y mantén tus proyectos documentados con inteligencia artificial.
                     </p>
 
                     <!-- CTAs with Analyze Repository sequence trigger -->
                     <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
                         <a href="#analizador" id="btn-hero-analyze" class="btn-cyber" style="padding:.85rem 1.65rem;font-size:.92rem;">
-                            <i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>
+                            <i class="fa-solid fa-sparkles" style="margin-right:.5rem;font-size:.75rem;"></i>
                             Comenzar gratis
                         </a>
-                        <a href="#planes" class="btn-cyber-outline" style="padding:.85rem 1.45rem;font-size:.92rem;">
-                            <i class="fa-solid fa-tags" style="margin-right:.5rem;color:#F59E0B;font-size:.75rem;"></i>
-                            Ver Planes y Precios
+                        <a href="#como-funciona" class="btn-ghost" style="padding:.85rem 1.45rem;font-size:.92rem;color:#E2E8F0;border:1px solid rgba(255,255,255,0.12);border-radius:9999px;">
+                            <i class="fa-solid fa-circle-nodes" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.85rem;"></i>
+                            Explorar funcionalidades
                         </a>
-                        <a href="#como-funciona" class="btn-ghost" style="padding:.85rem 1.25rem;font-size:.92rem;color:#94A3B8;">
-                            <i class="fa-solid fa-circle-play" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
-                            Cómo funciona
+                        <a href="#planes" class="btn-cyber-outline" style="padding:.85rem 1.35rem;font-size:.92rem;">
+                            <i class="fa-solid fa-tags" style="margin-right:.5rem;color:#F59E0B;font-size:.75rem;"></i>
+                            Ver Planes
                         </a>
                     </div>
 
@@ -355,113 +356,245 @@
     <!-- ============================================================
          3. COMO FUNCIONA (5 STEPS)
     ============================================================ -->
-    <section id="como-funciona" style="padding:6rem 0;">
+    <!-- ============================================================
+         3. COMO FUNCIONA (5-STEP VISUAL WORKFLOW)
+    ============================================================ -->
+    <section id="como-funciona" style="padding:6rem 0;position:relative;">
         <div class="container">
-            <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
-                <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-arrows-split-up-and-left"></i> Flujo SaaS Automatizado</span>
-                <h2 class="section-title">Cómo funciona Document-Mind AI</h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">De repositorio a documentación viva en 5 pasos completamente autom&aacute;ticos integrados en tu flujo Git.</p>
+            <div style="text-align:center;max-width:680px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-arrows-split-up-and-left"></i> Flujo SaaS Automatizado
+                </span>
+                <h2 class="section-title">Cómo funciona <span class="gradient-text">DocuMind AI</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
+                    De repositorio a documentación viva en 5 pasos completamente automáticos integrados en tu flujo de ingeniería.
+                </p>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:1.25rem;" class="reveal reveal-delay-1">
-                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">01</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tech-cyan);"><i class="fa-brands fa-github"></i></div></div>
-                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Conecta</h3>
-                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">Instala el webhook de GitHub Action con una sola l&iacute;nea de configuraci&oacute;n.</p>
-                    <code style="font-size:.7rem;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(129,140,248,.12);padding-top:.75rem;margin-top:auto;">$ documind init</code>
+
+            <!-- 5-STEP HORIZONTAL RESPONSIVE TIMELINE -->
+            <div class="como-funciona-grid reveal reveal-delay-1">
+                
+                <!-- Paso 1 -->
+                <div class="como-funciona-card">
+                    <div class="como-funciona-card-header">
+                        <span class="como-funciona-step-num">01</span>
+                        <div class="como-funciona-icon-box" style="background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);color:var(--tech-cyan);">
+                            <i class="fa-brands fa-github"></i>
+                        </div>
+                    </div>
+                    <h3 class="como-funciona-title">Conecta tu repositorio</h3>
+                    <p class="como-funciona-desc">Conecta repositorios públicos de GitHub, repositorios privados vía OAuth o sube tu proyecto en ZIP sin fricción.</p>
+                    <div class="como-funciona-pill">
+                        <i class="fa-solid fa-terminal" style="font-size:.65rem;"></i>
+                        <span>$ documind connect</span>
+                    </div>
                 </div>
-                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">02</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;"><i class="fa-solid fa-code-branch"></i></div></div>
-                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Analiza</h3>
-                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">El motor AST inspecciona tipos, llamadas y dependencias de forma est&aacute;tica sin compilar.</p>
-                    <code style="font-size:.7rem;color:#818CF8;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(129,140,248,.12);padding-top:.75rem;margin-top:auto;">ast_parser.parse()</code>
+
+                <!-- Paso 2 -->
+                <div class="como-funciona-card">
+                    <div class="como-funciona-card-header">
+                        <span class="como-funciona-step-num">02</span>
+                        <div class="como-funciona-icon-box" style="background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);color:#818CF8;">
+                            <i class="fa-solid fa-code-branch"></i>
+                        </div>
+                    </div>
+                    <h3 class="como-funciona-title">Analiza el código</h3>
+                    <p class="como-funciona-desc">El motor AST políglota inspecciona tipos, llamadas y dependencias de forma estática sin compilar ni ejecutar.</p>
+                    <div class="como-funciona-pill">
+                        <i class="fa-solid fa-gears" style="font-size:.65rem;"></i>
+                        <span>ast_engine.parse()</span>
+                    </div>
                 </div>
-                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">03</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;"><i class="fa-solid fa-brain"></i></div></div>
-                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Comprende</h3>
-                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">El LLM sintetiza la topologia del sistema, extrae endpoints REST y contratos DTO.</p>
-                    <code style="font-size:.7rem;color:#818CF8;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(129,140,248,.12);padding-top:.75rem;margin-top:auto;">llm.generate_c4()</code>
+
+                <!-- Paso 3 -->
+                <div class="como-funciona-card">
+                    <div class="como-funciona-card-header">
+                        <span class="como-funciona-step-num">03</span>
+                        <div class="como-funciona-icon-box" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);color:#6366F1;">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                    </div>
+                    <h3 class="como-funciona-title">Genera documentación</h3>
+                    <p class="como-funciona-desc">Modelos Gemini AI generan la suite documental completa: PRD, SRS IEEE 830, C4, OpenAPI y ADRs.</p>
+                    <div class="como-funciona-pill">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:.65rem;"></i>
+                        <span>llm.synthesize_docs()</span>
+                    </div>
                 </div>
-                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">04</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34D399;"><i class="fa-solid fa-book"></i></div></div>
-                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Documenta</h3>
-                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">Wiki, Swagger OpenAPI y comentarios en Pull Requests sincronizados sin intervencion manual.</p>
-                    <code style="font-size:.7rem;color:#34D399;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(52,211,153,.12);padding-top:.75rem;margin-top:auto;">sync: 100% up to date</code>
+
+                <!-- Paso 4 -->
+                <div class="como-funciona-card">
+                    <div class="como-funciona-card-header">
+                        <span class="como-funciona-step-num">04</span>
+                        <div class="como-funciona-icon-box" style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:#34D399;">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </div>
+                    </div>
+                    <h3 class="como-funciona-title">Visualiza la arquitectura</h3>
+                    <p class="como-funciona-desc">Construye diagramas C4 interactivos, diagramas de secuencia Mermaid, modelos ERD y mapas de dependencias.</p>
+                    <div class="como-funciona-pill">
+                        <i class="fa-solid fa-bezier-curve" style="font-size:.65rem;"></i>
+                        <span>c4_model.render()</span>
+                    </div>
                 </div>
-                <div class="glow-card step-card" style="padding:1.75rem;display:flex;flex-direction:column;gap:1rem;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;"><span class="step-number">05</span><div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#F59E0B;"><i class="fa-solid fa-magnifying-glass-chart"></i></div></div>
-                    <h3 style="font-size:1rem;font-weight:700;color:#fff;">Explora</h3>
-                    <p style="font-size:.8rem;color:#64748B;line-height:1.6;">Navega el mapa interactivo de tu arquitectura y haz preguntas en lenguaje natural con RAG.</p>
-                    <code style="font-size:.7rem;color:#F59E0B;font-family:'JetBrains Mono',monospace;border-top:1px solid rgba(245,158,11,.12);padding-top:.75rem;margin-top:auto;">docs.explore()</code>
+
+                <!-- Paso 5 -->
+                <div class="como-funciona-card">
+                    <div class="como-funciona-card-header">
+                        <span class="como-funciona-step-num">05</span>
+                        <div class="como-funciona-icon-box" style="background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#F59E0B;">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                    </div>
+                    <h3 class="como-funciona-title">Mantén la documentación viva</h3>
+                    <p class="como-funciona-desc">Automatización continua en CI/CD con GitHub Webhooks: detecta desviaciones (zero-drift) en cada Pull Request.</p>
+                    <div class="como-funciona-pill">
+                        <i class="fa-solid fa-shield-check" style="font-size:.65rem;"></i>
+                        <span>sync: 100% up to date</span>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>
 
     <!-- ============================================================
-         4. SOLUCION (FEATURE PILLARS + CI/CD TERMINAL)
+         4. SOLUCIONES (8-CARD ENTERPRISE GRID + CI/CD PIPELINE)
     ============================================================ -->
-    <section id="solucion" class="section-alt" style="padding:6rem 0;">
+    <section id="solucion" class="section-alt" style="padding:6rem 0;position:relative;">
         <div class="container">
-            <div style="text-align:center;max-width:640px;margin:0 auto 3.5rem;" class="reveal">
-                <span class="badge badge-purple" style="margin-bottom:1rem;"><i class="fa-solid fa-microchip"></i> La solución de ingeniería</span>
-                <h2 class="section-title">Arquitectura Viva impulsada por AST + LLM</h2>
-                <p style="color:#64748B;margin-top:1rem;line-height:1.7;">Un motor de comprension semantica profunda que convierte código fuente en documentación viva en tiempo real.</p>
+            <div style="text-align:center;max-width:680px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-purple" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-cubes-stacked"></i> Soluciones de Ingeniería
+                </span>
+                <h2 class="section-title">Tecnología de nivel industrial para <span class="gradient-text">equipos de software</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
+                    Capacidades profundas de análisis semántico, modelado arquitectónico y gobernanza documental en una sola plataforma.
+                </p>
             </div>
-            <div class="solucion-grid-container reveal reveal-delay-1" id="solucion-grid">
-                <div style="display:flex;flex-direction:column;gap:1rem;">
-                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--tech-cyan);flex-shrink:0;"><i class="fa-solid fa-diagram-project"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Parseo AST &amp; Grafo de Dependencias</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Inspeccion sintatica precisa (TypeScript, Python, Go, Java, Rust) sin compilar ni exponer secretos.</p></div>
+
+            <!-- 8-CARD SOLUTIONS GRID -->
+            <div class="soluciones-grid-8 reveal reveal-delay-1" style="margin-bottom:3.5rem;">
+                
+                <!-- Solución 1: Documentación automática -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);">
+                        <i class="fa-solid fa-file-lines"></i>
                     </div>
-                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;flex-shrink:0;"><i class="fa-solid fa-code-commit"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Integraci&oacute;n Nativa GitHub Actions &amp; CLI</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Bot en tu pipeline CI/CD. Genera resumenes en PRs y actualiza el portal wiki automaticamente.</p></div>
-                    </div>
-                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#818CF8;flex-shrink:0;"><i class="fa-solid fa-draw-polygon"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">Diagramas C4 y Mermaid Autogenerados</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Diagramas interactivos de componentes, flujo de datos y dependencias con sincronizacion bidireccional.</p></div>
-                    </div>
-                    <div class="glow-card" style="padding:1.35rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#34D399;flex-shrink:0;"><i class="fa-solid fa-comments"></i></div>
-                        <div><h4 style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:.3rem;">AI Assistant con Contexto de C&oacute;digo (RAG)</h4><p style="font-size:.78rem;color:#64748B;line-height:1.55;">Preguntale al repositorio en lenguaje natural sobre JWT, microservicios, dependencias, etc.</p></div>
-                    </div>
+                    <h3 class="solucion-title">Documentación automática</h3>
+                    <p class="solucion-desc">Generación instantánea de PRD, SRS IEEE 830, guías de arquitectura y contratos OpenAPI con rigor y formato editorial.</p>
+                    <span class="solucion-footer-tag"><i class="fa-solid fa-check"></i> Formatos PRD &amp; SRS</span>
                 </div>
-                <div class="cyber-terminal" style="overflow:hidden;">
-                    <div style="background:rgba(15,23,42,.9);padding:.85rem 1.25rem;border-bottom:1px solid rgba(129,140,248,.18);display:flex;align-items:center;justify-content:space-between;">
-                        <div style="display:flex;align-items:center;gap:.5rem;">
-                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F43F5E;display:inline-block;"></span>
-                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F59E0B;display:inline-block;"></span>
-                            <span style="width:.7rem;height:.7rem;border-radius:50%;background:#34D399;display:inline-block;"></span>
-                            <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#64748B;margin-left:.5rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(180px,50vw);display:inline-block;vertical-align:middle;">documind-sync.yml</span>
-                        </div>
-                        <span style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);background:rgba(56,189,248,.08);padding:.2rem .6rem;border-radius:.35rem;border:1px solid rgba(56,189,248,.2);">CI/CD Automated</span>
+
+                <!-- Solución 2: Análisis de código -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);color:#818CF8;">
+                        <i class="fa-solid fa-code"></i>
                     </div>
-                    <div style="padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#94A3B8;line-height:1.9;overflow-x:auto;">
-                        <p style="color:#475569;"># GitHub Action Workflow</p>
-                        <p><span style="color:#818CF8;">name:</span> <span style="color:#86efac;">DocuMind AI Continuous Sync</span></p>
-                        <p><span style="color:#818CF8;">on:</span> <span style="color:#7dd3fc;">[push, pull_request]</span></p>
-                        <p><span style="color:#818CF8;">jobs:</span></p>
-                        <p style="padding-left:1rem;"><span style="color:#818CF8;">analyze-architecture:</span></p>
-                        <p style="padding-left:2rem;"><span style="color:#818CF8;">runs-on:</span> ubuntu-latest</p>
-                        <p style="padding-left:2rem;"><span style="color:#818CF8;">steps:</span></p>
-                        <p style="padding-left:3rem;color:#64748b;">- uses: actions/checkout@v4</p>
-                        <p style="padding-left:3rem;color:var(--tech-cyan);">- uses: documind-ai/action@v1.2</p>
-                        <p style="padding-left:4rem;"><span style="color:#818CF8;">with:</span></p>
-                        <p style="padding-left:5rem;">generate_c4_diagrams: <span style="color:#34D399;">true</span></p>
-                        <p style="padding-left:5rem;">detect_drift: <span style="color:#34D399;">true</span></p>
-                        <p style="padding-left:5rem;">export_wiki_format: <span style="color:#F59E0B;">"markdown+openapi"</span></p>
-                        <div style="margin-top:1rem;padding:.85rem 1rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.5rem;color:#34D399;display:flex;align-items:center;gap:.6rem;font-size:.72rem;">
-                            <i class="fa-solid fa-circle-check" style="color:#34D399;"></i>Documentación y OpenAPI sincronizados en 1.8s (0 drift).
-                        </div>
+                    <h3 class="solucion-title">Análisis de código</h3>
+                    <p class="solucion-desc">Inspección sintáctica estática AST políglota (JS/TS, Python, Go, Java), extracción de contratos DTO y grafos de llamadas.</p>
+                    <span class="solucion-footer-tag" style="color:#818CF8;"><i class="fa-solid fa-microchip"></i> AST Engine Multi-Lenguaje</span>
+                </div>
+
+                <!-- Solución 3: Arquitectura C4 -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:#6366F1;">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    <h3 class="solucion-title">Arquitectura C4</h3>
+                    <p class="solucion-desc">Modelado visual interactivo en los niveles de Contexto, Contenedores, Componentes y Código con exportación Mermaid.</p>
+                    <span class="solucion-footer-tag" style="color:#6366F1;"><i class="fa-solid fa-diagram-project"></i> Estándar C4 Model</span>
+                </div>
+
+                <!-- Solución 4: Diagramas interactivos -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);color:#34D399;">
+                        <i class="fa-solid fa-bezier-curve"></i>
+                    </div>
+                    <h3 class="solucion-title">Diagramas interactivos</h3>
+                    <p class="solucion-desc">Diagramas de secuencia, flujos de datos, mapas de dependencias y modelos entidad-relación (ERD) sincronizados.</p>
+                    <span class="solucion-footer-tag" style="color:#34D399;"><i class="fa-solid fa-draw-polygon"></i> Mermaid &amp; ERD</span>
+                </div>
+
+                <!-- Solución 5: Análisis de seguridad -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);color:#F43F5E;">
+                        <i class="fa-solid fa-shield-virus"></i>
+                    </div>
+                    <h3 class="solucion-title">Análisis de seguridad</h3>
+                    <p class="solucion-desc">Auditoría SAST, detección de credenciales expuestas, verificación de dependencias y cálculo de Blast Radius.</p>
+                    <span class="solucion-footer-tag" style="color:#F43F5E;"><i class="fa-solid fa-radiation"></i> Blast Radius &amp; SAST</span>
+                </div>
+
+                <!-- Solución 6: Chat contextual -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--tech-cyan);">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h3 class="solucion-title">Chat contextual</h3>
+                    <p class="solucion-desc">Asistente de IA con comprensión semántica (RAG) para consultar flujos, contratos de API, autenticación y lógica interna.</p>
+                    <span class="solucion-footer-tag"><i class="fa-solid fa-robot"></i> RAG con Árbol de Código</span>
+                </div>
+
+                <!-- Solución 7: Sincronización automática -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#F59E0B;">
+                        <i class="fa-solid fa-code-pull-request"></i>
+                    </div>
+                    <h3 class="solucion-title">Sincronización automática</h3>
+                    <p class="solucion-desc">Integración nativa con Webhooks de GitHub y comentarios automáticos en Pull Requests para erradicar la deuda técnica.</p>
+                    <span class="solucion-footer-tag" style="color:#F59E0B;"><i class="fa-solid fa-bolt"></i> PR Bot &amp; Webhooks</span>
+                </div>
+
+                <!-- Solución 8: Documentación empresarial -->
+                <div class="solucion-card-premium">
+                    <div class="solucion-icon-box" style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);color:#A855F7;">
+                        <i class="fa-solid fa-building-shield"></i>
+                    </div>
+                    <h3 class="solucion-title">Documentación empresarial</h3>
+                    <p class="solucion-desc">Exportaciones en Word (.docx) y PDF con marca blanca, multitenancy con control RBAC y modo efímero Zero-Retention.</p>
+                    <span class="solucion-footer-tag" style="color:#A855F7;"><i class="fa-solid fa-award"></i> Word/PDF &amp; BYOK</span>
+                </div>
+
+            </div>
+
+            <!-- CI/CD Terminal Workflow Representation -->
+            <div class="cyber-terminal reveal reveal-delay-2" style="max-width:880px;margin:0 auto;overflow:hidden;border:1px solid rgba(56,189,248,.25);border-radius:1rem;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+                <div style="background:rgba(15,23,42,.95);padding:.85rem 1.25rem;border-bottom:1px solid rgba(129,140,248,.18);display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F43F5E;display:inline-block;"></span>
+                        <span style="width:.7rem;height:.7rem;border-radius:50%;background:#F59E0B;display:inline-block;"></span>
+                        <span style="width:.7rem;height:.7rem;border-radius:50%;background:#34D399;display:inline-block;"></span>
+                        <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#94A3B8;margin-left:.5rem;">documind-sync.yml &bull; GitHub Actions</span>
+                    </div>
+                    <span style="font-size:.68rem;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);background:rgba(56,189,248,.1);padding:.25rem .65rem;border-radius:.35rem;border:1px solid rgba(56,189,248,.25);">
+                        <i class="fa-solid fa-circle-check" style="color:#34D399;margin-right:.3rem;"></i>Pipeline Automatizado
+                    </span>
+                </div>
+                <div style="padding:1.5rem;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#94A3B8;line-height:1.9;background:rgba(9,13,22,.95);overflow-x:auto;">
+                    <p style="color:#475569;"># DocuMind AI Continuous Architecture &amp; Documentation Sync</p>
+                    <p><span style="color:#818CF8;">name:</span> <span style="color:#86efac;">DocuMind AI Architecture Guard</span></p>
+                    <p><span style="color:#818CF8;">on:</span> <span style="color:#7dd3fc;">[push, pull_request]</span></p>
+                    <p><span style="color:#818CF8;">jobs:</span></p>
+                    <p style="padding-left:1.25rem;"><span style="color:#818CF8;">analyze-and-verify:</span></p>
+                    <p style="padding-left:2.5rem;"><span style="color:#818CF8;">runs-on:</span> ubuntu-latest</p>
+                    <p style="padding-left:2.5rem;"><span style="color:#818CF8;">steps:</span></p>
+                    <p style="padding-left:3.75rem;color:#64748b;">- uses: actions/checkout@v4</p>
+                    <p style="padding-left:3.75rem;color:var(--tech-cyan);">- uses: documind-ai/action@v2.0</p>
+                    <p style="padding-left:5rem;"><span style="color:#818CF8;">with:</span></p>
+                    <p style="padding-left:6.25rem;">generate_c4_diagrams: <span style="color:#34D399;">true</span></p>
+                    <p style="padding-left:6.25rem;">calculate_blast_radius: <span style="color:#34D399;">true</span></p>
+                    <p style="padding-left:6.25rem;">detect_drift: <span style="color:#34D399;">true</span></p>
+                    <p style="padding-left:6.25rem;">export_suite: <span style="color:#F59E0B;">"markdown+openapi+c4"</span></p>
+                    <div style="margin-top:1rem;padding:.85rem 1rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.5rem;color:#34D399;display:flex;align-items:center;gap:.6rem;font-size:.74rem;">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Zero-Drift confirmado: Documentación, modelos ERD y contratos OpenAPI 100% sincronizados en 1.8s.</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ============================================================
-         EMPRESAS & SEGURIDAD CORPORATIVA (ENTERPRISE TRUST)
-    ============================================================ -->
     <section id="empresas-seguridad" style="padding:6rem 0;position:relative;background:linear-gradient(180deg, rgba(15,23,42,0.6) 0%, rgba(9,13,22,0.95) 100%);border-top:1px solid rgba(56,189,248,0.12);border-bottom:1px solid rgba(129,140,248,0.12);">
         <div class="container">
             <div style="text-align:center;max-width:720px;margin:0 auto 3.5rem;" class="reveal">
@@ -614,6 +747,69 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Authenticated User Real-Time Stats & Action Strip -->
+                <div class="user-dashboard-stats-strip" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.08);">
+                    <!-- Stat 1: Plan actual -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                        <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:1rem;">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <div>
+                            <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Plan Activo</span>
+                            <div style="display:flex;align-items:center;gap:.4rem;">
+                                <strong id="dash-plan-badge" style="font-size:1.05rem;font-weight:900;color:#FFFFFF;text-transform:uppercase;">FREE</strong>
+                                <a href="#planes" style="font-size:.68rem;color:var(--tech-cyan);text-decoration:underline;">Mejorar</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2: Repositorios usados -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                        <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;color:#818CF8;font-size:1rem;">
+                            <i class="fa-solid fa-code-branch"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Repositorios Mes</span>
+                                <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#CBD5E1;"><span id="dash-repos-used">0</span> / <span id="dash-repos-limit">3</span></span>
+                            </div>
+                            <div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:.4rem;overflow:hidden;">
+                                <div id="dash-repos-progress" style="width:0%;height:100%;background:linear-gradient(90deg, #38BDF8, #818CF8);transition:width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3: Proyectos Guardados -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(52,211,153,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                        <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;color:#34D399;font-size:1rem;">
+                            <i class="fa-solid fa-folder-tree"></i>
+                        </div>
+                        <div>
+                            <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Proyectos Guardados</span>
+                            <div><strong id="dash-saved-count" style="font-size:1.05rem;font-weight:900;color:#FFFFFF;font-family:'JetBrains Mono',monospace;">0</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 4: Accesos Rápidos Enterprise -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(245,158,11,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                        <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);display:flex;align-items:center;justify-content:center;color:#F59E0B;font-size:1rem;">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Herramientas Pro</span>
+                            <div style="display:flex;gap:.5rem;margin-top:.2rem;">
+                                <button type="button" id="btn-dash-open-blast" class="btn-ghost-sm" style="font-size:.7rem;padding:.2rem .5rem;" title="Abrir Blast Radius Analysis">
+                                    <i class="fa-solid fa-radiation" style="color:#F43F5E;"></i> Blast Radius
+                                </button>
+                                <button type="button" id="btn-dash-open-settings" class="btn-ghost-sm" style="font-size:.7rem;padding:.2rem .5rem;" title="Configuración Enterprise y BYOK">
+                                    <i class="fa-solid fa-key" style="color:#F59E0B;"></i> BYOK
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="glow-card reveal reveal-delay-1" style="padding:2.25rem;max-width:1120px;margin:0 auto;">
@@ -1782,7 +1978,122 @@
     <!-- ============================================================
          6. EQUIPO
     ============================================================ -->
-    <section id="equipo" class="section-alt" style="padding:6rem 0;">
+    
+    <!-- ============================================================
+         5. SIMULADOR DE ARQUITECTURA E INGENIERIA DE SOFTWARE
+    ============================================================ -->
+    <section id="simulador" class="section-alt" style="padding:6rem 0;position:relative;">
+        <div class="container">
+            <div style="text-align:center;max-width:700px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-emerald" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-sliders"></i> Simulación y Modelado Arquitectónico
+                </span>
+                <h2 class="section-title">Simulador de Arquitectura e <span class="gradient-text">Ingeniería de Software</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
+                    Modela, evalúa y compara patrones arquitectónicos bajo teoría de colas M/M/c y análisis multicriterio antes de escribir una sola línea de código.
+                </p>
+            </div>
+
+            <!-- SIMULATOR INTERACTIVE SHOWCASE CARD -->
+            <div class="simulador-section-wrapper reveal reveal-delay-1">
+                <div class="simulador-hud-grid">
+                    
+                    <!-- Left: Metrics & Explanation -->
+                    <div>
+                        <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .75rem;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);border-radius:9999px;font-size:.75rem;color:#34D399;margin-bottom:1rem;">
+                            <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 8px #34D399;"></span>
+                            Motor M/M/c Activo &bull; Decisión Multicriterio AHP
+                        </div>
+                        <h3 style="font-size:1.45rem;font-weight:900;color:#FFFFFF;margin-bottom:.75rem;line-height:1.3;">
+                            Evalúa rendimiento y resiliencia en tiempo real
+                        </h3>
+                        <p style="font-size:.86rem;color:#94A3B8;line-height:1.7;margin-bottom:1.5rem;">
+                            Simula la degradación de servicios, calcula cuellos de botella bajo tráfico pico y proyecta la disponibilidad de tu arquitectura según los patrones seleccionados (Monolito Modular, Microservicios Event-Driven o Serverless Edge).
+                        </p>
+
+                        <!-- Key Metrics Pill Grid -->
+                        <div class="simulador-metrics-cards">
+                            <div class="simulador-metric-pill">
+                                <span class="simulador-metric-value">10,000</span>
+                                <span class="simulador-metric-label">Concurrencia Pico (req/s)</span>
+                            </div>
+                            <div class="simulador-metric-pill">
+                                <span class="simulador-metric-value" style="color:#34D399;">42 ms</span>
+                                <span class="simulador-metric-label">Latencia p95 Esperada</span>
+                            </div>
+                            <div class="simulador-metric-pill">
+                                <span class="simulador-metric-value" style="color:#818CF8;">99.99%</span>
+                                <span class="simulador-metric-label">Disponibilidad Proyectada</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.85rem;">
+                            <a href="/simulador" target="_blank" rel="noopener noreferrer" class="btn-cyber" style="padding:.85rem 1.75rem;font-size:.9rem;font-weight:800;">
+                                <i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>
+                                Abrir Simulador Interactivo Completo
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.75rem;margin-left:.35rem;"></i>
+                            </a>
+                            <a href="#analizador" class="btn-ghost" style="padding:.85rem 1.35rem;font-size:.9rem;color:#CBD5E1;border:1px solid rgba(255,255,255,0.12);border-radius:9999px;">
+                                <i class="fa-solid fa-diagram-project" style="margin-right:.4rem;color:var(--tech-cyan);"></i>
+                                Analizar mi Código Primero
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right: Architecture Diagnostics Card -->
+                    <div style="background:rgba(9,13,22,.9);border:1px solid rgba(56,189,248,.25);border-radius:1rem;padding:1.65rem;box-shadow:0 15px 35px rgba(0,0,0,0.5);">
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:.85rem;border-bottom:1px solid rgba(148,163,184,.15);margin-bottom:1.15rem;">
+                            <span style="font-size:.75rem;font-family:'JetBrains Mono',monospace;color:var(--tech-cyan);font-weight:700;">
+                                <i class="fa-solid fa-chart-line" style="margin-right:.35rem;"></i>DIAGNÓSTICO ARQUITECTÓNICO
+                            </span>
+                            <span class="badge badge-cyan" style="font-size:.65rem;padding:.15rem .45rem;">Simulador 2.0</span>
+                        </div>
+
+                        <div style="display:flex;flex-direction:column;gap:1.1rem;font-size:.82rem;">
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#CBD5E1;margin-bottom:.35rem;">
+                                    <span>Acoplamiento Eferente (Ce) / Aferente (Ca):</span>
+                                    <strong style="color:#34D399;font-family:'JetBrains Mono',monospace;">0.24 (Bajo)</strong>
+                                </div>
+                                <div style="width:100%;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">
+                                    <div style="width:24%;height:100%;background:#34D399;"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#CBD5E1;margin-bottom:.35rem;">
+                                    <span>Resiliencia ante Fallos en Cascada:</span>
+                                    <strong style="color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">94% (Alta)</strong>
+                                </div>
+                                <div style="width:100%;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">
+                                    <div style="width:94%;height:100%;background:linear-gradient(90deg, #38BDF8, #818CF8);"></div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="display:flex;justify-content:space-between;color:#CBD5E1;margin-bottom:.35rem;">
+                                    <span>Deuda Técnica Estimada:</span>
+                                    <strong style="color:#F59E0B;font-family:'JetBrains Mono',monospace;">0.8 días / sprint</strong>
+                                </div>
+                                <div style="width:100%;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;">
+                                    <div style="width:15%;height:100%;background:#F59E0B;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:1.35rem;padding:.75rem 1rem;background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.2);border-radius:.65rem;font-size:.74rem;color:#94A3B8;display:flex;align-items:center;gap:.5rem;">
+                            <i class="fa-solid fa-lightbulb" style="color:var(--tech-cyan);"></i>
+                            <span>Evaluación automática basada en los estándares ISO/IEC 25010 y métricas de Martin.</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+<section id="equipo" class="section-alt" style="padding:6rem 0;">
         <div class="container">
             <div style="text-align:center;max-width:600px;margin:0 auto 3.5rem;" class="reveal">
                 <span class="badge badge-cyan" style="margin-bottom:1rem;"><i class="fa-solid fa-users-gear"></i> Equipo Empresarial</span>
@@ -2429,7 +2740,61 @@
     ============================================================ -->
     <div id="auth-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="auth-modal-backdrop" id="auth-modal-backdrop"></div>
-        <div class="auth-card-cyber auth-saas-card" style="max-width:460px;padding:1.85rem 1.75rem;background:linear-gradient(180deg,#0F172A 0%,#0A0F1D 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;box-shadow:0 25px 60px -15px rgba(0,0,0,.85),0 0 40px rgba(56,189,248,.08);position:relative;">
+        <div class="auth-card-cyber auth-saas-card-split" style="position:relative;">
+            <!-- Left Column: Tech Illustration & Enterprise Guarantees -->
+            <div class="auth-split-aside">
+                <div>
+                    <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.5rem;">
+                        <div style="width:2.35rem;height:2.35rem;border-radius:.65rem;background:linear-gradient(135deg,rgba(56,189,248,.25),rgba(129,140,248,.25));border:1px solid rgba(56,189,248,.4);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:1.15rem;">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <span style="font-size:1.15rem;font-weight:900;letter-spacing:-0.02em;color:#FFFFFF;">DocuMind<span class="ai-badge">AI</span></span>
+                    </div>
+
+                    <span class="badge badge-cyan" style="font-size:.68rem;padding:.2rem .6rem;margin-bottom:1.15rem;display:inline-flex;">
+                        <i class="fa-solid fa-shield-halved" style="margin-right:.35rem;"></i>Seguridad Enterprise
+                    </span>
+
+                    <h4 style="font-size:1.25rem;font-weight:900;color:#FFFFFF;line-height:1.3;margin-bottom:.75rem;letter-spacing:-0.02em;">
+                        La inteligencia detrás de tu arquitectura técnica
+                    </h4>
+                    <p style="font-size:.82rem;color:#94A3B8;line-height:1.6;margin-bottom:1.5rem;">
+                        Accede a tu suite documental, visualización C4 y sincronización continua en cada git push.
+                    </p>
+
+                    <div class="auth-split-features">
+                        <div class="auth-split-feature-item">
+                            <div class="auth-split-feature-icon"><i class="fa-solid fa-lock"></i></div>
+                            <div>
+                                <strong style="color:#FFFFFF;display:block;font-size:.82rem;">Cifrado AES-256 &amp; TLS 1.3</strong>
+                                Protección criptográfica en tránsito y reposo.
+                            </div>
+                        </div>
+                        <div class="auth-split-feature-item">
+                            <div class="auth-split-feature-icon" style="color:#34D399;border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.12);"><i class="fa-solid fa-shield-cat"></i></div>
+                            <div>
+                                <strong style="color:#FFFFFF;display:block;font-size:.82rem;">Zero Code Retention</strong>
+                                Tu código nunca se almacena ni entrena modelos de IA.
+                            </div>
+                        </div>
+                        <div class="auth-split-feature-item">
+                            <div class="auth-split-feature-icon" style="color:#818CF8;border-color:rgba(129,140,248,.3);background:rgba(129,140,248,.12);"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                            <div>
+                                <strong style="color:#FFFFFF;display:block;font-size:.82rem;">Supabase Auth + Google SSO</strong>
+                                Autenticación federada segura y persistente.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="auth-split-quote">
+                    &ldquo;DocuMind AI redujo nuestro tiempo de auditoría arquitectónica de 3 semanas a minutos.&rdquo;
+                    <span style="display:block;font-size:.7rem;color:#64748B;margin-top:.4rem;font-style:normal;font-weight:700;">— Tech Lead, Universidad Libre</span>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Forms & OAuth -->
+            <div class="auth-split-main">
             
             <!-- Modal Close Button -->
             <button type="button" id="btn-close-auth-modal" class="auth-modal-close" style="position:absolute;top:1.25rem;right:1.25rem;" aria-label="Cerrar modal">
@@ -2735,8 +3100,9 @@
                     <a href="#terminos" id="btn-open-terms-link" style="color:#94A3B8;text-decoration:none;transition:color .15s ease;">Términos de Servicio</a>
                 </div>
             </div>
+            </div> <!-- Close .auth-split-main -->
 
-        </div>
+        </div> <!-- Close .auth-saas-card-split -->
     </div>
 
     <!-- ============================================================
@@ -3210,20 +3576,61 @@
 
             <!-- Order Summary Card -->
             <div style="background:rgba(15,23,42,.7);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:1.15rem;margin-bottom:1.25rem;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
                     <span style="font-size:.84rem;color:#94A3B8;">Plan Seleccionado:</span>
                     <strong id="checkout-plan-name" style="font-size:.95rem;color:#FFFFFF;font-weight:800;">Plan Pro — Profesional</strong>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
                     <span style="font-size:.84rem;color:#94A3B8;">Periodicidad:</span>
                     <span id="checkout-cycle-label" style="font-size:.82rem;color:var(--tech-cyan);font-weight:700;">Facturación Mensual</span>
                 </div>
-                <div style="border-top:1px dashed rgba(148,163,184,.2);margin:.65rem 0;padding-top:.65rem;display:flex;justify-content:space-between;align-items:baseline;">
+
+                <!-- Features Included in Plan -->
+                <div style="margin:.65rem 0;padding:.6rem 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);">
+                    <span style="display:block;font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Funcionalidades Incluidas:</span>
+                    <ul id="checkout-features-list" style="margin:0;padding-left:1.15rem;font-size:.76rem;color:#CBD5E1;line-height:1.6;">
+                        <li>Análisis de repositorios privados y públicos ilimitados</li>
+                        <li>Exportación completa a Word (.docx) y PDF con diagramas</li>
+                        <li>Análisis de impacto y Blast Radius con navegación a código</li>
+                        <li>Historial persistente en la nube y soporte prioritario</li>
+                    </ul>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:#94A3B8;margin-bottom:.35rem;">
+                    <span>Impuestos (IVA / Retenciones):</span>
+                    <span style="color:#34D399;font-weight:700;">$0.00 (Exento B2B Exportación)</span>
+                </div>
+
+                <div style="border-top:1px dashed rgba(148,163,184,.2);margin:.5rem 0 0;padding-top:.65rem;display:flex;justify-content:space-between;align-items:baseline;">
                     <span style="font-size:.9rem;font-weight:700;color:#FFFFFF;">Total a pagar:</span>
                     <div>
                         <span style="font-size:.85rem;color:#94A3B8;margin-right:.2rem;">USD</span>
                         <strong id="checkout-total-price" style="font-size:1.6rem;font-weight:900;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">$29.00</strong>
                     </div>
+                </div>
+            </div>
+
+            <!-- "¿Cómo puedo pagar?" Collapsible Section Trigger -->
+            <div style="margin-bottom:1.15rem;">
+                <button type="button" id="btn-how-to-pay" style="background:transparent;border:none;color:var(--tech-cyan);font-size:.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;padding:0;text-decoration:underline;">
+                    <i class="fa-solid fa-circle-question"></i> ¿Cómo puedo pagar?
+                </button>
+                
+                <div id="payment-methods-accordion" style="display:none;margin-top:.75rem;background:rgba(9,13,22,.85);border:1px solid rgba(56,189,248,.2);border-radius:.65rem;padding:.9rem;font-size:.75rem;color:#94A3B8;line-height:1.6;">
+                    <p style="margin:0 0 .5rem 0;color:#F8FAFC;font-weight:700;">
+                        Medios de pago oficiales admitidos:
+                    </p>
+                    <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.65rem;">
+                        <span class="payment-badge-chip"><i class="fa-brands fa-cc-visa" style="color:#38BDF8;"></i> Visa</span>
+                        <span class="payment-badge-chip"><i class="fa-brands fa-cc-mastercard" style="color:#F59E0B;"></i> Mastercard</span>
+                        <span class="payment-badge-chip"><i class="fa-brands fa-cc-amex" style="color:#60A5FA;"></i> AMEX</span>
+                        <span class="payment-badge-chip"><i class="fa-solid fa-building-columns" style="color:#34D399;"></i> PSE (Bancos Colombia)</span>
+                        <span class="payment-badge-chip"><i class="fa-solid fa-mobile-screen-button" style="color:#F43F5E;"></i> Bancolombia / Nequi</span>
+                    </div>
+                    <p style="margin:0;font-size:.72rem;color:#64748B;">
+                        <i class="fa-solid fa-lock" style="margin-right:.25rem;color:var(--tech-cyan);"></i>
+                        Transacción cifrada de extremo a extremo mediante Wompi y Mercado Pago con certificación internacional PCI-DSS Nivel 1.
+                    </p>
                 </div>
             </div>
 
