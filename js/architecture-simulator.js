@@ -1345,6 +1345,94 @@
             e.preventDefault();
             Sim3DEngine.camRadius = Math.max(11, Math.min(29, Sim3DEngine.camRadius + (e.deltaY * 0.012)));
         }, { passive: false });
+        // Raycasting y Tooltip Holográfico 3D en el Laboratorio del Simulador
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2(-999, -999);
+        const simTooltip = document.getElementById('sim-3d-tooltip');
+        const tipTag = document.getElementById('sim-3d-tip-tag');
+        const tipTitle = document.getElementById('sim-3d-tip-title');
+        const tipDesc = document.getElementById('sim-3d-tip-desc');
+        const tipStatus = document.getElementById('sim-3d-tip-status');
+        const tipM1 = document.getElementById('sim-3d-tip-m1');
+        const tipM2 = document.getElementById('sim-3d-tip-m2');
+        const tipM3 = document.getElementById('sim-3d-tip-m3');
+
+        let hoveredSimMesh = null;
+
+        const COL_NAMES = [
+            'Latencia Media M/M/c',
+            'Throughput Concurrente',
+            'Nodos Auto-scale',
+            'Presupuesto Mensual',
+            'Puntuación MCDA TOPSIS'
+        ];
+
+        wrapper.addEventListener('pointermove', (e) => {
+            if (Sim3DEngine.isDragging) {
+                if (simTooltip) simTooltip.style.display = 'none';
+                return;
+            }
+            const rect = wrapper.getBoundingClientRect();
+            pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+
+            raycaster.setFromCamera(pointer, camera);
+
+            let targetMeshes = [];
+            if (Sim3DEngine.barsGroup.visible) {
+                targetMeshes = Sim3DEngine.barMeshes.map(b => b.mesh);
+            } else if (Sim3DEngine.topologyGroup.visible) {
+                Object.keys(Sim3DEngine.topologyPods).forEach(k => {
+                    targetMeshes = targetMeshes.concat(Sim3DEngine.topologyPods[k].filter(p => p.visible));
+                });
+            } else if (Sim3DEngine.surfaceGroup.visible) {
+                targetMeshes = Object.values(Sim3DEngine.surfaceMarkers);
+            }
+
+            const hits = raycaster.intersectObjects(targetMeshes);
+            if (hits.length > 0) {
+                const hit = hits[0];
+                const mesh = hit.object;
+                const uData = mesh.userData;
+
+                if (hoveredSimMesh && hoveredSimMesh !== mesh) {
+                    if (hoveredSimMesh.material && hoveredSimMesh.material.emissiveIntensity !== undefined) {
+                        hoveredSimMesh.material.emissiveIntensity = 0.38;
+                    }
+                }
+                hoveredSimMesh = mesh;
+                if (mesh.material && mesh.material.emissiveIntensity !== undefined) {
+                    mesh.material.emissiveIntensity = 0.88;
+                }
+                wrapper.style.cursor = 'pointer';
+
+                if (simTooltip && uData && uData.altKey) {
+                    const alt = ARCHITECTURE_ALTERNATIVES[uData.altKey];
+                    const altRes = currentSimulationResult ? currentSimulationResult.alternatives.find(a => a.id === uData.altKey) : null;
+
+                    if (tipTag) {
+                        tipTag.textContent = alt.shortName;
+                        tipTag.style.color = alt.color;
+                        tipTag.style.borderColor = alt.color;
+                    }
+                    if (tipTitle) tipTitle.textContent = alt.name;
+
+                    if (uData.type === 'bar') {
+                        if (tipDesc) tipDesc.textContent = 'Columna: ' + (COL_NAMES[uData.colIdx] || 'Métrica Técnica');
+                    } else if (uData.type === 'pod') {
+                        if (tipDesc) tipDesc.textContent = 'Pod Activo en Clúster Contenerizado';
+                    } else {
+                        if (tipDesc) tipDesc.textContent = 'Punto de Operación en Superficie de Latencia';
+                    }
+
+                    if (altRes) {
+                        const meetsSla = altRes.breakdown.latencyMs <= (currentSimulationResult.config.slaThresholdMs || 1800);
+                        if (tipStatus) {
+                            tipStatus.textContent = meetsSla ? 'EN SLA' : 'SLA EXCEDIDO';
+                            tipStatus.style.color = meetsSla ? '#34D399' : '#FB7185';
+                        }
+                        if (tipM1) tipM1.textContent = altRes.breakdown.latencyMs.toFixed(1) + ' ms';
+                        if (tipM2) tipM2.textContent = '
 
         if (window.ResizeObserver) {
             const ro = new ResizeObserver(() => {
@@ -1460,6 +1548,7 @@
                 });
                 const barMesh = new THREE.Mesh(barGeo, barMat);
                 barMesh.position.set(x, -2.3, z);
+                barMesh.userData = { type: "bar", altKey, colIdx: cIdx, baseHex: alt.hex };
                 g.add(barMesh);
 
                 // Octaedro flotante en la cima de cada torre
@@ -1556,7 +1645,7 @@
                 });
                 const mesh = new THREE.Mesh(geo, mat);
                 mesh.position.set(px, py, pz);
-                mesh.userData = { baseY: py, baseHex: col };
+                mesh.userData = { type: "pod", altKey, podIdx: i, baseY: py, baseHex: col };
                 g.add(mesh);
                 Sim3DEngine.topologyPods[altKey].push(mesh);
             }
@@ -1614,6 +1703,1273 @@
             const mkMat = new THREE.MeshBasicMaterial({ color: alt.hex });
             const mk = new THREE.Mesh(mkGeo, mkMat);
             g.add(mk);
+            mk.userData = { type: "surface", altKey, baseHex: alt.hex };
+            Sim3DEngine.surfaceMarkers[altKey] = mk;
+        });
+
+        // Plano de techo SLA en la vista de superficie 3D
+        const slaGeo = new THREE.PlaneGeometry(13.2, 9.2);
+        slaGeo.rotateX(-Math.PI / 2);
+        const slaMat = new THREE.MeshBasicMaterial({
+            color: 0xFB7185,
+            transparent: true,
+            opacity: 0.18,
+            side: THREE.DoubleSide
+        });
+        const slaMesh = new THREE.Mesh(slaGeo, slaMat);
+        g.add(slaMesh);
+        Sim3DEngine.surfaceSlaPlane = slaMesh;
+    }
+
+    function set3DMode(mode) {
+        Sim3DEngine.mode = mode;
+        if (Sim3DEngine.barsGroup) Sim3DEngine.barsGroup.visible = (mode === 'BARS_3D');
+        if (Sim3DEngine.topologyGroup) Sim3DEngine.topologyGroup.visible = (mode === 'TOPOLOGY_3D');
+        if (Sim3DEngine.surfaceGroup) Sim3DEngine.surfaceGroup.visible = (mode === 'SURFACE_3D');
+
+        const titleEl = document.getElementById('sim-3d-hud-title');
+        const subEl = document.getElementById('sim-3d-hud-subtitle');
+        if (titleEl && subEl) {
+            if (mode === 'BARS_3D') {
+                titleEl.textContent = 'MODO 1: TORRES VOLUMÉTRICAS 3D + PLANO DE CORTE SLA';
+                subEl.textContent = '5 Columnas: [1.Latencia] [2.Throughput] [3.Escalabilidad] [4.Costo] [5.Score MCDA] • Rojo = Viola Sección 1';
+            } else if (mode === 'TOPOLOGY_3D') {
+                titleEl.textContent = 'MODO 2: TOPOLOGÍA 3D DE CONTENEDORES Y TRÁFICO DE PAQUETES';
+                subEl.textContent = 'Izq: Monolito (1-2 nodos) • Centro: K8s (hasta 10 pods) • Der: EDA Serverless (hasta 16 workers)';
+            } else {
+                titleEl.textContent = 'MODO 3: SUPERFICIE MATEMÁTICA 3D M/M/c (U × S_MB → LATENCIA)';
+                subEl.textContent = 'Mallas 3D de Latencia P95 vs Plano de Límite SLA (Sección 1) y Esferas del Punto Actual';
+            }
+        }
+
+        document.querySelectorAll('.sim-3d-mode-btn').forEach(btn => {
+            const active = btn.getAttribute('data-sim-3d-mode') === mode;
+            btn.style.background = active ? 'rgba(56, 189, 248, 0.22)' : '';
+            btn.style.borderColor = active ? '#38BDF8' : '';
+            btn.style.color = active ? '#FFFFFF' : '';
+        });
+
+        if (currentSimulationResult) {
+            updateAll3DVisualizations(currentSimulationResult);
+        }
+    }
+
+    function updateAll3DVisualizations(sim) {
+        init3DWebGLArena();
+
+        const reqs = sim.projectConfig.qualityRequirements;
+        const cons = sim.projectConfig.constraints;
+
+        // Actualizar telemetría en el pie del visor 3D
+        const telEl = document.getElementById('sim-3d-live-telemetry');
+        if (telEl) {
+            telEl.innerHTML = `λ=${sim.alternatives[0].breakdown.arrivalRateRps} req/s &bull; SLA≤${reqs.maxLatencyMs}ms &bull; Top #1: <span style="color:${sim.winner.color};">${sim.winner.shortName} (${sim.winner.mcda.finalScore} pts)</span>`;
+        }
+
+        // 1. Actualizar Torres 3D (BARS_3D)
+        if (Sim3DEngine.barMeshes.length > 0) {
+            const maxLat = Math.max(...sim.alternatives.map(a => a.metrics.latencyMs), reqs.maxLatencyMs, 600);
+            const maxCap = Math.max(...sim.alternatives.map(a => a.metrics.maxCapacityRps), 60);
+            const maxCost = Math.max(...sim.alternatives.map(a => a.metrics.estimatedMonthlyCostUsd), cons.maxMonthlyBudgetUsd, 150);
+
+            Sim3DEngine.barMeshes.forEach(bm => {
+                const alt = sim.alternatives.find(a => a.alternativeId === bm.altKey);
+                if (!alt) return;
+                const m = alt.metrics;
+                const c = alt.compliance;
+
+                let normH = 1.0;
+                let ok = true;
+                if (bm.colIdx === 0) {
+                    normH = (m.latencyMs / maxLat) * 5.2;
+                    ok = c.latencyOk;
+                } else if (bm.colIdx === 1) {
+                    normH = (m.throughputRps / maxCap) * 5.2;
+                    ok = true;
+                } else if (bm.colIdx === 2) {
+                    normH = (m.scalabilityScore / 100) * 5.2;
+                    ok = c.scalabilityOk;
+                } else if (bm.colIdx === 3) {
+                    normH = (m.estimatedMonthlyCostUsd / maxCost) * 5.2;
+                    ok = c.budgetOk && c.memoryOk;
+                } else {
+                    normH = (alt.mcda.finalScore / 100) * 5.5;
+                    ok = c.allMandatoryPassed;
+                }
+
+                bm.targetH = Math.max(0.25, Math.min(6.0, normH));
+                const hexColor = ok ? bm.baseHex : 0xFB7185;
+                bm.mesh.material.color.setHex(hexColor);
+                bm.mesh.material.emissive.setHex(hexColor);
+                bm.cap.material.color.setHex(hexColor);
+            });
+
+            // Posicionar el plano de corte SLA según reqs.maxLatencyMs y minScalabilityScore
+            if (Sim3DEngine.slaPlaneMesh) {
+                const slaRatio = Math.max(0.15, Math.min(0.95, reqs.maxLatencyMs / maxLat));
+                Sim3DEngine.slaPlaneMesh.userData.targetY = -2.8 + (slaRatio * 5.2);
+            }
+
+            // Posicionar la corona 3D sobre la arquitectura ganadora
+            if (Sim3DEngine.crownMesh) {
+                const winIdx = ['MONOLITH_MVC', 'MICROSERVICES_K8S', 'EDA_SERVERLESS'].indexOf(sim.winner.alternativeId);
+                const zPos = [-3.2, 0, 3.2][Math.max(0, winIdx)];
+                const winH = (sim.winner.mcda.finalScore / 100) * 5.5;
+                Sim3DEngine.crownMesh.position.x = 5.6;
+                Sim3DEngine.crownMesh.position.z = zPos;
+                Sim3DEngine.crownMesh.userData.baseY = -2.8 + winH + 0.65;
+            }
+        }
+
+        // 2. Actualizar Topología 3D de Contenedores (TOPOLOGY_3D)
+        Object.keys(Sim3DEngine.topologyPods).forEach(altKey => {
+            const alt = sim.alternatives.find(a => a.alternativeId === altKey);
+            if (!alt) return;
+            const pods = Sim3DEngine.topologyPods[altKey];
+            const activeCount = alt.metrics.activeContainers;
+            const isOverloaded = !alt.compliance.allMandatoryPassed || alt.metrics.utilizationPct > 90;
+
+            pods.forEach((pod, idx) => {
+                pod.visible = idx < activeCount;
+                const col = isOverloaded ? 0xFB7185 : pod.userData.baseHex;
+                pod.material.color.setHex(col);
+                pod.material.emissive.setHex(col);
+            });
+        });
+
+        // 3. Actualizar Superficie Matemática 3D en Three.js (SURFACE_3D)
+        if (Sim3DEngine.surfaceGroup && Object.keys(Sim3DEngine.surfaceMeshes).length > 0) {
+            const slaCap = Math.max(600, reqs.maxLatencyMs * 1.6);
+            ['MONOLITH_MVC', 'MICROSERVICES_K8S', 'EDA_SERVERLESS'].forEach(altKey => {
+                const mesh = Sim3DEngine.surfaceMeshes[altKey];
+                if (!mesh) return;
+                const posAttr = mesh.geometry.attributes.position;
+                for (let i = 0; i < posAttr.count; i++) {
+                    const vx = posAttr.getX(i); // [-6.5 .. 6.5] -> U [10 .. 750]
+                    const vz = posAttr.getZ(i); // [-4.5 .. 4.5] -> S_MB [0.5 .. 18]
+                    const uVal = Math.round(((vx + 6.5) / 13) * 740 + 10);
+                    const sVal = Number((((vz + 4.5) / 9) * 17.5 + 0.5).toFixed(1));
+                    const pt = calculateAlternative(altKey, {
+                        concurrentUsers: uVal,
+                        payloadSizeMb: sVal,
+                        repoComplexityFiles: sim.inputs.repoComplexityFiles,
+                        aiDepthFactor: sim.inputs.aiDepthFactor,
+                        trafficBurstFactor: sim.inputs.trafficBurstFactor
+                    }, sim.projectConfig);
+                    const yVal = -2.6 + Math.min(5.8, (pt.metrics.latencyMs / slaCap) * 4.2);
+                    posAttr.setY(i, yVal);
+                }
+                posAttr.needsUpdate = true;
+
+                // Actualizar esfera del punto de operación actual
+                const mk = Sim3DEngine.surfaceMarkers[altKey];
+                const curAlt = sim.alternatives.find(a => a.alternativeId === altKey);
+                if (mk && curAlt) {
+                    const mx = ((Math.min(750, sim.inputs.concurrentUsers) - 10) / 740) * 13 - 6.5;
+                    const mz = ((Math.min(18, sim.inputs.payloadSizeMb) - 0.5) / 17.5) * 9 - 4.5;
+                    const my = -2.6 + Math.min(5.8, (curAlt.metrics.latencyMs / slaCap) * 4.2);
+                    mk.position.set(mx, my, mz);
+                }
+            });
+
+            if (Sim3DEngine.surfaceSlaPlane) {
+                Sim3DEngine.surfaceSlaPlane.position.y = -2.6 + Math.min(5.6, (reqs.maxLatencyMs / slaCap) * 4.2);
+            }
+        }
+
+        // 4. Dibujar los 2 Canvas 3D Especializados (Superficie de Latencia 3D y Prisma Radar 3D MCDA)
+        draw3DSurfaceCanvas(sim);
+        draw3DRadarCanvas(sim);
+    }
+
+    // Proyección Isométrica 3D en Canvas: Curvas de Saturación M/M/c + Plano de Corte SLA (Sección 1)
+    function draw3DSurfaceCanvas(sim) {
+        const canvas = document.getElementById('sim-canvas-3d-surface');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const reqs = sim.projectConfig.qualityRequirements;
+        const badge = document.getElementById('sim-3d-surf-badge');
+        if (badge) {
+            badge.textContent = `Plano SLA: ≤ ${reqs.maxLatencyMs} ms | RAM ≤ ${sim.projectConfig.constraints.maxMemoryGb} GB`;
+        }
+
+        const angle = Sim3DEngine.surfaceCanvasAngle;
+        const cosA = Math.cos(angle);
+        const sinA = Math.sin(angle);
+
+        const project3D = (nx, ny, nz) => {
+            // nx, ny, nz en [-1 .. 1]
+            const rx = nx * cosA - nz * sinA;
+            const rz = nx * sinA + nz * cosA;
+            const scale = 155 / (3.4 + rz * 0.55);
+            return {
+                x: (w * 0.5) + rx * scale * 1.35,
+                y: (h * 0.76) - ny * scale * 0.82 + rz * scale * 0.24
+            };
+        };
+
+        // Dibujar grilla de piso 3D
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.16)';
+        ctx.lineWidth = 1;
+        for (let i = -1; i <= 1.01; i += 0.5) {
+            const p1 = project3D(i, 0, -1);
+            const p2 = project3D(i, 0, 1);
+            ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+
+            const q1 = project3D(-1, 0, i);
+            const q2 = project3D(1, 0, i);
+            ctx.beginPath(); ctx.moveTo(q1.x, q1.y); ctx.lineTo(q2.x, q2.y); ctx.stroke();
+        }
+
+        // Dibujar Plano 3D de Techo SLA (reqs.maxLatencyMs)
+        const maxDisplayLat = Math.max(2200, reqs.maxLatencyMs * 1.45, ...sim.alternatives.map(a => a.metrics.latencyMs));
+        const slaY = Math.min(1.35, (reqs.maxLatencyMs / maxDisplayLat) * 1.25);
+        const c1 = project3D(-1, slaY, -1);
+        const c2 = project3D(1, slaY, -1);
+        const c3 = project3D(1, slaY, 1);
+        const c4 = project3D(-1, slaY, 1);
+
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.13)';
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.75)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(c1.x, c1.y); ctx.lineTo(c2.x, c2.y); ctx.lineTo(c3.x, c3.y); ctx.lineTo(c4.x, c4.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Dibujar las 3 cintas 3D de Latencia vs Usuarios Concurrentes (U = 15..700)
+        const altConfigs = [
+            { key: 'MONOLITH_MVC', z: -0.65, color: '#38BDF8', label: 'Monolito' },
+            { key: 'MICROSERVICES_K8S', z: 0.0, color: '#818CF8', label: 'K8s' },
+            { key: 'EDA_SERVERLESS', z: 0.65, color: '#34D399', label: 'EDA' }
+        ];
+
+        altConfigs.forEach(ac => {
+            ctx.strokeStyle = ac.color;
+            ctx.lineWidth = 2.4;
+            ctx.beginPath();
+            const steps = 16;
+            for (let s = 0; s <= steps; s++) {
+                const u = 15 + (s / steps) * 685;
+                const nx = (s / steps) * 2 - 1;
+                const ptSim = calculateAlternative(ac.key, {
+                    ...sim.inputs,
+                    concurrentUsers: u
+                }, sim.projectConfig);
+                const ny = Math.min(1.42, (ptSim.metrics.latencyMs / maxDisplayLat) * 1.25);
+                const pt = project3D(nx, ny, ac.z);
+                if (s === 0) ctx.moveTo(pt.x, pt.y);
+                else ctx.lineTo(pt.x, pt.y);
+            }
+            ctx.stroke();
+
+            // Punto de operación actual con pin 3D vertical
+            const curAlt = sim.alternatives.find(a => a.alternativeId === ac.key);
+            if (curAlt) {
+                const curNx = Math.min(1, Math.max(-1, ((sim.inputs.concurrentUsers - 15) / 685) * 2 - 1));
+                const curNy = Math.min(1.42, (curAlt.metrics.latencyMs / maxDisplayLat) * 1.25);
+                const basePt = project3D(curNx, 0, ac.z);
+                const topPt = project3D(curNx, curNy, ac.z);
+
+                ctx.strokeStyle = curAlt.compliance.latencyOk ? ac.color : '#FB7185';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath(); ctx.moveTo(basePt.x, basePt.y); ctx.lineTo(topPt.x, topPt.y); ctx.stroke();
+
+                ctx.fillStyle = curAlt.compliance.latencyOk ? ac.color : '#FB7185';
+                ctx.beginPath(); ctx.arc(topPt.x, topPt.y, 4.5, 0, Math.PI * 2); ctx.fill();
+
+                ctx.fillStyle = '#F8FAFC';
+                ctx.font = '700 10px "JetBrains Mono", monospace';
+                ctx.fillText(`${curAlt.metrics.latencyMs}ms`, topPt.x + 6, topPt.y - 4);
+            }
+        });
+    }
+
+    // Prisma / Radar Volumétrico 3D Multicriterio (Sensible a los 5 Pesos de la Sección 1)
+    function draw3DRadarCanvas(sim) {
+        const canvas = document.getElementById('sim-canvas-3d-radar');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const badge = document.getElementById('sim-3d-radar-badge');
+        if (badge) {
+            badge.textContent = `Ganadora: ${sim.winner.shortName} (${sim.winner.mcda.finalScore}/100)`;
+            badge.style.color = sim.winner.color;
+        }
+
+        const weights = sim.projectConfig.decisionWeights;
+        const axes = [
+            { label: `Latencia (${Math.round(weights.latency * 100)}%)`, key: 'latencyScore' },
+            { label: `Escala (${Math.round(weights.scalability * 100)}%)`, key: 'scalabilityScore' },
+            { label: `SLA (${Math.round(weights.availability * 100)}%)`, key: 'availabilityScore' },
+            { label: `Costo/RAM (${Math.round(weights.efficiencyAndCost * 100)}%)`, key: 'efficiencyAndCostScore' },
+            { label: `Seg/Cont (${Math.round(weights.securityAndContainers * 100)}%)`, key: 'securityAndContainersScore' }
+        ];
+
+        const cx = w * 0.5;
+        const cy = h * 0.56;
+        const radiusX = 112;
+        const radiusY = 54; // Perspectiva 3D inclinada
+        const rot = Sim3DEngine.radarCanvasAngle;
+
+        // Dibujar anillos concéntricos 3D y ejes
+        [0.35, 0.68, 1.0].forEach(level => {
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            axes.forEach((_, idx) => {
+                const a = (idx / axes.length) * Math.PI * 2 + rot;
+                const px = cx + Math.cos(a) * radiusX * level;
+                const py = cy + Math.sin(a) * radiusY * level;
+                if (idx === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            });
+            ctx.closePath();
+            ctx.stroke();
+        });
+
+        axes.forEach((ax, idx) => {
+            const a = (idx / axes.length) * Math.PI * 2 + rot;
+            const px = cx + Math.cos(a) * radiusX;
+            const py = cy + Math.sin(a) * radiusY;
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+
+            const lx = cx + Math.cos(a) * (radiusX + 34);
+            const ly = cy + Math.sin(a) * (radiusY + 18);
+            ctx.fillStyle = '#CBD5E1';
+            ctx.font = '700 9.5px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(ax.label, lx, ly);
+        });
+
+        // Dibujar prismas 3D extruidos para cada alternativa
+        sim.alternatives.forEach((alt, altIdx) => {
+            const zExtrude = (alt.mcda.finalScore / 100) * 22 + (altIdx * 3);
+            const ptsBase = [];
+            const ptsTop = [];
+
+            axes.forEach((ax, idx) => {
+                const a = (idx / axes.length) * Math.PI * 2 + rot;
+                const valRatio = Math.max(0.12, (alt.mcda[ax.key] || 50) / 100);
+                const bx = cx + Math.cos(a) * radiusX * valRatio;
+                const by = cy + Math.sin(a) * radiusY * valRatio;
+                ptsBase.push({ x: bx, y: by });
+                ptsTop.push({ x: bx, y: by - zExtrude });
+            });
+
+            // Paredes verticales 3D
+            ctx.strokeStyle = alt.color + '66';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < ptsBase.length; i++) {
+                ctx.beginPath();
+                ctx.moveTo(ptsBase[i].x, ptsBase[i].y);
+                ctx.lineTo(ptsTop[i].x, ptsTop[i].y);
+                ctx.stroke();
+            }
+
+            // Cara superior del prisma 3D
+            ctx.fillStyle = alt.color + '28';
+            ctx.strokeStyle = alt.color;
+            ctx.lineWidth = alt.alternativeId === sim.winner.alternativeId ? 2.4 : 1.4;
+            ctx.beginPath();
+            ptsTop.forEach((p, idx) => {
+                if (idx === 0) ctx.moveTo(p.x, p.y);
+                else ctx.lineTo(p.x, p.y);
+            });
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        });
+    }
+
+    // ============================================================
+    // 6. GESTIÓN DE ESCENARIOS, PERFILES Y EVENTOS INTERACTIVOS
+    // ============================================================
+    function showSimFeedback(msg, isError = false) {
+        const badge = document.getElementById('sim-config-live-badge');
+        if (badge) {
+            badge.textContent = isError ? '⚠ Alerta Validación' : '● Actualizado en Vivo';
+            badge.style.color = isError ? '#FB7185' : '#34D399';
+            badge.style.borderColor = isError ? 'rgba(251,113,133,.5)' : 'rgba(52,211,153,.4)';
+        }
+
+        const toastContainer = document.getElementById('toast-container');
+        if (toastContainer) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `padding:.75rem 1.1rem;border-radius:.75rem;font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:.55rem;box-shadow:0 10px 25px rgba(0,0,0,.6);margin-bottom:.5rem;border:1px solid ${isError ? '#F43F5E' : '#38BDF8'};background:${isError ? 'rgba(136,19,55,.95)' : 'rgba(15,23,42,.96)'};color:#F8FAFC;z-index:9999;pointer-events:auto;`;
+            toast.innerHTML = `<i class="fa-solid ${isError ? 'fa-triangle-exclamation' : 'fa-bolt'}" style="color:${isError ? '#FB7185' : '#34D399'};"></i><span>${msg}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3200);
+        }
+    }
+
+    function highlightActivePresetButton(activeKey) {
+        document.querySelectorAll('[data-sim-preset]').forEach(btn => {
+            const key = btn.getAttribute('data-sim-preset');
+            if (key === activeKey) {
+                btn.style.background = 'rgba(56, 189, 248, 0.22)';
+                btn.style.borderColor = '#38BDF8';
+                btn.style.color = '#FFFFFF';
+                btn.style.boxShadow = '0 0 14px rgba(56, 189, 248, 0.35)';
+            } else {
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+                btn.style.boxShadow = '';
+            }
+        });
+    }
+
+    function highlightActiveConfigPresetButton(activeKey) {
+        document.querySelectorAll('[data-sim-config-preset]').forEach(btn => {
+            const key = btn.getAttribute('data-sim-config-preset');
+            if (key === activeKey) {
+                btn.style.background = 'rgba(52, 211, 153, 0.2)';
+                btn.style.borderColor = '#34D399';
+                btn.style.color = '#FFFFFF';
+            } else {
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            }
+        });
+    }
+
+    function applyConfigPreset(presetKey, silent = false) {
+        const cfg = CONFIG_PRESETS[presetKey];
+        if (!cfg) return;
+
+        isInvalidDemoActive = false;
+        resetTestInvalidButtonLabel();
+        highlightActiveConfigPresetButton(presetKey);
+
+        const setField = (id, rangeId, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+            if (rangeId) {
+                const rEl = document.getElementById(rangeId);
+                if (rEl) rEl.value = val;
+            }
+        };
+
+        setField('sim-proj-name', null, cfg.projName);
+        setField('sim-proj-users', null, cfg.projUsers);
+        setField('sim-req-latency', 'sim-range-req-latency', cfg.maxLatencyMs);
+        setField('sim-req-availability', 'sim-range-req-availability', cfg.minAvailabilityPct);
+        setField('sim-req-avail', null, cfg.minAvailabilityPct);
+        setField('sim-req-scalability', 'sim-range-req-scalability', cfg.minScalabilityScore);
+        setField('sim-req-scale', null, cfg.minScalabilityScore);
+        setField('sim-con-budget', 'sim-range-con-budget', cfg.maxMonthlyBudgetUsd);
+        setField('sim-con-memory', 'sim-range-con-memory', cfg.maxMemoryGb);
+
+        setField('sim-weight-latency', null, cfg.weights.latency);
+        setField('sim-w-lat', null, cfg.weights.latency);
+        setField('sim-weight-scalability', null, cfg.weights.scalability);
+        setField('sim-w-scale', null, cfg.weights.scalability);
+        setField('sim-weight-availability', null, cfg.weights.availability);
+        setField('sim-w-avail', null, cfg.weights.availability);
+        setField('sim-weight-cost', null, cfg.weights.cost);
+        setField('sim-w-cost', null, cfg.weights.cost);
+        setField('sim-weight-security', null, cfg.weights.security);
+        setField('sim-w-ram', null, cfg.weights.security);
+
+        sanitizeOutOfBoundsDomFields();
+        const state = readFormState();
+        const validation = validateInputs(state.rawValidationData);
+        renderValidationBanner(validation);
+        if (validation.valid) {
+            const sim = executeSimulation(state.inputs, state.projectConfig);
+            renderSimulationOutput(sim, cfg.label);
+            if (!silent) {
+                showSimFeedback(`${cfg.label} aplicado → Ganadora: ${sim.winner.shortName} (${sim.winner.mcda.finalScore} pts)`);
+            }
+        }
+    }
+
+    function applyScenarioPreset(presetKey, silent = false) {
+        const preset = PRESET_SCENARIOS[presetKey];
+        if (!preset) return;
+
+        isInvalidDemoActive = false;
+        resetTestInvalidButtonLabel();
+        activePresetKey = presetKey;
+        highlightActivePresetButton(presetKey);
+
+        sanitizeOutOfBoundsDomFields();
+
+        const setInput = (id, val, labelId, suffix = '') => {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+            const lbl = document.getElementById(labelId);
+            if (lbl) lbl.textContent = val + suffix;
+        };
+
+        setInput('sim-input-users', preset.inputs.concurrentUsers, 'sim-val-users', ' usuarios');
+        setInput('sim-input-users', preset.inputs.concurrentUsers, 'sim-lbl-users', ' usuarios');
+        setInput('sim-input-payload', preset.inputs.payloadSizeMb, 'sim-val-payload', ' MB');
+        setInput('sim-input-size', preset.inputs.payloadSizeMb, 'sim-lbl-size', ' MB');
+        setInput('sim-input-files', preset.inputs.repoComplexityFiles, 'sim-val-files', ' archivos');
+        setInput('sim-input-files', preset.inputs.repoComplexityFiles, 'sim-lbl-files', ' archivos');
+        setInput('sim-input-aidepth', preset.inputs.aiDepthFactor, 'sim-val-aidepth', '');
+        setInput('sim-input-hops', preset.inputs.aiDepthFactor, 'sim-lbl-hops', ' saltos');
+        setInput('sim-input-burst', preset.inputs.trafficBurstFactor, 'sim-val-burst', 'x');
+        setInput('sim-input-burst', preset.inputs.trafficBurstFactor, 'sim-lbl-burst', 'x');
+
+        const state = readFormState();
+        const validation = validateInputs(state.rawValidationData);
+        renderValidationBanner(validation);
+        if (validation.valid) {
+            const sim = executeSimulation(state.inputs, state.projectConfig);
+            if (presetKey === 'BASELINE' && !baselineSnapshot) {
+                baselineSnapshot = sim;
+            }
+            renderSimulationOutput(sim, preset.name);
+            if (!silent) {
+                showSimFeedback(`${preset.badge} ejecutado → Ganadora: ${sim.winner.shortName} (${sim.winner.mcda.finalScore} pts)`);
+            }
+        }
+    }
+
+    function triggerInvalidInputDemo() {
+        const btnTestInvalid = document.getElementById('btn-sim-test-invalid');
+        isInvalidDemoActive = true;
+        const elReq = document.getElementById('sim-req-latency');
+        if (elReq) elReq.value = 15;
+        if (btnTestInvalid) {
+            btnTestInvalid.innerHTML = '<i class="fa-solid fa-rotate-left" style="margin-right:.35rem;color:#34D399;"></i>Restaurar Estado Válido';
+            btnTestInvalid.style.background = 'rgba(52, 211, 153, 0.16)';
+        }
+        const validation = validateInputs({
+            concurrentUsers: -25,
+            payloadSizeMb: 45,
+            repoComplexityFiles: 0,
+            aiDepthFactor: 9,
+            trafficBurstFactor: 8.5,
+            maxLatencyMs: 15,
+            minAvailabilityPct: 105,
+            minScalabilityScore: 5,
+            maxMonthlyBudgetUsd: 2,
+            maxMemoryGb: 0.05
+        });
+        renderValidationBanner(validation);
+        const alertEl = document.getElementById('sim-validation-alert');
+        if (alertEl) alertEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showSimFeedback('Control de validación activado: entradas fuera de rango bloqueadas.', true);
+    }
+
+    function executeDocumentedTestCase(testId) {
+        if (testId === '1') {
+            applyConfigPreset('STANDARD', true);
+            applyScenarioPreset('SINGLE_MACHINE_LIGHT', true);
+            showSimFeedback('TEST-SIM-01 ejecutado: U=18, S=1MB, N=35 → Monolito gana en latencia (168 ms) y RAM (212 MB).');
+        } else if (testId === '2') {
+            applyConfigPreset('STANDARD', true);
+            applyScenarioPreset('ENTERPRISE_SCALE', true);
+            showSimFeedback('TEST-SIM-02 ejecutado: U=320, S=6MB, N=240 → Monolito satura (>100% ρ), Microservicios K8s escala a 6 pods.');
+        } else if (testId === '3') {
+            applyConfigPreset('STANDARD', true);
+            applyScenarioPreset('EXTREME_STRESS_PUSH', true);
+            showSimFeedback('TEST-SIM-03 ejecutado: U=650, S=14MB, Ráfaga=2.5x → EDA Serverless absorbe ráfaga con 14 workers (SLA 99.88%).');
+        } else if (testId === '4') {
+            applyConfigPreset('BOOTSTRAPPED', true);
+            applyScenarioPreset('BASELINE', true);
+            const bNum = document.getElementById('sim-con-budget');
+            const bRng = document.getElementById('sim-range-con-budget');
+            if (bNum) bNum.value = 45;
+            if (bRng) bRng.value = 45;
+            triggerInteractiveRun('Prueba 4 (TEST-SIM-04): Restricción Presupuesto $45 USD/mes');
+            showSimFeedback('TEST-SIM-04 ejecutado: Presupuesto = $45 USD/mes → Microservicios K8s penalizado por exceso de costo.');
+        } else if (testId === '5') {
+            triggerInvalidInputDemo();
+        }
+    }
+
+    function runLive3DLoadSweep() {
+        const btn = document.getElementById('btn-sim-3d-live-sweep');
+        if (liveSweepInterval) {
+            clearInterval(liveSweepInterval);
+            liveSweepInterval = null;
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:.35rem;"></i>Simular Ráfaga 3D en Vivo';
+            return;
+        }
+
+        clearInvalidDemoState();
+        sanitizeOutOfBoundsDomFields();
+
+        if (btn) {
+            btn.innerHTML = '<i class="fa-solid fa-stop" style="margin-right:.35rem;color:#FB7185;"></i>Detener Barrido 3D';
+        }
+        showSimFeedback('Iniciando barrido dinámico 3D de carga (15 → 700 usuarios concurrentes)...');
+
+        const uSlider = document.getElementById('sim-input-users');
+        const uLabel = document.getElementById('sim-val-users');
+        let currentU = 15;
+
+        liveSweepInterval = setInterval(() => {
+            currentU += 35;
+            if (currentU > 715) {
+                clearInterval(liveSweepInterval);
+                liveSweepInterval = null;
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-bolt" style="margin-right:.35rem;"></i>Simular Ráfaga 3D en Vivo';
+                showSimFeedback('Barrido de estrés 3D completado.');
+                return;
+            }
+            if (uSlider) uSlider.value = currentU;
+            if (uLabel) uLabel.textContent = `${currentU} usuarios`;
+            triggerInteractiveRun(`Barrido 3D en Vivo (U=${currentU} usuarios)`);
+        }, 180);
+    }
+
+    function setupSimulatorEvents() {
+        // 1. Sliders de Variables de Entrada (Sección 3)
+        const sliders = [
+            { id: 'sim-input-users', label: 'sim-val-users', altLabel: 'sim-lbl-users', suffix: ' usuarios' },
+            { id: 'sim-input-payload', label: 'sim-val-payload', altLabel: 'sim-lbl-size', suffix: ' MB' },
+            { id: 'sim-input-size', label: 'sim-lbl-size', altLabel: 'sim-val-payload', suffix: ' MB' },
+            { id: 'sim-input-files', label: 'sim-val-files', altLabel: 'sim-lbl-files', suffix: ' archivos' },
+            { id: 'sim-input-aidepth', label: 'sim-val-aidepth', altLabel: 'sim-lbl-hops', suffix: '' },
+            { id: 'sim-input-hops', label: 'sim-lbl-hops', altLabel: 'sim-val-aidepth', suffix: ' saltos' },
+            { id: 'sim-input-burst', label: 'sim-val-burst', altLabel: 'sim-lbl-burst', suffix: 'x' }
+        ];
+
+        sliders.forEach(s => {
+            const el = document.getElementById(s.id);
+            if (el) {
+                el.addEventListener('input', () => {
+                    clearInvalidDemoState();
+                    const lbl = document.getElementById(s.label);
+                    if (lbl) lbl.textContent = el.value + s.suffix;
+                    if (s.altLabel) {
+                        const altLbl = document.getElementById(s.altLabel);
+                        if (altLbl) altLbl.textContent = el.value + s.suffix;
+                    }
+                    highlightActivePresetButton('');
+                    triggerInteractiveRun('Ajuste Interactivo de Variables de Carga');
+                });
+            }
+        });
+
+        const btnResetInputs = document.getElementById('btn-sim-reset-inputs');
+        if (btnResetInputs) {
+            btnResetInputs.addEventListener('click', () => {
+                applyScenarioPreset('ESC_1_LOW');
+            });
+        }
+
+        const btnRestoreTop = document.getElementById('btn-sim-restore-valid');
+        if (btnRestoreTop) {
+            btnRestoreTop.addEventListener('click', () => {
+                isInvalidDemoActive = false;
+                resetTestInvalidButtonLabel();
+                sanitizeOutOfBoundsDomFields();
+                applyConfigPreset('STANDARD', true);
+                applyScenarioPreset('ESC_1_LOW', true);
+                showSimFeedback('Datos válidos restaurados correctamente.');
+            });
+        }
+
+        // 2. Sincronización Bidireccional Número <-> Slider en Sección 1 (Configuración y Restricciones)
+        const syncedConfigPairs = [
+            { numId: 'sim-req-latency', rangeId: 'sim-range-req-latency', lblId: 'sim-lbl-req-latency', fmt: v => `${v} ms`, label: 'Cambio de Meta Latencia SLA' },
+            { numId: 'sim-req-availability', rangeId: 'sim-range-req-availability', lblId: 'sim-lbl-req-avail', fmt: v => `${Number(v).toFixed(2)}%`, label: 'Cambio de Meta Disponibilidad SLA' },
+            { numId: 'sim-req-avail', rangeId: null, lblId: 'sim-lbl-req-avail', fmt: v => `${Number(v).toFixed(2)}%`, label: 'Cambio de Meta Disponibilidad SLA' },
+            { numId: 'sim-req-scalability', rangeId: 'sim-range-req-scalability', lblId: 'sim-lbl-req-scale', fmt: v => `${v} / 100`, label: 'Cambio de Meta Escalabilidad' },
+            { numId: 'sim-req-scale', rangeId: null, lblId: 'sim-lbl-req-scale', fmt: v => `${v} / 100`, label: 'Cambio de Meta Escalabilidad' },
+            { numId: 'sim-con-budget', rangeId: 'sim-range-con-budget', lblId: 'sim-lbl-con-budget', fmt: v => `$${v} USD/mes`, label: 'Cambio de Tope de Presupuesto Cloud' },
+            { numId: 'sim-con-memory', rangeId: 'sim-range-con-memory', lblId: 'sim-lbl-con-memory', fmt: v => `${Number(v).toFixed(1)} GB`, label: 'Cambio de Restricción de Memoria RAM' }
+        ];
+
+        syncedConfigPairs.forEach(pair => {
+            const numEl = document.getElementById(pair.numId);
+            const rangeEl = pair.rangeId ? document.getElementById(pair.rangeId) : null;
+            const lblEl = pair.lblId ? document.getElementById(pair.lblId) : null;
+            if (numEl) {
+                const onNumChange = () => {
+                    clearInvalidDemoState(pair.numId);
+                    if (rangeEl && Number.isFinite(Number(numEl.value))) {
+                        rangeEl.value = numEl.value;
+                    }
+                    if (lblEl && pair.fmt) lblEl.textContent = pair.fmt(numEl.value);
+                    highlightActiveConfigPresetButton('');
+                    triggerInteractiveRun(pair.label);
+                };
+                numEl.addEventListener('input', onNumChange);
+                numEl.addEventListener('change', onNumChange);
+            }
+            if (rangeEl) {
+                rangeEl.addEventListener('input', () => {
+                    clearInvalidDemoState();
+                    if (numEl) numEl.value = rangeEl.value;
+                    if (lblEl && pair.fmt) lblEl.textContent = pair.fmt(rangeEl.value);
+                    highlightActiveConfigPresetButton('');
+                    triggerInteractiveRun(pair.label);
+                });
+            }
+        });
+
+        // 3. Campos de Texto y Pesos de Decisión en Sección 1
+        const extraConfigInputs = [
+            'sim-proj-name', 'sim-proj-users',
+            'sim-weight-latency', 'sim-weight-scalability', 'sim-weight-availability', 'sim-weight-cost', 'sim-weight-security',
+            'sim-w-lat', 'sim-w-cost', 'sim-w-avail', 'sim-w-scale', 'sim-w-ram', 'sim-w-cmplx'
+        ];
+        const weightLabelMap = {
+            'sim-w-lat': 'sim-lbl-w-lat',
+            'sim-w-cost': 'sim-lbl-w-cost',
+            'sim-w-avail': 'sim-lbl-w-avail',
+            'sim-w-scale': 'sim-lbl-w-scale',
+            'sim-w-ram': 'sim-lbl-w-ram',
+            'sim-w-cmplx': 'sim-lbl-w-cmplx'
+        };
+        extraConfigInputs.forEach(cid => {
+            const el = document.getElementById(cid);
+            if (el) {
+                const handler = () => {
+                    clearInvalidDemoState();
+                    if (weightLabelMap[cid]) {
+                        const wLbl = document.getElementById(weightLabelMap[cid]);
+                        if (wLbl) wLbl.textContent = `${el.value}%`;
+                    }
+                    highlightActiveConfigPresetButton('');
+                    triggerInteractiveRun('Actualización de Configuración / Pesos (Sección 1)');
+                };
+                el.addEventListener('input', handler);
+                el.addEventListener('change', handler);
+            }
+        });
+
+        // Botones de Perfiles Rápidos de Sección 1
+        document.querySelectorAll('[data-sim-config-preset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.getAttribute('data-sim-config-preset');
+                applyConfigPreset(key);
+            });
+        });
+
+        // Botón explícito Recalcular Todo & 3D en Sección 1
+        const btnApplyConfig = document.getElementById('btn-sim-apply-config');
+        if (btnApplyConfig) {
+            btnApplyConfig.addEventListener('click', () => {
+                clearInvalidDemoState();
+                sanitizeOutOfBoundsDomFields();
+                triggerInteractiveRun('Configuración de Sección 1 Aplicada');
+                showSimFeedback('Configuración, restricciones SLA, matriz multiescenario y gráficas 3D actualizadas.');
+            });
+        }
+
+        // Botones de Escenarios Predefinidos (Sección 5)
+        document.querySelectorAll('[data-sim-preset]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const key = btn.getAttribute('data-sim-preset');
+                applyScenarioPreset(key);
+            });
+        });
+
+        // Botones de las 5 Pruebas Documentadas Interactivas (Sección 10)
+        document.querySelectorAll('[data-sim-test-case]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const testId = btn.getAttribute('data-sim-test-case');
+                executeDocumentedTestCase(testId);
+            });
+        });
+
+        // Botones de Modo 3D y Cámara 3D
+        document.querySelectorAll('[data-sim-3d-mode]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                set3DMode(btn.getAttribute('data-sim-3d-mode'));
+            });
+        });
+
+        const btnCamIso = document.getElementById('btn-sim-3d-cam-iso');
+        if (btnCamIso) btnCamIso.addEventListener('click', () => { Sim3DEngine.camTheta = 0.62; Sim3DEngine.camPhi = 0.48; Sim3DEngine.camRadius = 19.5; });
+        const btnCamFront = document.getElementById('btn-sim-3d-cam-front');
+        if (btnCamFront) btnCamFront.addEventListener('click', () => { Sim3DEngine.camTheta = 0.0; Sim3DEngine.camPhi = 0.22; Sim3DEngine.camRadius = 18.5; });
+        const btnCamTop = document.getElementById('btn-sim-3d-cam-top');
+        if (btnCamTop) btnCamTop.addEventListener('click', () => { Sim3DEngine.camTheta = 0.0; Sim3DEngine.camPhi = 1.28; Sim3DEngine.camRadius = 21.0; });
+        const btnAutoRot = document.getElementById('btn-sim-3d-autorotate');
+        if (btnAutoRot) {
+            btnAutoRot.addEventListener('click', () => {
+                Sim3DEngine.autoRotate = !Sim3DEngine.autoRotate;
+                btnAutoRot.style.color = Sim3DEngine.autoRotate ? '#34D399' : '#94A3B8';
+            });
+        }
+
+        const btnLiveSweep = document.getElementById('btn-sim-3d-live-sweep');
+        if (btnLiveSweep) {
+            btnLiveSweep.addEventListener('click', runLive3DLoadSweep);
+        }
+
+        // Rotación interactiva en los 2 Canvas 3D laterales
+        const surfCanvas = document.getElementById('sim-canvas-3d-surface');
+        if (surfCanvas) {
+            let draggingSurf = false;
+            let lastX = 0;
+            surfCanvas.addEventListener('pointerdown', e => { draggingSurf = true; lastX = e.clientX; });
+            window.addEventListener('pointermove', e => {
+                if (!draggingSurf) return;
+                Sim3DEngine.surfaceCanvasAngle += (e.clientX - lastX) * 0.01;
+                lastX = e.clientX;
+                if (currentSimulationResult) draw3DSurfaceCanvas(currentSimulationResult);
+            });
+            window.addEventListener('pointerup', () => { draggingSurf = false; });
+        }
+
+        const radarCanvas = document.getElementById('sim-canvas-3d-radar');
+        if (radarCanvas) {
+            let draggingRadar = false;
+            let lastX = 0;
+            radarCanvas.addEventListener('pointerdown', e => { draggingRadar = true; lastX = e.clientX; });
+            window.addEventListener('pointermove', e => {
+                if (!draggingRadar) return;
+                Sim3DEngine.radarCanvasAngle += (e.clientX - lastX) * 0.012;
+                lastX = e.clientX;
+                if (currentSimulationResult) draw3DRadarCanvas(currentSimulationResult);
+            });
+            window.addEventListener('pointerup', () => { draggingRadar = false; });
+        }
+
+        // Botón Fijar Escenario de Referencia
+        const btnSetBaseline = document.getElementById('btn-sim-set-baseline');
+        if (btnSetBaseline) {
+            btnSetBaseline.addEventListener('click', () => {
+                clearInvalidDemoState();
+                sanitizeOutOfBoundsDomFields();
+                const state = readFormState();
+                const val = validateInputs(state.rawValidationData);
+                renderValidationBanner(val);
+                if (val.valid) {
+                    baselineSnapshot = executeSimulation(state.inputs, state.projectConfig);
+                    renderSimulationOutput(baselineSnapshot, 'Nuevo Escenario de Referencia Fijado');
+                    const badge = document.getElementById('sim-baseline-status');
+                    if (badge) {
+                        badge.textContent = `Ref: U=${state.inputs.concurrentUsers}, S=${state.inputs.payloadSizeMb}MB, N=${state.inputs.repoComplexityFiles}`;
+                        badge.style.color = '#34D399';
+                    }
+                    showSimFeedback(`Referencia fijada: U=${state.inputs.concurrentUsers} u, S=${state.inputs.payloadSizeMb} MB`);
+                }
+            });
+        }
+
+        // Botón Ejecutar los 4 Escenarios Comparativos
+        const btnRunAll = document.getElementById('btn-sim-run-all-scenarios');
+        if (btnRunAll) {
+            btnRunAll.addEventListener('click', () => {
+                clearInvalidDemoState();
+                sanitizeOutOfBoundsDomFields();
+                const state = readFormState();
+                const val = validateInputs(state.rawValidationData);
+                renderValidationBanner(val);
+                if (!val.valid) return;
+                const currentSim = executeSimulation(state.inputs, state.projectConfig);
+                renderSimulationOutput(currentSim, 'Comparativa Multiescenario Ejecutada (4 Escenarios)');
+                showSimFeedback('Lote de 4 escenarios re-evaluado bajo las restricciones actuales de la Sección 1.');
+            });
+        }
+
+        // Botón Probar Control de Entrada Inválida (Conmutador / Restauración Automática)
+        const btnTestInvalid = document.getElementById('btn-sim-test-invalid');
+        if (btnTestInvalid) {
+            btnTestInvalid.addEventListener('click', () => {
+                if (isInvalidDemoActive) {
+                    isInvalidDemoActive = false;
+                    resetTestInvalidButtonLabel();
+                    sanitizeOutOfBoundsDomFields();
+                    const state = readFormState();
+                    const val = validateInputs(state.rawValidationData);
+                    renderValidationBanner(val);
+                    if (val.valid) {
+                        const sim = executeSimulation(state.inputs, state.projectConfig);
+                        renderSimulationOutput(sim, 'Estado Válido Restaurado');
+                    }
+                    showSimFeedback('Datos restaurados y alerta de validación limpiada correctamente.');
+                    return;
+                }
+                triggerInvalidInputDemo();
+            });
+        }
+
+        // Botón Exportar Informe Técnico Markdown
+        const btnExportMd = document.getElementById('btn-sim-export-md');
+        if (btnExportMd) {
+            btnExportMd.addEventListener('click', () => {
+                if (!currentSimulationResult) return;
+                const s = currentSimulationResult;
+                const mdLines = [
+                    `# INFORME TÉCNICO DE SIMULACIÓN — ARCHITECTURE LAB (DOCUMIND AI)`,
+                    `- **Proyecto:** ${s.projectConfig.projectName}`,
+                    `- **Usuarios Previstos:** ${s.projectConfig.targetUsers}`,
+                    `- **Versión del Modelo:** ${s.modelVersion || '3.0.0'}`,
+                    `- **Hora de Ejecución:** ${s.timestamp}`,
+                    `- **Entradas:** U=${s.inputs.concurrentUsers} usuarios | S=${s.inputs.payloadSizeMb} MB | N=${s.inputs.repoComplexityFiles} archivos | IA=${s.inputs.aiDepthFactor} | Ráfaga=${s.inputs.trafficBurstFactor}x`,
+                    `- **Restricciones Activas (Sección 1):** Latencia ≤ ${s.projectConfig.qualityRequirements.maxLatencyMs} ms | SLA ≥ ${s.projectConfig.qualityRequirements.minAvailabilityPct}% | Escalabilidad ≥ ${s.projectConfig.qualityRequirements.minScalabilityScore} | Presupuesto ≤ $${s.projectConfig.constraints.maxMonthlyBudgetUsd} USD | RAM ≤ ${s.projectConfig.constraints.maxMemoryGb} GB`,
+                    ``,
+                    `## Resultados Comparativos por Arquitectura`,
+                    `| Alternativa | Latencia P95 | Throughput/Cap | Escalabilidad | Disponibilidad | CPU / RAM | Costo Mensual | Cumple Todo | Puntaje MCDA |`,
+                    `| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |`,
+                    ...s.alternatives.map(a => `| ${a.shortName} | ${a.metrics.latencyMs} ms | ${a.metrics.throughputRps}/${a.metrics.maxCapacityRps} req/s | ${a.metrics.scalabilityScore}/100 | ${a.metrics.availabilityPct}% | ${a.metrics.cpuUtilizationPct}% / ${a.metrics.memoryUsageMb} MB | $${a.metrics.estimatedMonthlyCostUsd} USD | ${a.compliance.allMandatoryPassed ? 'SÍ' : 'NO'} | **${a.mcda.finalScore}/100** |`),
+                    ``,
+                    `## Recomendación Fundamentada`,
+                    `- **Ganadora:** ${s.winner.name} (${s.winner.mcda.finalScore}/100)`,
+                    ...s.rationale.map(r => `- ${r}`)
+                ];
+                const blob = new Blob([mdLines.join('\n')], { type: 'text/markdown;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Informe_Simulacion_DocuMind_${Date.now()}.md`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Botón Exportar JSON Estructurado
+        const btnExportJson = document.getElementById('btn-sim-export-json');
+        if (btnExportJson) {
+            btnExportJson.addEventListener('click', () => {
+                if (!currentSimulationResult) return;
+                const blob = new Blob([JSON.stringify(currentSimulationResult, null, 2)], { type: 'application/json;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Simulacion_DocuMind_${Date.now()}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Inicialización por defecto
+        highlightActiveConfigPresetButton('STANDARD');
+        applyScenarioPreset('BASELINE', true);
+    }
+
+    function triggerInteractiveRun(label) {
+        const state = readFormState();
+        const validation = validateInputs(state.rawValidationData);
+        renderValidationBanner(validation);
+        if (!validation.valid) return;
+
+        const sim = executeSimulation(state.inputs, state.projectConfig);
+        renderSimulationOutput(sim, label);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupSimulatorEvents);
+    } else {
+        setupSimulatorEvents();
+    }
+})();
+ + altRes.breakdown.monthlyCostUsd.toFixed(0) + ' USD';
+                        if (tipM3) tipM3.textContent = 'Score: ' + altRes.score.toFixed(1) + '/100';
+                    }
+
+                    const lx = e.clientX - rect.left;
+                    const ly = e.clientY - rect.top;
+                    simTooltip.style.transform = 'translate(-50%, -100%) translate(' + lx.toFixed(1) + 'px, ' + (ly - 16).toFixed(1) + 'px)';
+                    simTooltip.style.display = 'block';
+                }
+            } else {
+                if (hoveredSimMesh) {
+                    if (hoveredSimMesh.material && hoveredSimMesh.material.emissiveIntensity !== undefined) {
+                        hoveredSimMesh.material.emissiveIntensity = 0.38;
+                    }
+                    hoveredSimMesh = null;
+                }
+                wrapper.style.cursor = 'grab';
+                if (simTooltip) simTooltip.style.display = 'none';
+            }
+        });
+
+        wrapper.addEventListener('pointerleave', () => {
+            if (hoveredSimMesh) {
+                if (hoveredSimMesh.material && hoveredSimMesh.material.emissiveIntensity !== undefined) {
+                    hoveredSimMesh.material.emissiveIntensity = 0.38;
+                }
+                hoveredSimMesh = null;
+            }
+            if (simTooltip) simTooltip.style.display = 'none';
+        });
+
+
+
+        if (window.ResizeObserver) {
+            const ro = new ResizeObserver(() => {
+                const nw = wrapper.clientWidth || 540;
+                const nh = wrapper.clientHeight || 350;
+                camera.aspect = nw / nh;
+                camera.updateProjectionMatrix();
+                renderer.setSize(nw, nh, false);
+            });
+            ro.observe(wrapper);
+        }
+
+        // Loop de Animación WebGL
+        const clock = new THREE.Clock();
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const t = clock.getElapsedTime();
+
+            if (Sim3DEngine.autoRotate && !Sim3DEngine.isDragging) {
+                Sim3DEngine.camTheta += 0.0038;
+            }
+
+            // Actualizar posición esférica de cámara
+            const r = Sim3DEngine.camRadius;
+            camera.position.x = r * Math.sin(Sim3DEngine.camTheta) * Math.cos(Sim3DEngine.camPhi);
+            camera.position.y = r * Math.sin(Sim3DEngine.camPhi) + 0.5;
+            camera.position.z = r * Math.cos(Sim3DEngine.camTheta) * Math.cos(Sim3DEngine.camPhi);
+            camera.lookAt(0, 0.3, 0);
+
+            // Animación suave de las torres 3D (Modo 1)
+            if (Sim3DEngine.barsGroup.visible) {
+                Sim3DEngine.barMeshes.forEach(bm => {
+                    bm.currentH += (bm.targetH - bm.currentH) * 0.12;
+                    const hVal = Math.max(0.15, bm.currentH);
+                    bm.mesh.scale.y = hVal;
+                    bm.mesh.position.y = -2.8 + (hVal / 2);
+                    bm.cap.position.y = -2.8 + hVal + 0.08;
+                    bm.cap.rotation.y = t * 1.4;
+                });
+                if (Sim3DEngine.slaPlaneMesh) {
+                    Sim3DEngine.slaPlaneMesh.position.y += (Sim3DEngine.slaPlaneMesh.userData.targetY - Sim3DEngine.slaPlaneMesh.position.y) * 0.12;
+                }
+                if (Sim3DEngine.crownMesh) {
+                    Sim3DEngine.crownMesh.rotation.z = t * 2.2;
+                    Sim3DEngine.crownMesh.position.y = Sim3DEngine.crownMesh.userData.baseY + Math.sin(t * 3.5) * 0.22;
+                }
+            }
+
+            // Animación de Topología y Paquetes en Tiempo Real (Modo 2)
+            if (Sim3DEngine.topologyGroup.visible && currentSimulationResult) {
+                const lambda = currentSimulationResult.alternatives[0].breakdown.arrivalRateRps || 5;
+                const speedFactor = Math.min(3.8, Math.max(0.5, lambda / 12));
+
+                Sim3DEngine.packets.forEach(pkt => {
+                    pkt.progress = (pkt.progress + 0.012 * speedFactor * pkt.speed) % 1.0;
+                    const p = pkt.progress;
+                    pkt.mesh.position.x = pkt.startX + (pkt.endX - pkt.startX) * p;
+                    pkt.mesh.position.y = pkt.startY + Math.sin(p * Math.PI) * 1.65;
+                    pkt.mesh.position.z = pkt.startZ + (pkt.endZ - pkt.startZ) * p;
+                });
+
+                Object.keys(Sim3DEngine.topologyPods).forEach(altKey => {
+                    Sim3DEngine.topologyPods[altKey].forEach((pod, idx) => {
+                        if (pod.visible) {
+                            pod.rotation.y = t * 1.1 + idx * 0.4;
+                            pod.position.y = pod.userData.baseY + Math.sin(t * 2.2 + idx) * 0.12;
+                        }
+                    });
+                });
+            }
+
+            // Animación de Superficie 3D (Modo 3)
+            if (Sim3DEngine.surfaceGroup.visible) {
+                Object.values(Sim3DEngine.surfaceMarkers).forEach((mk, idx) => {
+                    mk.scale.setScalar(1 + Math.sin(t * 4 + idx) * 0.18);
+                });
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate3D();
+    }
+
+    function buildBars3DScene() {
+        const g = Sim3DEngine.barsGroup;
+        const altKeys = ['MONOLITH_MVC', 'MICROSERVICES_K8S', 'EDA_SERVERLESS'];
+        const zPositions = [-3.2, 0, 3.2];
+        const xPositions = [-5.6, -2.8, 0, 2.8, 5.6]; // 5 columnas: Latencia, Throughput, Escala, Presupuesto, Score MCDA
+
+        Sim3DEngine.barMeshes = [];
+        altKeys.forEach((altKey, rIdx) => {
+            const alt = ARCHITECTURE_ALTERNATIVES[altKey];
+            const z = zPositions[rIdx];
+
+            xPositions.forEach((x, cIdx) => {
+                // Pedestal base
+                const pedGeo = new THREE.CylinderGeometry(0.62, 0.72, 0.14, 20);
+                const pedMat = new THREE.MeshStandardMaterial({ color: 0x1E293B, metalness: 0.8, roughness: 0.3 });
+                const ped = new THREE.Mesh(pedGeo, pedMat);
+                ped.position.set(x, -2.73, z);
+                g.add(ped);
+
+                // Torre 3D
+                const barGeo = new THREE.BoxGeometry(0.92, 1.0, 0.92);
+                const barMat = new THREE.MeshStandardMaterial({
+                    color: alt.hex,
+                    emissive: alt.hex,
+                    emissiveIntensity: 0.38,
+                    metalness: 0.75,
+                    roughness: 0.2,
+                    transparent: true,
+                    opacity: 0.92
+                });
+                const barMesh = new THREE.Mesh(barGeo, barMat);
+                barMesh.position.set(x, -2.3, z);
+                barMesh.userData = { type: "bar", altKey, colIdx: cIdx, baseHex: alt.hex };
+                g.add(barMesh);
+
+                // Octaedro flotante en la cima de cada torre
+                const capGeo = new THREE.OctahedronGeometry(0.24, 0);
+                const capMat = new THREE.MeshBasicMaterial({ color: alt.hex, wireframe: true });
+                const capMesh = new THREE.Mesh(capGeo, capMat);
+                capMesh.position.set(x, -1.7, z);
+                g.add(capMesh);
+
+                Sim3DEngine.barMeshes.push({
+                    altKey,
+                    colIdx: cIdx,
+                    mesh: barMesh,
+                    cap: capMesh,
+                    baseHex: alt.hex,
+                    currentH: 1.0,
+                    targetH: 2.5
+                });
+            });
+        });
+
+        // Plano Translúcido de Umbral SLA / Presupuesto (Sección 1)
+        const planeGeo = new THREE.PlaneGeometry(15.2, 8.8);
+        const planeMat = new THREE.MeshBasicMaterial({
+            color: 0xFBBF24,
+            transparent: true,
+            opacity: 0.16,
+            side: THREE.DoubleSide
+        });
+        const slaPlane = new THREE.Mesh(planeGeo, planeMat);
+        slaPlane.rotation.x = Math.PI / 2;
+        slaPlane.position.y = 1.2;
+        slaPlane.userData = { targetY: 1.2 };
+
+        // Borde luminoso del plano SLA
+        const edgesGeo = new THREE.EdgesGeometry(planeGeo);
+        const edgesMat = new THREE.LineBasicMaterial({ color: 0xFBBF24, transparent: true, opacity: 0.75 });
+        const planeEdges = new THREE.LineSegments(edgesGeo, edgesMat);
+        slaPlane.add(planeEdges);
+
+        g.add(slaPlane);
+        Sim3DEngine.slaPlaneMesh = slaPlane;
+
+        // Corona 3D para la Arquitectura Ganadora #1
+        const crownGeo = new THREE.TorusGeometry(0.68, 0.08, 12, 32);
+        const crownMat = new THREE.MeshBasicMaterial({ color: 0xFBBF24 });
+        const crown = new THREE.Mesh(crownGeo, crownMat);
+        crown.rotation.x = Math.PI / 2;
+        crown.position.set(5.6, 3.2, -3.2);
+        crown.userData = { baseY: 3.2 };
+        g.add(crown);
+        Sim3DEngine.crownMesh = crown;
+    }
+
+    function buildTopology3DScene() {
+        const g = Sim3DEngine.topologyGroup;
+        const zoneX = { MONOLITH_MVC: -5.4, MICROSERVICES_K8S: 0, EDA_SERVERLESS: 5.4 };
+        const colors = { MONOLITH_MVC: 0x38BDF8, MICROSERVICES_K8S: 0x818CF8, EDA_SERVERLESS: 0x34D399 };
+
+        Object.keys(zoneX).forEach(altKey => {
+            const cx = zoneX[altKey];
+            const col = colors[altKey];
+
+            // Anillo de plataforma por arquitectura
+            const ringGeo = new THREE.TorusGeometry(2.15, 0.05, 12, 48);
+            const ringMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.55 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.set(cx, -2.65, 0);
+            g.add(ring);
+
+            const maxPods = altKey === 'MONOLITH_MVC' ? 2 : (altKey === 'MICROSERVICES_K8S' ? 10 : 16);
+            Sim3DEngine.topologyPods[altKey] = [];
+
+            for (let i = 0; i < maxPods; i++) {
+                const angle = (i / maxPods) * Math.PI * 2;
+                const rad = maxPods <= 2 ? (i * 0.9 - 0.45) : (i < 8 ? 1.25 : 1.85);
+                const px = maxPods <= 2 ? cx + rad : cx + Math.cos(angle) * rad;
+                const pz = maxPods <= 2 ? 0 : Math.sin(angle) * rad;
+                const py = -1.6 + (i >= 8 ? 1.35 : 0);
+
+                const geo = altKey === 'MONOLITH_MVC'
+                    ? new THREE.CylinderGeometry(0.65, 0.65, 1.8, 20)
+                    : (altKey === 'MICROSERVICES_K8S'
+                        ? new THREE.OctahedronGeometry(0.42, 0)
+                        : new THREE.IcosahedronGeometry(0.34, 0));
+
+                const mat = new THREE.MeshStandardMaterial({
+                    color: col,
+                    emissive: col,
+                    emissiveIntensity: 0.5,
+                    metalness: 0.85,
+                    roughness: 0.2
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(px, py, pz);
+                mesh.userData = { type: "pod", altKey, podIdx: i, baseY: py, baseHex: col };
+                g.add(mesh);
+                Sim3DEngine.topologyPods[altKey].push(mesh);
+            }
+        });
+
+        // Paquetes de red 3D viajando hacia los 3 clústeres
+        Sim3DEngine.packets = [];
+        Object.keys(zoneX).forEach(altKey => {
+            const cx = zoneX[altKey];
+            const col = colors[altKey];
+            for (let p = 0; p < 14; p++) {
+                const pktGeo = new THREE.SphereGeometry(0.11, 10, 10);
+                const pktMat = new THREE.MeshBasicMaterial({ color: col });
+                const pktMesh = new THREE.Mesh(pktGeo, pktMat);
+                g.add(pktMesh);
+
+                const angle = (p / 14) * Math.PI * 2;
+                Sim3DEngine.packets.push({
+                    altKey,
+                    mesh: pktMesh,
+                    startX: cx + Math.cos(angle) * 2.4,
+                    startY: -2.4,
+                    startZ: Math.sin(angle) * 2.4,
+                    endX: cx,
+                    endY: -0.8,
+                    endZ: 0,
+                    progress: Math.random(),
+                    speed: 0.7 + Math.random() * 0.6
+                });
+            }
+        });
+    }
+
+    function buildSurface3DScene() {
+        const g = Sim3DEngine.surfaceGroup;
+        const altKeys = ['MONOLITH_MVC', 'MICROSERVICES_K8S', 'EDA_SERVERLESS'];
+
+        altKeys.forEach(altKey => {
+            const alt = ARCHITECTURE_ALTERNATIVES[altKey];
+            const geom = new THREE.PlaneGeometry(13, 9, 18, 12);
+            geom.rotateX(-Math.PI / 2);
+
+            const mat = new THREE.MeshBasicMaterial({
+                color: alt.hex,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.68
+            });
+            const mesh = new THREE.Mesh(geom, mat);
+            g.add(mesh);
+            Sim3DEngine.surfaceMeshes[altKey] = mesh;
+
+            // Esfera marcadora del punto de operación actual (U, S_MB)
+            const mkGeo = new THREE.SphereGeometry(0.32, 16, 16);
+            const mkMat = new THREE.MeshBasicMaterial({ color: alt.hex });
+            const mk = new THREE.Mesh(mkGeo, mkMat);
+            g.add(mk);
+            mk.userData = { type: "surface", altKey, baseHex: alt.hex };
             Sim3DEngine.surfaceMarkers[altKey] = mk;
         });
 
