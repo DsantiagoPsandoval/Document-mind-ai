@@ -616,64 +616,145 @@
                     </div>
 
                     <!-- Category Selection Checklist ("¿Qué quieres generar?") -->
-                    <div style="padding-top:1rem;border-top:1px solid rgba(129,140,248,.16);">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
+                    <div class="suite-modules-panel">
+                        <div class="suite-selector-header">
                             <h4 style="font-size:.84rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.45rem;">
-                                <i class="fa-solid fa-list-check" style="color:var(--tech-cyan);"></i> ¿Qué quieres generar?
+                                <span class="suite-header-icon-box"><i class="fa-solid fa-layer-group"></i></span>
+                                <span>¿Qué quieres generar?</span>
+                                <span id="selected-modules-counter" class="suite-active-counter">11 / 11 activos</span>
                             </h4>
-                            <span style="font-size:.72rem;color:#64748B;">Selecciona los módulos requeridos para la suite documental</span>
+                            <div class="suite-header-actions">
+                                <span class="suite-header-subtitle">Selecciona los módulos requeridos para la suite documental</span>
+                                <div class="suite-preset-group" role="group" aria-label="Selección rápida de módulos">
+                                    <button type="button" id="btn-preset-all" class="suite-preset-pill active" data-preset="all" title="Seleccionar todos los 11 módulos">
+                                        <i class="fa-solid fa-check-double"></i> Suite Completa
+                                    </button>
+                                    <button type="button" id="btn-preset-arch" class="suite-preset-pill" data-preset="arch" title="Seleccionar módulos de Arquitectura, C4, Diagramas, BD y API">
+                                        <i class="fa-solid fa-sitemap"></i> Arquitectura &amp; API
+                                    </button>
+                                    <button type="button" id="btn-preset-sec" class="suite-preset-pill" data-preset="sec" title="Seleccionar módulos de Seguridad, QA, DevOps y Desarrollo">
+                                        <i class="fa-solid fa-shield-halved"></i> DevSecOps &amp; QA
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="category-selector-grid">
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-product" checked>
-                                <span><i class="fa-solid fa-file-contract" style="color:#38BDF8;margin-right:.3rem;"></i> Producto (PRD/SRS)</span>
+                                <div class="cat-card-icon cat-cyan"><i class="fa-solid fa-file-contract"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Producto (PRD/SRS)</span>
+                                    <small class="cat-card-sub">IEEE 830 · Alcance &amp; KPIs</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-architecture" checked>
-                                <span><i class="fa-solid fa-sitemap" style="color:#818CF8;margin-right:.3rem;"></i> Arquitectura (C4)</span>
+                                <div class="cat-card-icon cat-indigo"><i class="fa-solid fa-sitemap"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Arquitectura (C4)</span>
+                                    <small class="cat-card-sub">Contexto · Contenedores</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-diagrams" checked>
-                                <span><i class="fa-solid fa-diagram-project" style="color:#34D399;margin-right:.3rem;"></i> Diagramas UML/ERD</span>
+                                <div class="cat-card-icon cat-emerald"><i class="fa-solid fa-diagram-project"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Diagramas UML/ERD</span>
+                                    <small class="cat-card-sub">Secuencia · Clases · Flujo</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-database" checked>
-                                <span><i class="fa-solid fa-database" style="color:#F59E0B;margin-right:.3rem;"></i> Base de Datos</span>
+                                <div class="cat-card-icon cat-amber"><i class="fa-solid fa-database"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Base de Datos</span>
+                                    <small class="cat-card-sub">Esquemas · Índices &amp; DDL</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-api" checked>
-                                <span><i class="fa-solid fa-network-wired" style="color:#38BDF8;margin-right:.3rem;"></i> API &amp; OpenAPI 3.0</span>
+                                <div class="cat-card-icon cat-cyan"><i class="fa-solid fa-network-wired"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">API &amp; OpenAPI 3.0</span>
+                                    <small class="cat-card-sub">REST · Schemas &amp; Auth</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-development" checked>
-                                <span><i class="fa-solid fa-code" style="color:#818CF8;margin-right:.3rem;"></i> Desarrollo &amp; README</span>
+                                <div class="cat-card-icon cat-indigo"><i class="fa-solid fa-code"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Desarrollo &amp; README</span>
+                                    <small class="cat-card-sub">Setup · Estructura &amp; Guía</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-devops" checked>
-                                <span><i class="fa-solid fa-gears" style="color:#34D399;margin-right:.3rem;"></i> DevOps &amp; CI/CD</span>
+                                <div class="cat-card-icon cat-emerald"><i class="fa-solid fa-gears"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">DevOps &amp; CI/CD</span>
+                                    <small class="cat-card-sub">Docker · Pipelines &amp; SLA</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-qa" checked>
-                                <span><i class="fa-solid fa-vial-circle-check" style="color:#A855F7;margin-right:.3rem;"></i> QA &amp; Test Cases</span>
+                                <div class="cat-card-icon cat-purple"><i class="fa-solid fa-vial-circle-check"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">QA &amp; Test Cases</span>
+                                    <small class="cat-card-sub">Matriz · Unit &amp; E2E</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-security" checked>
-                                <span><i class="fa-solid fa-shield-halved" style="color:#FB7185;margin-right:.3rem;"></i> Auditoría Seguridad</span>
+                                <div class="cat-card-icon cat-rose"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Auditoría Seguridad</span>
+                                    <small class="cat-card-sub">OWASP · STRIDE · SAST</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-adr" checked>
-                                <span><i class="fa-solid fa-scale-balanced" style="color:#FBBF24;margin-right:.3rem;"></i> Decisiones (ADR)</span>
+                                <div class="cat-card-icon cat-amber"><i class="fa-solid fa-scale-balanced"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Decisiones (ADR)</span>
+                                    <small class="cat-card-sub">Trade-offs Técnicos</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                             <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-user" checked>
-                                <span><i class="fa-solid fa-users" style="color:#38BDF8;margin-right:.3rem;"></i> Guía Usuario &amp; FAQ</span>
+                                <div class="cat-card-icon cat-cyan"><i class="fa-solid fa-users"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Guía Usuario &amp; FAQ</span>
+                                    <small class="cat-card-sub">Onboarding &amp; Soporte</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
                         </div>
 
                         <!-- Main Action Button -->
-                        <button type="button" id="btn-run-analysis" class="btn-cyber-primary" style="width:100%;padding:1.1rem;font-size:.95rem;font-weight:800;letter-spacing:.06em;margin-top:1.25rem;">
-                            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.5rem;"></i> GENERAR DOCUMENTACIÓN
+                    </div>
+                    <div class="generate-command-box">
+                            <div class="generate-command-info">
+                                <div class="generate-command-badges">
+                                    <span class="gen-cmd-pill gen-cmd-cyan"><i class="fa-solid fa-microchip"></i> Motor AST + Gemini 2.5</span>
+                                    <span class="gen-cmd-pill gen-cmd-emerald"><i class="fa-solid fa-file-shield"></i> Word · PDF A4 · Mermaid SVG</span>
+                                </div>
+                                <p class="generate-command-desc">Sintetiza entregables ejecutivos, diagramas vectoriales, contratos de API y auditoría SAST listos para producción.</p>
+                            </div>
+                            <button type="button" id="btn-run-analysis" class="btn-cyber-primary">
+                                <span class="btn-gen-icon-wrap"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                                <span class="btn-gen-label">GENERAR DOCUMENTACIÓN</span>
+                                <span class="btn-gen-arrow"><i class="fa-solid fa-arrow-right"></i></span>
                         </button>
                     </div>
 

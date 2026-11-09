@@ -1735,12 +1735,45 @@ document.addEventListener("DOMContentLoaded", () => {
     // 9. Category Selection Checkbox Synchronizer
     // ------------------------------------------------------------
     const categoryCheckboxes = document.querySelectorAll('.category-check-card input[type="checkbox"]');
+    const selectedModulesCounter = document.getElementById('selected-modules-counter');
+    const presetButtons = document.querySelectorAll('.suite-preset-pill');
+
+    function updateSelectedModulesCounter() {
+        if (!selectedModulesCounter) return;
+        const total = categoryCheckboxes.length || 11;
+        let activeCount = 0;
+        categoryCheckboxes.forEach(cb => { if (cb.checked) activeCount++; });
+        selectedModulesCounter.textContent = `${activeCount} / ${total} activos`;
+    }
+
+    function applyCategoryPreset(preset) {
+        const archIds = new Set(['cat-product', 'cat-architecture', 'cat-diagrams', 'cat-database', 'cat-api', 'cat-adr']);
+        const secIds = new Set(['cat-development', 'cat-devops', 'cat-qa', 'cat-security', 'cat-adr']);
+        categoryCheckboxes.forEach(cb => {
+            if (preset === 'all') cb.checked = true;
+            else if (preset === 'arch') cb.checked = archIds.has(cb.id);
+            else if (preset === 'sec') cb.checked = secIds.has(cb.id);
+            const card = cb.closest('.category-check-card');
+            if (card) card.classList.toggle('checked', cb.checked);
+        });
+        presetButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.preset === preset);
+        });
+        updateSelectedModulesCounter();
+    }
+
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            applyCategoryPreset(btn.dataset.preset || 'all');
+        });
+    });
     categoryCheckboxes.forEach(cb => {
         cb.addEventListener('change', () => {
             const card = cb.closest('.category-check-card');
             if (card) {
                 if (cb.checked) card.classList.add('checked');
                 else card.classList.remove('checked');
+                updateSelectedModulesCounter();
             }
         });
     });
@@ -1921,7 +1954,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast(err.message, "error");
         } finally {
             btnRunAnalysis.disabled = false;
-            btnRunAnalysis.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.5rem;"></i> GENERAR DOCUMENTACIÓN';
+            btnRunAnalysis.innerHTML = '<span class="btn-gen-icon-wrap"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span class="btn-gen-label">GENERAR DOCUMENTACIÓN</span><span class="btn-gen-arrow"><i class="fa-solid fa-arrow-right"></i></span>';
         }
     }
 
