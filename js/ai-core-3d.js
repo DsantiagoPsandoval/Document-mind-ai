@@ -223,29 +223,29 @@
         camera.aspect = w / h;
 
         if (w < 340) {
-            camera.position.z = 21.0;
-            nodeSystem.scale.setScalar(0.72);
-            orbitSystem.scale.setScalar(0.75);
-            coreSystem.scale.setScalar(0.80);
-            connectionSystem.scale.setScalar(0.72);
+            camera.position.z = 21.5;
+            nodeSystem.scale.setScalar(0.68);
+            orbitSystem.scale.setScalar(0.70);
+            coreSystem.scale.setScalar(0.74);
+            connectionSystem.scale.setScalar(0.68);
         } else if (w < 480) {
-            camera.position.z = 19.5;
-            nodeSystem.scale.setScalar(0.82);
+            camera.position.z = 20.0;
+            nodeSystem.scale.setScalar(0.76);
+            orbitSystem.scale.setScalar(0.78);
+            coreSystem.scale.setScalar(0.82);
+            connectionSystem.scale.setScalar(0.76);
+        } else if (w < 768) {
+            camera.position.z = 18.5;
+            nodeSystem.scale.setScalar(0.84);
+            orbitSystem.scale.setScalar(0.84);
+            coreSystem.scale.setScalar(0.86);
+            connectionSystem.scale.setScalar(0.84);
+        } else {
+            camera.position.z = 18.0;
+            nodeSystem.scale.setScalar(0.85);
             orbitSystem.scale.setScalar(0.85);
             coreSystem.scale.setScalar(0.88);
-            connectionSystem.scale.setScalar(0.82);
-        } else if (w < 768) {
-            camera.position.z = 17.5;
-            nodeSystem.scale.setScalar(0.92);
-            orbitSystem.scale.setScalar(0.92);
-            coreSystem.scale.setScalar(0.92);
-            connectionSystem.scale.setScalar(0.92);
-        } else {
-            camera.position.z = 16.0;
-            nodeSystem.scale.setScalar(1.0);
-            orbitSystem.scale.setScalar(1.0);
-            coreSystem.scale.setScalar(1.0);
-            connectionSystem.scale.setScalar(1.0);
+            connectionSystem.scale.setScalar(0.85);
         }
 
         camera.updateProjectionMatrix();
@@ -747,23 +747,29 @@
         if (!tooltip) return;
         var wrapRect = wrapper.getBoundingClientRect();
         var tipRect = tooltip.getBoundingClientRect();
-        var halfW = (tipRect.width || 200) / 2;
+        var tipW = tipRect.width || 250;
+        var tipH = tipRect.height || 140;
+        var halfW = tipW / 2;
 
-        var absX = wrapRect.left + lx;
-        var absY = wrapRect.top + ly;
+        var wrapW = wrapRect.width || 440;
+        var wrapH = wrapRect.height || 440;
 
-        var clampedX = lx;
-        if (absX - halfW < 12) {
-            clampedX += (12 - (absX - halfW));
-        } else if (absX + halfW > window.innerWidth - 12) {
-            clampedX -= ((absX + halfW) - (window.innerWidth - 12));
+        // Horizontally clamp inside canvas with 12px margin
+        var clampedX = Math.max(halfW + 12, Math.min(wrapW - halfW - 12, lx));
+
+        // Vertically: prefer above node
+        var clampedY = ly - 36;
+        // If it goes above top edge, place below node
+        if (clampedY - tipH < 12) {
+            clampedY = ly + tipH + 36;
+        }
+        // If it still goes beyond bottom, clamp to bottom edge
+        if (clampedY > wrapH - 12) {
+            clampedY = wrapH - 12;
         }
 
-        var clampedY = ly - 32;
-        if (absY - 140 < 10) {
-            clampedY = ly + 40;
-        }
-
+        tooltip.style.left = '0px';
+        tooltip.style.top = '0px';
         tooltip.style.transform = 'translate(-50%, -100%) translate(' + clampedX.toFixed(1) + 'px, ' + clampedY.toFixed(1) + 'px)';
     }
 
@@ -1098,7 +1104,9 @@
                 var screenPos = node.group.position.clone().project(camera);
                 var lx = (screenPos.x * 0.5 + 0.5) * w;
                 var ly = (-(screenPos.y * 0.5) + 0.5) * h;
-                node.labelEl.style.transform = 'translate(-50%, 28px) translate(' + lx.toFixed(1) + 'px, ' + ly.toFixed(1) + 'px)';
+                var isNodeActive = isHovered || (node.labelEl && node.labelEl.classList.contains('active'));
+                var scaleCss = isNodeActive ? ' scale(1.10)' : '';
+                node.labelEl.style.transform = 'translate(-50%, 28px) translate(' + lx.toFixed(1) + 'px, ' + ly.toFixed(1) + 'px)' + scaleCss;
                 node.labelEl.style.opacity = (screenPos.z > 1.0 || !modeMatches) ? '0.2' : '1';
 
                 if (isStageActive && !isHovered) {

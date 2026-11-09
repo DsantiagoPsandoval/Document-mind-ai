@@ -1069,8 +1069,8 @@ img, svg, video, canvas {
 .ai-3d-node-label:hover, .ai-3d-node-label.active {
     color: #FFFFFF;
     border-color: #38BDF8;
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
-    transform: translate(-50%, -50%) scale(1.08) !important;
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.65);
+    z-index: 25;
 }
 .ai-3d-node-label .node-dot {
     width: 0.45rem;
@@ -1091,100 +1091,115 @@ img, svg, video, canvas {
 }
 
 /* ===== 3D COMPONENT ENHANCEMENTS & SCI-FI HOLOGRAPHIC HUD ===== */
-@media (max-width: 640px) {
-    .ai-hud-subnav {
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: 0.35rem !important;
-        padding: 0.4rem 0.5rem !important;
-    }
-    .ai-hud-subnav > div {
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-    }
-    .ai-mode-btn {
-        font-size: 0.58rem !important;
-        padding: 0.18rem 0.45rem !important;
-    }
-    .ai-pulse-trigger {
-        font-size: 0.58rem !important;
-        padding: 0.18rem 0.5rem !important;
-    }
-}
 .ai-hud-subnav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.4rem;
-    padding: 0.45rem 0.85rem;
-    background: rgba(9, 13, 22, 0.95);
+    gap: 0.35rem;
+    padding: 0.35rem 0.65rem;
+    background: rgba(9, 13, 22, 0.96);
     border-left: 1px solid rgba(129, 140, 248, 0.22);
     border-right: 1px solid rgba(129, 140, 248, 0.22);
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    overflow-x: auto;
+    font-size: 0.62rem;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.ai-hud-modes-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
 }
 .ai-mode-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.22rem 0.6rem;
-    border-radius: 0.35rem;
-    background: rgba(15, 23, 42, 0.8);
+    justify-content: center;
+    gap: 0.28rem;
+    padding: 0.2rem 0.48rem;
+    border-radius: 0.32rem;
+    background: rgba(15, 23, 42, 0.85);
     border: 1px solid rgba(129, 140, 248, 0.2);
     color: #94A3B8;
     cursor: pointer;
     white-space: nowrap;
+    font-size: 0.61rem;
+    font-weight: 600;
+    line-height: 1.2;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ai-mode-btn:hover {
     color: #F8FAFC;
     border-color: rgba(56, 189, 248, 0.4);
-    background: rgba(56, 189, 248, 0.1);
+    background: rgba(56, 189, 248, 0.12);
 }
 .ai-mode-btn.active {
     color: #38BDF8;
     border-color: #38BDF8;
-    background: rgba(56, 189, 248, 0.16);
-    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    background: rgba(56, 189, 248, 0.18);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.28);
     font-weight: 700;
 }
 .ai-pulse-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.22rem 0.65rem;
-    border-radius: 0.35rem;
-    background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(129,140,248,0.2));
-    border: 1px solid rgba(56, 189, 248, 0.5);
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.52rem;
+    border-radius: 0.32rem;
+    background: linear-gradient(135deg, rgba(56,189,248,0.22), rgba(129,140,248,0.22));
+    border: 1px solid rgba(56, 189, 248, 0.55);
     color: #38BDF8;
     cursor: pointer;
     font-weight: 800;
     white-space: nowrap;
+    font-size: 0.61rem;
+    flex-shrink: 0;
     transition: all 0.2s ease;
     animation: pulseBorder 2.4s infinite;
 }
 .ai-pulse-trigger:hover {
     transform: translateY(-1px);
-    background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(129,140,248,0.35));
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+    background: linear-gradient(135deg, rgba(56,189,248,0.38), rgba(129,140,248,0.38));
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
     color: #FFFFFF;
+}
+
+@media (max-width: 640px) {
+    .ai-hud-subnav {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.35rem !important;
+        padding: 0.35rem 0.5rem !important;
+    }
+    .ai-hud-modes-wrapper {
+        justify-content: center !important;
+    }
+    .ai-mode-btn {
+        font-size: 0.56rem !important;
+        padding: 0.18rem 0.4rem !important;
+    }
+    .ai-pulse-trigger {
+        font-size: 0.56rem !important;
+        padding: 0.18rem 0.45rem !important;
+    }
 }
 
 /* Hologram HUD Tooltip */
 .ai-hologram-hud {
     position: absolute;
+    top: 0;
+    left: 0;
     pointer-events: none;
     display: none;
     z-index: 100;
-    max-width: 290px;
+    max-width: 275px;
     width: max-content;
-    will-change: transform;
-    animation: hologramAppear 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes hologramAppear {
-    from { opacity: 0; transform: translate(-50%, -90%) scale(0.92); }
-    to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+    will-change: transform, opacity;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ai-hologram-inner {
     background: rgba(10, 16, 30, 0.94);
