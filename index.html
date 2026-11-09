@@ -47,9 +47,11 @@
                 <ul class="nav-links">
                     <li><a href="#como-funciona" class="nav-link" data-section="como-funciona">Cómo funciona</a></li>
                     <li><a href="#solucion" class="nav-link" data-section="solucion">Solución</a></li>
+                    <li><a href="#empresas-seguridad" class="nav-link" data-section="empresas-seguridad">Empresas</a></li>
                     <li><a href="#analizador" class="nav-link" data-section="analizador">Analizador</a></li>
+                    <li><a href="#planes" class="nav-link" data-section="planes">Planes &amp; Precios</a></li>
+                    <li><a href="#faq" class="nav-link" data-section="faq">FAQ</a></li>
                     <li><a href="/simulador" target="_blank" rel="noopener noreferrer" class="nav-link" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.35rem;font-size:.75rem;"></i>Simulador <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
-                    <li><a href="#equipo" class="nav-link" data-section="equipo">Equipo</a></li>
                     <li><a href="#contacto" class="nav-link" data-section="contacto">Contacto</a></li>
                 </ul>
             </nav>
@@ -65,8 +67,11 @@
                     <span>Servicios</span>
                 </button>
 
-                <!-- Guest State: Iniciar Sesión Button -->
-                <div id="nav-auth-guest" style="display:inline-flex;align-items:center;">
+                <!-- Guest State: Comenzar Gratis + Iniciar Sesión Buttons -->
+                <div id="nav-auth-guest" style="display:inline-flex;align-items:center;gap:.45rem;">
+                    <a href="#analizador" class="btn-cyber-outline" style="padding:.4rem .9rem;font-size:.78rem;border-radius:9999px;">
+                        <i class="fa-solid fa-bolt" style="font-size:.7rem;margin-right:.35rem;color:var(--tech-cyan);"></i>Comenzar Gratis
+                    </a>
                     <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.42rem 1.1rem;font-size:.8rem;border-radius:9999px;">
                         <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.45rem;"></i>Iniciar Sesión
                     </button>
@@ -118,11 +123,14 @@
     <!-- Mobile Drawer Navigation -->
     <nav id="mobile-menu" class="hidden" aria-label="Menú móvil">
         <a href="#como-funciona" class="mobile-nav-link"><i class="fa-solid fa-network-wired" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Cómo funciona</a>
-        <a href="#solucion" class="mobile-nav-link"><i class="fa-solid fa-cube" style="color:var(--indigo-glow);margin-right:.4rem;"></i>Solución</a>
+        <a href="#solucion" class="mobile-nav-link"><i class="fa-solid fa-cube" style="color:var(--indigo-glow);margin-right:.4rem;"></i>Solución Técnica</a>
+        <a href="#empresas-seguridad" class="mobile-nav-link"><i class="fa-solid fa-shield-halved" style="color:#38BDF8;margin-right:.4rem;"></i>Empresas &amp; Seguridad</a>
         <a href="#analizador" class="mobile-nav-link"><i class="fa-solid fa-brain" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Analizador</a>
+        <a href="#planes" class="mobile-nav-link"><i class="fa-solid fa-tags" style="color:#F59E0B;margin-right:.4rem;"></i>Planes &amp; Precios</a>
+        <a href="#faq" class="mobile-nav-link"><i class="fa-solid fa-circle-question" style="color:#818CF8;margin-right:.4rem;"></i>FAQ</a>
         <a href="/simulador" target="_blank" rel="noopener noreferrer" class="mobile-nav-link" style="color:#34D399;font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.4rem;"></i>Simulador de Ingeniería <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.7rem;margin-left:.35rem;opacity:.8;"></i></a>
         <a href="#equipo" class="mobile-nav-link"><i class="fa-solid fa-users" style="color:#94A3B8;margin-right:.4rem;"></i>Equipo</a>
-        <a href="#contacto" class="mobile-nav-link"><i class="fa-solid fa-envelope" style="color:#94A3B8;margin-right:.4rem;"></i>Contacto</a>
+        <a href="#contacto" class="mobile-nav-link"><i class="fa-solid fa-envelope" style="color:#94A3B8;margin-right:.4rem;"></i>Contacto &amp; Ventas</a>
 
         <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.5rem 0;padding-top:0.5rem;display:flex;flex-direction:column;gap:0.35rem;">
             <button type="button" id="btn-mobile-open-tour" class="mobile-nav-link" style="background:transparent;border:none;cursor:pointer;width:100%;text-align:left;color:#38BDF8;">
@@ -172,7 +180,7 @@
                     <div style="margin-bottom:1.25rem;" class="reveal">
                         <span class="badge badge-cyan">
                             <i class="fa-solid fa-microchip"></i>
-                            IA para Desarrolladores &bull; Cohorte 2026
+                            DocuMind AI Enterprise 2.0 &bull; Arquitectura Viva &amp; Sincronización Continua
                         </span>
                     </div>
 
@@ -181,40 +189,50 @@
                     </h1>
 
                     <p style="font-size:clamp(.98rem,1.35vw,1.12rem);color:#CBD5E1;line-height:1.75;max-width:540px;margin-bottom:2rem;font-weight:400;" class="reveal reveal-delay-2">
-                        Transforma cualquier repositorio en documentación técnica inteligente, estructurada y sincronizada automáticamente en cada <code style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);padding:.15rem .45rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#818CF8;">git push</code>.
+                        Convierte cualquier repositorio en documentación técnica viva, diagramas C4, contratos OpenAPI, modelos de datos y auditorías SAST con calidad editorial en Word y PDF, sincronizados automáticamente en cada <code style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);padding:.15rem .45rem;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.82em;color:#818CF8;">git push</code>.
                     </p>
 
                     <!-- CTAs with Analyze Repository sequence trigger -->
-                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.85rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
-                        <a href="#analizador" id="btn-hero-analyze" class="btn-cyber" style="padding:.85rem 1.85rem;font-size:.92rem;">
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
+                        <a href="#analizador" id="btn-hero-analyze" class="btn-cyber" style="padding:.85rem 1.65rem;font-size:.92rem;">
                             <i class="fa-solid fa-play" style="margin-right:.5rem;font-size:.75rem;"></i>
-                            Analizar repositorio
+                            Comenzar gratis
                         </a>
-                        <a href="#como-funciona" class="btn-cyber-outline" style="padding:.85rem 1.65rem;font-size:.92rem;">
-                            <i class="fa-solid fa-compass" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
-                            Ver cómo funciona
+                        <a href="#planes" class="btn-cyber-outline" style="padding:.85rem 1.45rem;font-size:.92rem;">
+                            <i class="fa-solid fa-tags" style="margin-right:.5rem;color:#F59E0B;font-size:.75rem;"></i>
+                            Ver Planes y Precios
+                        </a>
+                        <a href="#como-funciona" class="btn-ghost" style="padding:.85rem 1.25rem;font-size:.92rem;color:#94A3B8;">
+                            <i class="fa-solid fa-circle-play" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.75rem;"></i>
+                            Cómo funciona
                         </a>
                     </div>
 
-                    <!-- Discrete Live-Statistic / Trust Cards -->
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));gap:0.75rem;width:100%;max-width:540px;" class="reveal reveal-delay-4">
-                        <div style="padding:0.75rem 0.9rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(56,189,248,0.18);backdrop-filter:blur(10px);">
-                            <div style="font-size:0.78rem;font-weight:700;color:var(--tech-cyan);display:flex;align-items:center;gap:0.35rem;">
+                    <!-- Discrete Live-Statistic / Trust Cards (4 Enterprise Cards) -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:0.65rem;width:100%;max-width:560px;" class="reveal reveal-delay-4">
+                        <div style="padding:0.75rem 0.85rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(56,189,248,0.18);backdrop-filter:blur(10px);">
+                            <div style="font-size:0.76rem;font-weight:700;color:var(--tech-cyan);display:flex;align-items:center;gap:0.35rem;">
                                 <i class="fa-solid fa-code"></i> 100% AST Estático
                             </div>
-                            <div style="font-size:0.68rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">Sin compilar código, seguro y sin dependencias.</div>
+                            <div style="font-size:0.66rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">Sin compilar código, seguro y sin riesgos.</div>
                         </div>
-                        <div style="padding:0.75rem 0.9rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(52,211,153,0.18);backdrop-filter:blur(10px);">
-                            <div style="font-size:0.78rem;font-weight:700;color:#34D399;display:flex;align-items:center;gap:0.35rem;">
+                        <div style="padding:0.75rem 0.85rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(129,140,248,0.18);backdrop-filter:blur(10px);">
+                            <div style="font-size:0.76rem;font-weight:700;color:#818CF8;display:flex;align-items:center;gap:0.35rem;">
+                                <i class="fa-solid fa-memory"></i> Zero Retention
+                            </div>
+                            <div style="font-size:0.66rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">Procesamiento efímero en memoria RAM.</div>
+                        </div>
+                        <div style="padding:0.75rem 0.85rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(52,211,153,0.18);backdrop-filter:blur(10px);">
+                            <div style="font-size:0.76rem;font-weight:700;color:#34D399;display:flex;align-items:center;gap:0.35rem;">
                                 <i class="fa-solid fa-shield-halved"></i> Seguridad SAST
                             </div>
-                            <div style="font-size:0.68rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">Auditoría ASVS, STRIDE y Secret Scanning.</div>
+                            <div style="font-size:0.66rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">Auditoría ASVS, STRIDE y Secret Scanning.</div>
                         </div>
-                        <div style="padding:0.75rem 0.9rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(129,140,248,0.18);backdrop-filter:blur(10px);">
-                            <div style="font-size:0.78rem;font-weight:700;color:#818CF8;display:flex;align-items:center;gap:0.35rem;">
-                                <i class="fa-solid fa-layer-group"></i> 10 Motores
+                        <div style="padding:0.75rem 0.85rem;border-radius:0.65rem;background:rgba(15,23,42,0.6);border:1px solid rgba(245,158,11,0.18);backdrop-filter:blur(10px);">
+                            <div style="font-size:0.76rem;font-weight:700;color:#F59E0B;display:flex;align-items:center;gap:0.35rem;">
+                                <i class="fa-solid fa-file-word"></i> Word &amp; PDF A4
                             </div>
-                            <div style="font-size:0.68rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">C4, OpenAPI, Arquitectura, PRD y Guías.</div>
+                            <div style="font-size:0.66rem;color:#94A3B8;margin-top:0.25rem;line-height:1.35;">11 motores y formato editorial nativo.</div>
                         </div>
                     </div>
                 </div>
@@ -436,6 +454,104 @@
                             <i class="fa-solid fa-circle-check" style="color:#34D399;"></i>Documentación y OpenAPI sincronizados en 1.8s (0 drift).
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         EMPRESAS & SEGURIDAD CORPORATIVA (ENTERPRISE TRUST)
+    ============================================================ -->
+    <section id="empresas-seguridad" style="padding:6rem 0;position:relative;background:linear-gradient(180deg, rgba(15,23,42,0.6) 0%, rgba(9,13,22,0.95) 100%);border-top:1px solid rgba(56,189,248,0.12);border-bottom:1px solid rgba(129,140,248,0.12);">
+        <div class="container">
+            <div style="text-align:center;max-width:720px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-shield-halved"></i> Seguridad Enterprise &amp; Cumplimiento
+                </span>
+                <h2 class="section-title">Confidencialidad, Cero Retención y <span class="gradient-text">Gobernanza de Código</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.75;font-size:1rem;">
+                    Diseñado para responder a los estándares más rigurosos de CISOs, directores de tecnología y comités de seguridad de la información.
+                </p>
+            </div>
+
+            <div class="enterprise-grid reveal reveal-delay-1">
+                <!-- Card 1: Zero Retention -->
+                <div class="enterprise-card glow-card">
+                    <div class="enterprise-icon-wrapper" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.25);color:var(--tech-cyan);">
+                        <i class="fa-solid fa-memory"></i>
+                    </div>
+                    <h3 class="enterprise-card-title">Procesamiento Efímero en Memoria</h3>
+                    <p class="enterprise-card-desc">
+                        Tu código fuente se parsea exclusivamente en memoria volátil de ejecución y se destruye una vez culminada la extracción AST. <strong>Nunca se almacena en bases de datos externas ni se utiliza para entrenar modelos públicos de IA</strong>.
+                    </p>
+                    <div class="enterprise-badge-pill" style="color:#38BDF8;background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.2);">
+                        <i class="fa-solid fa-lock"></i> Zero Data Retention Verified
+                    </div>
+                </div>
+
+                <!-- Card 2: BYOK -->
+                <div class="enterprise-card glow-card">
+                    <div class="enterprise-icon-wrapper" style="background:rgba(129,140,248,0.1);border-color:rgba(129,140,248,0.25);color:#818CF8;">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <h3 class="enterprise-card-title">Arquitectura BYOK (Bring Your Own Key)</h3>
+                    <p class="enterprise-card-desc">
+                        Integra tus propias credenciales corporativas de Gemini Enterprise, Google Vertex AI, Azure OpenAI o tus modelos locales con Ollama. El cómputo y la facturación de inferencia permanecen 100% bajo tus acuerdos de nube existentes.
+                    </p>
+                    <div class="enterprise-badge-pill" style="color:#818CF8;background:rgba(129,140,248,0.08);border-color:rgba(129,140,248,0.2);">
+                        <i class="fa-solid fa-server"></i> Gemini &bull; Azure &bull; Vertex &bull; Ollama
+                    </div>
+                </div>
+
+                <!-- Card 3: 85% Savings -->
+                <div class="enterprise-card glow-card">
+                    <div class="enterprise-icon-wrapper" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.25);color:#34D399;">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <h3 class="enterprise-card-title">Ahorro del 85% en Horas de Arquitectura</h3>
+                    <p class="enterprise-card-desc">
+                        Elimina semanas de documentación manual desactualizada. Los arquitectos Senior pueden concentrarse en diseñar soluciones de alto impacto mientras DocuMind AI mantiene los diagramas C4 y contratos OpenAPI al día.
+                    </p>
+                    <div class="enterprise-badge-pill" style="color:#34D399;background:rgba(52,211,153,0.08);border-color:rgba(52,211,153,0.2);">
+                        <i class="fa-solid fa-arrow-trend-up"></i> Retorno de Inversión Inmediato
+                    </div>
+                </div>
+
+                <!-- Card 4: Compliance -->
+                <div class="enterprise-card glow-card">
+                    <div class="enterprise-icon-wrapper" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.25);color:#F59E0B;">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <h3 class="enterprise-card-title">Auditorías SAST &amp; Cumplimiento ISO/SOC</h3>
+                    <p class="enterprise-card-desc">
+                        Generación automática de matrices de riesgo STRIDE, controles ASVS y escaneo de credenciales expuestas en cada versión de software, listos para auditorías regulatorias y due diligence técnico corporativo.
+                    </p>
+                    <div class="enterprise-badge-pill" style="color:#F59E0B;background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.2);">
+                        <i class="fa-solid fa-certificate"></i> OWASP &bull; ASVS &bull; STRIDE &bull; ISO 27001
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enterprise Trust Bar -->
+            <div class="enterprise-trust-banner reveal reveal-delay-2">
+                <div class="trust-metric">
+                    <span class="trust-number">99.9%</span>
+                    <span class="trust-label">SLA de Disponibilidad</span>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-metric">
+                    <span class="trust-number">TLS 1.3 / AES-256</span>
+                    <span class="trust-label">Cifrado de Extremo a Extremo</span>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-metric">
+                    <span class="trust-number">100% AST</span>
+                    <span class="trust-label">Análisis Seguro sin Ejecutar Código</span>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-metric">
+                    <span class="trust-number">&lt; 48 Horas</span>
+                    <span class="trust-label">Onboarding para Nuevos Devs</span>
                 </div>
             </div>
         </div>
@@ -1719,6 +1835,318 @@
     </section>
 
     <!-- ============================================================
+         PLANES Y PRECIOS EMPRESARIALES (SAAS PRICING)
+    ============================================================ -->
+    <section id="planes" class="section-alt" style="padding:6rem 0;position:relative;">
+        <div class="container">
+            <div style="text-align:center;max-width:740px;margin:0 auto 3rem;" class="reveal">
+                <span class="badge badge-purple" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-tags"></i> Planes Transparentes
+                </span>
+                <h2 class="section-title">Elige el plan adecuado para <span class="gradient-text">escalar tu ingeniería</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
+                    Comienza gratis con proyectos públicos o potencia tu equipo con análisis de repos privados, exportaciones ejecutivas Word/PDF y automatización en Pull Requests.
+                </p>
+
+                <!-- Billing Cycle Selector (Monthly / Annual) -->
+                <div class="pricing-toggle-wrapper">
+                    <button type="button" id="billing-btn-monthly" class="pricing-toggle-btn active" onclick="setBillingCycle('monthly')">
+                        Facturación Mensual
+                    </button>
+                    <button type="button" id="billing-btn-annual" class="pricing-toggle-btn" onclick="setBillingCycle('annual')">
+                        Facturación Anual <span class="pricing-save-badge">Ahorra 20%</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pricing Cards Grid -->
+            <div class="pricing-grid reveal reveal-delay-1">
+                
+                <!-- Plan 1: Free -->
+                <div class="pricing-card glow-card">
+                    <div class="pricing-card-header">
+                        <div class="plan-badge-type">Developer</div>
+                        <h3 class="plan-name">Plan Free</h3>
+                        <p class="plan-desc">Para desarrolladores individuales y proyectos open source.</p>
+                        <div class="plan-price-box">
+                            <span class="plan-currency">$</span>
+                            <span class="plan-amount" data-monthly="0" data-annual="0">0</span>
+                            <span class="plan-period">/ mes</span>
+                        </div>
+                        <div class="plan-billed-note">Sin costo para siempre</div>
+                    </div>
+
+                    <div class="pricing-card-divider"></div>
+
+                    <ul class="plan-features-list">
+                        <li><i class="fa-solid fa-check feature-check"></i> Hasta 3 repositorios públicos al mes</li>
+                        <li><i class="fa-solid fa-check feature-check"></i> Análisis estático AST en tiempo real</li>
+                        <li><i class="fa-solid fa-check feature-check"></i> Suite documental estándar (4 módulos)</li>
+                        <li><i class="fa-solid fa-check feature-check"></i> Exportación en Markdown y HTML limpio</li>
+                        <li><i class="fa-solid fa-check feature-check"></i> Chat contextual de código (límite básico)</li>
+                        <li><i class="fa-solid fa-check feature-check"></i> Historial local en navegador</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Repositorios privados</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Exportación Word (.docx) y PDF A4</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Webhooks en Pull Requests</li>
+                    </ul>
+
+                    <div class="plan-cta-container">
+                        <a href="#analizador" class="btn-cyber-outline" style="width:100%;justify-content:center;padding:.85rem;">
+                            Comenzar Gratis
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Plan 2: Pro (Featured / Popular) -->
+                <div class="pricing-card glow-card pricing-card-featured">
+                    <div class="pricing-popular-pill">
+                        <i class="fa-solid fa-crown" style="margin-right:.35rem;"></i> Más Popular
+                    </div>
+                    <div class="pricing-card-header">
+                        <div class="plan-badge-type" style="color:var(--tech-cyan);">Profesional</div>
+                        <h3 class="plan-name">Plan Pro</h3>
+                        <p class="plan-desc">Para Tech Leads, consultores de software y startups.</p>
+                        <div class="plan-price-box">
+                            <span class="plan-currency">$</span>
+                            <span class="plan-amount" id="plan-pro-price" data-monthly="29" data-annual="23">29</span>
+                            <span class="plan-period">/ mes</span>
+                        </div>
+                        <div class="plan-billed-note" id="plan-pro-billed">Facturado mensualmente ($29 USD)</div>
+                    </div>
+
+                    <div class="pricing-card-divider"></div>
+
+                    <ul class="plan-features-list">
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> <strong>Repositorios privados y públicos ilimitados</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> <strong>Exportación Word (.docx) y PDF editorial A4</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Suite completa de 11 motores documentales</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Diagramas C4 y de secuencia interactivos</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Análisis profundo de impacto (Blast Radius)</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Chat RAG ilimitado con memoria semántica</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Sincronización en la nube con Supabase DB</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Soporte prioritario por correo (SLA 24h)</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Multi-tenancy para organizaciones</li>
+                    </ul>
+
+                    <div class="plan-cta-container">
+                        <button type="button" id="btn-select-plan-pro" class="btn-cyber" style="width:100%;justify-content:center;padding:.85rem;font-weight:700;">
+                            <i class="fa-solid fa-bolt" style="margin-right:.45rem;"></i> Suscribirse al Plan Pro
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plan 3: Enterprise -->
+                <div class="pricing-card glow-card">
+                    <div class="pricing-card-header">
+                        <div class="plan-badge-type" style="color:#818CF8;">Corporativo</div>
+                        <h3 class="plan-name">Plan Enterprise</h3>
+                        <p class="plan-desc">Para empresas, software factories, fintechs y bancos.</p>
+                        <div class="plan-price-box">
+                            <span class="plan-currency">$</span>
+                            <span class="plan-amount" id="plan-enterprise-price" data-monthly="499" data-annual="399">499</span>
+                            <span class="plan-period">/ mes</span>
+                        </div>
+                        <div class="plan-billed-note" id="plan-enterprise-billed">Hasta 20 arquitectos incluidos</div>
+                    </div>
+
+                    <div class="pricing-card-divider"></div>
+
+                    <ul class="plan-features-list">
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Todo lo incluido en el Plan Pro</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Sincronización en Pull Requests (GitHub Webhooks)</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Organizaciones y Control de Acceso RBAC</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Marca Blanca: Logotipo y portada corporativa</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Seguridad BYOK (Bring Your Own Key)</strong></li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> Flujo de firmas y aprobación de arquitectura</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> Facturación corporativa local (Wompi, PSE, Tarjeta)</li>
+                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> SLA 99.9% y gestor técnico dedicado 24/7</li>
+                    </ul>
+
+                    <div class="plan-cta-container">
+                        <a href="#contacto" class="btn-cyber-outline" style="width:100%;justify-content:center;padding:.85rem;border-color:rgba(129,140,248,0.5);color:#818CF8;">
+                            <i class="fa-solid fa-building" style="margin-right:.45rem;"></i> Contactar a Ventas
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Feature Comparison Matrix (Collapsible / Expandable) -->
+            <div class="pricing-comparison-box reveal reveal-delay-2">
+                <div class="comparison-header" onclick="togglePricingComparison()">
+                    <div style="display:flex;align-items:center;gap:.75rem;">
+                        <i class="fa-solid fa-table-list" style="color:var(--tech-cyan);"></i>
+                        <h4 style="font-size:.95rem;font-weight:700;color:#F8FAFC;">Ver tabla comparativa detallada de características</h4>
+                    </div>
+                    <i id="comparison-toggle-icon" class="fa-solid fa-chevron-down" style="font-size:.8rem;color:#94A3B8;transition:transform .3s;"></i>
+                </div>
+                <div id="pricing-comparison-table-wrapper" class="comparison-content hidden">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">Capacidad de la Plataforma</th>
+                                <th style="text-align:center;">Free</th>
+                                <th style="text-align:center;color:var(--tech-cyan);">Pro</th>
+                                <th style="text-align:center;color:#818CF8;">Enterprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Repositorios públicos analizados</td>
+                                <td align="center">3 / mes</td>
+                                <td align="center" style="color:var(--tech-cyan);font-weight:700;">Ilimitados</td>
+                                <td align="center" style="color:#818CF8;font-weight:700;">Ilimitados</td>
+                            </tr>
+                            <tr>
+                                <td>Conexión a repositorios privados (GitHub)</td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Exportación en Word (.docx) y PDF A4</td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i> (Solo MD/HTML)</td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Formato editorial</td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Marca blanca</td>
+                            </tr>
+                            <tr>
+                                <td>Diagramas C4 y Secuencia vectoriales</td>
+                                <td align="center">Básicos</td>
+                                <td align="center" style="color:var(--tech-cyan);font-weight:700;">Interactivos + Zoom</td>
+                                <td align="center" style="color:#818CF8;font-weight:700;">Interactivos + Blast Radius</td>
+                            </tr>
+                            <tr>
+                                <td>Análisis de impacto (Blast Radius Analysis)</td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Webhooks de GitHub en Pull Requests</td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Sincronización continua</td>
+                            </tr>
+                            <tr>
+                                <td>Organizaciones y Roles (RBAC)</td>
+                                <td align="center">1 Usuario</td>
+                                <td align="center">1 Usuario</td>
+                                <td align="center" style="color:#818CF8;font-weight:700;">Multiusuario (Equipos)</td>
+                            </tr>
+                            <tr>
+                                <td>Seguridad BYOK (Trae tu propia clave)</td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
+                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
+                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Gemini / Azure / Ollama</td>
+                            </tr>
+                            <tr>
+                                <td>SLA de Disponibilidad y Soporte</td>
+                                <td align="center">Comunidad</td>
+                                <td align="center">Email 24h</td>
+                                <td align="center" style="color:#818CF8;font-weight:700;">99.9% + Soporte 24/7</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payment Security Note -->
+            <div style="margin-top:2.5rem;text-align:center;font-size:.78rem;color:#64748B;" class="reveal">
+                <i class="fa-solid fa-shield-halved" style="color:var(--tech-cyan);margin-right:.4rem;"></i>
+                Pagos seguros procesados con cifrado bancario PCI-DSS nivel 1. Aceptamos tarjetas de crédito, débito y PSE.
+                <a href="#contacto" style="color:var(--tech-cyan);text-decoration:underline;margin-left:.35rem;">¿Requieres facturación con orden de compra? Habla con nuestro equipo.</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PREGUNTAS FRECUENTES EMPRESARIALES (FAQ)
+    ============================================================ -->
+    <section id="faq" style="padding:6rem 0;position:relative;background:rgba(9,13,22,0.6);">
+        <div class="container">
+            <div style="text-align:center;max-width:700px;margin:0 auto 3.5rem;" class="reveal">
+                <span class="badge badge-cyan" style="margin-bottom:1rem;">
+                    <i class="fa-solid fa-circle-question"></i> Respuestas Claras
+                </span>
+                <h2 class="section-title">Preguntas Frecuentes de <span class="gradient-text">Ingeniería y Negocio</span></h2>
+                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
+                    Todo lo que necesitas saber sobre confidencialidad de código, integración en pipelines, exportación de documentos y modelos de contratación.
+                </p>
+            </div>
+
+            <div class="faq-container reveal reveal-delay-1" style="max-width:820px;margin:0 auto;">
+                
+                <!-- FAQ 1 -->
+                <details class="faq-accordion-item">
+                    <summary class="faq-question">
+                        <span>¿DocuMind AI guarda mi código fuente o entrena a los modelos con mi propiedad intelectual?</span>
+                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        <p><strong>No, bajo ninguna circunstancia.</strong> DocuMind AI utiliza un modelo de procesamiento efímero en memoria volátil de ejecución. El código fuente es procesado para extraer el árbol sintáctico (AST) y los metadatos de arquitectura, y los archivos temporales se purgan de inmediato. Ningún dato de cliente es retenido en reposo ni compartido con modelos públicos para fines de re-entrenamiento.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ 2 -->
+                <details class="faq-accordion-item">
+                    <summary class="faq-question">
+                        <span>¿Cómo funciona la conexión con repositorios privados en GitHub?</span>
+                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>La conexión se realiza mediante una GitHub App certificada con alcances mínimos estrictos de solo lectura (<code>contents:read</code>). Nunca solicitamos permisos de escritura, administración ni acceso a secretos del repositorio. La comunicación se realiza cifrada vía TLS 1.3 y los tokens temporales se administran de forma segura en el servidor, revocables en cualquier momento con un clic.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ 3 -->
+                <details class="faq-accordion-item">
+                    <summary class="faq-question">
+                        <span>¿En qué se diferencian las exportaciones Word y PDF de una respuesta común de chat de IA?</span>
+                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>A diferencia de volcados de texto plano o Markdown sin formato, nuestro motor editorial A4 compila documentos técnicos formales bajo estándares IEEE y corporativos: incluye portada institucional, tabla de contenido navegable, numeración automática de páginas, diagramas vectoriales en alta definición, tablas técnicas formateadas y anexos de seguridad SAST, listos para entregar a clientes o comités de auditoría.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ 4 -->
+                <details class="faq-accordion-item">
+                    <summary class="faq-question">
+                        <span>¿Puedo traer mi propia clave de IA corporativa (BYOK)?</span>
+                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Sí. En el <strong>Plan Enterprise</strong> dispones del panel BYOK (Bring Your Own Key) para conectar tus API Keys de Google Gemini Enterprise, Google Vertex AI, Azure OpenAI o tus modelos locales desplegados en Ollama. De esta manera, el procesamiento de IA corre bajo tus propios acuerdos y facturación directa con el proveedor de nube.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ 5 -->
+                <details class="faq-accordion-item">
+                    <summary class="faq-question">
+                        <span>¿Qué pasarelas y métodos de pago aceptan en Colombia y Latinoamérica?</span>
+                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Procesamos pagos mediante pasarelas con certificación bancaria PCI-DSS nivel 1 (Wompi y Mercado Pago). Admitimos tarjetas de crédito internacionales (Visa, MasterCard, Amex), tarjetas débito, PSE para pagos bancarios directos y facturación electrónica para empresas que requieran orden de compra institucional.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ 6 -->
+                <details class="faq-accordion-item">
+                    <summary class="faq-question">
+                        <span>¿Cómo automatiza DocuMind AI la documentación en cada Pull Request?</span>
+                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Cuando un desarrollador abre un Pull Request en GitHub, nuestro webhook analiza el diff del código fuente, detecta qué rutas de API, esquemas de bases de datos o diagramas se ven afectados y genera un comentario automático en el PR resumiendo el impacto técnico y proponiendo la actualización documental correspondiente, evitando el temido desfase arquitectónico (drift).</p>
+                    </div>
+                </details>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
          7. METRICAS Y ANALITICA REAL
     ============================================================ -->
     <section id="metricas" style="padding:6rem 0;">
@@ -1914,13 +2342,14 @@
                 <div>
                     <h5 style="font-size:.7rem;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:1.25rem;">Navegacion</h5>
                     <ul style="display:flex;flex-direction:column;gap:.6rem;list-style:none;">
-                        <li><a href="#problema" style="font-size:.78rem;color:#64748B;transition:color .2s;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Problem&aacute;tica Reto HIT</a></li>
-                        <li><a href="#solucion" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Arquitectura AST + LLM</a></li>
                         <li><a href="#como-funciona" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Cómo funciona</a></li>
+                        <li><a href="#solucion" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Arquitectura AST + LLM</a></li>
+                        <li><a href="#empresas-seguridad" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Empresas &amp; Seguridad</a></li>
                         <li><a href="#analizador" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Analizador de IA</a></li>
+                        <li><a href="#planes" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Planes &amp; Precios</a></li>
+                        <li><a href="#faq" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Preguntas Frecuentes</a></li>
                         <li><a href="/simulador" target="_blank" rel="noopener noreferrer" style="font-size:.78rem;color:#34D399;font-weight:700;" onmouseover="this.style.color='#6EE7B7'" onmouseout="this.style.color='#34D399'"><i class="fa-solid fa-sliders" style="margin-right:.3rem;font-size:.7rem;"></i>Simulador de Ingeniería <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
-                        <li><a href="#infografia" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Infografia UX/UI</a></li>
-                        <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto</a></li>
+                        <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto &amp; Ventas</a></li>
                     </ul>
                 </div>
                 <div>
@@ -1930,6 +2359,7 @@
                         <li><a href="#" id="link-footer-privacy" style="font-size:.78rem;color:#64748B;">Política de Privacidad</a></li>
                         <li><a href="#" id="link-footer-data" style="font-size:.78rem;color:#64748B;">Tratamiento de Datos (Ley 1581)</a></li>
                         <li><a href="#" id="link-footer-cookies" style="font-size:.78rem;color:#64748B;">Política de Cookies</a></li>
+                        <li><a href="#planes" style="font-size:.78rem;color:#64748B;">Términos de Compra &amp; Reembolsos</a></li>
                         <li><a href="#" id="link-footer-delete" style="font-size:.78rem;color:#64748B;">Eliminación de Cuenta</a></li>
                     </ul>
                 </div>

@@ -9,7 +9,8 @@
     "test": "node tests/test_api.js",
     "test:e2e": "node tests/test_e2e_platform_stability.js",
     "test:auth": "node tests/test_auth_e2e.js",
-    "test:regression": "node tests/test_unified_export_suite.js && node tests/test_docx_routes.js && node tests/test_doc_exporter.js && node tests/test_ai_prompt_engine.js && node tests/test_eda.js && node tests/test_security_engine.js && node tests/test_e2e_platform_stability.js"
+    "test:fase1": "node tests/test_fase1_landing.js",
+    "test:regression": "node tests/test_unified_export_suite.js && node tests/test_docx_routes.js && node tests/test_doc_exporter.js && node tests/test_ai_prompt_engine.js && node tests/test_eda.js && node tests/test_security_engine.js && node tests/test_auth_e2e.js && node tests/test_fase1_landing.js"
   },
   "keywords": [
     "ai",

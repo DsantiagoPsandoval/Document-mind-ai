@@ -28,3 +28,6 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Chrome test profiles
+.tmp_chrome*/

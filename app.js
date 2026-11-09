@@ -1432,8 +1432,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const spySections = [
         "como-funciona",
         "solucion",
+        "empresas-seguridad",
         "analizador",
         "equipo",
+        "planes",
+        "faq",
         "contacto"
     ];
     const navSpyLinks = document.querySelectorAll(".nav-links a, #mobile-menu .mobile-nav-link");
@@ -4739,6 +4742,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
             showToast(`¡Cambios guardados en ${info.title}! Se incluirán en tus descargas ZIP.`, "success");
         });
+    }
+
+    // ============================================================
+    // ENTERPRISE SAAS 2.0 — PRICING & SUBSCRIPTION INTERACTIONS
+    // ============================================================
+    window.setBillingCycle = function(cycle) {
+        const btnMonthly = document.getElementById("billing-btn-monthly");
+        const btnAnnual = document.getElementById("billing-btn-annual");
+        const elProPrice = document.getElementById("plan-pro-price");
+        const elProBilled = document.getElementById("plan-pro-billed");
+        const elEntPrice = document.getElementById("plan-enterprise-price");
+        const elEntBilled = document.getElementById("plan-enterprise-billed");
+
+        if (cycle === "annual") {
+            if (btnMonthly) btnMonthly.classList.remove("active");
+            if (btnAnnual) btnAnnual.classList.add("active");
+            if (elProPrice) elProPrice.textContent = "23";
+            if (elProBilled) elProBilled.textContent = "Facturado anualmente ($279 USD/año — Ahorras 20%)";
+            if (elEntPrice) elEntPrice.textContent = "399";
+            if (elEntBilled) elEntBilled.textContent = "Facturado anualmente ($4,788 USD/año)";
+        } else {
+            if (btnAnnual) btnAnnual.classList.remove("active");
+            if (btnMonthly) btnMonthly.classList.add("active");
+            if (elProPrice) elProPrice.textContent = "29";
+            if (elProBilled) elProBilled.textContent = "Facturado mensualmente ($29 USD)";
+            if (elEntPrice) elEntPrice.textContent = "499";
+            if (elEntBilled) elEntBilled.textContent = "Hasta 20 arquitectos incluidos";
+        }
+    };
+
+    window.togglePricingComparison = function() {
+        const wrapper = document.getElementById("pricing-comparison-table-wrapper");
+        const icon = document.getElementById("comparison-toggle-icon");
+        if (!wrapper) return;
+        const isHidden = wrapper.classList.contains("hidden");
+        if (isHidden) {
+            wrapper.classList.remove("hidden");
+            if (icon) icon.style.transform = "rotate(180deg)";
+        } else {
+            wrapper.classList.add("hidden");
+            if (icon) icon.style.transform = "rotate(0deg)";
+        }
+    };
+
+    window.selectPlan = function(planId) {
+        if (planId === "free") {
+            const analizador = document.getElementById("analizador");
+            if (analizador) analizador.scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+
+        if (planId === "enterprise") {
+            const contacto = document.getElementById("contacto");
+            if (contacto) contacto.scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+
+        if (planId === "pro") {
+            // Check if user is authenticated with Supabase
+            if (typeof currentUser === "undefined" || !currentUser) {
+                showToast("Para suscribirte al Plan Pro, inicia sesión o crea tu cuenta.", "info");
+                const authModal = document.getElementById("auth-modal");
+                if (authModal) {
+                    authModal.classList.remove("hidden");
+                    authModal.style.display = "flex";
+                }
+            } else {
+                showToast(`¡Hola ${currentUser.name || currentUser.email}! Preparando checkout seguro para Plan Pro...`, "info");
+                const checkoutEvent = new CustomEvent("documind:start-checkout", { detail: { plan: "pro", cycle: "monthly" } });
+                window.dispatchEvent(checkoutEvent);
+            }
+        }
+    };
+
+    // Attach button click listener for #btn-select-plan-pro
+    const btnPlanPro = document.getElementById("btn-select-plan-pro");
+    if (btnPlanPro) {
+        btnPlanPro.addEventListener("click", () => window.selectPlan("pro"));
     }
 
 });
