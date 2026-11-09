@@ -114,6 +114,21 @@ img { max-width: 100%; display: block; }
     transition: opacity 0.2s ease;
 }
 .nav-logo:hover { opacity: 0.92; }
+
+.nav-logo-icon img {
+    width: 1.42rem;
+    height: 1.42rem;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+    display: block;
+}
+.brand-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
 .nav-logo-icon {
     width: 2.15rem; height: 2.15rem; border-radius: 0.55rem;
     background: linear-gradient(135deg, #38BDF8 0%, #818CF8 100%);
