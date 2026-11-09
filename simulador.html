@@ -138,7 +138,7 @@
                  SAAS WORKBENCH: 2-COLUMN MODULAR LAYOUT
                  Column 1 (Inputs & Controls) | Column 2 (Realtime Telemetry & Visualizer)
             ============================================================ -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;margin-bottom:2rem;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px, 100%), 1fr));gap:1.5rem;margin-bottom:2rem;">
                 
                 <!-- Columna Izquierda: 1. Configuración del Proyecto, Requisitos de Calidad y Restricciones -->
                 <div class="glow-card" style="padding:1.5rem;">
@@ -406,7 +406,7 @@
             <div id="sim-decision-support-box" style="margin-bottom:2rem;">
                 <!-- Injected dynamically by architecture-simulator.js -->
             </div>
-            <div id="sim-alternatives-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem;margin-bottom:2rem;"></div>
+            <div id="sim-alternatives-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px, 100%), 1fr));gap:1.25rem;margin-bottom:2rem;"></div>
             <div id="sim-visual-bars" class="glow-card" style="padding:1.5rem;margin-bottom:2rem;"></div>
 
             <!-- ============================================================
@@ -474,7 +474,7 @@
                 </div>
 
                 <!-- Contenedores de Gráficas 3D (2 Columnas) -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px, 100%), 1fr));gap:1.5rem;">
                     
                     <!-- Columna Izquierda: Visor Interactivo WebGL Three.js -->
                     <div style="background:rgba(9,13,22,.9);border:1px solid rgba(56,189,248,.2);border-radius:.85rem;overflow:hidden;position:relative;">
@@ -595,7 +595,7 @@
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;font-size:.78rem;color:#CBD5E1;line-height:1.7;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px, 100%), 1fr));gap:1.5rem;font-size:.78rem;color:#CBD5E1;line-height:1.7;">
                     <!-- Ecuaciones del Modelo -->
                     <div>
                         <strong style="color:#fff;font-size:.84rem;display:block;margin-bottom:.4rem;">1. F&oacute;rmulas Computacionales (Teor&iacute;a de Colas M/M/c):</strong>
@@ -615,7 +615,7 @@
                         <strong style="color:#fff;font-size:.84rem;display:block;margin-bottom:.4rem;">2. Bater&iacute;a de Casos de Prueba de la Gu&iacute;a (Requisito 9 y 10):</strong>
                         <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.72rem;">
                             <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
-                                <div style="flex:1;min-width:220px;">
+                                <div style="flex:1;min-width:min(200px, 100%);">
                                     <strong style="color:var(--tech-cyan);">Prueba 1 (TEST-SIM-01) — Cero Saltos de Red / Baja Concurrencia:</strong>
                                     <span style="color:#94A3B8;display:block;">Entrada: U=18, S=1MB, N=35. Resultado verificado: Monolito MVC gana por cero latencia RPC (&Delta; = 168ms vs 261ms).</span>
                                 </div>
@@ -624,7 +624,7 @@
                                 </button>
                             </div>
                             <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
-                                <div style="flex:1;min-width:220px;">
+                                <div style="flex:1;min-width:min(200px, 100%);">
                                     <strong style="color:#818CF8;">Prueba 2 (TEST-SIM-02) — Degeneraci&oacute;n del Monolito por Concurrencia:</strong>
                                     <span style="color:#94A3B8;display:block;">Entrada: U=320, S=6MB, N=240. Resultado verificado: El monolito satura (&rho; &gt; 100%), Microservicios escala horizontalmente.</span>
                                 </div>
@@ -633,7 +633,7 @@
                                 </button>
                             </div>
                             <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
-                                <div style="flex:1;min-width:220px;">
+                                <div style="flex:1;min-width:min(200px, 100%);">
                                     <strong style="color:#34D399;">Prueba 3 (TEST-SIM-03) — R&aacute;fagas Cr&iacute;ticas Apache JMeter:</strong>
                                     <span style="color:#94A3B8;display:block;">Entrada: U=650, S=14MB, R&aacute;faga=2.5x. Resultado verificado: EDA Serverless amortigua la cola as&iacute;ncrona con m&aacute;xima resiliencia (99.98%).</span>
                                 </div>
@@ -642,7 +642,7 @@
                                 </button>
                             </div>
                             <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
-                                <div style="flex:1;min-width:220px;">
+                                <div style="flex:1;min-width:min(200px, 100%);">
                                     <strong style="color:#FBBF24;">Prueba 4 (TEST-SIM-04) — Penalizaci&oacute;n por Restricci&oacute;n de Presupuesto:</strong>
                                     <span style="color:#94A3B8;display:block;">Entrada: Presupuesto M&aacute;ximo = $45 USD/mes en carga base. Resultado verificado: Microservicios ($115+ USD) es penalizado por violar la restricci&oacute;n financiera del proyecto.</span>
                                 </div>
@@ -651,7 +651,7 @@
                                 </button>
                             </div>
                             <div style="padding:.55rem .75rem;background:rgba(9,13,22,.65);border-radius:.5rem;border:1px solid rgba(148,163,184,.12);display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap;">
-                                <div style="flex:1;min-width:220px;">
+                                <div style="flex:1;min-width:min(200px, 100%);">
                                     <strong style="color:#FB7185;">Prueba 5 (TEST-SIM-05) — Rechazo Determinista de Entradas Inv&aacute;lidas:</strong>
                                     <span style="color:#94A3B8;display:block;">Entrada: U=-25, S=45MB (>20MB), Latencia=15ms. Resultado verificado: El validador bloquea la ejecuci&oacute;n y despliega alerta de control (HTTP 400 / UI Alert).</span>
                                 </div>

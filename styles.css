@@ -4643,3 +4643,281 @@ img, svg, video, canvas {
         padding: 1.5rem 1.15rem;
     }
 }
+
+
+/* ==========================================================================
+   DOCUMIND AI — UNIVERSAL RESPONSIVE & PROPORTION ENGINE (SaaS 2.0)
+   Previene desbordamientos, controla dimensiones en zoom 100%
+   y adapta fluidamente desde 320px hasta 2560px
+   ========================================================================== */
+
+/* 1. Global Box-Sizing & Viewport Guards */
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+    position: relative;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+img, svg, video, canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 2. Fluid Section Paddings (reemplaza padding excesivo de 6rem) */
+section {
+    padding: clamp(2.5rem, 5vw, 4.5rem) 0 !important;
+    max-width: 100vw;
+    overflow-x: clip;
+}
+
+.container {
+    width: 100%;
+    max-width: min(1320px, 94vw) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: clamp(0.85rem, 2.5vw, 1.5rem) !important;
+    padding-right: clamp(0.85rem, 2.5vw, 1.5rem) !important;
+    box-sizing: border-box;
+}
+
+/* 3. Navbar Responsive Hierarchy */
+#navbar {
+    width: 100%;
+    max-width: 100vw;
+    height: var(--nav-height);
+}
+
+.nav-inner {
+    width: 100%;
+    max-width: min(1320px, 94vw);
+    margin: 0 auto;
+    padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(0.5rem, 1.5vw, 1.25rem);
+}
+
+.nav-center-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    list-style: none;
+    padding: 0.2rem 0.3rem;
+}
+
+.nav-links a {
+    font-size: clamp(0.72rem, 0.85vw, 0.8rem);
+    padding: 0.35rem clamp(0.45rem, 0.75vw, 0.8rem);
+    white-space: nowrap;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+}
+
+/* Breakpoint for 1366px and below: Hide secondary toolbar buttons */
+@media (max-width: 1366px) {
+    .nav-action-btn {
+        display: none !important;
+    }
+    .nav-links a {
+        padding: 0.32rem 0.55rem;
+        font-size: 0.74rem;
+    }
+}
+
+/* Breakpoint for 1140px and below: Switch center nav to hamburger */
+@media (max-width: 1140px) {
+    .nav-center-nav {
+        display: none !important;
+    }
+    #mobile-menu-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Breakpoint for 768px (Mobile): Compact header */
+@media (max-width: 768px) {
+    #nav-auth-guest a.btn-cyber-outline {
+        display: none !important;
+    }
+    #nav-auth-guest button.btn-cyber {
+        padding: 0.35rem 0.75rem !important;
+        font-size: 0.74rem !important;
+    }
+    .nav-logo-text {
+        font-size: 0.95rem;
+    }
+    .nav-logo-icon {
+        width: 1.85rem;
+        height: 1.85rem;
+    }
+}
+
+/* 4. Hero Section Adaptability */
+#hero {
+    min-height: auto !important;
+    padding: clamp(2rem, 4.5vw, 3.5rem) 0 clamp(1.5rem, 3.5vw, 2.5rem) !important;
+    overflow: hidden;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: center;
+    min-height: auto !important;
+}
+
+.hero-title {
+    font-size: clamp(1.85rem, 3.8vw, 3.2rem) !important;
+    line-height: 1.15 !important;
+    max-width: 640px;
+}
+
+#ai-core-container {
+    width: 100%;
+    max-width: min(440px, 100%);
+    margin: 0 auto;
+}
+
+#ai-core-wrapper {
+    width: 100% !important;
+    max-width: min(440px, 100%) !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+}
+
+@media (max-width: 1024px) {
+    .hero-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 2rem !important;
+    }
+    .hero-grid > div:first-child {
+        align-items: center !important;
+        text-align: center !important;
+        max-width: 680px;
+        margin: 0 auto;
+    }
+    .hero-grid > div:first-child > div[style*="flex-wrap:wrap"] {
+        justify-content: center !important;
+    }
+    #ai-core-container {
+        max-width: min(360px, 88vw) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #ai-core-container {
+        max-width: min(290px, 85vw) !important;
+    }
+}
+
+/* 5. Grids Fluidity & Breakpoints */
+.como-funciona-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)) !important;
+    gap: 1.15rem !important;
+}
+
+.soluciones-grid-8 {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)) !important;
+    gap: 1.15rem !important;
+}
+
+.simulador-hud-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(1.25rem, 2.5vw, 2.5rem);
+    align-items: center;
+}
+
+@media (max-width: 1024px) {
+    .simulador-hud-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.simulador-metrics-cards {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr)) !important;
+    gap: 0.75rem !important;
+}
+
+.pricing-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)) !important;
+    gap: 1.35rem !important;
+    align-items: stretch;
+}
+
+/* 6. Tables & Code Overflow Defense */
+table {
+    max-width: 100%;
+}
+
+.table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin: 1rem 0;
+    border-radius: 0.65rem;
+}
+
+pre, code {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+}
+
+/* 7. Modals Adaptive Geometry */
+.auth-modal-dialog, .auth-card-cyber, .auth-saas-card-split {
+    max-width: min(860px, 94vw) !important;
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    margin: auto !important;
+}
+
+#doc-preview-modal .glow-card {
+    max-width: min(1320px, 96vw) !important;
+    height: min(94vh, 900px) !important;
+}
+
+#preview-paper-sheet {
+    max-width: min(880px, 100%) !important;
+    width: 100% !important;
+    padding: clamp(16px, 4vw, 48px) !important;
+    box-sizing: border-box !important;
+}
+
+@media (max-width: 860px) {
+    #word-toc-sidebar {
+        display: none !important;
+    }
+    #word-desktop-viewport {
+        padding: 1rem 0.5rem !important;
+    }
+}
