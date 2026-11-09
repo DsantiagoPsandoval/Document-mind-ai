@@ -4822,4 +4822,239 @@ document.addEventListener("DOMContentLoaded", () => {
         btnPlanPro.addEventListener("click", () => window.selectPlan("pro"));
     }
 
+    // ============================================================
+    // ENTERPRISE SAAS 2.0 — CHECKOUT, BLAST RADIUS & BYOK CONTROLLERS
+    // ============================================================
+
+    let activePaymentProvider = 'wompi';
+    let currentCheckoutPlan = 'pro';
+    let currentCheckoutCycle = 'monthly';
+
+    window.setPaymentProvider = function(provider) {
+        activePaymentProvider = provider;
+        const btnWompi = document.getElementById("pay-provider-wompi");
+        const btnMp = document.getElementById("pay-provider-mercadopago");
+        if (provider === 'mercadopago') {
+            if (btnWompi) btnWompi.classList.remove("active");
+            if (btnMp) btnMp.classList.add("active");
+        } else {
+            if (btnMp) btnMp.classList.remove("active");
+            if (btnWompi) btnWompi.classList.add("active");
+        }
+    };
+
+    window.openCheckoutModal = function(planId, cycle = 'monthly') {
+        currentCheckoutPlan = planId;
+        currentCheckoutCycle = cycle;
+
+        const modal = document.getElementById("checkout-modal");
+        const nameEl = document.getElementById("checkout-plan-name");
+        const cycleEl = document.getElementById("checkout-cycle-label");
+        const priceEl = document.getElementById("checkout-total-price");
+
+        if (nameEl) nameEl.textContent = planId === 'enterprise' ? 'Plan Enterprise — Corporativo' : 'Plan Pro — Profesional';
+        if (cycleEl) cycleEl.textContent = cycle === 'annual' ? 'Facturación Anual (Ahorro 20%)' : 'Facturación Mensual';
+
+        let amount = planId === 'enterprise' ? (cycle === 'annual' ? '$4,788.00' : '$499.00') : (cycle === 'annual' ? '$279.00' : '$29.00');
+        if (priceEl) priceEl.textContent = amount;
+
+        if (modal) {
+            modal.classList.remove("hidden");
+            modal.style.display = "flex";
+        }
+    };
+
+    window.addEventListener("documind:start-checkout", (e) => {
+        const detail = e.detail || {};
+        window.openCheckoutModal(detail.plan || 'pro', detail.cycle || 'monthly');
+    });
+
+    const btnCloseCheckout = document.getElementById("btn-close-checkout");
+    const btnCancelCheckout = document.getElementById("btn-cancel-checkout");
+    const checkoutBackdrop = document.getElementById("checkout-modal-backdrop");
+    const hideCheckout = () => {
+        const modal = document.getElementById("checkout-modal");
+        if (modal) {
+            modal.classList.add("hidden");
+            modal.style.display = "none";
+        }
+    };
+    if (btnCloseCheckout) btnCloseCheckout.addEventListener("click", hideCheckout);
+    if (btnCancelCheckout) btnCancelCheckout.addEventListener("click", hideCheckout);
+    if (checkoutBackdrop) checkoutBackdrop.addEventListener("click", hideCheckout);
+
+    // Enviar pago a backend
+    const btnSubmitPayment = document.getElementById("btn-submit-payment");
+    if (btnSubmitPayment) {
+        btnSubmitPayment.addEventListener("click", async () => {
+            const chkTerms = document.getElementById("chk-accept-terms");
+            const chkPrivacy = document.getElementById("chk-accept-privacy");
+            if (chkTerms && !chkTerms.checked) {
+                showToast("Debes aceptar los Términos y Condiciones para continuar.", "warning");
+                return;
+            }
+            if (chkPrivacy && !chkPrivacy.checked) {
+                showToast("Debes aceptar la Política de Tratamiento de Datos.", "warning");
+                return;
+            }
+
+            btnSubmitPayment.disabled = true;
+            btnSubmitPayment.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando Pasarela...`;
+
+            try {
+                const res = await fetch("/api/billing/create-checkout", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-user-id": (typeof currentUser !== "undefined" && currentUser) ? currentUser.id : "guest_user"
+                    },
+                    body: JSON.stringify({
+                        planId: currentCheckoutPlan,
+                        billingCycle: currentCheckoutCycle,
+                        provider: activePaymentProvider,
+                        termsAccepted: true,
+                        userEmail: (typeof currentUser !== "undefined" && currentUser) ? currentUser.email : "cliente@empresa.com"
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`¡Orden de pago generada! Redirigiendo a pasarela...`, "success");
+                    // En sandbox de desarrollo, confirmar automáticamente el pago para verificación inmediata
+                    if (data.checkoutUrl && data.checkoutUrl.startsWith("/api/")) {
+                        await fetch("/api/billing/mock-confirm", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ reference: data.reference })
+                        });
+                        showToast(`¡Pago confirmado exitosamente! Tu cuenta ahora tiene Plan ${data.plan.toUpperCase()}.`, "success");
+                    }
+                    hideCheckout();
+                } else {
+                    showToast(data.error || "No se pudo iniciar el checkout", "error");
+                }
+            } catch (err) {
+                showToast("Error de conexión con la pasarela de pagos.", "error");
+            } finally {
+                btnSubmitPayment.disabled = false;
+                btnSubmitPayment.innerHTML = `<i class="fa-solid fa-lock" style="margin-right:.45rem;"></i> Continuar al Pago`;
+            }
+        });
+    }
+
+    // --- BLAST RADIUS CONTROLLER ---
+    window.openBlastRadiusModal = async function(targetComponent = 'auth_controller') {
+        const modal = document.getElementById("blast-radius-modal");
+        const listEl = document.getElementById("blast-components-list");
+        const summaryEl = document.getElementById("blast-summary-text");
+        const badgeEl = document.getElementById("blast-risk-badge");
+
+        if (modal) {
+            modal.classList.remove("hidden");
+            modal.style.display = "flex";
+        }
+
+        try {
+            const res = await fetch("/api/project/blast-radius", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ targetComponent })
+            });
+            const data = await res.json();
+
+            if (data.success && data.blastRadius) {
+                const br = data.blastRadius;
+                if (summaryEl) summaryEl.textContent = br.impactSummary;
+                if (badgeEl) badgeEl.textContent = br.riskLevel;
+
+                if (listEl) {
+                    listEl.innerHTML = br.affectedComponents.map(c => `
+                        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(15,23,42,.65);border:1px solid rgba(148,163,184,.15);border-radius:.5rem;padding:.55rem .85rem;">
+                            <div style="display:flex;align-items:center;gap:.5rem;">
+                                <span class="badge ${c.type === 'controller' ? 'badge-cyan' : (c.type === 'service' ? 'badge-purple' : 'badge-emerald')}" style="font-size:.65rem;">${c.type}</span>
+                                <strong style="font-size:.82rem;color:#F8FAFC;">${c.label}</strong>
+                            </div>
+                            <code style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--tech-cyan);">${c.sourceLocation}</code>
+                        </div>
+                    `).join("");
+                }
+            }
+        } catch (e) {
+            console.error("Error fetching blast radius:", e);
+        }
+    };
+
+    const btnCloseBlast = document.getElementById("btn-close-blast");
+    const btnDismissBlast = document.getElementById("btn-dismiss-blast");
+    const blastBackdrop = document.getElementById("blast-modal-backdrop");
+    const hideBlast = () => {
+        const modal = document.getElementById("blast-radius-modal");
+        if (modal) {
+            modal.classList.add("hidden");
+            modal.style.display = "none";
+        }
+    };
+    if (btnCloseBlast) btnCloseBlast.addEventListener("click", hideBlast);
+    if (btnDismissBlast) btnDismissBlast.addEventListener("click", hideBlast);
+    if (blastBackdrop) blastBackdrop.addEventListener("click", hideBlast);
+
+    // --- ENTERPRISE SETTINGS CONTROLLER ---
+    window.openEnterpriseSettingsModal = async function() {
+        const modal = document.getElementById("enterprise-settings-modal");
+        if (modal) {
+            modal.classList.remove("hidden");
+            modal.style.display = "flex";
+        }
+    };
+
+    const btnCloseEnt = document.getElementById("btn-close-ent-settings");
+    const btnCancelEnt = document.getElementById("btn-cancel-ent-settings");
+    const entBackdrop = document.getElementById("enterprise-settings-backdrop");
+    const hideEntSettings = () => {
+        const modal = document.getElementById("enterprise-settings-modal");
+        if (modal) {
+            modal.classList.add("hidden");
+            modal.style.display = "none";
+        }
+    };
+    if (btnCloseEnt) btnCloseEnt.addEventListener("click", hideEntSettings);
+    if (btnCancelEnt) btnCancelEnt.addEventListener("click", hideEntSettings);
+    if (entBackdrop) entBackdrop.addEventListener("click", hideEntSettings);
+
+    const btnSaveEntSettings = document.getElementById("btn-save-ent-settings");
+    if (btnSaveEntSettings) {
+        btnSaveEntSettings.addEventListener("click", async () => {
+            const byokProvider = document.getElementById("ent-byok-provider")?.value || 'gemini';
+            const apiKey = document.getElementById("ent-byok-key")?.value;
+            const zeroRetention = document.getElementById("ent-chk-zero-retention")?.checked;
+            const companyName = document.getElementById("ent-company-name")?.value;
+
+            try {
+                const res = await fetch("/api/enterprise/config", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-user-id": (typeof currentUser !== "undefined" && currentUser) ? currentUser.id : "admin_enterprise"
+                    },
+                    body: JSON.stringify({
+                        byokProvider,
+                        apiKey,
+                        ephemeralProcessing: zeroRetention,
+                        companyName
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Configuración Enterprise, BYOK y Marca Blanca guardada con éxito.", "success");
+                    hideEntSettings();
+                } else {
+                    showToast(data.error || "No se pudo guardar la configuración", "error");
+                }
+            } catch (err) {
+                showToast("Error guardando configuración enterprise.", "error");
+            }
+        });
+    }
+
 });

@@ -3189,6 +3189,188 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         CHECKOUT & PURCHASING MODAL (SAAS SUBSCRIPTIONS)
+    ============================================================ -->
+    <div id="checkout-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
+        <div class="auth-modal-backdrop" id="checkout-modal-backdrop"></div>
+        <div class="auth-modal-dialog glow-card" style="max-width:540px;padding:2.25rem;position:relative;z-index:1001;border-color:rgba(56,189,248,.35);">
+            <div class="auth-modal-header" style="border-bottom:1px solid rgba(148,163,184,.15);padding-bottom:1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
+                        <i class="fa-solid fa-credit-card"></i>
+                    </div>
+                    <div>
+                        <h3 id="checkout-modal-title" style="font-size:1.15rem;font-weight:800;color:#FFFFFF;margin:0;">Confirmar Suscripción</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Checkout seguro con certificación PCI-DSS nivel 1</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-checkout" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+
+            <!-- Order Summary Card -->
+            <div style="background:rgba(15,23,42,.7);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:1.15rem;margin-bottom:1.25rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+                    <span style="font-size:.84rem;color:#94A3B8;">Plan Seleccionado:</span>
+                    <strong id="checkout-plan-name" style="font-size:.95rem;color:#FFFFFF;font-weight:800;">Plan Pro — Profesional</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">
+                    <span style="font-size:.84rem;color:#94A3B8;">Periodicidad:</span>
+                    <span id="checkout-cycle-label" style="font-size:.82rem;color:var(--tech-cyan);font-weight:700;">Facturación Mensual</span>
+                </div>
+                <div style="border-top:1px dashed rgba(148,163,184,.2);margin:.65rem 0;padding-top:.65rem;display:flex;justify-content:space-between;align-items:baseline;">
+                    <span style="font-size:.9rem;font-weight:700;color:#FFFFFF;">Total a pagar:</span>
+                    <div>
+                        <span style="font-size:.85rem;color:#94A3B8;margin-right:.2rem;">USD</span>
+                        <strong id="checkout-total-price" style="font-size:1.6rem;font-weight:900;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">$29.00</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mandatory Legal Acceptance Checkboxes -->
+            <div style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem;font-size:.78rem;color:#CBD5E1;">
+                <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
+                    <input type="checkbox" id="chk-accept-terms" checked style="margin-top:.2rem;accent-color:var(--tech-cyan);">
+                    <span>He leído y acepto los <a href="#planes" style="color:var(--tech-cyan);text-decoration:underline;">Términos y Condiciones de Compra y Suscripción</a>.</span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
+                    <input type="checkbox" id="chk-accept-privacy" checked style="margin-top:.2rem;accent-color:var(--tech-cyan);">
+                    <span>Acepto la <a href="#" id="link-checkout-privacy" style="color:var(--tech-cyan);text-decoration:underline;">Política de Tratamiento de Datos Personales (Ley 1581)</a>.</span>
+                </label>
+                <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
+                    <input type="checkbox" id="chk-accept-autorenew" checked style="margin-top:.2rem;accent-color:var(--tech-cyan);">
+                    <span>Acepto la renovación automática periódica de mi suscripción, cancelable en cualquier momento desde mi panel de usuario.</span>
+                </label>
+            </div>
+
+            <!-- Payment Provider Selection -->
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Método de Pago Seguro:</label>
+                <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:.65rem;">
+                    <button type="button" id="pay-provider-wompi" class="pricing-toggle-btn active" style="justify-content:center;border:1px solid rgba(56,189,248,.3);" onclick="setPaymentProvider('wompi')">
+                        <i class="fa-solid fa-building-columns"></i> Wompi / PSE / Tarjeta
+                    </button>
+                    <button type="button" id="pay-provider-mercadopago" class="pricing-toggle-btn" style="justify-content:center;border:1px solid rgba(148,163,184,.2);" onclick="setPaymentProvider('mercadopago')">
+                        <i class="fa-solid fa-handshake"></i> Mercado Pago
+                    </button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex;gap:.75rem;">
+                <button type="button" id="btn-cancel-checkout" class="btn-ghost" style="flex:1;justify-content:center;padding:.85rem;">
+                    Cancelar
+                </button>
+                <button type="button" id="btn-submit-payment" class="btn-cyber" style="flex:2;justify-content:center;padding:.85rem;font-weight:800;">
+                    <i class="fa-solid fa-lock" style="margin-right:.45rem;font-size:.8rem;"></i> Continuar al Pago
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         BLAST RADIUS & CALL GRAPH MODAL
+    ============================================================ -->
+    <div id="blast-radius-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="blast-modal-title">
+        <div class="auth-modal-backdrop" id="blast-modal-backdrop"></div>
+        <div class="auth-modal-dialog glow-card" style="max-width:680px;padding:2.25rem;position:relative;z-index:1001;border-color:rgba(244,63,94,.4);">
+            <div class="auth-modal-header" style="border-bottom:1px solid rgba(244,63,94,.2);padding-bottom:1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);display:flex;align-items:center;justify-content:center;color:#FB7185;">
+                        <i class="fa-solid fa-burst"></i>
+                    </div>
+                    <div>
+                        <h3 id="blast-modal-title" style="font-size:1.15rem;font-weight:800;color:#FFFFFF;margin:0;">Análisis de Radio de Impacto (Blast Radius)</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Evaluación estática de dependencias y componentes afectados</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-blast" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+
+            <!-- Risk Banner -->
+            <div id="blast-risk-banner" style="display:flex;align-items:center;justify-content:space-between;background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);border-radius:.65rem;padding:.85rem 1.15rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:.6rem;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#FB7185;font-size:1.1rem;"></i>
+                    <span style="font-size:.85rem;color:#F8FAFC;font-weight:600;" id="blast-summary-text">Cargando análisis de impacto...</span>
+                </div>
+                <span id="blast-risk-badge" class="badge badge-rose" style="font-weight:800;">ALTO</span>
+            </div>
+
+            <!-- Affected Components List with Code Links -->
+            <div style="margin-bottom:1.25rem;">
+                <h4 style="font-size:.82rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.65rem;">Componentes y Archivos Impactados:</h4>
+                <div id="blast-components-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:240px;overflow-y:auto;padding-right:.35rem;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;">
+                <button type="button" id="btn-dismiss-blast" class="btn-cyber-outline" style="padding:.65rem 1.35rem;font-size:.82rem;">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ENTERPRISE SETTINGS & BYOK MODAL
+    ============================================================ -->
+    <div id="enterprise-settings-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="ent-settings-title">
+        <div class="auth-modal-backdrop" id="enterprise-settings-backdrop"></div>
+        <div class="auth-modal-dialog glow-card" style="max-width:620px;padding:2.25rem;position:relative;z-index:1001;border-color:rgba(129,140,248,.35);">
+            <div class="auth-modal-header" style="border-bottom:1px solid rgba(129,140,248,.18);padding-bottom:1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:.65rem;">
+                    <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;color:#818CF8;">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 id="ent-settings-title" style="font-size:1.15rem;font-weight:800;color:#FFFFFF;margin:0;">Configuración Enterprise &amp; BYOK</h3>
+                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Claves propias, Cero Retención y Marca Blanca</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-ent-settings" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
+            </div>
+
+            <!-- BYOK Form -->
+            <div style="margin-bottom:1.25rem;">
+                <label style="display:block;font-size:.78rem;font-weight:700;color:#CBD5E1;margin-bottom:.35rem;">Proveedor de IA (BYOK):</label>
+                <select id="ent-byok-provider" class="auth-input-field" style="width:100%;margin-bottom:.75rem;">
+                    <option value="gemini">Google Gemini Enterprise</option>
+                    <option value="vertex_ai">Google Cloud Vertex AI</option>
+                    <option value="azure_openai">Azure OpenAI Services</option>
+                    <option value="ollama">Servidor Local Ollama (Self-Hosted)</option>
+                </select>
+
+                <label style="display:block;font-size:.78rem;font-weight:700;color:#CBD5E1;margin-bottom:.35rem;">API Key Cifrada (AES-256-GCM):</label>
+                <input type="password" id="ent-byok-key" class="auth-input-field" placeholder="Pega tu API Key corporativa..." style="width:100%;margin-bottom:.75rem;">
+            </div>
+
+            <!-- Zero-Retention Toggle -->
+            <div style="background:rgba(15,23,42,.6);border:1px solid rgba(56,189,248,.2);border-radius:.65rem;padding:1rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <strong style="display:block;font-size:.85rem;color:#FFFFFF;">Modo Efímero (Zero Data Retention)</strong>
+                    <span style="font-size:.72rem;color:#94A3B8;">Procesa el código exclusivamente en memoria RAM sin guardarlo en disco.</span>
+                </div>
+                <input type="checkbox" id="ent-chk-zero-retention" style="width:1.25rem;height:1.25rem;accent-color:#38BDF8;">
+            </div>
+
+            <!-- Corporate White-Labeling -->
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;font-size:.78rem;font-weight:700;color:#CBD5E1;margin-bottom:.35rem;">Nombre de la Empresa (Marca Blanca en Word/PDF):</label>
+                <input type="text" id="ent-company-name" class="auth-input-field" placeholder="Ej. Banco Santander / TechCorp Global" style="width:100%;margin-bottom:.75rem;">
+            </div>
+
+            <div style="display:flex;gap:.75rem;">
+                <button type="button" id="btn-cancel-ent-settings" class="btn-ghost" style="flex:1;justify-content:center;padding:.75rem;">
+                    Cerrar
+                </button>
+                <button type="button" id="btn-save-ent-settings" class="btn-cyber" style="flex:2;justify-content:center;padding:.75rem;font-weight:800;">
+                    <i class="fa-solid fa-floppy-disk" style="margin-right:.4rem;"></i> Guardar Configuración
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=6.0" charset="UTF-8"></script>
     <script src="js/document-exporter.js?v=7.0" charset="UTF-8"></script>

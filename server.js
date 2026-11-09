@@ -59,6 +59,25 @@ const { getBranchList, checkRepoUpdate, calculateRepoDrift } = require('./servic
 const { generateCodeModification, createModificationZip } = require('./services/code/codeModificationService');
 const { getIntegrationsStatus } = require('./services/integrations/statusService');
 
+// Enterprise SaaS 2.0 Services
+const { PlanService, PLAN_TIERS, PLAN_DEFINITIONS } = require('./services/plans/planService');
+const {
+    requireWordPdfExport,
+    requirePrivateRepoAnalysis,
+    requirePublicRepoQuota,
+    requireBlastRadius,
+    requirePRWebhooks,
+    requireByokAndSecurity,
+    requireOrganizations,
+    extractUserId
+} = require('./middleware/planLimiter');
+const { PaymentGateway } = require('./services/billing/paymentGateway');
+const { PrivateRepoService } = require('./services/github/privateRepoService');
+const { ASTDeepAnalyzer } = require('./services/analyzer/astDeepAnalyzer');
+const { PRAutomationService } = require('./services/github/prAutomationService');
+const { OrganizationService, ROLES } = require('./services/orgs/organizationService');
+const { SecurityConfigService } = require('./services/enterprise/securityConfigService');
+
 const modificationCache = new Map();
 
 const app = express();
@@ -589,7 +608,7 @@ app.get('/api/project/export/docx/:projectId', async (req, res, next) => {
 /**
  * Export Customized or In-Session Microsoft Word Document Endpoint (POST /api/project/export/docx)
  */
-app.post('/api/project/export/docx', async (req, res, next) => {
+app.post('/api/project/export/docx', requireWordPdfExport, async (req, res, next) => {
     try {
         const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
         const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
@@ -639,7 +658,7 @@ app.get('/api/project/export/pdf/:projectId', async (req, res, next) => {
 /**
  * Direct Binary PDF Export from Session Payload (POST /api/project/export/pdf)
  */
-app.post('/api/project/export/pdf', async (req, res, next) => {
+app.post('/api/project/export/pdf', requireWordPdfExport, async (req, res, next) => {
     try {
         const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
         const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
@@ -1278,6 +1297,342 @@ app.post('/api/simulator/scenarios', (req, res, next) => {
             success: true,
             scenarios: comparison
         });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// ============================================================
+// ENTERPRISE SAAS 2.0 — RUTAS DE PLANES, PAGOS, REPOS, AST, PRs & ORGS
+// ============================================================
+
+/**
+ * 1. Consulta de Plan y Cuotas del Usuario (GET /api/user/plan-status)
+ */
+app.get('/api/user/plan-status', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req);
+        const sub = await PlanService.getUserSubscription(userId);
+        const usage = await PlanService.getUserUsage(userId);
+
+        res.json({
+            success: true,
+            plan: sub.plan,
+            status: sub.status,
+            billingCycle: sub.billingCycle,
+            periodEnd: sub.periodEnd,
+            definition: sub.definition,
+            usage: {
+                period: usage.periodYM,
+                publicReposAnalyzed: usage.publicReposAnalyzed,
+                privateReposAnalyzed: usage.privateReposAnalyzed,
+                exportDocsCount: usage.exportDocsCount
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 2. Cambio / Actualización de Plan (POST /api/user/change-plan)
+ */
+app.post('/api/user/change-plan', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req);
+        const { planId, billingCycle = 'monthly' } = req.body || {};
+        if (!planId) {
+            return res.status(400).json({ success: false, error: 'planId es requerido' });
+        }
+
+        const updated = await PlanService.setUserSubscription(userId, planId, billingCycle);
+        res.json({
+            success: true,
+            message: `Plan actualizado exitosamente a ${updated.definition.name}`,
+            subscription: updated
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 3. Crear Orden de Pago / Checkout (POST /api/billing/create-checkout)
+ */
+app.post('/api/billing/create-checkout', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req) || 'guest_buyer';
+        const { planId, billingCycle = 'monthly', provider = 'wompi', termsAccepted = true, userEmail } = req.body || {};
+
+        const checkout = await PaymentGateway.createCheckoutSession({
+            userId,
+            userEmail: userEmail || req.user?.email || 'cliente@empresa.com',
+            planId,
+            billingCycle,
+            provider,
+            termsAccepted
+        });
+
+        res.json(checkout);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 4. Webhook Wompi (POST /api/billing/webhook/wompi)
+ */
+app.post('/api/billing/webhook/wompi', async (req, res, next) => {
+    try {
+        const signatureHeader = req.headers['x-event-checksum'];
+        const result = await PaymentGateway.handleWompiWebhook(req.body, signatureHeader);
+        res.json(result);
+    } catch (err) {
+        console.error('[Wompi Webhook Error]:', err);
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * 5. Webhook Mercado Pago (POST /api/billing/webhook/mercadopago)
+ */
+app.post('/api/billing/webhook/mercadopago', async (req, res, next) => {
+    try {
+        const result = await PaymentGateway.handleMercadoPagoWebhook(req.body, req.query);
+        res.json(result);
+    } catch (err) {
+        console.error('[MercadoPago Webhook Error]:', err);
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * 6. Confirmación de Pago Sandbox / Mock (POST /api/billing/mock-confirm)
+ */
+app.post('/api/billing/mock-confirm', async (req, res, next) => {
+    try {
+        const { reference } = req.body || {};
+        if (!reference) return res.status(400).json({ success: false, error: 'Referencia requerida' });
+        const confirmed = await PaymentGateway.confirmMockPayment(reference);
+        res.json(confirmed);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 7. Historial de Transacciones (GET /api/billing/transactions)
+ */
+app.get('/api/billing/transactions', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req);
+        const txs = await PaymentGateway.getUserTransactions(userId);
+        res.json({ success: true, count: txs.length, transactions: txs });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 8. Conectar GitHub OAuth (GET /api/github/connect)
+ */
+app.get('/api/github/connect', (req, res) => {
+    const userId = extractUserId(req) || 'guest';
+    const authData = PrivateRepoService.getAuthorizationUrl(userId);
+    res.json(authData);
+});
+
+/**
+ * 9. Callback GitHub OAuth (GET /api/github/callback)
+ */
+app.get('/api/github/callback', async (req, res, next) => {
+    try {
+        const { code, state } = req.query;
+        if (!code) return res.status(400).send('Código de GitHub no proporcionado');
+        const tokenResult = await PrivateRepoService.exchangeCodeForToken(code, state);
+        // Redirigir de vuelta a la aplicación
+        res.redirect('/#analizador?github_connected=true');
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 10. Listar Repositorios del Usuario (GET /api/github/repos)
+ */
+app.get('/api/github/repos', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req) || 'guest';
+        const data = await PrivateRepoService.listUserRepositories(userId);
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 11. Desconectar GitHub (POST /api/github/disconnect)
+ */
+app.post('/api/github/disconnect', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req) || 'guest';
+        const result = await PrivateRepoService.disconnectGitHub(userId);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 12. Blast Radius Analysis (POST /api/project/blast-radius)
+ */
+app.post('/api/project/blast-radius', requireBlastRadius, async (req, res, next) => {
+    try {
+        const { targetComponent, projectId } = req.body || {};
+        const analysis = projectId ? getCachedAnalysis(projectId) : null;
+        const graph = ASTDeepAnalyzer.buildDependencyGraph(analysis);
+        const result = ASTDeepAnalyzer.calculateBlastRadius(targetComponent || 'auth_service', graph);
+        res.json({ success: true, blastRadius: result });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 13. Webhook de Pull Requests de GitHub (POST /api/webhooks/github)
+ */
+app.post('/api/webhooks/github', async (req, res, next) => {
+    try {
+        const signatureHeader = req.headers['x-hub-signature-256'];
+        const eventType = req.headers['x-github-event'];
+
+        if (eventType === 'ping') {
+            return res.json({ success: true, message: 'Pong! Webhook de DocuMind AI activo' });
+        }
+
+        // Si es un PR o Push
+        if (eventType === 'pull_request' || req.body?.pull_request) {
+            const report = await PRAutomationService.handlePullRequestEvent(req.body);
+            return res.json(report);
+        }
+
+        res.json({ success: true, message: 'Evento recibido pero no requirió procesamiento' });
+    } catch (err) {
+        console.error('[PR Webhook Error]:', err);
+        res.status(400).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * 14. Organizaciones: Crear (POST /api/orgs/create)
+ */
+app.post('/api/orgs/create', requireOrganizations, async (req, res, next) => {
+    try {
+        const userId = extractUserId(req);
+        const { name, slug } = req.body || {};
+        const org = await OrganizationService.createOrganization({ name, slug, ownerId: userId });
+        res.json({ success: true, organization: org });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 15. Organizaciones: Miembros (GET & POST /api/orgs/:orgId/members)
+ */
+app.get('/api/orgs/:orgId/members', async (req, res, next) => {
+    try {
+        const { orgId } = req.params;
+        const members = await OrganizationService.getMembers(orgId);
+        res.json({ success: true, members });
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post('/api/orgs/:orgId/members', async (req, res, next) => {
+    try {
+        const { orgId } = req.params;
+        const { userId, role } = req.body || {};
+        const member = await OrganizationService.addMember({ orgId, userId, role });
+        res.json({ success: true, member });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 16. Aprobaciones Documentales (POST /api/orgs/:orgId/approvals/submit y /review)
+ */
+app.post('/api/orgs/:orgId/approvals/submit', async (req, res, next) => {
+    try {
+        const { orgId } = req.params;
+        const userId = extractUserId(req);
+        const { projectId, docType, version } = req.body || {};
+        const approval = await OrganizationService.submitDocumentForReview({
+            orgId,
+            projectId,
+            docType,
+            requestedBy: userId,
+            version
+        });
+        res.json({ success: true, approval });
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post('/api/orgs/:orgId/approvals/:approvalId/review', async (req, res, next) => {
+    try {
+        const { orgId, approvalId } = req.params;
+        const userId = extractUserId(req);
+        const { decision, comments } = req.body || {};
+        const result = await OrganizationService.processDocumentApproval({
+            orgId,
+            approvalId,
+            reviewerId: userId,
+            decision,
+            comments
+        });
+        res.json({ success: true, approval: result });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 17. Auditoría de Organización (GET /api/orgs/:orgId/audit)
+ */
+app.get('/api/orgs/:orgId/audit', async (req, res, next) => {
+    try {
+        const { orgId } = req.params;
+        const logs = await OrganizationService.getAuditLogs(orgId);
+        res.json({ success: true, logs });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 18. Configuración Enterprise (BYOK, Cero Retención, Marca Blanca)
+ */
+app.post('/api/enterprise/config', requireByokAndSecurity, async (req, res, next) => {
+    try {
+        const userId = extractUserId(req);
+        const orgId = req.body?.orgId || `org_${userId || 'default'}`;
+        const config = await SecurityConfigService.saveConfig(orgId, req.body || {});
+        res.json({ success: true, config });
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.get('/api/enterprise/config', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req);
+        const orgId = req.query?.orgId || `org_${userId || 'default'}`;
+        const config = await SecurityConfigService.getConfig(orgId);
+        res.json({ success: true, config });
     } catch (err) {
         next(err);
     }
