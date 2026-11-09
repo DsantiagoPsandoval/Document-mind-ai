@@ -51,6 +51,7 @@
                     <li><a href="#empresas-seguridad" class="nav-link" data-section="empresas-seguridad">Empresas</a></li>
                     <li><a href="#analizador" class="nav-link" data-section="analizador">Analizador</a></li>
                     <li><a href="/simulador" target="_blank" rel="noopener noreferrer" class="nav-link" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.35rem;font-size:.75rem;"></i>Simulador <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
+                    <li><a href="javascript:void(0)" id="nav-btn-orgs" class="nav-link" style="color:#818CF8;font-weight:700;"><i class="fa-solid fa-users-gear" style="margin-right:.35rem;font-size:.75rem;"></i>Grupos</a></li>
                     <li><a href="#planes" class="nav-link" data-section="planes">Planes &amp; Precios</a></li>
                     <li><a href="#faq" class="nav-link" data-section="faq">FAQ</a></li>
                     <li><a href="#contacto" class="nav-link" data-section="contacto">Contacto</a></li>
@@ -103,6 +104,10 @@
                         <a href="#analizador" id="btn-user-history" class="user-dropdown-item">
                             <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis Análisis Guardados
                         </a>
+                        <button type="button" id="btn-user-orgs" class="user-dropdown-item">
+                            <i class="fa-solid fa-users-gear" style="color:#818CF8;"></i>Mis Grupos y Equipos
+                            <span class="badge badge-purple" style="margin-left:auto;font-size:.58rem;padding:.12rem .4rem;">Enterprise</span>
+                        </button>
                         <button type="button" id="btn-user-privacy" class="user-dropdown-item" style="color:#94A3B8;">
                             <i class="fa-solid fa-shield-halved" style="color:#38BDF8;"></i>Configuración y Privacidad
                         </button>
@@ -3177,6 +3182,148 @@ const ast = await parseSyntaxTree(repoBuffer, {
     <!-- ============================================================
          MODAL: MI CUENTA DE USUARIO
     ============================================================ -->
+    <!-- ============================================================
+         MODAL CORPORATIVO: GRUPOS, EQUIPOS Y CONTROL RBAC (FASE 7)
+    ============================================================ -->
+    <div id="modal-organizations" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-orgs-title" style="z-index:9999;">
+        <div class="auth-modal-backdrop" id="modal-orgs-backdrop"></div>
+        <div class="glow-card card-spotlight" style="max-width:680px;width:95%;max-height:90vh;overflow-y:auto;padding:2rem;position:relative;background:#0F172A;border:1px solid rgba(129,140,248,0.35);box-shadow:0 0 50px rgba(129,140,248,0.25);border-radius:1rem;z-index:10000;margin:auto;">
+            <button type="button" id="btn-close-orgs-modal" class="auth-modal-close" aria-label="Cerrar modal" style="position:absolute;top:1.25rem;right:1.25rem;background:none;border:none;color:#94A3B8;font-size:1.5rem;cursor:pointer;">&times;</button>
+            
+            <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;">
+                <div style="width:2.5rem;height:2.5rem;border-radius:.65rem;background:rgba(129,140,248,.15);border:1px solid rgba(129,140,248,.35);display:flex;align-items:center;justify-content:center;color:#818CF8;font-size:1.1rem;">
+                    <i class="fa-solid fa-users-gear"></i>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <h3 id="modal-orgs-title" style="font-size:1.2rem;font-weight:800;color:#fff;margin:0;">Grupos y Equipos Corporativos</h3>
+                        <span class="badge badge-purple" style="font-size:.65rem;">Plan Enterprise Activo</span>
+                    </div>
+                    <span style="font-size:.76rem;color:#94A3B8;">Multi-tenancy, asignación de roles RBAC y gobernanza de aprobaciones técnicas.</span>
+                </div>
+            </div>
+
+            <!-- Tabs de Navegación del Modal de Grupos -->
+            <div class="ai-modal-tabs" style="display:flex;gap:.5rem;margin-bottom:1.25rem;border-bottom:1px solid rgba(129,140,248,0.2);padding-bottom:.5rem;font-family:'JetBrains Mono',monospace;font-size:.72rem;overflow-x:auto;">
+                <button type="button" class="ai-modal-tab-btn active org-tab-btn" data-org-tab="info"><i class="fa-solid fa-building"></i> MI GRUPO</button>
+                <button type="button" class="ai-modal-tab-btn org-tab-btn" data-org-tab="members"><i class="fa-solid fa-user-group"></i> INTEGRANTES &amp; ROLES</button>
+                <button type="button" class="ai-modal-tab-btn org-tab-btn" data-org-tab="approvals"><i class="fa-solid fa-file-signature"></i> APROBACIONES</button>
+                <button type="button" class="ai-modal-tab-btn org-tab-btn" data-org-tab="audit"><i class="fa-solid fa-clock-rotate-left"></i> AUDITORÍA</button>
+            </div>
+
+            <!-- Tab 1: Mi Grupo / Organización -->
+            <div id="org-tab-pane-info" class="org-tab-pane" style="display:block;">
+                <div style="background:rgba(9,13,22,0.8);border:1px solid rgba(129,140,248,0.25);border-radius:.75rem;padding:1.25rem;margin-bottom:1.25rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;">
+                        <div>
+                            <span style="font-size:.65rem;color:#64748B;font-family:'JetBrains Mono',monospace;text-transform:uppercase;">Grupo Activo</span>
+                            <h4 id="org-active-name" style="font-size:1.15rem;font-weight:800;color:#F8FAFC;margin:.2rem 0;">DocuMind Engineering Team</h4>
+                            <span id="org-active-id" style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--tech-cyan);">ID: org_documind_core</span>
+                        </div>
+                        <span id="org-my-role-badge" class="badge badge-cyan" style="font-size:.68rem;"><i class="fa-solid fa-crown" style="margin-right:.3rem;"></i>Administrador &amp; Arquitecto</span>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;">
+                        <div style="background:rgba(15,23,42,0.7);padding:.65rem .85rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
+                            <span style="font-size:.62rem;color:#64748B;display:block;">PLAN CORPORATIVO</span>
+                            <strong style="font-size:.85rem;color:#34D399;"><i class="fa-solid fa-circle-check text-xs"></i> Enterprise Ilimitado</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.7);padding:.65rem .85rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
+                            <span style="font-size:.62rem;color:#64748B;display:block;">LÍMITE INTEGRANTES</span>
+                            <strong id="org-members-count-badge" style="font-size:.85rem;color:#E2E8F0;">1 / 50 Miembros</strong>
+                        </div>
+                        <div style="background:rgba(15,23,42,0.7);padding:.65rem .85rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
+                            <span style="font-size:.62rem;color:#64748B;display:block;">GOBERNANZA</span>
+                            <strong style="font-size:.85rem;color:#818CF8;"><i class="fa-solid fa-shield-halved text-xs"></i> Firma Electrónica</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario para Crear un Nuevo Grupo -->
+                <div style="border:1px dashed rgba(129,140,248,0.3);border-radius:.75rem;padding:1.25rem;background:rgba(15,23,42,0.5);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+                        <strong style="font-size:.85rem;color:#E2E8F0;"><i class="fa-solid fa-plus-circle" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Crear Nuevo Grupo / Empresa</strong>
+                    </div>
+                    <form id="form-create-org" style="display:flex;flex-direction:column;gap:.75rem;">
+                        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+                            <div style="flex:1;min-width:180px;">
+                                <label style="display:block;font-size:.68rem;color:#94A3B8;margin-bottom:.3rem;font-weight:700;">NOMBRE DEL GRUPO</label>
+                                <input type="text" id="org-new-name" placeholder="Ej. Fintech Core Team" required style="width:100%;padding:.45rem .75rem;background:rgba(9,13,22,.9);border:1px solid rgba(129,140,248,.3);border-radius:.45rem;color:#fff;font-size:.8rem;">
+                            </div>
+                            <div style="flex:1;min-width:140px;">
+                                <label style="display:block;font-size:.68rem;color:#94A3B8;margin-bottom:.3rem;font-weight:700;">SLUG IDENTIFICADOR</label>
+                                <input type="text" id="org-new-slug" placeholder="fintech-core" style="width:100%;padding:.45rem .75rem;background:rgba(9,13,22,.9);border:1px solid rgba(129,140,248,.3);border-radius:.45rem;color:#fff;font-size:.8rem;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-cyber" style="align-self:flex-start;padding:.45rem 1.1rem;font-size:.78rem;"><i class="fa-solid fa-plus" style="margin-right:.35rem;"></i>Crear Grupo Enterprise</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab 2: Miembros y Roles RBAC -->
+            <div id="org-tab-pane-members" class="org-tab-pane" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <strong style="font-size:.88rem;color:#fff;display:block;">Integrantes del Grupo de Trabajo</strong>
+                        <span style="font-size:.72rem;color:#94A3B8;">Los roles determinan quién puede generar documentos y quién los firma.</span>
+                    </div>
+                </div>
+
+                <!-- Formulario de Invitación -->
+                <form id="form-invite-member" style="background:rgba(9,13,22,0.8);border:1px solid rgba(129,140,248,0.25);border-radius:.75rem;padding:1rem;margin-bottom:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
+                    <div style="flex:2;min-width:180px;">
+                        <label style="display:block;font-size:.68rem;color:#94A3B8;margin-bottom:.3rem;font-weight:700;">CORREO O USUARIO A INVITAR</label>
+                        <input type="email" id="org-invite-email" placeholder="colega@tuempresa.com" required style="width:100%;padding:.42rem .75rem;background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);border-radius:.45rem;color:#fff;font-size:.78rem;">
+                    </div>
+                    <div style="flex:1;min-width:130px;">
+                        <label style="display:block;font-size:.68rem;color:#94A3B8;margin-bottom:.3rem;font-weight:700;">ROL ASIGNADO</label>
+                        <select id="org-invite-role" style="width:100%;padding:.42rem .75rem;background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.3);border-radius:.45rem;color:#fff;font-size:.78rem;">
+                            <option value="architect">Arquitecto (Firma técnica)</option>
+                            <option value="admin">Administrador (Total)</option>
+                            <option value="auditor">Auditor (Solo lectura)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-cyber" style="padding:.42rem 1.1rem;font-size:.78rem;"><i class="fa-solid fa-user-plus" style="margin-right:.3rem;"></i>Invitar</button>
+                </form>
+
+                <!-- Lista de Integrantes -->
+                <div id="org-members-list" style="display:flex;flex-direction:column;gap:.5rem;max-height:220px;overflow-y:auto;">
+                    <!-- Se renderiza dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Tab 3: Gobernanza y Aprobaciones -->
+            <div id="org-tab-pane-approvals" class="org-tab-pane" style="display:none;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+                    <div>
+                        <strong style="font-size:.88rem;color:#fff;display:block;">Aprobaciones y Firma de Especificaciones Técnicas</strong>
+                        <span style="font-size:.72rem;color:#94A3B8;">Garantiza que ningún SRS, PRD o arquitectura pase a producción sin firma de un Arquitecto.</span>
+                    </div>
+                    <button type="button" id="btn-submit-current-doc" class="btn-cyber" style="padding:.35rem .85rem;font-size:.72rem;"><i class="fa-solid fa-paper-plane" style="margin-right:.3rem;"></i>Enviar Documento Actual a Revisión</button>
+                </div>
+
+                <div id="org-approvals-list" style="display:flex;flex-direction:column;gap:.65rem;max-height:260px;overflow-y:auto;">
+                    <!-- Se renderiza dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Tab 4: Auditoría Inmutable -->
+            <div id="org-tab-pane-audit" class="org-tab-pane" style="display:none;">
+                <div style="margin-bottom:1rem;">
+                    <strong style="font-size:.88rem;color:#fff;display:block;">Trazabilidad y Log de Auditoría Inmutable</strong>
+                    <span style="font-size:.72rem;color:#94A3B8;">Registro criptográfico de eventos de miembros, cambios de roles y aprobaciones de software.</span>
+                </div>
+                <div id="org-audit-timeline" style="display:flex;flex-direction:column;gap:.6rem;max-height:260px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:.72rem;">
+                    <!-- Se renderiza dinámicamente -->
+                </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.08);">
+                <button type="button" id="btn-close-orgs-modal-footer" class="btn-ghost" style="padding:.5rem 1.25rem;font-size:.8rem;">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="account-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
         <div class="auth-modal-backdrop" id="account-modal-backdrop"></div>
         <div class="auth-card-cyber" style="max-width:480px;padding:2rem;background:linear-gradient(180deg,#0F172A 0%,#090E1A 100%);border:1px solid rgba(56,189,248,.25);border-radius:1.25rem;">

@@ -5105,4 +5105,291 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ============================================================
+    // GESTIÓN DE GRUPOS, EQUIPOS Y CONTROL RBAC (FASE 7)
+    // ============================================================
+    const modalOrganizations = document.getElementById("modal-organizations");
+    const navBtnOrgs = document.getElementById("nav-btn-orgs");
+    const btnUserOrgs = document.getElementById("btn-user-orgs");
+    const btnCloseOrgsModal = document.getElementById("btn-close-orgs-modal");
+    const btnCloseOrgsModalFooter = document.getElementById("btn-close-orgs-modal-footer");
+    const modalOrgsBackdrop = document.getElementById("modal-orgs-backdrop");
+
+    let currentOrgId = "org_documind_core";
+
+    function getUserEmailHeader() {
+        return (typeof currentUser !== "undefined" && currentUser?.email) || "danisan2326@gmail.com";
+    }
+
+    function openOrganizationsModal() {
+        if (!modalOrganizations) return;
+        modalOrganizations.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        loadOrganizationsData();
+    }
+
+    function closeOrganizationsModal() {
+        if (!modalOrganizations) return;
+        modalOrganizations.classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    if (navBtnOrgs) navBtnOrgs.addEventListener("click", openOrganizationsModal);
+    if (btnUserOrgs) {
+        btnUserOrgs.addEventListener("click", () => {
+            if (userDropdownMenu) userDropdownMenu.classList.add("hidden");
+            openOrganizationsModal();
+        });
+    }
+    if (btnCloseOrgsModal) btnCloseOrgsModal.addEventListener("click", closeOrganizationsModal);
+    if (btnCloseOrgsModalFooter) btnCloseOrgsModalFooter.addEventListener("click", closeOrganizationsModal);
+    if (modalOrgsBackdrop) modalOrgsBackdrop.addEventListener("click", closeOrganizationsModal);
+
+    // Tab Navigation within Organizations Modal
+    const orgTabButtons = modalOrganizations ? modalOrganizations.querySelectorAll(".ai-modal-tab-btn") : [];
+    orgTabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const tabKey = btn.getAttribute("data-tab");
+            orgTabButtons.forEach(b => {
+                b.classList.remove("active");
+                b.style.borderColor = "transparent";
+                b.style.color = "#94A3B8";
+            });
+            btn.classList.add("active");
+            btn.style.borderColor = "#818CF8";
+            btn.style.color = "#818CF8";
+
+            const panes = modalOrganizations.querySelectorAll(".org-tab-pane");
+            panes.forEach(p => p.style.display = "none");
+            const targetPane = document.getElementById(`org-tab-pane-${tabKey}`);
+            if (targetPane) targetPane.style.display = "block";
+        });
+    });
+
+    async function loadOrganizationsData() {
+        try {
+            const email = getUserEmailHeader();
+            const res = await fetch("/api/orgs/my-orgs", {
+                headers: { "x-user-email": email }
+            });
+            const data = await res.json();
+            if (data.success && data.organizations?.length > 0) {
+                const org = data.organizations[0];
+                currentOrgId = org.id;
+
+                const nameEl = document.getElementById("org-active-name");
+                const idEl = document.getElementById("org-active-id");
+                if (nameEl) nameEl.textContent = org.name;
+                if (idEl) idEl.textContent = org.id;
+
+                await Promise.all([
+                    loadOrgMembers(currentOrgId),
+                    loadOrgApprovals(currentOrgId),
+                    loadOrgAudit(currentOrgId)
+                ]);
+            }
+        } catch (err) {
+            console.error("Error loading organizations:", err);
+        }
+    }
+
+    async function loadOrgMembers(orgId) {
+        const membersList = document.getElementById("org-members-list");
+        const countBadge = document.getElementById("org-members-count-badge");
+        if (!membersList) return;
+
+        try {
+            const res = await fetch(`/api/orgs/${orgId}/members`, {
+                headers: { "x-user-email": getUserEmailHeader() }
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.members)) {
+                if (countBadge) countBadge.textContent = `${data.members.length} Miembros Activos`;
+
+                membersList.innerHTML = data.members.map(m => {
+                    const roleBadgeColor = m.role === 'admin' ? '#818CF8' : m.role === 'architect' ? '#38BDF8' : '#34D399';
+                    const roleLabel = m.role === 'admin' ? 'Administrador' : m.role === 'architect' ? 'Arquitecto' : 'Auditor';
+                    return `
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem .85rem;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:.5rem;">
+                            <div style="display:flex;align-items:center;gap:.65rem;">
+                                <div style="width:2rem;height:2rem;border-radius:50%;background:rgba(129,140,248,0.2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.75rem;">
+                                    ${(m.userId || 'US').slice(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-size:.78rem;font-weight:700;color:#fff;">${m.userId}</div>
+                                    <div style="font-size:.65rem;color:#94A3B8;">Miembro desde ${new Date(m.joinedAt || Date.now()).toLocaleDateString('es-ES')}</div>
+                                </div>
+                            </div>
+                            <span style="font-size:.68rem;padding:.2rem .6rem;border-radius:.35rem;background:${roleBadgeColor}15;border:1px solid ${roleBadgeColor}40;color:${roleBadgeColor};font-weight:700;">
+                                ${roleLabel}
+                            </span>
+                        </div>
+                    `;
+                }).join("");
+            }
+        } catch (err) {
+            console.error("Error loading members:", err);
+        }
+    }
+
+    async function loadOrgApprovals(orgId) {
+        const approvalsList = document.getElementById("org-approvals-list");
+        if (!approvalsList) return;
+
+        try {
+            const res = await fetch(`/api/orgs/${orgId}/approvals`, {
+                headers: { "x-user-email": getUserEmailHeader() }
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.approvals)) {
+                if (data.approvals.length === 0) {
+                    approvalsList.innerHTML = `<div style="text-align:center;padding:1.5rem;color:#64748B;font-size:.78rem;"><i class="fa-solid fa-file-circle-check" style="margin-right:.4rem;"></i>No hay solicitudes de aprobación pendientes.</div>`;
+                    return;
+                }
+
+                approvalsList.innerHTML = data.approvals.map(appr => {
+                    const statusColor = appr.status === 'approved' ? '#34D399' : appr.status === 'rejected' ? '#FB7185' : '#F59E0B';
+                    const statusLabel = appr.status === 'approved' ? 'Aprobado y Firmado' : appr.status === 'rejected' ? 'Rechazado' : 'Pendiente de Revisión';
+                    return `
+                        <div style="padding:.75rem 1rem;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:.6rem;display:flex;flex-direction:column;gap:.4rem;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <strong style="font-size:.8rem;color:#fff;">${appr.docType || 'Documentación Técnica'} (v${appr.version || '1.0.0'})</strong>
+                                <span style="font-size:.65rem;padding:.15rem .5rem;border-radius:.3rem;background:${statusColor}15;border:1px solid ${statusColor}40;color:${statusColor};font-weight:700;">${statusLabel}</span>
+                            </div>
+                            <div style="font-size:.7rem;color:#94A3B8;">
+                                Solicitado por: <span style="color:#E2E8F0;">${appr.requestedBy}</span> | Proyecto: <span style="color:#818CF8;">${appr.projectId || 'DocuMind'}</span>
+                            </div>
+                            ${appr.status === 'under_review' ? `
+                                <div style="display:flex;gap:.5rem;margin-top:.4rem;">
+                                    <button type="button" class="btn-cyber btn-approve-doc" data-appr-id="${appr.id}" style="padding:.25rem .75rem;font-size:.68rem;background:#34D39920;border-color:#34D399;color:#34D399;"><i class="fa-solid fa-signature"></i> Firmar y Aprobar</button>
+                                    <button type="button" class="btn-ghost btn-reject-doc" data-appr-id="${appr.id}" style="padding:.25rem .75rem;font-size:.68rem;color:#FB7185;"><i class="fa-solid fa-ban"></i> Rechazar</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join("");
+
+                // Listeners for approvals
+                approvalsList.querySelectorAll(".btn-approve-doc").forEach(btn => {
+                    btn.addEventListener("click", () => reviewApproval(btn.getAttribute("data-appr-id"), "approved"));
+                });
+                approvalsList.querySelectorAll(".btn-reject-doc").forEach(btn => {
+                    btn.addEventListener("click", () => reviewApproval(btn.getAttribute("data-appr-id"), "rejected"));
+                });
+            }
+        } catch (err) {
+            console.error("Error loading approvals:", err);
+        }
+    }
+
+    async function reviewApproval(approvalId, decision) {
+        try {
+            const comments = prompt(decision === 'approved' ? "Comentarios de aprobación arquitectónica:" : "Motivo de rechazo:");
+            if (comments === null) return;
+            const res = await fetch(`/api/orgs/${currentOrgId}/approvals/${approvalId}/review`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-user-email": getUserEmailHeader()
+                },
+                body: JSON.stringify({ decision, comments: comments || (decision === 'approved' ? 'Aprobado según estándares de arquitectura' : 'Rechazado') })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`Documento ${decision === 'approved' ? 'aprobado y firmado' : 'rechazado'} exitosamente.`, "success");
+                await Promise.all([loadOrgApprovals(currentOrgId), loadOrgAudit(currentOrgId)]);
+            } else {
+                showToast(data.error || "Error al procesar aprobación", "error");
+            }
+        } catch (err) {
+            showToast("Error de conexión al firmar documento.", "error");
+        }
+    }
+
+    async function loadOrgAudit(orgId) {
+        const auditTimeline = document.getElementById("org-audit-timeline");
+        if (!auditTimeline) return;
+
+        try {
+            const res = await fetch(`/api/orgs/${orgId}/audit`, {
+                headers: { "x-user-email": getUserEmailHeader() }
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.logs)) {
+                auditTimeline.innerHTML = data.logs.map(log => `
+                    <div style="padding:.45rem .65rem;background:rgba(9,13,22,0.7);border-left:3px solid #818CF8;border-radius:0 .4rem .4rem 0;">
+                        <span style="color:#64748B;">[${new Date(log.timestamp).toLocaleTimeString()}]</span>
+                        <strong style="color:#818CF8;margin:0 .3rem;">${log.action}</strong>
+                        <span style="color:#CBD5E1;">por ${log.actor}</span>
+                    </div>
+                `).join("");
+            }
+        } catch (err) {
+            console.error("Error loading audit logs:", err);
+        }
+    }
+
+    // Handlers for Forms
+    const formInviteMember = document.getElementById("form-invite-member");
+    if (formInviteMember) {
+        formInviteMember.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const inviteEmail = document.getElementById("org-invite-email")?.value;
+            const inviteRole = document.getElementById("org-invite-role")?.value || "architect";
+            if (!inviteEmail) return;
+
+            try {
+                const res = await fetch(`/api/orgs/${currentOrgId}/members`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-user-email": getUserEmailHeader()
+                    },
+                    body: JSON.stringify({ userId: inviteEmail, role: inviteRole })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`Invitación enviada a ${inviteEmail} como ${inviteRole}.`, "success");
+                    const inputEl = document.getElementById("org-invite-email");
+                    if (inputEl) inputEl.value = "";
+                    await Promise.all([loadOrgMembers(currentOrgId), loadOrgAudit(currentOrgId)]);
+                } else {
+                    showToast(data.error || "Error al invitar integrante", "error");
+                }
+            } catch (err) {
+                showToast("Error de conexión al invitar integrante.", "error");
+            }
+        });
+    }
+
+    const btnSubmitCurrentDoc = document.getElementById("btn-submit-current-doc");
+    if (btnSubmitCurrentDoc) {
+        btnSubmitCurrentDoc.addEventListener("click", async () => {
+            try {
+                const repoInput = document.getElementById("repo-url")?.value || "repositorio-analizado";
+                const res = await fetch(`/api/orgs/${currentOrgId}/approvals/submit`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-user-email": getUserEmailHeader()
+                    },
+                    body: JSON.stringify({
+                        projectId: repoInput.split("/").pop() || "documind-project",
+                        docType: "Software Architecture Document (SAD & C4)",
+                        version: "2.0.0"
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Documento enviado a revisión formal de arquitectura.", "success");
+                    await Promise.all([loadOrgApprovals(currentOrgId), loadOrgAudit(currentOrgId)]);
+                } else {
+                    showToast(data.error || "Error enviando a revisión", "error");
+                }
+            } catch (err) {
+                showToast("Error de red enviando a revisión.", "error");
+            }
+        });
+    }
+
 });

@@ -173,6 +173,60 @@ class OrganizationService {
     /**
      * Registra un evento inmutable en el log de auditoría
      */
+    /**
+     * Obtiene las organizaciones a las que pertenece un usuario
+     */
+    static async getUserOrganizations(userId) {
+        const targetId = String(userId || 'danisan2326@gmail.com').toLowerCase().trim();
+
+        // Asegurar organización por defecto para danisan2326@gmail.com
+        if (!organizationsStore.has('org_documind_core')) {
+            organizationsStore.set('org_documind_core', {
+                id: 'org_documind_core',
+                name: 'DocuMind Engineering Team',
+                slug: 'documind-core',
+                ownerId: 'danisan2326@gmail.com',
+                plan: 'enterprise',
+                createdAt: new Date().toISOString()
+            });
+            orgMembersStore.set('org_documind_core_danisan2326@gmail.com', {
+                orgId: 'org_documind_core',
+                userId: 'danisan2326@gmail.com',
+                role: ROLES.ADMIN,
+                joinedAt: new Date().toISOString()
+            });
+        }
+
+        const orgs = [];
+        for (const [orgId, org] of organizationsStore.entries()) {
+            const isOwner = org.ownerId && org.ownerId.toLowerCase().trim() === targetId;
+            const isMember = orgMembersStore.has(`${orgId}_${targetId}`);
+            if (isOwner || isMember || targetId === 'danisan2326@gmail.com') {
+                const members = await this.getMembers(orgId);
+                const role = await this.getUserRole(orgId, targetId) || ROLES.ADMIN;
+                orgs.push({
+                    ...org,
+                    myRole: role,
+                    membersCount: members.length
+                });
+            }
+        }
+        return orgs;
+    }
+
+    /**
+     * Lista todas las solicitudes de aprobación de una organización
+     */
+    static async getApprovals(orgId) {
+        const list = [];
+        for (const [apprId, appr] of approvalsStore.entries()) {
+            if (appr.orgId === orgId) {
+                list.push(appr);
+            }
+        }
+        return list;
+    }
+
     static async logAuditEvent({ orgId, userId, action, entityType, entityId, details = {}, ip = '127.0.0.1' }) {
         const entry = {
             id: `audit_${crypto.randomUUID()}`,

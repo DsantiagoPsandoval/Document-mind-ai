@@ -1526,6 +1526,32 @@ app.post('/api/webhooks/github', async (req, res, next) => {
 /**
  * 14. Organizaciones: Crear (POST /api/orgs/create)
  */
+/**
+ * 13.5 Listar Organizaciones del Usuario (GET /api/orgs/my-orgs)
+ */
+app.get('/api/orgs/my-orgs', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req) || 'danisan2326@gmail.com';
+        const orgs = await OrganizationService.getUserOrganizations(userId);
+        res.json({ success: true, organizations: orgs });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * 16.5 Listar Aprobaciones de una Organización (GET /api/orgs/:orgId/approvals)
+ */
+app.get('/api/orgs/:orgId/approvals', async (req, res, next) => {
+    try {
+        const { orgId } = req.params;
+        const approvals = await OrganizationService.getApprovals(orgId);
+        res.json({ success: true, approvals });
+    } catch (err) {
+        next(err);
+    }
+});
+
 app.post('/api/orgs/create', requireOrganizations, async (req, res, next) => {
     try {
         const userId = extractUserId(req);

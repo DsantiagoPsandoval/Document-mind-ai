@@ -90,11 +90,37 @@ function getCurrentPeriodYM() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+// Superusuarios y cuentas Enterprise vitalicias
+const SUPERUSER_IDENTIFIERS = new Set([
+    'danisan2326@gmail.com'
+]);
+
+inMemorySubscriptions.set('danisan2326@gmail.com', {
+    userId: 'danisan2326@gmail.com',
+    plan: PLAN_TIERS.ENTERPRISE,
+    status: 'active',
+    billingCycle: 'enterprise_lifetime',
+    periodEnd: '2099-12-31T23:59:59.999Z',
+    isSuperAdmin: true
+});
+
 class PlanService {
     /**
      * Obtiene el plan asignado a un usuario
      */
     static async getUserSubscription(userId) {
+        const idLower = String(userId || '').toLowerCase().trim();
+        if (idLower === 'danisan2326@gmail.com' || SUPERUSER_IDENTIFIERS.has(idLower)) {
+            return {
+                userId: 'danisan2326@gmail.com',
+                plan: PLAN_TIERS.ENTERPRISE,
+                status: 'active',
+                billingCycle: 'enterprise_lifetime',
+                periodEnd: '2099-12-31T23:59:59.999Z',
+                isSuperAdmin: true,
+                definition: PLAN_DEFINITIONS[PLAN_TIERS.ENTERPRISE]
+            };
+        }
         if (!userId) {
             return {
                 plan: PLAN_TIERS.FREE,
