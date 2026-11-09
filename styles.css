@@ -1090,6 +1090,248 @@ img, svg, video, canvas {
     user-select: none;
 }
 
+/* ===== 3D COMPONENT ENHANCEMENTS & SCI-FI HOLOGRAPHIC HUD ===== */
+@media (max-width: 640px) {
+    .ai-hud-subnav {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0.35rem !important;
+        padding: 0.4rem 0.5rem !important;
+    }
+    .ai-hud-subnav > div {
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+    .ai-mode-btn {
+        font-size: 0.58rem !important;
+        padding: 0.18rem 0.45rem !important;
+    }
+    .ai-pulse-trigger {
+        font-size: 0.58rem !important;
+        padding: 0.18rem 0.5rem !important;
+    }
+}
+.ai-hud-subnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: rgba(9, 13, 22, 0.95);
+    border-left: 1px solid rgba(129, 140, 248, 0.22);
+    border-right: 1px solid rgba(129, 140, 248, 0.22);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    overflow-x: auto;
+}
+.ai-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.6rem;
+    border-radius: 0.35rem;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(129, 140, 248, 0.2);
+    color: #94A3B8;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ai-mode-btn:hover {
+    color: #F8FAFC;
+    border-color: rgba(56, 189, 248, 0.4);
+    background: rgba(56, 189, 248, 0.1);
+}
+.ai-mode-btn.active {
+    color: #38BDF8;
+    border-color: #38BDF8;
+    background: rgba(56, 189, 248, 0.16);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+    font-weight: 700;
+}
+.ai-pulse-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.22rem 0.65rem;
+    border-radius: 0.35rem;
+    background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(129,140,248,0.2));
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    color: #38BDF8;
+    cursor: pointer;
+    font-weight: 800;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    animation: pulseBorder 2.4s infinite;
+}
+.ai-pulse-trigger:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(129,140,248,0.35));
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+    color: #FFFFFF;
+}
+
+/* Hologram HUD Tooltip */
+.ai-hologram-hud {
+    position: absolute;
+    pointer-events: none;
+    display: none;
+    z-index: 100;
+    max-width: 290px;
+    width: max-content;
+    will-change: transform;
+    animation: hologramAppear 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes hologramAppear {
+    from { opacity: 0; transform: translate(-50%, -90%) scale(0.92); }
+    to { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+.ai-hologram-inner {
+    background: rgba(10, 16, 30, 0.94);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    border-radius: 0.65rem;
+    padding: 0.75rem 0.95rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    position: relative;
+    overflow: hidden;
+}
+.ai-hologram-inner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #38BDF8, #818CF8, transparent);
+    animation: scanLine 2s linear infinite;
+}
+@keyframes scanLine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+.ai-hologram-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+}
+.ai-hologram-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.12rem 0.45rem;
+    border-radius: 0.25rem;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.ai-hologram-status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: #34D399;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 700;
+}
+.hologram-pulse-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #34D399;
+    box-shadow: 0 0 8px #34D399;
+    animation: pulse 1.5s infinite;
+}
+.ai-hologram-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #F8FAFC;
+    line-height: 1.25;
+    margin-bottom: 0.3rem;
+}
+.ai-hologram-desc {
+    font-size: 0.7rem;
+    color: #94A3B8;
+    line-height: 1.45;
+    margin-bottom: 0.55rem;
+    white-space: normal;
+}
+.ai-hologram-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    margin-bottom: 0.45rem;
+}
+.ai-spec-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: #E2E8F0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.12rem 0.4rem;
+    border-radius: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.ai-hologram-action {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--tech-cyan);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 700;
+}
+
+/* Modal Subsystem Tabs */
+.ai-modal-tab-btn {
+    background: none;
+    border: none;
+    color: #64748B;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    border-radius: 0.35rem;
+    transition: all 0.2s ease;
+    font-weight: 700;
+}
+.ai-modal-tab-btn:hover {
+    color: #CBD5E1;
+    background: rgba(255, 255, 255, 0.04);
+}
+.ai-modal-tab-btn.active {
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+/* Card Cursor Tracking Spotlight */
+.card-spotlight {
+    position: relative;
+    overflow: hidden;
+}
+.card-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: radial-gradient(350px circle at var(--mouse-x, -999px) var(--mouse-y, -999px), rgba(56, 189, 248, 0.28), transparent 60%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    z-index: 2;
+}
+.card-spotlight:hover::before {
+    opacity: 1;
+}
+
 /* ===== CONTACT ICON BUTTONS ===== */
 .contact-btn-icon {
     width: 2.5rem;

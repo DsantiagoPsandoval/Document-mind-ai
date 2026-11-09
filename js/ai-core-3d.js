@@ -1,20 +1,20 @@
 /**
- * DOCUMENT-MIND AI — 3D COMPUTATIONAL AI CORE ENGINE
- * Three.js + WebGL Architecture (Responsive Mobile-First Edition v4.3)
+ * DOCUMENT-MIND AI — 3D COMPUTATIONAL AI CORE ENGINE (ENTERPRISE EDITION v5.0)
+ * Three.js + WebGL Architecture with Sci-Fi Holographic HUD & Quantum Interactions
+ *
  * Hierarchical Scene Graph:
  * scene
  * ├── environmentGroup (Physical Lights, Ambient 3D Cosmic Particles)
- * ├── coreSystem (Multi-Layer Reactor, Physical Metallic Glass Shell, 3 Torus Gimbals, Nano Particles)
+ * ├── coreSystem (Multi-Layer Reactor, Metallic Glass Shell, 3 Gimbal Toruses, Swirling Nano Particles)
  * ├── orbitSystem (4 Tilted Torus 3D Orbits with Travelling Satellite Meshes)
- * ├── nodeSystem (7 Faceted 3D Crystal Nodes: CODE, AST, DOCS, C4, API, DATABASE, SYNC)
- * ├── connectionSystem (3D Connection Lines & Flowing Data Packets with Ingestion/Generation Flow)
- * └── interactionSystem (Raycaster, Parallax, Touch/Tap Support, Boundary Tooltips, State Machine, HUD)
+ * ├── nodeSystem (7 Faceted 3D Crystals + Inner Glowing Cores + Holographic Reticles + Sonar Rings)
+ * ├── connectionSystem (3D Connection Laser Lines & Multi-Speed Flowing Data Packets)
+ * └── interactionSystem (Raycaster, Parallax Micro-Tilt, Holographic HUD Tooltip, Subsystem Modes)
  */
 
 (function() {
     'use strict';
 
-    // Verify Three.js availability
     if (typeof THREE === 'undefined') {
         console.error('[DocuMind AI Core 3D] Three.js is required but not loaded.');
         return;
@@ -33,6 +33,7 @@
         techCyan: 0x38BDF8,
         emerald: 0x34D399,
         indigo: 0x818CF8,
+        amber: 0xF59E0B,
         white: 0xF8FAFC,
         textMuted: 0x94A3B8
     };
@@ -45,10 +46,11 @@
         currentStageIndex: 0,
         stageTimer: 0,
         hoveredNodeIndex: -1,
-        selectedNodeData: null
+        selectedNodeData: null,
+        activeSubsystemMode: 'all', // 'all', 'ast', 'c4', 'sec'
+        pulseTriggeredAt: 0
     };
 
-    // Detect touch and reduced motion
     if (('ontouchstart' in window) || (navigator.maxTouchPoints > 0)) {
         AICoreApp.isTouchDevice = true;
     }
@@ -65,7 +67,7 @@
         { id: 'SYNC_COMPLETE', label: 'SINCRONIZACIÓN COMPLETA', color: '#34D399', hex: PALETTE.emerald, active: ['sync'] }
     ];
 
-    // Deliberate Spatial 3D Composition
+    // Deliberate Spatial 3D Composition with Rich Engineering Metadata
     var NODES_DATA = [
         {
             id: 'code',
@@ -76,7 +78,11 @@
             hex: PALETTE.techCyan,
             pos: [-5.2, 0.3, 0.8],
             flow: 'in',
-            phase: 0.2
+            phase: 0.2,
+            latency: '0.8 ms',
+            throughput: '64 MB/s',
+            specs: 'Clasificación multiextensión de 40+ lenguajes sin compilar.',
+            code: '// Ingestión de árbol en memoria RAM (Zero-Retention)\nconst tree = await scanSourceTree(repoBuffer, {\n  ignore: [".git", "node_modules", "dist"],\n  maxFileSizeMb: 10\n});'
         },
         {
             id: 'ast',
@@ -87,7 +93,11 @@
             hex: PALETTE.indigo,
             pos: [-3.6, 3.4, -1.2],
             flow: 'out',
-            phase: 1.4
+            phase: 1.4,
+            latency: '1.2 ms',
+            throughput: '48 MB/s',
+            specs: 'Parsing semántico políglota (Babel, AST TypeScript, Python AST).',
+            code: '// Extracción AST profunda políglota\nconst ast = parseSourceTree(sourceCode, {\n  plugins: ["typescript", "jsx", "decorators"],\n  tokens: true,\n  depth: 12\n});'
         },
         {
             id: 'docs',
@@ -98,7 +108,11 @@
             hex: PALETTE.techCyan,
             pos: [0.0, 4.4, 0.9],
             flow: 'out',
-            phase: 2.6
+            phase: 2.6,
+            latency: '2.4 ms',
+            throughput: '120 docs/min',
+            specs: 'Generación con plantillas IEEE 830, PRD y Word editorial.',
+            code: '// Generador documental empresarial\nconst docx = await generateDocxSuite({\n  template: "IEEE_830_SRS",\n  includeC4Diagrams: true,\n  format: "a4_editorial"\n});'
         },
         {
             id: 'c4',
@@ -109,7 +123,11 @@
             hex: PALETTE.indigo,
             pos: [3.6, 3.4, -1.4],
             flow: 'out',
-            phase: 3.8
+            phase: 3.8,
+            latency: '1.6 ms',
+            throughput: '32 diagrams/s',
+            specs: 'Modelos C4 de Simon Brown exportables a Mermaid y SVG.',
+            code: '// Diagrama C4 Contenedores y Servicios\nconst c4Model = buildC4Model({\n  boundaries: ["Frontend", "Gateway", "Core", "Workers"],\n  format: "mermaid_c4"\n});'
         },
         {
             id: 'api',
@@ -120,7 +138,11 @@
             hex: PALETTE.techCyan,
             pos: [5.2, 0.3, 0.8],
             flow: 'out',
-            phase: 5.0
+            phase: 5.0,
+            latency: '0.9 ms',
+            throughput: '85 endpoints/s',
+            specs: 'Extracción estática de rutas Express, FastAPI, Django y NestJS.',
+            code: '// Extracción estática de contratos OpenAPI 3.1\nconst openapi = extractRoutesFromAST(ast, {\n  basePath: "/api/v1",\n  includeSchemas: true\n});'
         },
         {
             id: 'db',
@@ -131,7 +153,11 @@
             hex: PALETTE.indigo,
             pos: [-3.2, -3.0, 1.0],
             flow: 'out',
-            phase: 2.2
+            phase: 2.2,
+            latency: '1.4 ms',
+            throughput: '40 models/s',
+            specs: 'Detección de Prisma, TypeORM, SQLAlchemy y Mongoose.',
+            code: '// Mapeo relacional de entidades y esquemas ORM\nconst erDiagram = mapOrmEntities(files, {\n  detectForeignKeys: true,\n  outputFormat: "mermaid_er"\n});'
         },
         {
             id: 'sync',
@@ -142,7 +168,11 @@
             hex: PALETTE.emerald,
             pos: [3.2, -3.0, -0.9],
             flow: 'out',
-            phase: 0.8
+            phase: 0.8,
+            latency: '0.5 ms',
+            throughput: '100% Zero-Drift',
+            specs: 'Webhooks idempotentes validados con HMAC SHA-256.',
+            code: '// Despachador de sincronización continua CI/CD\nconst verified = verifyHmacSha256(payload, signature, secret);\nif (verified) await syncDocumentation(payload.ref);'
         }
     ];
 
@@ -184,7 +214,6 @@
         return { width: w, height: h };
     }
 
-    // Dynamic responsive viewport adjustment
     function handleResize() {
         var dims = getViewportDims();
         var w = dims.width;
@@ -193,7 +222,6 @@
 
         camera.aspect = w / h;
 
-        // Fluid camera distance & scale adjustment to avoid node clipping on mobile
         if (w < 340) {
             camera.position.z = 21.0;
             nodeSystem.scale.setScalar(0.72);
@@ -226,12 +254,8 @@
 
     handleResize();
     window.addEventListener('resize', handleResize, { passive: true });
-
-    // Use ResizeObserver for instant container-bound size changes
     if (window.ResizeObserver) {
-        var ro = new ResizeObserver(function() {
-            handleResize();
-        });
+        var ro = new ResizeObserver(function() { handleResize(); });
         ro.observe(wrapper);
     }
 
@@ -241,16 +265,16 @@
     var ambientLight = new THREE.AmbientLight(PALETTE.deepSlate, 2.6);
     environmentGroup.add(ambientLight);
 
-    var keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+    var keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
     keyLight.position.set(10, 16, 14);
     environmentGroup.add(keyLight);
 
-    var fillLight = new THREE.DirectionalLight(PALETTE.indigo, 0.75);
+    var fillLight = new THREE.DirectionalLight(PALETTE.indigo, 0.85);
     fillLight.position.set(-12, -10, 8);
     environmentGroup.add(fillLight);
 
-    // Cosmic Dust Particles (BufferGeometry + Points)
-    var particleCount = (AICoreApp.performanceMode || isMobile) ? 50 : 130;
+    // Cosmic Dust Particles
+    var particleCount = (AICoreApp.performanceMode || isMobile) ? 55 : 140;
     var particlePositions = new Float32Array(particleCount * 3);
     for (var p = 0; p < particleCount; p++) {
         particlePositions[p * 3] = (Math.random() - 0.5) * 26;
@@ -263,7 +287,7 @@
         size: 0.12,
         color: PALETTE.techCyan,
         transparent: true,
-        opacity: 0.40
+        opacity: 0.45
     });
     var ambientPoints = new THREE.Points(particleGeo, particleMat);
     environmentGroup.add(ambientPoints);
@@ -271,7 +295,6 @@
     // ==========================================
     // 3. CORE SYSTEM: MULTI-LAYER 3D AI REACTOR
     // ==========================================
-    // 3.1 Inner Pulsing Reactor Core
     var coreInnerGeo = new THREE.SphereGeometry(1.0, 32, 32);
     var coreInnerMat = new THREE.MeshBasicMaterial({
         color: PALETTE.techCyan,
@@ -281,35 +304,32 @@
     var coreInner = new THREE.Mesh(coreInnerGeo, coreInnerMat);
     coreSystem.add(coreInner);
 
-    // 3.2 Mid Reactor Core
     var coreMidGeo = new THREE.SphereGeometry(1.3, 32, 32);
     var coreMidMat = new THREE.MeshBasicMaterial({
         color: PALETTE.indigo,
         transparent: true,
-        opacity: 0.25
+        opacity: 0.28
     });
     var coreMid = new THREE.Mesh(coreMidGeo, coreMidMat);
     coreSystem.add(coreMid);
 
-    // 3.3 Outer Dark Metallic-Glass Shell
     var coreSphereGeo = new THREE.SphereGeometry(1.68, 48, 48);
     var coreSphereMat = new THREE.MeshPhysicalMaterial({
         color: 0x0c1e36,
         emissive: 0x072844,
-        emissiveIntensity: 0.65,
-        roughness: 0.15,
-        metalness: 0.85,
+        emissiveIntensity: 0.70,
+        roughness: 0.12,
+        metalness: 0.88,
         clearcoat: 1.0,
         clearcoatRoughness: 0.1,
         transmission: 0.45,
         ior: 1.5,
         transparent: true,
-        opacity: 0.90
+        opacity: 0.92
     });
     var coreSphere = new THREE.Mesh(coreSphereGeo, coreSphereMat);
     coreSystem.add(coreSphere);
 
-    // 3.4 Inner Wireframe Cage
     var coreWireGeo = new THREE.IcosahedronGeometry(1.88, 2);
     var coreWireMat = new THREE.MeshBasicMaterial({
         color: PALETTE.techCyan,
@@ -320,7 +340,6 @@
     var coreWireframe = new THREE.Mesh(coreWireGeo, coreWireMat);
     coreSystem.add(coreWireframe);
 
-    // 3.5 Outer Geometric Lattice
     var coreOuterLatticeGeo = new THREE.IcosahedronGeometry(2.1, 1);
     var coreOuterLatticeMat = new THREE.MeshBasicMaterial({
         color: PALETTE.indigo,
@@ -331,7 +350,7 @@
     var coreOuterLattice = new THREE.Mesh(coreOuterLatticeGeo, coreOuterLatticeMat);
     coreSystem.add(coreOuterLattice);
 
-    // 3.6 Three Real 3D Torus Gimbal Rings with physical volume
+    // Three Real 3D Torus Gimbal Rings
     var gimbal1Geo = new THREE.TorusGeometry(1.98, 0.034, 16, 64);
     var gimbal1Mat = new THREE.MeshStandardMaterial({
         color: PALETTE.deepSlate,
@@ -368,13 +387,11 @@
     gimbal3.rotation.z = Math.PI / 3.0;
     coreSystem.add(gimbal3);
 
-    // 3.7 Core Point Light
     var corePointLight = new THREE.PointLight(PALETTE.techCyan, 4.5, 30);
     corePointLight.position.set(0, 0, 0);
     coreSystem.add(corePointLight);
 
-    // 3.8 Swirling Core Nano Particles
-    var corePartCount = (AICoreApp.performanceMode || isMobile) ? 30 : 65;
+    var corePartCount = (AICoreApp.performanceMode || isMobile) ? 35 : 70;
     var corePartPositions = new Float32Array(corePartCount * 3);
     for (var cp = 0; cp < corePartCount; cp++) {
         var theta = Math.random() * Math.PI * 2;
@@ -390,7 +407,7 @@
         size: 0.14,
         color: PALETTE.techCyan,
         transparent: true,
-        opacity: 0.80,
+        opacity: 0.85,
         blending: THREE.AdditiveBlending
     });
     var coreParticles = new THREE.Points(corePartGeo, corePartMat);
@@ -422,7 +439,6 @@
         orbitMesh.rotation.set(cfg.rot[0], cfg.rot[1], cfg.rot[2]);
         orbitSystem.add(orbitMesh);
 
-        // Faceted 3D Satellite Octahedron
         var satGeo = new THREE.OctahedronGeometry(0.14, 0);
         var satMat = new THREE.MeshStandardMaterial({
             color: cfg.color,
@@ -444,7 +460,7 @@
     });
 
     // ==========================================
-    // 5. NODE SYSTEM: 7 FACETED 3D CRYSTALS & PROJECTIONS
+    // 5. NODE SYSTEM: ENHANCED 3D NODES & HOLOGRAPHIC RETICLES
     // ==========================================
     var overlay = document.getElementById('ai-nodes-overlay');
     var nodes = [];
@@ -454,32 +470,68 @@
         var group = new THREE.Group();
         group.position.set(data.pos[0], data.pos[1], data.pos[2]);
 
-        // 5.1 Faceted Technological 3D Crystal (Octahedron)
-        var crystalGeo = new THREE.OctahedronGeometry(0.38, 0);
-        var crystalMat = new THREE.MeshStandardMaterial({
+        // 5.1 Faceted Technological 3D Crystal
+        var crystalGeo = new THREE.OctahedronGeometry(0.40, 0);
+        var crystalMat = new THREE.MeshPhysicalMaterial({
             color: 0x0F172A,
             emissive: data.hex,
-            emissiveIntensity: 0.85,
-            roughness: 0.15,
-            metalness: 0.90,
+            emissiveIntensity: 0.95,
+            roughness: 0.12,
+            metalness: 0.92,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
             flatShading: true
         });
         var crystalMesh = new THREE.Mesh(crystalGeo, crystalMat);
         group.add(crystalMesh);
 
-        // 5.2 3D Orbital Ring around Node
-        var ringGeo = new THREE.TorusGeometry(0.58, 0.026, 12, 32);
+        // 5.2 Glowing Inner Core Refraction
+        var innerCoreGeo = new THREE.OctahedronGeometry(0.19, 0);
+        var innerCoreMat = new THREE.MeshBasicMaterial({
+            color: data.hex,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.85
+        });
+        var innerCoreMesh = new THREE.Mesh(innerCoreGeo, innerCoreMat);
+        group.add(innerCoreMesh);
+
+        // 5.3 Inner Orbital Ring around Node
+        var ringGeo = new THREE.TorusGeometry(0.62, 0.026, 12, 36);
         var ringMat = new THREE.MeshBasicMaterial({
             color: data.hex,
             transparent: true,
-            opacity: 0.65
+            opacity: 0.70
         });
         var ringMesh = new THREE.Mesh(ringGeo, ringMat);
         ringMesh.rotation.x = Math.PI / 3;
         group.add(ringMesh);
 
-        // 5.3 Invisible Raycaster Hit Sphere
-        var hitGeo = new THREE.SphereGeometry(1.0, 16, 16);
+        // 5.4 Outer Holographic HUD Reticle (Target Bracket)
+        var reticleGeo = new THREE.TorusGeometry(0.85, 0.016, 8, 36, Math.PI * 1.75);
+        var reticleMat = new THREE.MeshBasicMaterial({
+            color: data.hex,
+            transparent: true,
+            opacity: 0.18
+        });
+        var reticleMesh = new THREE.Mesh(reticleGeo, reticleMat);
+        reticleMesh.rotation.z = Math.PI / 4;
+        group.add(reticleMesh);
+
+        // 5.5 Concentric Sonar Expanding Ripple Wave
+        var sonarGeo = new THREE.TorusGeometry(0.65, 0.024, 8, 36);
+        var sonarMat = new THREE.MeshBasicMaterial({
+            color: data.hex,
+            transparent: true,
+            opacity: 0.0,
+            blending: THREE.AdditiveBlending
+        });
+        var sonarMesh = new THREE.Mesh(sonarGeo, sonarMat);
+        sonarMesh.rotation.x = Math.PI / 2;
+        group.add(sonarMesh);
+
+        // 5.6 Invisible Hit Mesh for raycasting
+        var hitGeo = new THREE.SphereGeometry(1.2, 16, 16);
         var hitMat = new THREE.MeshBasicMaterial({ visible: false });
         var hitMesh = new THREE.Mesh(hitGeo, hitMat);
         hitMesh.userData = { nodeIndex: idx, type: data.id, nodeData: data };
@@ -488,7 +540,7 @@
 
         nodeSystem.add(group);
 
-        // 5.4 Projected HTML Label positioned below the crystal
+        // 5.7 Projected HTML Label
         var labelEl = null;
         if (overlay) {
             labelEl = document.createElement('div');
@@ -515,13 +567,18 @@
             basePos: new THREE.Vector3(data.pos[0], data.pos[1], data.pos[2]),
             group: group,
             crystal: crystalMesh,
+            innerCore: innerCoreMesh,
             ring: ringMesh,
+            reticle: reticleMesh,
+            sonar: sonarMesh,
+            sonarScale: 1.0,
+            sonarOpacity: 0.0,
             labelEl: labelEl
         });
     });
 
     // ==========================================
-    // 6. CONNECTION SYSTEM: 3D LINES & FLOWING PACKETS
+    // 6. CONNECTION SYSTEM: 3D LASER LINES & DATA PACKETS
     // ==========================================
     var connections = [];
     nodes.forEach(function(node) {
@@ -537,16 +594,16 @@
         var line = new THREE.Line(lineGeo, lineMat);
         connectionSystem.add(line);
 
-        // Glowing 3D Data Packets (2 per line)
+        // 4 Fast Glowing Data Packets per line
         var packets = [];
-        for (var pk = 0; pk < 2; pk++) {
-            var pktGeo = new THREE.SphereGeometry(0.11, 14, 14);
+        for (var pk = 0; pk < 4; pk++) {
+            var pktGeo = new THREE.SphereGeometry(0.12, 14, 14);
             var pktMat = new THREE.MeshBasicMaterial({ color: node.data.hex });
             var pktMesh = new THREE.Mesh(pktGeo, pktMat);
             connectionSystem.add(pktMesh);
             packets.push({
                 mesh: pktMesh,
-                offset: pk * 0.5
+                offset: pk * 0.25
             });
         }
 
@@ -558,7 +615,7 @@
     });
 
     // ==========================================
-    // 7. INTERACTION: RAYCASTER, TOUCH & PARALLAX
+    // 7. INTERACTION: RAYCASTER, TOUCH, HOVER & PARALLAX
     // ==========================================
     var raycaster = new THREE.Raycaster();
     var pointer = new THREE.Vector2(-999, -999);
@@ -566,7 +623,12 @@
 
     var tooltip = document.getElementById('ai-tooltip');
     var tooltipTag = document.getElementById('ai-tooltip-tag');
+    var tooltipTitle = document.getElementById('ai-tooltip-title');
     var tooltipDesc = document.getElementById('ai-tooltip-desc');
+    var tooltipStatus = document.getElementById('ai-tooltip-status');
+    var tooltipSpec1 = document.getElementById('ai-tooltip-spec1');
+    var tooltipSpec2 = document.getElementById('ai-tooltip-spec2');
+    var tooltipSpec3 = document.getElementById('ai-tooltip-spec3');
 
     function updatePointer(e) {
         var rect = wrapper.getBoundingClientRect();
@@ -579,14 +641,12 @@
         pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
         pointer.y = -(((clientY - rect.top) / rect.height) * 2 - 1);
 
-        // In mobile touch mode, disable camera parallax to keep scrolling smooth
         if (e.pointerType !== 'touch' && !AICoreApp.isTouchDevice) {
             targetCam.x = pointer.x * 1.5;
             targetCam.y = pointer.y * 1.2;
         }
     }
 
-    // Pointer events for mouse and touch
     wrapper.addEventListener('pointermove', updatePointer, { passive: true });
     wrapper.addEventListener('pointerleave', function() {
         pointer.x = -999;
@@ -596,7 +656,6 @@
         clearHoveredNode();
     });
 
-    // Touch tap / click handler
     var pointerStartX = 0;
     var pointerStartY = 0;
     wrapper.addEventListener('pointerdown', function(e) {
@@ -608,7 +667,6 @@
     wrapper.addEventListener('pointerup', function(e) {
         var dx = Math.abs(e.clientX - pointerStartX);
         var dy = Math.abs(e.clientY - pointerStartY);
-        // Only trigger if it was a distinct tap (not a drag/scroll)
         if (dx < 8 && dy < 8 && pointer.x > -900) {
             raycaster.setFromCamera(pointer, camera);
             var hits = raycaster.intersectObjects(hitMeshes);
@@ -616,10 +674,7 @@
                 var nodeData = hits[0].object.userData.nodeData;
                 var nIdx = hits[0].object.userData.nodeIndex;
                 setHoveredNode(nIdx);
-                // In touch mode, tapping also triggers the modal
-                if (e.pointerType === 'touch' || AICoreApp.isTouchDevice) {
-                    openNodeModal(nodeData);
-                }
+                openNodeModal(nodeData);
             } else {
                 clearHoveredNode();
             }
@@ -632,14 +687,43 @@
         var n = nodes[idx];
         canvas.style.cursor = 'pointer';
 
-        if (tooltip && tooltipTag && tooltipDesc) {
-            tooltipTag.textContent = n.data.tag;
-            tooltipTag.style.color = n.data.color;
-            tooltipDesc.textContent = n.data.title;
-            tooltip.style.borderColor = n.data.color;
+        // Trigger Sonar Pulse wave
+        n.sonarScale = 0.5;
+        n.sonarOpacity = 1.0;
+
+        // Camera micro-tilt towards hovered node
+        if (!AICoreApp.isTouchDevice) {
+            targetCam.x = pointer.x * 1.5 + (n.basePos.x * 0.16);
+            targetCam.y = pointer.y * 1.2 + (n.basePos.y * 0.16);
+        }
+
+        // Fill Hologram HUD Tooltip
+        if (tooltip) {
+            if (tooltipTag) {
+                tooltipTag.textContent = n.data.tag;
+                tooltipTag.style.color = n.data.color;
+                tooltipTag.style.borderColor = n.data.color;
+            }
+            if (tooltipTitle) tooltipTitle.textContent = n.data.title;
+            if (tooltipDesc) tooltipDesc.textContent = n.data.desc;
+            if (tooltipStatus) tooltipStatus.textContent = 'PIPELINE ACTIVO';
+            if (tooltipSpec1) tooltipSpec1.textContent = n.data.latency;
+            if (tooltipSpec2) tooltipSpec2.textContent = 'Zero-Retention';
+            if (tooltipSpec3) tooltipSpec3.textContent = n.data.throughput;
+
+            var innerCard = tooltip.querySelector('.ai-hologram-inner');
+            if (innerCard) {
+                innerCard.style.borderColor = n.data.color;
+                innerCard.style.boxShadow = '0 12px 35px rgba(0,0,0,0.7), 0 0 25px ' + n.data.color + '44';
+            }
             tooltip.style.display = 'block';
         }
+
         if (n.labelEl) n.labelEl.classList.add('active');
+
+        // Central Reactor Sympathetic Reaction
+        corePointLight.color.setHex(n.data.hex);
+        corePointLight.intensity = 8.5;
     }
 
     function clearHoveredNode() {
@@ -651,41 +735,51 @@
         AICoreApp.hoveredNodeIndex = -1;
         canvas.style.cursor = 'default';
         if (tooltip) tooltip.style.display = 'none';
+
+        // Reset light to cyan default unless a manual state is active
+        if (!AICoreApp.manualState) {
+            corePointLight.color.setHex(PALETTE.techCyan);
+            corePointLight.intensity = 4.5;
+        }
     }
 
-    // Boundary-aware tooltip positioning
     function positionTooltip(lx, ly) {
         if (!tooltip) return;
         var wrapRect = wrapper.getBoundingClientRect();
         var tipRect = tooltip.getBoundingClientRect();
-        var halfW = (tipRect.width || 120) / 2;
+        var halfW = (tipRect.width || 200) / 2;
 
         var absX = wrapRect.left + lx;
         var absY = wrapRect.top + ly;
 
         var clampedX = lx;
-        if (absX - halfW < 10) {
-            clampedX += (10 - (absX - halfW));
-        } else if (absX + halfW > window.innerWidth - 10) {
-            clampedX -= ((absX + halfW) - (window.innerWidth - 10));
+        if (absX - halfW < 12) {
+            clampedX += (12 - (absX - halfW));
+        } else if (absX + halfW > window.innerWidth - 12) {
+            clampedX -= ((absX + halfW) - (window.innerWidth - 12));
         }
 
-        var clampedY = ly - 26;
-        if (absY - 45 < 10) {
-            clampedY = ly + 36;
+        var clampedY = ly - 32;
+        if (absY - 140 < 10) {
+            clampedY = ly + 40;
         }
 
         tooltip.style.transform = 'translate(-50%, -100%) translate(' + clampedX.toFixed(1) + 'px, ' + clampedY.toFixed(1) + 'px)';
     }
 
     // ==========================================
-    // 8. MODAL, HUD & ACTIONS
+    // 8. MODAL, HUD TABS & QUANTUM PULSE
     // ==========================================
     var modal = document.getElementById('ai-node-modal');
     var modalTitle = document.getElementById('ai-modal-title');
     var modalTag = document.getElementById('ai-modal-tag');
     var modalDesc = document.getElementById('ai-modal-desc');
     var modalClose = document.getElementById('ai-modal-close');
+    var modalFlow = document.getElementById('ai-modal-flow');
+    var modalLat = document.getElementById('ai-modal-lat');
+    var modalThru = document.getElementById('ai-modal-thru');
+    var modalCode = document.getElementById('ai-modal-code');
+    var modalTryBtn = document.getElementById('ai-modal-try-btn');
 
     function openNodeModal(data) {
         if (!data || !modal) return;
@@ -697,12 +791,46 @@
             modalTag.style.borderColor = data.color;
         }
         if (modalDesc) modalDesc.textContent = data.desc;
+        if (modalFlow) modalFlow.textContent = data.flow === 'in' ? 'Ingestión In-Memory (Zero-Retention)' : 'Generación Directa (Zero-Drift)';
+        if (modalLat) modalLat.textContent = data.latency || '1.2 ms';
+        if (modalThru) modalThru.textContent = data.throughput || '48 MB/s';
+        if (modalCode) modalCode.textContent = data.code || '// Contrato de arquitectura DocuMind AI';
+
+        // Reset to specs tab
+        switchModalTab('specs');
         modal.style.display = 'flex';
     }
+
+    function switchModalTab(tabId) {
+        document.querySelectorAll('.ai-modal-tab-btn').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.tab === tabId);
+        });
+        document.querySelectorAll('.ai-modal-tab-pane').forEach(function(p) {
+            p.style.display = (p.id === 'ai-tab-' + tabId) ? 'block' : 'none';
+        });
+    }
+
+    document.querySelectorAll('.ai-modal-tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            switchModalTab(this.dataset.tab);
+        });
+    });
 
     if (modalClose) {
         modalClose.addEventListener('click', function() {
             if (modal) modal.style.display = 'none';
+        });
+    }
+
+    if (modalTryBtn) {
+        modalTryBtn.addEventListener('click', function() {
+            if (modal) modal.style.display = 'none';
+            var analizadorSection = document.getElementById('analizador');
+            if (analizadorSection) {
+                analizadorSection.scrollIntoView({ behavior: 'smooth' });
+                // Trigger analysis sequence on 3D core
+                triggerAnalysisSequence();
+            }
         });
     }
 
@@ -734,7 +862,59 @@
             camera.position.set(0, 0.5, isMobile ? 18.5 : 16);
             camera.lookAt(0, 0, 0);
             clearHoveredNode();
+            AICoreApp.activeSubsystemMode = 'all';
+            document.querySelectorAll('.ai-mode-btn').forEach(function(b) {
+                b.classList.toggle('active', b.dataset.mode === 'all');
+            });
         });
+    }
+
+    // Subsystem Quick Filter Buttons
+    document.querySelectorAll('.ai-mode-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.ai-mode-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            var mode = this.dataset.mode;
+            AICoreApp.activeSubsystemMode = mode;
+
+            if (mode === 'ast') {
+                setProcessingState('ANALYZING_CODE', 'SUBSISTEMA: AST & CODE');
+            } else if (mode === 'c4') {
+                setProcessingState('DETECTING_ARCH', 'SUBSISTEMA: C4 MODEL');
+            } else if (mode === 'sec') {
+                setProcessingState('SUCCESS', 'SUBSISTEMA: DEVSECOPS & SYNC');
+            } else {
+                AICoreApp.manualState = null;
+                updateHUDStatus(STAGES[AICoreApp.currentStageIndex]);
+            }
+        });
+    });
+
+    // Quantum Pulse Trigger
+    var btnQuantumPulse = document.getElementById('ai-btn-quantum-pulse');
+    if (btnQuantumPulse) {
+        btnQuantumPulse.addEventListener('click', function() {
+            triggerQuantumPulse();
+        });
+    }
+
+    function triggerQuantumPulse() {
+        AICoreApp.pulseTriggeredAt = performance.now();
+        corePointLight.intensity = 12.0;
+        corePointLight.color.setHex(0xFFFFFF);
+
+        nodes.forEach(function(n) {
+            n.sonarScale = 0.4;
+            n.sonarOpacity = 1.0;
+        });
+
+        if (hudStatusLabel) hudStatusLabel.textContent = '⚡ PULSO CUÁNTICO EJECUTADO';
+
+        setTimeout(function() {
+            corePointLight.color.setHex(PALETTE.techCyan);
+            corePointLight.intensity = 4.5;
+            if (!AICoreApp.manualState) updateHUDStatus(STAGES[AICoreApp.currentStageIndex]);
+        }, 1200);
     }
 
     var btnRunHeroAnalysis = document.getElementById('btn-hero-analyze');
@@ -749,8 +929,7 @@
         AICoreApp.currentStageIndex = 0;
         AICoreApp.stageTimer = performance.now();
         updateHUDStatus(STAGES[0]);
-        corePointLight.intensity = 8.0;
-        setTimeout(function() { corePointLight.intensity = 4.5; }, 1200);
+        triggerQuantumPulse();
     }
 
     var PROCESSING_STATES = {
@@ -763,7 +942,6 @@
         GENERATING_DOCS: { label: 'Generando documentación...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'], speed: 2.1, light: 7.5 },
         SUCCESS: { label: 'Documentación completada', color: '#34D399', hex: PALETTE.emerald, active: ['sync', 'docs'], speed: 1.2, light: 5.5 },
         ERROR: { label: 'NÚCLEO EN ESPERA (LISTO)', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.0, light: 4.5 },
-        // Backwards compatibility mappings
         LOADING: { label: 'Analizando proyecto...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['code'], speed: 1.5, light: 5.5 },
         PROCESSING: { label: 'Detectando arquitectura...', color: '#818CF8', hex: PALETTE.indigo, active: ['c4'], speed: 1.7, light: 6.5 },
         ANALYZING: { label: 'Generando documentación...', color: '#38BDF8', hex: PALETTE.techCyan, active: ['docs'], speed: 2.1, light: 7.5 }
@@ -792,7 +970,7 @@
     }
 
     // ==========================================
-    // 9. ANIMATION LOOP
+    // 9. ANIMATION LOOP & SCI-FI RENDERING
     // ==========================================
     var clock = new THREE.Clock();
     var lastStageSwitch = performance.now();
@@ -805,9 +983,9 @@
         var delta = clock.getDelta();
         var t = clock.getElapsedTime();
 
-        // 9.1 Cycle Stages (unless manual state is active)
+        // 9.1 Stage Cycle
         var now = performance.now();
-        if (!AICoreApp.manualState && now - lastStageSwitch > 4200) {
+        if (!AICoreApp.manualState && now - lastStageSwitch > 4400) {
             AICoreApp.currentStageIndex = (AICoreApp.currentStageIndex + 1) % STAGES.length;
             lastStageSwitch = now;
             updateHUDStatus(STAGES[AICoreApp.currentStageIndex]);
@@ -822,7 +1000,7 @@
             camera.lookAt(0, 0, 0);
         }
 
-        // 9.3 Raycaster Test (Desktop Mousemove)
+        // 9.3 Raycaster Test
         if (!AICoreApp.isTouchDevice && pointer.x > -900) {
             raycaster.setFromCamera(pointer, camera);
             var intersects = raycaster.intersectObjects(hitMeshes);
@@ -834,16 +1012,17 @@
         }
 
         // 9.4 Core Rotations & Pulsation
-        coreSphere.rotation.y = t * 0.20;
-        coreInner.scale.setScalar(1.0 + 0.08 * Math.sin(t * 2.8));
-        coreWireframe.rotation.x = -t * 0.30;
-        coreWireframe.rotation.y = t * 0.38;
-        coreOuterLattice.rotation.y = -t * 0.16;
-        coreOuterLattice.rotation.z = t * 0.12;
+        var coreSpeed = (AICoreApp.hoveredNodeIndex !== -1) ? 2.2 : 1.0;
+        coreSphere.rotation.y = t * 0.20 * coreSpeed;
+        coreInner.scale.setScalar(1.0 + 0.08 * Math.sin(t * 2.8 * coreSpeed));
+        coreWireframe.rotation.x = -t * 0.30 * coreSpeed;
+        coreWireframe.rotation.y = t * 0.38 * coreSpeed;
+        coreOuterLattice.rotation.y = -t * 0.16 * coreSpeed;
+        coreOuterLattice.rotation.z = t * 0.12 * coreSpeed;
 
-        gimbal1.rotation.z = t * 0.40;
-        gimbal2.rotation.x = -t * 0.32;
-        gimbal3.rotation.y = t * 0.28;
+        gimbal1.rotation.z = t * 0.40 * coreSpeed;
+        gimbal2.rotation.x = -t * 0.32 * coreSpeed;
+        gimbal3.rotation.y = t * 0.28 * coreSpeed;
 
         coreParticles.rotation.y = t * 0.25;
         coreParticles.rotation.x = t * 0.14;
@@ -868,30 +1047,59 @@
             var isHovered = (AICoreApp.hoveredNodeIndex === idx);
             var isStageActive = currentStage.active.indexOf(node.data.id) !== -1;
 
+            // Subsystem filtering mode
+            var modeMatches = true;
+            if (AICoreApp.activeSubsystemMode === 'ast') {
+                modeMatches = (node.data.id === 'code' || node.data.id === 'ast');
+            } else if (AICoreApp.activeSubsystemMode === 'c4') {
+                modeMatches = (node.data.id === 'c4' || node.data.id === 'docs');
+            } else if (AICoreApp.activeSubsystemMode === 'sec') {
+                modeMatches = (node.data.id === 'sync' || node.data.id === 'db' || node.data.id === 'api');
+            }
+
             // Harmonic float
             var fy = node.basePos.y + Math.sin(t * 1.3 + node.data.phase) * 0.18;
             var fz = node.basePos.z + Math.cos(t * 1.1 + node.data.phase) * 0.15;
             node.group.position.set(node.basePos.x, fy, fz);
 
-            // Spin crystal and ring
-            node.crystal.rotation.y = t * 0.85 + idx;
-            node.crystal.rotation.x = t * 0.45;
-            node.ring.rotation.z = -t * 0.60;
+            // Spin crystal and inner core
+            var spinMultiplier = isHovered ? 2.5 : 1.0;
+            node.crystal.rotation.y = t * 0.85 * spinMultiplier + idx;
+            node.crystal.rotation.x = t * 0.45 * spinMultiplier;
+            node.innerCore.rotation.y = -t * 1.2 * spinMultiplier;
+            node.ring.rotation.z = -t * 0.60 * spinMultiplier;
+
+            // Animate Reticle
+            var reticleTargetScale = isHovered ? 1.35 : 1.0;
+            node.reticle.scale.lerp(new THREE.Vector3(reticleTargetScale, reticleTargetScale, reticleTargetScale), 0.15);
+            node.reticle.rotation.z = t * (isHovered ? -3.5 : -0.8);
+            var reticleTargetOpacity = isHovered ? 0.95 : (isStageActive ? 0.45 : 0.15);
+            node.reticle.material.opacity += (reticleTargetOpacity - node.reticle.material.opacity) * 0.15;
+
+            // Animate Sonar Pulse
+            if (node.sonarOpacity > 0.01) {
+                node.sonarScale += delta * 2.8;
+                node.sonarOpacity -= delta * 1.4;
+                node.sonar.scale.setScalar(node.sonarScale);
+                node.sonar.material.opacity = Math.max(0, node.sonarOpacity);
+            } else {
+                node.sonar.material.opacity = 0;
+            }
 
             // Scale & Emissive Lerp
-            var targetScale = isHovered ? 1.35 : (isStageActive ? 1.15 : 1.0);
-            node.group.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.14);
+            var baseScale = isHovered ? 1.45 : (isStageActive ? 1.18 : (modeMatches ? 1.0 : 0.75));
+            node.group.scale.lerp(new THREE.Vector3(baseScale, baseScale, baseScale), 0.15);
 
-            var targetEmissive = isHovered ? 2.0 : (isStageActive ? 1.35 : 0.85);
-            node.crystal.material.emissiveIntensity += (targetEmissive - node.crystal.material.emissiveIntensity) * 0.14;
+            var targetEmissive = isHovered ? 2.8 : (isStageActive ? 1.45 : (modeMatches ? 0.90 : 0.25));
+            node.crystal.material.emissiveIntensity += (targetEmissive - node.crystal.material.emissiveIntensity) * 0.15;
 
-            // Project 3D coordinate to HTML Label (positioned 26px below the crystal)
+            // Project 3D coordinate to HTML Label
             if (node.labelEl) {
                 var screenPos = node.group.position.clone().project(camera);
                 var lx = (screenPos.x * 0.5 + 0.5) * w;
                 var ly = (-(screenPos.y * 0.5) + 0.5) * h;
-                node.labelEl.style.transform = 'translate(-50%, 26px) translate(' + lx.toFixed(1) + 'px, ' + ly.toFixed(1) + 'px)';
-                node.labelEl.style.opacity = screenPos.z > 1.0 ? '0' : '1';
+                node.labelEl.style.transform = 'translate(-50%, 28px) translate(' + lx.toFixed(1) + 'px, ' + ly.toFixed(1) + 'px)';
+                node.labelEl.style.opacity = (screenPos.z > 1.0 || !modeMatches) ? '0.2' : '1';
 
                 if (isStageActive && !isHovered) {
                     node.labelEl.style.borderColor = node.data.color;
@@ -909,6 +1117,8 @@
 
         // 9.7 Connection Lines & Flowing Data Packets
         var coreOrigin = new THREE.Vector3(0, 0, 0);
+        var hasAnyHover = (AICoreApp.hoveredNodeIndex !== -1);
+
         connections.forEach(function(conn, cIdx) {
             var n = conn.node;
             var isHovered = (AICoreApp.hoveredNodeIndex === cIdx);
@@ -919,20 +1129,32 @@
             posAttr.setXYZ(1, n.group.position.x, n.group.position.y, n.group.position.z);
             posAttr.needsUpdate = true;
 
-            var targetLineOpacity = isHovered ? 0.90 : (isStageActive ? 0.65 : 0.25);
-            conn.line.material.opacity += (targetLineOpacity - conn.line.material.opacity) * 0.14;
+            var targetLineOpacity;
+            if (isHovered) {
+                targetLineOpacity = 1.0;
+            } else if (hasAnyHover) {
+                targetLineOpacity = 0.08; // Dims other lines to spotlight active link
+            } else if (isStageActive) {
+                targetLineOpacity = 0.70;
+            } else {
+                targetLineOpacity = 0.25;
+            }
 
-            // Travel speed
-            var speedMultiplier = isStageActive ? 0.55 : 0.32;
+            conn.line.material.opacity += (targetLineOpacity - conn.line.material.opacity) * 0.16;
+
+            // Travel speed & packet scaling
+            var speedMultiplier = isHovered ? 1.6 : (isStageActive ? 0.65 : 0.35);
+            var pktScale = isHovered ? 1.65 : 1.0;
+
             conn.packets.forEach(function(pkt) {
                 var prog = (t * speedMultiplier + pkt.offset) % 1.0;
                 var start = (n.data.flow === 'in') ? n.group.position : coreOrigin;
                 var end   = (n.data.flow === 'in') ? coreOrigin : n.group.position;
                 pkt.mesh.position.copy(start).lerp(end, prog);
+                pkt.mesh.scale.setScalar(pktScale);
             });
         });
 
-        // 9.8 Render Scene
         renderer.render(scene, camera);
     }
 
@@ -948,16 +1170,34 @@
         AICoreApp.isPaused = document.hidden;
     });
 
-    // Start Animation Loop
     animate();
-
-    // Trigger Initial Boot Animation
     triggerAnalysisSequence();
+
+    // ==========================================
+    // 10. GLOBAL PAGE INTERACTIVITY: SPOTLIGHT TRACKING
+    // ==========================================
+    if (!AICoreApp.isTouchDevice) {
+        document.addEventListener('mousemove', function(e) {
+            var cards = document.querySelectorAll('.glow-card, .solucion-card-premium, .card-enterprise, .pricing-card, .como-funciona-card, .card-spotlight');
+            cards.forEach(function(card) {
+                var rect = card.getBoundingClientRect();
+                if (e.clientX >= rect.left - 60 && e.clientX <= rect.right + 60 &&
+                    e.clientY >= rect.top - 60 && e.clientY <= rect.bottom + 60) {
+                    var x = e.clientX - rect.left;
+                    var y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', x + 'px');
+                    card.style.setProperty('--mouse-y', y + 'px');
+                    card.classList.add('card-spotlight');
+                }
+            });
+        }, { passive: true });
+    }
 
     // Expose API
     window.AICore3D = {
         app: AICoreApp,
         triggerAnalysis: triggerAnalysisSequence,
+        triggerPulse: triggerQuantumPulse,
         setProcessingState: setProcessingState,
         openNode: openNodeModal,
         stages: STAGES

@@ -255,6 +255,17 @@
                             </div>
                         </div>
 
+                        <!-- Subsystem Quick Focus Tabs -->
+                        <div class="ai-hud-subnav" style="width:100%;">
+                            <div style="display:flex;align-items:center;gap:.35rem;flex-wrap:nowrap;">
+                                <button type="button" class="ai-mode-btn active" data-mode="all" title="Ver todos los nodos de arquitectura"><i class="fa-solid fa-circle-nodes"></i> TODOS</button>
+                                <button type="button" class="ai-mode-btn" data-mode="ast" title="Enfocar motor AST e Ingestión de Código"><i class="fa-solid fa-microchip"></i> AST &amp; CODE</button>
+                                <button type="button" class="ai-mode-btn" data-mode="c4" title="Enfocar Modelado de Arquitectura C4"><i class="fa-solid fa-network-wired"></i> C4 MODEL</button>
+                                <button type="button" class="ai-mode-btn" data-mode="sec" title="Enfocar Seguridad, Base de Datos y Sync"><i class="fa-solid fa-shield-halved"></i> DEVSECOPS</button>
+                            </div>
+                            <button type="button" id="ai-btn-quantum-pulse" class="ai-pulse-trigger" title="Disparar pulso cuántico a través de la arquitectura"><i class="fa-solid fa-bolt"></i> PULSO IA</button>
+                        </div>
+
                         <!-- Main 3D AI CORE Canvas Wrapper -->
                         <div id="ai-core-wrapper" style="position:relative;width:100%;aspect-ratio:1/1;background:radial-gradient(circle at 50% 50%, rgba(15,23,42,0.7) 0%, rgba(9,13,22,0.95) 75%);border-left:1px solid rgba(129,140,248,0.25);border-right:1px solid rgba(129,140,248,0.25);border-bottom:1px solid rgba(129,140,248,0.25);border-radius:0 0 .75rem .75rem;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,0.5);">
                             <!-- 3D WebGL Canvas -->
@@ -270,12 +281,26 @@
                             <!-- 3D Node Labels Overlay -->
                             <div id="ai-nodes-overlay"></div>
 
-                            <!-- Interactive Node Hover Tooltip -->
-                            <div id="ai-tooltip" style="position:absolute;top:0;left:0;pointer-events:none;display:none;z-index:25;">
-                                <span id="ai-tooltip-tag" style="font-family:'JetBrains Mono',monospace;margin-right:.4rem;font-weight:800;">AST</span>
-                                <span id="ai-tooltip-desc" style="color:#E2E8F0;">Abstract Syntax Tree</span>
+                            <!-- Futuristic Holographic Sci-Fi HUD Tooltip -->
+                            <div id="ai-tooltip" class="ai-hologram-hud">
+                                <div class="ai-hologram-inner">
+                                    <div class="ai-hologram-header">
+                                        <span class="ai-hologram-tag" id="ai-tooltip-tag">AST</span>
+                                        <span class="ai-hologram-status"><span class="hologram-pulse-dot"></span> <span id="ai-tooltip-status">ACTIVO</span></span>
+                                    </div>
+                                    <div class="ai-hologram-title" id="ai-tooltip-title">Abstract Syntax Tree</div>
+                                    <div class="ai-hologram-desc" id="ai-tooltip-desc">Representación estructural del código utilizada para comprender dependencias y contratos.</div>
+                                    <div class="ai-hologram-specs">
+                                        <div class="ai-spec-badge"><i class="fa-solid fa-bolt" style="color:var(--tech-cyan);"></i> <span id="ai-tooltip-spec1">1.2ms</span></div>
+                                        <div class="ai-spec-badge"><i class="fa-solid fa-shield-halved" style="color:#34D399;"></i> <span id="ai-tooltip-spec2">Zero-Retention</span></div>
+                                        <div class="ai-spec-badge"><i class="fa-solid fa-arrows-spin" style="color:#818CF8;"></i> <span id="ai-tooltip-spec3">42 req/s</span></div>
+                                    </div>
+                                    <div class="ai-hologram-action">
+                                        <i class="fa-solid fa-hand-pointer"></i> Haz clic para inspeccionar arquitectura completa
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        </div>/div>
 
                         <!-- Subtle bottom HUD caption -->
                         <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:.55rem;padding:0 .25rem;font-size:.66rem;font-family:'JetBrains Mono',monospace;color:#64748B;">
@@ -310,21 +335,65 @@
     </section>
 
     <!-- Contextual Node Click Modal -->
-    <div id="ai-node-modal" style="display:none;position:fixed;inset:0;background:rgba(4,8,16,0.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;">
-        <div class="glow-card" style="max-width:480px;width:100%;padding:2rem;position:relative;background:#0F172A;border:1px solid rgba(56,189,248,0.35);box-shadow:0 0 35px rgba(56,189,248,0.2);">
-            <button type="button" id="ai-modal-close" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:#64748B;font-size:1.4rem;cursor:pointer;line-height:1;" aria-label="Cerrar modal">&times;</button>
+    <div id="ai-node-modal" style="display:none;position:fixed;inset:0;background:rgba(4,8,16,0.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;align-items:center;justify-content:center;padding:1.5rem;">
+        <div class="glow-card card-spotlight" style="max-width:540px;width:100%;padding:2rem;position:relative;background:#0F172A;border:1px solid rgba(56,189,248,0.35);box-shadow:0 0 45px rgba(56,189,248,0.25);border-radius:1rem;">
+            <button type="button" id="ai-modal-close" style="position:absolute;top:1.25rem;right:1.25rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#94A3B8;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1;transition:all .2s;" aria-label="Cerrar modal"><i class="fa-solid fa-xmark"></i></button>
             <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
-                <span id="ai-modal-tag" style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:.75rem;padding:.2rem .65rem;border-radius:.4rem;background:rgba(56,189,248,0.12);border:1px solid #38BDF8;color:#38BDF8;">AST</span>
-                <h3 id="ai-modal-title" style="font-size:1.15rem;font-weight:800;color:#fff;">Abstract Syntax Tree</h3>
+                <span id="ai-modal-tag" style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:.78rem;padding:.25rem .75rem;border-radius:.45rem;background:rgba(56,189,248,0.12);border:1px solid #38BDF8;color:#38BDF8;">AST</span>
+                <span id="ai-modal-status-badge" style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#34D399;background:rgba(52,211,153,0.1);padding:.2rem .55rem;border-radius:9999px;border:1px solid rgba(52,211,153,0.3);"><i class="fa-solid fa-circle text-[8px] mr-1 animate-pulse"></i> LIVE SUBSYSTEM</span>
             </div>
-            <p id="ai-modal-desc" style="font-size:.85rem;color:#94A3B8;line-height:1.7;margin-bottom:1.5rem;">
+            <h3 id="ai-modal-title" style="font-size:1.25rem;font-weight:800;color:#fff;margin-bottom:.5rem;">Abstract Syntax Tree</h3>
+            <p id="ai-modal-desc" style="font-size:.85rem;color:#94A3B8;line-height:1.7;margin-bottom:1.25rem;">
                 Representación estructural del código utilizada para comprender clases, funciones, variables y relaciones.
             </p>
-            <div style="display:flex;justify-content:flex-end;">
-                <button type="button" onclick="document.getElementById('ai-node-modal').style.display='none'" class="btn-cyber" style="padding:.55rem 1.35rem;font-size:.8rem;">Entendido</button>
+            
+            <!-- Interactive Subsystem Tabs -->
+            <div class="ai-modal-tabs" style="display:flex;gap:.5rem;margin-bottom:1rem;border-bottom:1px solid rgba(129,140,248,0.2);padding-bottom:.5rem;font-family:'JetBrains Mono',monospace;font-size:.72rem;">
+                <button type="button" class="ai-modal-tab-btn active" data-tab="specs"><i class="fa-solid fa-sliders"></i> ESPECIFICACIONES</button>
+                <button type="button" class="ai-modal-tab-btn" data-tab="metrics"><i class="fa-solid fa-chart-line"></i> TELEMETRÍA</button>
+                <button type="button" class="ai-modal-tab-btn" data-tab="code"><i class="fa-solid fa-code"></i> CONTRATO DTO</button>
+            </div>
+            
+            <!-- Tab Content: Specs -->
+            <div id="ai-tab-specs" class="ai-modal-tab-pane" style="display:block;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem;">
+                    <div style="background:rgba(9,13,22,0.7);padding:.75rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size:.65rem;color:#64748B;font-family:'JetBrains Mono',monospace;text-transform:uppercase;">Flujo de Datos</div>
+                        <div id="ai-modal-flow" style="font-size:.82rem;font-weight:700;color:#E2E8F0;margin-top:.2rem;">Bidireccional (In / Out)</div>
+                    </div>
+                    <div style="background:rgba(9,13,22,0.7);padding:.75rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
+                        <div style="font-size:.65rem;color:#64748B;font-family:'JetBrains Mono',monospace;text-transform:uppercase;">Aislamiento</div>
+                        <div style="font-size:.82rem;font-weight:700;color:#34D399;margin-top:.2rem;">Zero-Retention (RAM)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Metrics -->
+            <div id="ai-tab-metrics" class="ai-modal-tab-pane" style="display:none;margin-bottom:1.25rem;">
+                <div style="display:flex;flex-direction:column;gap:.6rem;background:rgba(9,13,22,0.7);padding:.85rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);font-family:'JetBrains Mono',monospace;font-size:.74rem;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#94A3B8;">Latencia Media de Parseo:</span><span style="color:#38BDF8;font-weight:700;" id="ai-modal-lat">1.2 ms</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#94A3B8;">Rendimiento Concurrente:</span><span style="color:#34D399;font-weight:700;" id="ai-modal-thru">48 MB/s</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#94A3B8;">Certeza Arquitectónica:</span><span style="color:#818CF8;font-weight:700;">99.98%</span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#94A3B8;">Algoritmo de Ingestión:</span><span style="color:#F59E0B;font-weight:700;">AST Polyglot v2.4</span></div>
+                </div>
+            </div>
+            
+            <!-- Tab Content: Code -->
+            <div id="ai-tab-code" class="ai-modal-tab-pane" style="display:none;margin-bottom:1.25rem;">
+                <pre style="background:rgba(9,13,22,0.95);border:1px solid rgba(56,189,248,0.25);border-radius:.5rem;padding:.75rem;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#38BDF8;overflow-x:auto;max-height:120px;"><code id="ai-modal-code">// Ingestión AST políglota DocuMind AI
+const ast = await parseSyntaxTree(repoBuffer, {
+  depth: 12,
+  includeTypes: true,
+  securityScan: 'STRIDE'
+});</code></pre>
+            </div>
+            
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.08);">
+                <button type="button" id="ai-modal-try-btn" class="btn-cyber" style="padding:.55rem 1.25rem;font-size:.8rem;"><i class="fa-solid fa-play" style="margin-right:.4rem;"></i>Analizar Demo</button>
+                <button type="button" onclick="document.getElementById('ai-node-modal').style.display='none'" class="btn-ghost" style="padding:.55rem 1.1rem;font-size:.8rem;">Cerrar</button>
             </div>
         </div>
-    </div>
+    </div>iv>
 
     <section id="problema" class="section-alt" style="padding:6rem 0;">
         <div class="container">
