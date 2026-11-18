@@ -6,6 +6,7 @@
 
 // Required root keys for each task type to be considered complete
 const TASK_SCHEMA_REQUIREMENTS = {
+    projectUnderstanding: ['entityName', 'natureDescription', 'whatItIs', 'whatItDoes', 'whyItExists', 'problemAddressed', 'targetAudience', 'technologyRole'],
     repoAnalysis: ['systemPurpose', 'architecturalStyle', 'components', 'executionFlow', 'technicalRisks'],
     prd: ['executiveSummary', 'problemStatement', 'objectives', 'functionalRequirements', 'scope'],
     srs: ['introduction', 'generalDescription', 'specificRequirements'],

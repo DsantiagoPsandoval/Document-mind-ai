@@ -1,12 +1,15 @@
 /**
- * DOCUMIND AI — SEMANTIC PROJECT CLASSIFIER & CONTEXTUAL ANALYZER
- * ================================================================
- * Understands what a repository represents in reality BEFORE generating
- * documentation. Distinguishes between the real nature/purpose of a project
- * (e.g., Foundation/Non-profit, Social Organization, Educational Institution,
- * E-commerce, Research Project, Portfolio, Company, SaaS, Web/Mobile App,
- * Enterprise System, Dev Library, Government Project) and its technical
- * implementation (HTML5, CSS3, JS, Python, databases, etc.).
+ * DOCUMIND AI — UNIVERSAL REPOSITORY & WEB PAGE UNDERSTANDING ENGINE
+ * ==================================================================
+ * Investigates the true nature of ANY repository BEFORE generating
+ * documentation. Analyzes jointly:
+ *   - Repository name, description, and directory structure
+ *   - README and documentation files
+ *   - Web pages (HTML/JSX/Vue/etc.) as rich semantic context (organization,
+ *     services, products, mission, audience, activities, visitor communication)
+ *   - Source code, manifests, endpoints, and data models
+ *   - Discrepancies between web page, README, and source code
+ *   - Information limitations (avoiding any hallucination when data is missing)
  */
 
 const PROJECT_CATEGORIES = {
@@ -56,7 +59,7 @@ const PROJECT_CATEGORIES = {
         id: 'ecommerce_store',
         label: 'Tiendas virtuales y comercios',
         domainType: 'commercial_ecommerce',
-        isSoftwareProduct: true
+        isSoftwareProduct: false
     },
     RESEARCH_PROJECT: {
         id: 'research_project',
@@ -129,14 +132,12 @@ function compactHtmlForAnalysis(rawHtml, maxBytes = 85000) {
     if (!rawHtml || typeof rawHtml !== 'string') return '';
     if (rawHtml.length <= maxBytes) return rawHtml;
 
-    // Replace huge inline <style> blocks with a compact summary preserving CSS variables if any
     let compacted = rawHtml.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (full, cssContent) => {
         if (cssContent.length < 1500) return full;
         const rootMatch = cssContent.match(/:root\s*\{[^}]+\}/i);
         return `<style>/* Estilos CSS compactados para análisis semántico (${cssContent.length} bytes) */ ${rootMatch ? rootMatch[0] : ''}</style>`;
     });
 
-    // Replace large decorative inline <svg> blocks
     compacted = compacted.replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gi, (svgBlock) => {
         if (svgBlock.length < 600) return svgBlock;
         return `<!-- SVG gráfico (${svgBlock.length} bytes) -->`;
@@ -170,6 +171,176 @@ function htmlToCleanText(html) {
 }
 
 /**
+ * Deeply analyzes HTML / Web files in the repository to understand what organization,
+ * business, store, institution, or application the web page represents, what it offers,
+ * and what it communicates to visitors.
+ */
+function analyzeWebPageContent(htmlFiles = []) {
+    if (!Array.isArray(htmlFiles) || htmlFiles.length === 0) {
+        return {
+            hasWebPage: false,
+            filesAnalyzed: [],
+            pageTitle: '',
+            metaDescription: '',
+            navItems: [],
+            sections: [],
+            interactiveElements: [],
+            communicatedSummary: ''
+        };
+    }
+
+    let pageTitle = '';
+    let metaDescription = '';
+    let metaKeywords = '';
+    const navItems = [];
+    const sections = [];
+    const interactiveElements = new Set();
+
+    htmlFiles.forEach(hf => {
+        const raw = hf.content || '';
+        if (!raw) return;
+
+        if (!pageTitle) {
+            const tMatch = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+            if (tMatch) pageTitle = htmlToCleanText(tMatch[1]);
+        }
+        if (!metaDescription) {
+            const mDesc = raw.match(/<meta\s+(?:name|property)=['"](?:description|og:description)['"]\s+content=['"]([^'"]+)['"]/i)
+                || raw.match(/<meta\s+content=['"]([^'"]+)['"]\s+(?:name|property)=['"](?:description|og:description)['"]/i);
+            if (mDesc) metaDescription = mDesc[1].trim();
+        }
+        if (!metaKeywords) {
+            const mKey = raw.match(/<meta\s+name=['"]keywords['"]\s+content=['"]([^'"]+)['"]/i)
+                || raw.match(/<meta\s+content=['"]([^'"]+)['"]\s+name=['"]keywords['"]/i);
+            if (mKey) metaKeywords = mKey[1].trim();
+        }
+
+        const bodySource = raw
+            .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+            .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+            .replace(/<svg\b[^>]*>[\s\S]*?<\/svg>/gi, ' ');
+
+        // Extract navigation links
+        const navMatch = bodySource.match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/i);
+        if (navMatch) {
+            const linkRegex = /<a\b[^>]*>([\s\S]*?)<\/a>/gi;
+            let lm;
+            while ((lm = linkRegex.exec(navMatch[1])) !== null) {
+                const linkText = htmlToCleanText(lm[1]);
+                if (linkText && linkText.length >= 2 && linkText.length <= 45 && !navItems.includes(linkText)) {
+                    navItems.push(linkText);
+                }
+            }
+        }
+
+        // Extract semantic <section> blocks
+        const secRegex = /<section\b[^>]*>([\s\S]*?)<\/section>/gi;
+        let sm;
+        while ((sm = secRegex.exec(bodySource)) !== null) {
+            const secHtml = sm[1];
+            const hMatch = secHtml.match(/<h[1-3][^>]*>([\s\S]*?)<\/h[1-3]>/i);
+            const secTitle = hMatch ? htmlToCleanText(hMatch[1]) : '';
+            const secParagraphs = [];
+            const pRx = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+            let pm;
+            while ((pm = pRx.exec(secHtml)) !== null) {
+                const pt = htmlToCleanText(pm[1]);
+                if (pt && pt.length > 20 && !secParagraphs.includes(pt)) secParagraphs.push(pt);
+            }
+            const subHeadings = [];
+            const h3Rx = /<h[3-4][^>]*>([\s\S]*?)<\/h[3-4]>/gi;
+            let h3m;
+            while ((h3m = h3Rx.exec(secHtml)) !== null) {
+                const ht = htmlToCleanText(h3m[1]);
+                if (ht && ht !== secTitle && !subHeadings.includes(ht)) subHeadings.push(ht);
+            }
+            if (secTitle || secParagraphs.length > 0) {
+                sections.push({
+                    title: secTitle || `Sección en ${hf.path}`,
+                    subHeadings: subHeadings.slice(0, 8),
+                    summary: secParagraphs.slice(0, 3).join(' ')
+                });
+            }
+        }
+
+        // Detect interactive features present in the HTML
+        if (/<form\b/i.test(bodySource)) interactiveElements.add('Formularios interactivos de contacto o captura de datos');
+        if (/carrito|cart|checkout|comprar|add to cart|precio|\$\s*\d/i.test(bodySource)) interactiveElements.add('Catálogo comercial / intención de compra o carrito');
+        if (/donar|donaci[oó]n|voluntariado|quiero ayudar/i.test(bodySource)) interactiveElements.add('Vinculación de donantes, voluntariado y alianzas');
+        if (/\.pdf\b|descargar|estados financieros|declaraci[oó]n/i.test(bodySource)) interactiveElements.add('Descarga de documentos públicos y rendición de cuentas');
+        if (/whatsapp|tel:|mailto:/i.test(bodySource)) interactiveElements.add('Canales de contacto directo (WhatsApp / Teléfono / Correo)');
+        if (/login|iniciar sesi[oó]n|registro|sign in/i.test(bodySource)) interactiveElements.add('Interfaz de autenticación o acceso de usuarios');
+    });
+
+    const secSummaryStr = sections.length > 0
+        ? `La página web está organizada en ${sections.length} secciones temáticas (${sections.slice(0, 6).map(s => `"${s.title}"`).join(', ')})`
+        : `Página web identificada en ${htmlFiles.map(f => f.path).join(', ')}`;
+
+    const communicatedSummary = [
+        pageTitle ? `Título principal de la página: "${pageTitle}".` : '',
+        metaDescription ? `Mensaje descriptivo: "${metaDescription}".` : '',
+        navItems.length > 0 ? `Navegación ofrecida al visitante: ${navItems.join(', ')}.` : '',
+        `${secSummaryStr}.`,
+        interactiveElements.size > 0 ? `Funcionalidades de interacción para el visitante: ${Array.from(interactiveElements).join('; ')}.` : ''
+    ].filter(Boolean).join(' ');
+
+    return {
+        hasWebPage: true,
+        filesAnalyzed: htmlFiles.map(f => f.path),
+        pageTitle,
+        metaDescription,
+        metaKeywords,
+        navItems,
+        sections: sections.slice(0, 15),
+        interactiveElements: Array.from(interactiveElements),
+        communicatedSummary
+    };
+}
+
+/**
+ * Detects discrepancies or contradictions between the README, the web page, and the source code,
+ * as well as information limitations in the repository.
+ */
+function detectDiscrepanciesAndLimitations(signals, files, endpoints, dataModels) {
+    const discrepancies = [];
+    const informationLimitations = [];
+
+    const readmeFile = files.find(f => /^readme\.(md|txt)$/i.test((f.path || '').split('/').pop()));
+    const readmeText = readmeFile ? (readmeFile.content || '').trim() : '';
+
+    if (!readmeFile || readmeText.length < 30) {
+        informationLimitations.push('El repositorio no incluye un archivo README.md detallado; la comprensión del proyecto se obtuvo directamente del análisis de sus archivos y contenido web.');
+    } else if (/getting started with create react app|react \+ vite|this template provides a minimal setup/i.test(readmeText)) {
+        discrepancies.push('Discrepancia detectada entre el README y el proyecto: el archivo README.md conserva la plantilla genérica del generador (Create React App / Vite), mientras que los archivos del proyecto implementan un propósito distinto.');
+    }
+
+    // Check if web page / README mentions database or backend features not present in static repo
+    const hasServerCode = endpoints.length > 0 || files.some(f => /\.(py|rb|php|go|rs|java|cs)$/i.test(f.path || '') || /server\.js|app\.js/i.test(f.path || ''));
+    if (signals.webPageAnalysis?.hasWebPage && !hasServerCode) {
+        if (/<form\b/i.test(files.map(f => f.content || '').join(' '))) {
+            informationLimitations.push('La página web incluye formularios de contacto o interacción en el cliente (HTML/JS), pero en este repositorio no se incluye un servidor backend propio para procesarlos en base de datos.');
+        }
+    }
+
+    // Check if package.json name differs substantially from HTML title
+    const pkgFile = files.find(f => /(?:^|\/)package\.json$/i.test(f.path || ''));
+    if (pkgFile && pkgFile.content && signals.htmlTitle) {
+        try {
+            const pkg = JSON.parse(pkgFile.content);
+            if (pkg.description && signals.metaDescription && pkg.description.toLowerCase() !== signals.metaDescription.toLowerCase()) {
+                discrepancies.push(`Diferencia descriptiva: el manifiesto package.json describe "${pkg.description}", mientras que la página web comunica "${signals.metaDescription}".`);
+            }
+        } catch (_) {}
+    }
+
+    if (files.length <= 2 && !signals.webPageAnalysis?.hasWebPage && readmeText.length < 120) {
+        informationLimitations.push('El repositorio contiene un número reducido de archivos y escasa documentación textual, por lo que el alcance funcional se limita estrictamente a la evidencia disponible.');
+    }
+
+    return { discrepancies, informationLimitations };
+}
+
+/**
  * Extracts structured semantic information from HTML, Markdown, CNAME, and manifest files.
  */
 function extractContextualSignals(ctx = {}) {
@@ -178,9 +349,9 @@ function extractContextualSignals(ctx = {}) {
         : (ctx.prioritizedFiles || []);
     const repo = ctx.repository || {};
     const projectName = ctx.projectName || repo.name || 'Proyecto';
-    const repoDescription = (repo.description && !/Sin descripción provista|analizado vía descarga|Archivos de proyecto subidos/i.test(repo.description))
+    const repoDescription = (repo.description && !/Sin descripción provista|analizado vía descarga|Archivos de proyecto subidos|Repositorio analizado/i.test(repo.description))
         ? repo.description.trim()
-        : (ctx.repoDescription && !/Sin descripción provista|analizado vía descarga|Archivos de proyecto subidos/i.test(ctx.repoDescription) ? ctx.repoDescription.trim() : '');
+        : (ctx.repoDescription && !/Sin descripción provista|analizado vía descarga|Archivos de proyecto subidos|Repositorio analizado/i.test(ctx.repoDescription) ? ctx.repoDescription.trim() : '');
 
     let customDomain = '';
     const cnameFile = files.find(f => /(?:^|\/)cname$/i.test(f.path || ''));
@@ -188,9 +359,6 @@ function extractContextualSignals(ctx = {}) {
         customDomain = cnameFile.content.split(/\r?\n/)[0].trim();
     }
 
-    let htmlTitle = '';
-    let metaDescription = '';
-    let metaKeywords = '';
     const headings = [];
     const paragraphs = [];
     const listItems = [];
@@ -210,32 +378,18 @@ function extractContextualSignals(ctx = {}) {
         const pLines = content
             .split(/\n{2,}/)
             .map(p => p.replace(/^#+\s+.*/gm, '').replace(/```[\s\S]*?```/g, '').trim())
-            .filter(p => p.length > 40 && !p.startsWith('|') && !p.startsWith('- '));
-        pLines.slice(0, 15).forEach(p => paragraphs.push(p.replace(/\s+/g, ' ')));
+            .filter(p => p.length > 30 && !p.startsWith('|'));
+        pLines.slice(0, 18).forEach(p => paragraphs.push(p.replace(/\s+/g, ' ')));
     });
 
-    // Inspect HTML files
-    const htmlFiles = files.filter(f => /\.(html?|ejs|hbs|vue|jsx|tsx)$/i.test(f.path || ''));
+    // Inspect HTML / Web files
+    const htmlFiles = files.filter(f => /\.(html?|ejs|hbs|vue|jsx|tsx|astro)$/i.test(f.path || ''));
+    const webPageAnalysis = analyzeWebPageContent(htmlFiles);
+
     htmlFiles.forEach(hf => {
         const raw = hf.content || '';
         if (!raw) return;
 
-        if (!htmlTitle) {
-            const tMatch = raw.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-            if (tMatch) htmlTitle = htmlToCleanText(tMatch[1]);
-        }
-        if (!metaDescription) {
-            const mDesc = raw.match(/<meta\s+(?:name|property)=['"](?:description|og:description)['"]\s+content=['"]([^'"]+)['"]/i)
-                || raw.match(/<meta\s+content=['"]([^'"]+)['"]\s+(?:name|property)=['"](?:description|og:description)['"]/i);
-            if (mDesc) metaDescription = mDesc[1].trim();
-        }
-        if (!metaKeywords) {
-            const mKey = raw.match(/<meta\s+name=['"]keywords['"]\s+content=['"]([^'"]+)['"]/i)
-                || raw.match(/<meta\s+content=['"]([^'"]+)['"]\s+name=['"]keywords['"]/i);
-            if (mKey) metaKeywords = mKey[1].trim();
-        }
-
-        // Strip style/script/svg before extracting headings & paragraphs
         const bodySource = raw
             .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
             .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
@@ -271,6 +425,10 @@ function extractContextualSignals(ctx = {}) {
         combinedCleanText += '\n' + htmlToCleanText(bodySource);
     });
 
+    const htmlTitle = webPageAnalysis.pageTitle || '';
+    const metaDescription = webPageAnalysis.metaDescription || '';
+    const metaKeywords = webPageAnalysis.metaKeywords || '';
+
     const fullCorpus = [
         projectName,
         repoDescription,
@@ -283,16 +441,7 @@ function extractContextualSignals(ctx = {}) {
         combinedCleanText
     ].join('\n');
 
-    // Extract specific semantic entities when present in the corpus
-    const findParagraphNearKeyword = (regexPattern, minLen = 35) => {
-        for (const p of paragraphs) {
-            if (regexPattern.test(p) && p.length >= minLen) return p;
-        }
-        const match = fullCorpus.match(new RegExp(`(?:${regexPattern.source})[^.\\n]{15,320}\\.`, 'i'));
-        return match ? match[0].trim() : '';
-    };
-
-    // Mission, Vision, Purpose, Values
+    // Universal extraction of Mission, Vision, Purpose, Values
     let mission = '';
     let vision = '';
     let purpose = '';
@@ -300,26 +449,23 @@ function extractContextualSignals(ctx = {}) {
 
     for (let i = 0; i < paragraphs.length; i++) {
         const p = paragraphs[i];
-        if (!mission && /tenemos un llamado|puertas de oportunidad, de bendici[oó]n y dignidad|nuestra misi[oó]n es|misi[oó]n:/i.test(p)) {
+        if (!mission && /tenemos un llamado|puertas de oportunidad, de bendici[oó]n y dignidad|nuestra misi[oó]n|misi[oó]n:|mission:/i.test(p)) {
             mission = p;
         }
-        if (!vision && /nos comprometemos a que, a trav[eé]s de estrategias|ser puente entre las comunidades|nuestra visi[oó]n es|visi[oó]n:/i.test(p)) {
+        if (!vision && /nos comprometemos a que, a trav[eé]s de estrategias|ser puente entre las comunidades|nuestra visi[oó]n|visi[oó]n:|vision:/i.test(p)) {
             vision = p;
         }
-        if (!purpose && /promover puertas de oportunidad para que|nuestro prop[oó]sito|trabajamos con mujeres, ni[ñn]as y comunidades/i.test(p)) {
+        if (!purpose && /promover puertas de oportunidad|nuestro prop[oó]sito|trabajamos con|somos una|ofrecemos|buscamos|objetivo principal/i.test(p)) {
             purpose = p;
         }
     }
 
-    if (!purpose && metaDescription) {
-        purpose = metaDescription;
-    }
-    if (!mission && purpose) {
-        mission = purpose;
-    }
+    if (!purpose && metaDescription) purpose = metaDescription;
+    if (!purpose && repoDescription) purpose = repoDescription;
+    if (!purpose && paragraphs.length > 0) purpose = paragraphs[0];
+    if (!mission && purpose) mission = purpose;
 
-    // Extract values if listed (e.g., Fe, Amor, Paciencia, Gozo, Bondad, Mansedumbre, Bien Común, Templanza)
-    const valueKeywords = ['Fe', 'Amor', 'Paciencia', 'Gozo', 'Bondad', 'Mansedumbre', 'Bien Común', 'Templanza', 'Solidaridad', 'Respeto', 'Transparencia', 'Equidad', 'Dignidad', 'Empatía'];
+    const valueKeywords = ['Fe', 'Amor', 'Paciencia', 'Gozo', 'Bondad', 'Mansedumbre', 'Bien Común', 'Templanza', 'Solidaridad', 'Respeto', 'Transparencia', 'Equidad', 'Dignidad', 'Empatía', 'Innovación', 'Calidad', 'Excelencia', 'Integridad', 'Sostenibilidad', 'Compromiso'];
     valueKeywords.forEach(vk => {
         const rx = new RegExp(`\\b${vk}\\b`, 'i');
         if (rx.test(fullCorpus) && !values.includes(vk)) {
@@ -327,7 +473,7 @@ function extractContextualSignals(ctx = {}) {
         }
     });
 
-    // Extract thematic lines / programs / services
+    // Extract Offerings / Programs / Services / Products / Thematic Lines
     const programsAndActivities = [];
     const thematicChecks = [
         {
@@ -352,7 +498,18 @@ function extractContextualSignals(ctx = {}) {
         }
     });
 
-    // Generic extraction of sections/programs/services from headings and paragraphs for any repository
+    // Universal fallback: extract from parsed webPageAnalysis.sections or headings + paragraphs
+    if (programsAndActivities.length === 0 && webPageAnalysis.sections.length > 0) {
+        webPageAnalysis.sections.slice(0, 6).forEach(sec => {
+            if (sec.title && !/^(inicio|home|contacto|contáctanos|menú|footer)$/i.test(sec.title)) {
+                programsAndActivities.push({
+                    title: sec.title,
+                    detail: sec.summary || (sec.subHeadings.length > 0 ? `Incluye: ${sec.subHeadings.join(', ')}.` : `Sección o servicio presentado en la página web (${sec.title}).`)
+                });
+            }
+        });
+    }
+
     if (programsAndActivities.length === 0) {
         headings
             .filter(h => !/^(inicio|home|contacto|contáctanos|nosotras|nosotros|quiénes somos|menú|blog|actualidad|faq|table of contents|instalación|installation|license|licencia)$/i.test(h))
@@ -362,7 +519,7 @@ function extractContextualSignals(ctx = {}) {
                 const relatedP = paragraphs.find(p => hWords.some(w => p.toLowerCase().includes(w))) || paragraphs[idx] || '';
                 programsAndActivities.push({
                     title: h,
-                    detail: relatedP || `Componente o línea de acción identificada en el repositorio (${h}).`
+                    detail: relatedP || `Actividad, servicio o componente identificado en el repositorio (${h}).`
                 });
             });
     }
@@ -422,6 +579,15 @@ function extractContextualSignals(ctx = {}) {
         entityName = headings[0];
     }
 
+    const endpoints = Array.isArray(ctx.endpoints) ? ctx.endpoints : [];
+    const dataModels = Array.isArray(ctx.dataModels) ? ctx.dataModels : [];
+    const { discrepancies, informationLimitations } = detectDiscrepanciesAndLimitations(
+        { htmlTitle, metaDescription, webPageAnalysis },
+        files,
+        endpoints,
+        dataModels
+    );
+
     return {
         entityName,
         projectName,
@@ -441,13 +607,16 @@ function extractContextualSignals(ctx = {}) {
         executedProjects,
         transparencyDocs,
         contactInfo,
+        webPageAnalysis,
+        discrepancies,
+        informationLimitations,
         fullCorpus
     };
 }
 
 /**
- * Classifies the repository into one of the 13 semantic project categories
- * and builds the complete semantic profile separating Purpose vs. Technology.
+ * Universally analyzes the repository to understand its true nature, purpose,
+ * audience, web page context, and technical implementation.
  */
 function analyzeProjectSemantics(ctx = {}) {
     const signals = extractContextualSignals(ctx);
@@ -467,7 +636,7 @@ function analyzeProjectSemantics(ctx = {}) {
     const hasPackageJson = files.some(f => /(?:^|\/)package\.json$/i.test(f.path || ''));
     const isPrimarilyHtmlStatic = files.length > 0 && files.every(f => /\.(html?|css|svg|png|jpg|jpeg|webp|gif|ico|txt|md)$/i.test(f.path || '') || /(?:^|\/)cname$/i.test(f.path || ''));
 
-    // Score each category based on semantic context (NOT just file extensions!)
+    // Multi-signal contextual scoring
     const scores = {
         foundation_nonprofit: 0,
         social_community: 0,
@@ -484,51 +653,41 @@ function analyzeProjectSemantics(ctx = {}) {
         other_project: 1
     };
 
-    // 1. Foundations & Non-Profits
     if (/\bfundaci[oó]n\b|\bsin [aá]nimo de lucro\b|\bong\b|\bnon-profit\b|\bnonprofit\b/i.test(corpusLower)) scores.foundation_nonprofit += 45;
     if (/\bdonaci[oó]n|\bdonantes\b|\bvoluntariado\b|\bbeneficiarias?\b|\brendici[oó]n de cuentas\b|\bquiero ayudar\b/i.test(corpusLower)) scores.foundation_nonprofit += 30;
     if (/\bcomunidades vulnerables\b|\bderechos menstruales\b|\bpobreza menstrual\b|\bescnna\b|\btrata de personas\b/i.test(corpusLower)) scores.foundation_nonprofit += 25;
     if (signals.customDomain && signals.customDomain.endsWith('.org') && !hasBackendEndpoints) scores.foundation_nonprofit += 15;
 
-    // 2. Social & Community Organizations
     if (/\borganizaci[oó]n social\b|\borganizaci[oó]n comunitaria\b|\btrabajo comunitario\b|\bcolectivo social\b|\bjunta de acci[oó]n comunal\b|\blideresas comunitarias\b/i.test(corpusLower)) {
         scores.social_community += 35;
     }
 
-    // 3. Educational Institutions
     if (/\binstituci[oó]n educativa\b|\buniversidad\b|\bcolegio\b|\bfacultad\b|\bprograma acad[eé]mico\b|\bplan de estudios\b|\bcampus universitario\b/i.test(corpusLower)) {
         scores.educational_institution += 35;
     }
     if (signals.customDomain && signals.customDomain.includes('.edu')) scores.educational_institution += 25;
 
-    // 4. Government Projects
     if (/\bgobierno\b|\balcald[ií]a\b|\bgobernaci[oó]n\b|\bministerio\b|\bentidad p[uú]blica\b|\btr[aá]mites ciudadanos\b/i.test(corpusLower)) {
-        // Only primary if it's not a foundation mentioning government donors
         if (scores.foundation_nonprofit < 40) scores.government_project += 35;
     }
     if (signals.customDomain && signals.customDomain.includes('.gov')) scores.government_project += 40;
 
-    // 5. E-commerce & Virtual Stores
     if (/\btienda virtual\b|\bcarrito de compras\b|\badd to cart\b|\bcheckout\b|\bcat[aá]logo de productos\b|\be-commerce\b|\becommerce\b/i.test(corpusLower)) {
         scores.ecommerce_store += 40;
     }
 
-    // 6. Research Projects
     if (/\bproyecto de investigaci[oó]n\b|\bhip[oó]tesis\b|\bmetodolog[ií]a experimental\b|\bpaper cient[ií]fico\b|\bdataset\b|\btesis\b/i.test(corpusLower) && scores.foundation_nonprofit < 40) {
         scores.research_project += 35;
     }
 
-    // 7. Personal Portfolios
     if (/\bportafolio personal\b|\bmi portafolio\b|\bmy portfolio\b|\bsobre m[ií]\b|\babout me\b|\bcurr[ií]culum vitae\b|\bfreelance developer\b/i.test(corpusLower)) {
         scores.personal_portfolio += 40;
     }
 
-    // 8. Companies & Ventures (Informational / Corporate Landing)
     if (/\bempresa\b|\bemprendimiento\b|\bnuestros servicios\b|\bcotizar\b|\bclientes corporativos\b|\bagencia\b|\bconsultor[ií]a\b/i.test(corpusLower) && !hasBackendEndpoints && scores.foundation_nonprofit < 30) {
         scores.company_venture += 30;
     }
 
-    // 9. Dev Libraries & Tools
     const pkgFile = files.find(f => /(?:^|\/)package\.json$/i.test(f.path || ''));
     let pkgJson = {};
     if (pkgFile && pkgFile.content) {
@@ -541,7 +700,6 @@ function analyzeProjectSemantics(ctx = {}) {
         scores.dev_library_tool += 25;
     }
 
-    // 10. SaaS Platforms, Enterprise Systems & Web/Mobile Apps
     if (hasBackendEndpoints || hasDatabaseModels) {
         scores.web_mobile_app += 25;
         if (/\bsaas\b|\bmulti-tenant\b|\boauth\b|\bsupabase\b|\bcloud\b|\banalizador\b|\bplataforma\b/i.test(corpusLower)) {
@@ -554,7 +712,6 @@ function analyzeProjectSemantics(ctx = {}) {
         scores.web_mobile_app += 28;
     }
 
-    // Pick highest scoring category
     let bestKey = 'other_project';
     let bestScore = -1;
     for (const [k, sc] of Object.entries(scores)) {
@@ -566,14 +723,15 @@ function analyzeProjectSemantics(ctx = {}) {
 
     const categoryMeta = Object.values(PROJECT_CATEGORIES).find(c => c.id === bestKey) || PROJECT_CATEGORIES.OTHER_PROJECT;
     const isFoundationOrSocial = ['foundation_nonprofit', 'social_community'].includes(categoryMeta.id);
-    const isNonSoftwareInstitutional = !categoryMeta.isSoftwareProduct;
+    const isSoftwareSystem = Boolean(categoryMeta.isSoftwareProduct || hasBackendEndpoints || hasDatabaseModels);
+    const isNonSoftwareInstitutional = !isSoftwareSystem;
 
-    // Build Nature vs. Technical Implementation separation
     const langList = detectedLanguages.length > 0 ? detectedLanguages.join(', ') : (ctx.repository?.primaryLanguage || 'HTML5 / CSS3');
     const fwList = detectedFrameworks.length > 0 ? detectedFrameworks.join(', ') : (isPrimarilyHtmlStatic ? 'Maquetación web estática nativa (sin frameworks de backend)' : 'Ecosistema estándar del lenguaje');
     const dbList = detectedDatabases.length > 0 ? detectedDatabases.join(', ') : 'No utiliza base de datos (contenido estático / sin persistencia de servidor)';
 
     let whatItIs = '';
+    let whatItDoes = '';
     let mainPurpose = '';
     let problemStatement = '';
     let targetBeneficiaries = '';
@@ -581,19 +739,58 @@ function analyzeProjectSemantics(ctx = {}) {
 
     if (categoryMeta.id === 'foundation_nonprofit' || categoryMeta.id === 'social_community') {
         whatItIs = `${signals.entityName} es una ${categoryMeta.id === 'foundation_nonprofit' ? 'fundación y organización sin ánimo de lucro' : 'organización social y comunitaria'}${signals.contactInfo.location ? ` con sede en ${signals.contactInfo.location}` : ''}${signals.contactInfo.foundedYear ? `, activa desde ${signals.contactInfo.foundedYear}` : ''}.`;
+        whatItDoes = signals.programsAndActivities.length > 0
+            ? `Desarrolla programas de impacto social y comunitario centrados en: ${signals.programsAndActivities.map(p => p.title).join('; ')}.`
+            : `Realiza actividades de formación, acompañamiento comunitario y transformación social en beneficio de poblaciones vulnerables.`;
         mainPurpose = signals.mission || signals.purpose || `Promover oportunidades de desarrollo integral, dignidad, formación en derechos y bienestar comunitario para poblaciones en situación de vulnerabilidad.`;
         problemStatement = `Atiende problemáticas sociales reales como la pobreza menstrual, la violencia basada en género, la explotación sexual y comercial de niños, niñas y adolescentes (ESCNNA), la trata de personas, la pobreza multidimensional y la exclusión social y económica en territorios vulnerables.`;
         targetBeneficiaries = `Mujeres, niñas, adolescentes, lideresas sociales, organizaciones comunitarias de base, instituciones educativas y familias en territorios vulnerables, además de articularse con donantes, cooperantes internacionales, entidades públicas y voluntariado.`;
         technicalRoleDescription = `El repositorio aloja el sitio web institucional e informativo de ${signals.entityName}${signals.customDomain ? ` (configurado bajo el dominio ${signals.customDomain})` : ''}, construido con ${langList}. Estas tecnologías se emplean exclusivamente como canal de comunicación digital, visibilización de proyectos sociales, rendición de cuentas (transparencia) y contacto con donantes o voluntariado, sin constituir una aplicación de software comercial ni un sistema de automatización empresarial.`;
+    } else if (categoryMeta.id === 'ecommerce_store') {
+        whatItIs = `${signals.entityName} es una tienda virtual y catálogo comercial digital (${categoryMeta.label}).`;
+        whatItDoes = `Exhibe productos o servicios al público, facilitando la exploración del catálogo, selección de artículos y gestión de compra o pedido.`;
+        mainPurpose = signals.purpose || `Comercializar productos y ofrecer una experiencia de catálogo y compra digital accesible para sus clientes.`;
+        problemStatement = `Atiende la necesidad de exhibición comercial, consulta de catálogo y adquisición de productos en línea para compradores y clientes.`;
+        targetBeneficiaries = `Compradores, clientes finales y visitantes interesados en adquirir los productos o servicios ofrecidos por ${signals.entityName}.`;
+        technicalRoleDescription = hasBackendEndpoints
+            ? `Implementado como una aplicación de comercio electrónico con interfaz en ${langList}, ${endpoints.length} rutas de servicio y persistencia en ${dbList}.`
+            : `El repositorio contiene la interfaz web y catálogo comercial construido con ${langList}${signals.customDomain ? ` bajo el dominio ${signals.customDomain}` : ''}.`;
+    } else if (categoryMeta.id === 'educational_institution') {
+        whatItIs = `${signals.entityName} representa una institución o iniciativa educativa (${categoryMeta.label}).`;
+        whatItDoes = `Comunica su oferta académica, planes de estudio, actividades formativas y recursos para su comunidad educativa.`;
+        mainPurpose = signals.purpose || `Brindar formación académica, difusión pedagógica e información institucional para estudiantes, docentes y aspirantes.`;
+        problemStatement = `Responde a la necesidad de formación educativa y acceso claro a la oferta académica y servicios institucionales.`;
+        targetBeneficiaries = `Estudiantes, docentes, investigadores, padres de familia y aspirantes de la comunidad educativa.`;
+        technicalRoleDescription = `El repositorio contiene el portal educativo construido en ${langList}, utilizado como medio de difusión académica e información institucional.`;
+    } else if (categoryMeta.id === 'company_venture') {
+        whatItIs = `${signals.entityName} representa una empresa, consultora o emprendimiento (${categoryMeta.label}).`;
+        whatItDoes = `Presenta el portafolio de servicios, propuesta de valor, casos de éxito y canales de contacto comercial o corporativo.`;
+        mainPurpose = signals.purpose || `Dar a conocer los servicios profesionales o soluciones de negocio de ${signals.entityName} y conectar con clientes potenciales.`;
+        problemStatement = `Aborda las necesidades de los clientes del sector descritas en su portafolio de servicios y atención comercial.`;
+        targetBeneficiaries = `Clientes corporativos, aliados comerciales y usuarios interesados en contratar o conocer los servicios de ${signals.entityName}.`;
+        technicalRoleDescription = `El repositorio contiene el sitio web corporativo desarrollado con ${langList}, empleado como presencia digital y canal de contacto empresarial.`;
+    } else if (categoryMeta.id === 'research_project') {
+        whatItIs = `${signals.entityName} es un proyecto de investigación académica o científica (${categoryMeta.label}).`;
+        whatItDoes = `Documenta y desarrolla la hipótesis, metodología experimental, análisis de datos, resultados y hallazgos del estudio.`;
+        mainPurpose = signals.purpose || `Investigar, analizar y validar científicamente el fenómeno o problema de estudio planteado en el repositorio.`;
+        problemStatement = signals.paragraphs[0] || `Aborda el problema de investigación, hipótesis y preguntas científicas formuladas en los documentos del proyecto.`;
+        targetBeneficiaries = `Investigadores, comunidad científica, docentes, estudiantes y profesionales del área de estudio.`;
+        technicalRoleDescription = `Los archivos, scripts o documentos en ${langList} funcionan como soporte metodológico, experimental y documental de la investigación.`;
     } else if (isNonSoftwareInstitutional) {
-        whatItIs = `${signals.entityName} corresponde a un proyecto categorizado como "${categoryMeta.label}".`;
-        mainPurpose = signals.purpose || signals.metaDescription || signals.repoDescription || (signals.paragraphs[0] || `Cumplir los objetivos institucionales, educativos, investigativos o de difusión descritos en los documentos del repositorio.`);
-        problemStatement = signals.paragraphs[1] || `Brindar información estructurada, recursos y canales de comunicación claros para su comunidad objetivo.`;
-        targetBeneficiaries = `Comunidad objetivo, visitantes, estudiantes, investigadores o ciudadanos interesados en las actividades de ${signals.entityName}.`;
+        whatItIs = `${signals.entityName} corresponde a un proyecto de naturaleza "${categoryMeta.label}".`;
+        whatItDoes = signals.programsAndActivities.length > 0
+            ? `Presenta y desarrolla: ${signals.programsAndActivities.map(p => p.title).join('; ')}.`
+            : `Comunica el propósito, contenidos y actividades descritas en el repositorio.`;
+        mainPurpose = signals.purpose || `Cumplir los objetivos institucionales, informativos o profesionales descritos en los documentos del repositorio.`;
+        problemStatement = signals.paragraphs[1] || signals.purpose || `Brindar información estructurada, recursos y canales de comunicación claros para su público objetivo.`;
+        targetBeneficiaries = `Visitantes, ciudadanos o comunidad objetivo interesada en ${signals.entityName}.`;
         technicalRoleDescription = `Los archivos técnicos detectados (${langList}) funcionan como el soporte digital para estructurar, presentar y publicar el contenido de ${signals.entityName}.`;
     } else {
         whatItIs = `${signals.entityName} es un proyecto tecnológico categorizado como "${categoryMeta.label}", desarrollado con ${langList}${detectedFrameworks.length > 0 ? ` y ${detectedFrameworks.join(', ')}` : ''}.`;
-        mainPurpose = signals.purpose || signals.repoDescription || `Proveer las funcionalidades de software, procesamiento de datos y servicios definidos en los módulos del repositorio.`;
+        whatItDoes = endpoints.length > 0
+            ? `Provee funcionalidades de software a través de ${files.length} archivos y ${endpoints.length} rutas/endpoints HTTP.`
+            : `Implementa módulos y componentes de software en ${langList} (${files.length} archivos analizados).`;
+        mainPurpose = signals.purpose || signals.repoDescription || `Proveer las capacidades funcionales, procesamiento de datos y servicios definidos en los módulos del repositorio.`;
         problemStatement = `Resolver las necesidades funcionales y operativas abordadas por sus módulos, interfaces y servicios técnicos.`;
         targetBeneficiaries = `Usuarios finales de la aplicación, administradores y equipos técnicos que operan o se integran con el sistema.`;
         technicalRoleDescription = `La implementación técnica comprende ${files.length || 1} archivos analizados en ${langList}, ${endpoints.length} endpoints HTTP/API y ${dataModels.length} modelos de datos sobre ${dbList}.`;
@@ -603,7 +800,7 @@ function analyzeProjectSemantics(ctx = {}) {
         category: categoryMeta.id,
         categoryLabel: categoryMeta.label,
         domainType: categoryMeta.domainType,
-        isSoftwareProduct: categoryMeta.isSoftwareProduct,
+        isSoftwareProduct: isSoftwareSystem,
         isFoundationOrSocial,
         isNonSoftwareInstitutional,
         isStaticWebsite: isPrimarilyHtmlStatic && !hasBackendEndpoints,
@@ -613,15 +810,18 @@ function analyzeProjectSemantics(ctx = {}) {
             category: categoryMeta.label,
             entityName: signals.entityName,
             whatItIs,
+            whatItDoes,
+            whyItExists: mainPurpose,
             mission: signals.mission || mainPurpose,
-            vision: signals.vision || 'Consolidar su impacto mediante alianzas estratégicas, transparencia y resultados medibles en las comunidades atendidas.',
+            vision: signals.vision || 'Consolidar su impacto mediante calidad, transparencia y resultados verificables para su comunidad o usuarios objetivo.',
             values: signals.values,
             problemAddressed: problemStatement,
             targetBeneficiaries,
             programsAndActivities: signals.programsAndActivities,
             executedProjects: signals.executedProjects,
             transparencyDocs: signals.transparencyDocs,
-            contactInfo: signals.contactInfo
+            contactInfo: signals.contactInfo,
+            webPageCommunicatedInfo: signals.webPageAnalysis?.communicatedSummary || ''
         },
         technicalImplementation: {
             roleSummary: technicalRoleDescription,
@@ -635,8 +835,61 @@ function analyzeProjectSemantics(ctx = {}) {
             dataModelsCount: dataModels.length,
             customDomain: signals.customDomain || null
         },
+        webPageAnalysis: signals.webPageAnalysis,
+        discrepancies: signals.discrepancies || [],
+        informationLimitations: signals.informationLimitations || [],
         signals
     };
+}
+
+/**
+ * Merges Gemini's Stage-0 `projectUnderstanding` output into the semantic profile
+ * so that all downstream documentation modules share a single, coherent, AI-enriched
+ * understanding of the repository without contradicting verified static facts.
+ */
+function mergeAiUnderstandingIntoProfile(baseProfile, aiData) {
+    if (!aiData || typeof aiData !== 'object') return baseProfile;
+    const merged = { ...baseProfile, isAiEnriched: true };
+
+    if (aiData.entityName && typeof aiData.entityName === 'string' && !baseProfile.isFoundationOrSocial) {
+        merged.entityName = stripVerificationTags(aiData.entityName);
+    }
+    if (aiData.projectTypeSummary && typeof aiData.projectTypeSummary === 'string' && baseProfile.category === 'other_project') {
+        merged.categoryLabel = stripVerificationTags(aiData.projectTypeSummary);
+    }
+
+    merged.projectNature = {
+        ...baseProfile.projectNature,
+        whatItIs: (!baseProfile.isFoundationOrSocial && aiData.whatItIs) ? stripVerificationTags(aiData.whatItIs) : baseProfile.projectNature.whatItIs,
+        whatItDoes: (!baseProfile.isFoundationOrSocial && aiData.whatItDoes) ? stripVerificationTags(aiData.whatItDoes) : baseProfile.projectNature.whatItDoes,
+        whyItExists: (!baseProfile.isFoundationOrSocial && aiData.whyItExists) ? stripVerificationTags(aiData.whyItExists) : baseProfile.projectNature.whyItExists,
+        problemAddressed: (!baseProfile.isFoundationOrSocial && aiData.problemAddressed) ? stripVerificationTags(aiData.problemAddressed) : baseProfile.projectNature.problemAddressed,
+        targetBeneficiaries: (!baseProfile.isFoundationOrSocial && aiData.targetAudience) ? stripVerificationTags(aiData.targetAudience) : baseProfile.projectNature.targetBeneficiaries,
+        webPageCommunicatedInfo: aiData.webPageCommunicatedInfo ? stripVerificationTags(aiData.webPageCommunicatedInfo) : baseProfile.projectNature.webPageCommunicatedInfo
+    };
+
+    if (Array.isArray(aiData.coreOfferingsOrPrograms) && aiData.coreOfferingsOrPrograms.length > 0 && baseProfile.projectNature.programsAndActivities.length === 0) {
+        merged.projectNature.programsAndActivities = aiData.coreOfferingsOrPrograms.map(item => ({
+            title: stripVerificationTags(item.title || 'Actividad / Componente'),
+            detail: stripVerificationTags(item.detail || '')
+        }));
+    }
+
+    if (aiData.technologyRole && typeof aiData.technologyRole === 'string' && !baseProfile.isFoundationOrSocial) {
+        merged.technicalImplementation = {
+            ...baseProfile.technicalImplementation,
+            roleSummary: stripVerificationTags(aiData.technologyRole)
+        };
+    }
+
+    if (Array.isArray(aiData.discrepancies) && aiData.discrepancies.length > 0) {
+        merged.discrepancies = Array.from(new Set([...(baseProfile.discrepancies || []), ...aiData.discrepancies.map(d => stripVerificationTags(d))]));
+    }
+    if (Array.isArray(aiData.informationLimitations) && aiData.informationLimitations.length > 0) {
+        merged.informationLimitations = Array.from(new Set([...(baseProfile.informationLimitations || []), ...aiData.informationLimitations.map(l => stripVerificationTags(l))]));
+    }
+
+    return merged;
 }
 
 module.exports = {
@@ -644,6 +897,9 @@ module.exports = {
     stripVerificationTags,
     compactHtmlForAnalysis,
     htmlToCleanText,
+    analyzeWebPageContent,
+    detectDiscrepanciesAndLimitations,
     extractContextualSignals,
-    analyzeProjectSemantics
+    analyzeProjectSemantics,
+    mergeAiUnderstandingIntoProfile
 };
