@@ -20,6 +20,7 @@ const {
     compactHtmlForAnalysis,
     analyzeProjectSemantics
 } = require('../analyzer/semanticClassifier');
+const { PrivateRepoService } = require('./privateRepoService');
 
 const MAX_KEY_FILES = 25;
 const MAX_TOTAL_BYTES = 300 * 1024; // 300 KB total content limit for AI synthesis
@@ -71,17 +72,141 @@ function parseGitHubUrl(rawUrl) {
 }
 
 /**
- * Creates GitHub API headers (optional GITHUB_TOKEN for higher rate limits).
+ * Creates GitHub API headers.
+ * Uses the user's isolated OAuth/GitHub App token when available; falls back to optional
+ * global GITHUB_TOKEN exclusively for public repository rate-limit relief.
  */
-function getApiHeaders() {
+function getApiHeaders(userAccessToken = null) {
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'DocumentMindAI-Platform/1.0'
+        'User-Agent': 'DocumentMindAI-Platform/3.0'
     };
-    if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()) {
+    if (userAccessToken && String(userAccessToken).trim()) {
+        headers['Authorization'] = `Bearer ${String(userAccessToken).trim()}`;
+    } else if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()) {
         headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN.trim()}`;
     }
     return headers;
+}
+
+/**
+ * Analyzes an in-memory / sandbox repository (public or private) after permission verification.
+ */
+function analyzeRepositoryFilesList(owner, repo, cleanUrl, targetBranch, isPrivate, rawFiles = [], description = '') {
+    const prioritizedFiles = [];
+    const relevantFiles = [];
+    const manifests = {};
+
+    rawFiles.forEach(f => {
+        if (!f.path || shouldIgnoreFile(f.path)) return;
+        const rawContent = f.content || '';
+        const fileName = f.path.split('/').pop().toLowerCase();
+        const cleanContent = fileName.startsWith('.env')
+            ? sanitizeEnvFile(rawContent).sanitizedContent
+            : sanitizeContent(rawContent);
+        const isHtmlFile = /\.(html?|ejs|hbs)$/i.test(fileName);
+        const contentSnippet = isHtmlFile
+            ? compactHtmlForAnalysis(cleanContent, MAX_SINGLE_FILE_BYTES)
+            : cleanContent.substring(0, MAX_SINGLE_FILE_BYTES);
+        const category = classifyFile(f.path, contentSnippet);
+        const hash = computeFileHash(contentSnippet);
+
+        relevantFiles.push({ path: f.path, size: contentSnippet.length, category });
+        prioritizedFiles.push({
+            path: f.path,
+            size: contentSnippet.length,
+            category,
+            hash,
+            content: contentSnippet
+        });
+
+        if (fileName === 'package.json') {
+            try { manifests['package.json'] = JSON.parse(contentSnippet); } catch (_) {}
+        } else if (MANIFEST_FILES.includes(fileName)) {
+            manifests[fileName] = contentSnippet;
+        }
+    });
+
+    const detectedLanguages = detectLanguages(prioritizedFiles);
+    const detectedFrameworks = detectFrameworks(manifests, prioritizedFiles);
+    const detectedDatabases = detectDatabases(manifests, prioritizedFiles);
+    const detectedInfra = detectInfrastructure(manifests, prioritizedFiles);
+    const endpoints = extractEndpoints(prioritizedFiles);
+    const dataModels = extractDataModels(prioritizedFiles);
+
+    const allDetectedTechnologies = Array.from(new Set([
+        ...detectedLanguages,
+        ...detectedFrameworks,
+        ...detectedDatabases,
+        ...detectedInfra
+    ]));
+
+    const treeDiagram = buildTreeDiagram(relevantFiles);
+    const projectMap = buildProjectMap(prioritizedFiles, allDetectedTechnologies, endpoints, dataModels);
+
+    const semanticProfile = analyzeProjectSemantics({
+        projectName: repo,
+        repoDescription: description,
+        repository: { name: repo, fullName: `${owner}/${repo}`, description, private: isPrivate },
+        detectedLanguages,
+        detectedFrameworks,
+        detectedDatabases,
+        detectedInfra,
+        endpoints,
+        dataModels,
+        prioritizedFiles
+    });
+
+    const effectiveDescription = description
+        || semanticProfile.signals?.metaDescription
+        || semanticProfile.projectNature?.whatItIs
+        || 'Repositorio analizado por DocuMind AI.';
+
+    return {
+        repository: {
+            name: repo,
+            fullName: `${owner}/${repo}`,
+            owner,
+            private: Boolean(isPrivate),
+            visibility: isPrivate ? 'private' : 'public',
+            description: effectiveDescription,
+            url: cleanUrl,
+            stars: 0,
+            forks: 0,
+            openIssues: 0,
+            defaultBranch: targetBranch,
+            branch: targetBranch,
+            primaryLanguage: detectedLanguages[0] || 'Multi-lenguaje',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            analysisDate: new Date().toISOString(),
+            projectCategory: semanticProfile.category,
+            projectCategoryLabel: semanticProfile.categoryLabel,
+            entityName: semanticProfile.entityName
+        },
+        projectCategory: semanticProfile.category,
+        projectCategoryLabel: semanticProfile.categoryLabel,
+        semanticProfile,
+        stats: {
+            totalFiles: relevantFiles.length,
+            relevantFilesCount: relevantFiles.length,
+            ignoredFilesCount: 0,
+            analyzedFilesCount: prioritizedFiles.length,
+            technologiesCount: allDetectedTechnologies.length
+        },
+        detectedLanguages,
+        detectedFrameworks,
+        detectedDatabases,
+        detectedInfra,
+        detectedTechnologies: allDetectedTechnologies,
+        treeDiagram,
+        relevantFilesList: relevantFiles,
+        ignoredFilesList: [],
+        prioritizedFiles,
+        endpoints,
+        dataModels,
+        projectMap
+    };
 }
 
 /**
@@ -134,9 +259,12 @@ function buildTreeDiagram(files) {
 }
 
 /**
- * Main function: Analyzes a public GitHub repository.
+ * Main function: Analyzes a public or authorized private GitHub repository.
+ * @param {string} rawUrl - GitHub repository URL
+ * @param {string|null} branch - Optional branch name
+ * @param {object} [options] - Optional { userId, userAccessToken } for private repositories
  */
-async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
+async function fetchAndAnalyzeRepo(rawUrl, branch = null, options = {}) {
     const parsed = parseGitHubUrl(rawUrl);
     if (!parsed.valid) {
         const err = new Error(parsed.error);
@@ -145,19 +273,64 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     }
 
     const { owner, repo, cleanUrl } = parsed;
-    const headers = getApiHeaders();
+    const userId = options.userId || null;
+
+    // 0. Check if this is an authorized Sandbox repository (for multi-account private/public testing)
+    const sandboxMatch = PrivateRepoService.getSandboxRepository(userId, owner, repo);
+    if (sandboxMatch && sandboxMatch.repository) {
+        const sbRepo = sandboxMatch.repository;
+        const targetBranch = branch || sbRepo.default_branch || 'main';
+        if (Array.isArray(sbRepo.branches) && !sbRepo.branches.includes(targetBranch)) {
+            const err = new Error(`La rama "${targetBranch}" no existe en el repositorio "${sbRepo.full_name}". Ramas disponibles: ${sbRepo.branches.join(', ')}.`);
+            err.statusCode = 404;
+            throw err;
+        }
+        return analyzeRepositoryFilesList(
+            owner,
+            repo,
+            cleanUrl,
+            targetBranch,
+            sbRepo.private,
+            sbRepo.files || [],
+            sbRepo.description || ''
+        );
+    }
+
+    // Resolve user-specific GitHub token from isolated backend session
+    const userSession = userId ? PrivateRepoService.getDecryptedUserSession(userId) : null;
+    const userAccessToken = (userSession && !userSession.isSandbox)
+        ? userSession.accessToken
+        : (options.userAccessToken || null);
+
+    const headers = getApiHeaders(userAccessToken);
 
     // 1. Fetch Repository Metadata
     const repoMetaUrl = `https://api.github.com/repos/${owner}/${repo}`;
     let repoData;
     try {
         const res = await fetch(repoMetaUrl, { headers });
+        if (res.status === 401) {
+            if (userId) PrivateRepoService.disconnectGitHub(userId);
+            const err = new Error('Tu sesión de GitHub ha expirado o el token fue revocado. Vuelve a conectar tu cuenta de GitHub.');
+            err.statusCode = 401;
+            throw err;
+        }
         if (res.status === 404) {
-            const err = new Error(`El repositorio "${owner}/${repo}" no fue encontrado o es privado. Asegúrate de que sea un repositorio público.`);
+            const hint = userAccessToken
+                ? `El repositorio "${owner}/${repo}" no existe o tu cuenta de GitHub conectada (${userSession?.username ? '@' + userSession.username : 'actual'}) no tiene permisos de lectura sobre él.`
+                : `El repositorio "${owner}/${repo}" no fue encontrado o es privado. Si es un repositorio privado, conecta tu cuenta de GitHub en el panel superior.`;
+            const err = new Error(hint);
             err.statusCode = 404;
             throw err;
         }
         if (res.status === 403 || res.status === 429) {
+            if (userAccessToken) {
+                const resetHeader = res.headers.get('x-ratelimit-reset');
+                const resetTime = resetHeader ? new Date(Number(resetHeader) * 1000).toLocaleTimeString('es-ES') : 'unos minutos';
+                const err = new Error(`Acceso restringido o límite de GitHub API alcanzado para "${owner}/${repo}". Verifica tus permisos de lectura o reintenta después de ${resetTime}.`);
+                err.statusCode = res.status;
+                throw err;
+            }
             console.log(`[GitHub Analyzer] GitHub REST API rate limit reached (${res.status}). Activating public zipball fallback for ${owner}/${repo}`);
             return await fetchAndAnalyzeViaZipball(owner, repo, branch, cleanUrl);
         }
@@ -174,6 +347,20 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
         throw err;
     }
 
+    // SECURITY ISOLATION RULE: Never allow global GITHUB_TOKEN to unlock private repositories for unauthenticated users
+    if (repoData.private && !userAccessToken) {
+        const err = new Error(`El repositorio "${owner}/${repo}" es privado. Por seguridad y aislamiento de datos, debes conectar tu propia cuenta de GitHub autorizada para analizarlo.`);
+        err.statusCode = 403;
+        throw err;
+    }
+
+    // Verify read permissions if GitHub returned permissions object
+    if (repoData.permissions && repoData.permissions.pull === false) {
+        const err = new Error(`Permisos insuficientes: Tu cuenta de GitHub no cuenta con permiso de lectura (pull/contents:read) sobre "${owner}/${repo}".`);
+        err.statusCode = 403;
+        throw err;
+    }
+
     const defaultBranch = repoData.default_branch || 'main';
     const targetBranch = branch || defaultBranch;
 
@@ -182,23 +369,31 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     let treeData = { tree: [] };
     try {
         const treeRes = await fetch(treeUrl, { headers });
-        if (treeRes.status === 403 || treeRes.status === 429) {
+        if ((treeRes.status === 403 || treeRes.status === 429) && !repoData.private) {
             console.log(`[GitHub Analyzer] GitHub tree rate limit reached (${treeRes.status}). Activating public zipball fallback for ${owner}/${repo}`);
             return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
         }
         if (treeRes.ok) {
             treeData = await treeRes.json();
-        } else {
+        } else if (!repoData.private) {
             console.warn(`[GitHub Analyzer] Warning tree response not ok (${treeRes.status}). Activating public zipball fallback for ${owner}/${repo}`);
             return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
+        } else {
+            const err = new Error(`No se pudo obtener el árbol de archivos de la rama "${targetBranch}" en el repositorio privado "${owner}/${repo}" (HTTP ${treeRes.status}).`);
+            err.statusCode = treeRes.status;
+            throw err;
         }
     } catch (treeErr) {
-        console.warn(`[GitHub Analyzer] Warning fetching tree for ${owner}/${repo}:`, treeErr.message);
-        return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
+        if (treeErr.statusCode) throw treeErr;
+        if (!repoData.private) {
+            console.warn(`[GitHub Analyzer] Warning fetching tree for ${owner}/${repo}:`, treeErr.message);
+            return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
+        }
+        throw treeErr;
     }
 
     const rawTree = Array.isArray(treeData.tree) ? treeData.tree : [];
-    if (rawTree.length === 0) {
+    if (rawTree.length === 0 && !repoData.private) {
         console.log(`[GitHub Analyzer] Empty Git tree received for ${owner}/${repo}. Activating public zipball fallback`);
         return await fetchAndAnalyzeViaZipball(owner, repo, targetBranch, cleanUrl);
     }
@@ -252,9 +447,22 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     for (const file of keyFilesToFetch) {
         if (totalBytesFetched >= MAX_TOTAL_BYTES) break;
 
-        const rawFileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(targetBranch)}/${file.path}`;
         try {
-            const fRes = await fetch(rawFileUrl);
+            let fRes;
+            if (repoData.private || userAccessToken) {
+                const encodedPath = file.path.split('/').map(encodeURIComponent).join('/');
+                const apiContentUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}?ref=${encodeURIComponent(targetBranch)}`;
+                fRes = await fetch(apiContentUrl, {
+                    headers: {
+                        ...headers,
+                        'Accept': 'application/vnd.github.v3.raw'
+                    }
+                });
+            } else {
+                const rawFileUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${encodeURIComponent(targetBranch)}/${file.path}`;
+                fRes = await fetch(rawFileUrl);
+            }
+
             if (fRes.ok) {
                 const rawContent = await fRes.text();
                 const fileName = file.path.split('/').pop().toLowerCase();
@@ -337,6 +545,8 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
             name: repoData.name,
             fullName: repoData.full_name,
             owner: repoData.owner ? repoData.owner.login : owner,
+            private: Boolean(repoData.private),
+            visibility: repoData.private ? 'private' : 'public',
             description: effectiveDescription,
             url: cleanUrl,
             stars: repoData.stargazers_count || 0,

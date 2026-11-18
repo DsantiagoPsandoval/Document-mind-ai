@@ -70,7 +70,7 @@ const { PRAutomationService } = require('./services/github/prAutomationService')
 const { OrganizationService, ROLES } = require('./services/orgs/organizationService');
 const { SecurityConfigService } = require('./services/enterprise/securityConfigService');
 
-function extractUserId(req) {
+function extractUserId(req, res = null) {
     const userEmail = (
         req.headers['x-user-email'] ||
         (req.user && req.user.email) ||
@@ -84,6 +84,19 @@ function extractUserId(req) {
     if (req.headers['x-user-id']) return req.headers['x-user-id'];
     if (req.body && req.body.userId) return req.body.userId;
     if (req.query && req.query.userId) return req.query.userId;
+
+    // Check HttpOnly session cookie for browser isolation
+    const cookieHeader = req.headers.cookie || '';
+    const sidMatch = cookieHeader.match(/(?:^|;\s*)dm_gh_sid=([a-zA-Z0-9_-]+)/);
+    if (sidMatch && sidMatch[1]) {
+        return `sid_${sidMatch[1]}`;
+    }
+
+    if (res && typeof res.setHeader === 'function' && !res.headersSent) {
+        const newSid = require('crypto').randomBytes(16).toString('hex');
+        res.setHeader('Set-Cookie', `dm_gh_sid=${newSid}; Path=/; HttpOnly; SameSite=Lax`);
+        return `sid_${newSid}`;
+    }
     return null;
 }
 
@@ -257,10 +270,11 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
 
         let projectData;
 
-        // Mode A: GitHub Repository
+        // Mode A: GitHub Repository (Public or Authorized Private)
         if (repoUrl && typeof repoUrl === 'string' && repoUrl.trim().length > 5) {
             const targetBranch = req.body.branch ? String(req.body.branch).trim() : null;
-            projectData = await fetchAndAnalyzeRepo(repoUrl.trim(), targetBranch);
+            const userId = extractUserId(req, res);
+            projectData = await fetchAndAnalyzeRepo(repoUrl.trim(), targetBranch, { userId });
         } 
         // Mode B: Uploaded Files or Manual Context (with SafeZip & Anti-Traversal)
         else if (req.files && req.files.length > 0) {
@@ -908,7 +922,8 @@ app.post('/api/security/audit', async (req, res, next) => {
                 projectMap: buildProjectMap(files, detectLanguages(files), extractEndpoints(files), extractDataModels(files))
             };
         } else if (!projectData && repoUrl && typeof repoUrl === 'string' && repoUrl.trim().length > 5) {
-            projectData = await fetchAndAnalyzeRepo(repoUrl.trim(), branch ? String(branch).trim() : null);
+            const userId = extractUserId(req, res);
+            projectData = await fetchAndAnalyzeRepo(repoUrl.trim(), branch ? String(branch).trim() : null, { userId });
         } else if (!projectData && manualCode && typeof manualCode === 'string') {
             const clean = sanitizeContent(manualCode);
             const files = [{
@@ -1108,7 +1123,8 @@ app.post('/api/github/analyze', async (req, res, next) => {
             });
         }
 
-        const repoData = await fetchAndAnalyzeRepo(repoUrl.trim(), branch ? String(branch).trim() : null);
+        const userId = extractUserId(req, res);
+        const repoData = await fetchAndAnalyzeRepo(repoUrl.trim(), branch ? String(branch).trim() : null, { userId });
         const security = await runSecurityAnalysis(repoData);
         repoData.security = security;
         const analysis = await analyzeRepository(repoData);
@@ -1535,35 +1551,67 @@ app.post('/api/simulator/scenarios', (req, res, next) => {
 // ============================================================
 
 /**
- * Conectar GitHub OAuth para Repositorios (GET /api/github/connect)
+ * Estado de Conexión GitHub del Usuario (GET /api/github/status)
+ */
+app.get('/api/github/status', (req, res) => {
+    const userId = extractUserId(req, res) || 'guest';
+    const status = PrivateRepoService.getConnectionStatus(userId);
+    res.json({ success: true, ...status });
+});
+
+/**
+ * Conectar GitHub App / OAuth para Repositorios Públicos y Privados (GET /api/github/connect)
  */
 app.get('/api/github/connect', (req, res) => {
-    const userId = extractUserId(req) || 'guest';
-    const authData = PrivateRepoService.getAuthorizationUrl(userId);
+    const userId = extractUserId(req, res) || 'guest';
+    const accountHint = req.query.account ? String(req.query.account).trim() : null;
+    const authData = PrivateRepoService.getAuthorizationUrl(userId, null, { accountHint });
     res.json(authData);
 });
 
 /**
- * Callback GitHub OAuth (GET /api/github/callback)
+ * Conectar Cuenta de GitHub mediante Token de Solo Lectura o Cuenta Verificada (POST /api/github/connect-token)
+ * El token se cifra con AES-256-GCM en el backend y jamás se expone al frontend ni se guarda en localStorage.
  */
-app.get('/api/github/callback', async (req, res, next) => {
+app.post('/api/github/connect-token', async (req, res, next) => {
     try {
-        const { code, state } = req.query;
-        if (!code) return res.status(400).send('Código de GitHub no proporcionado');
-        await PrivateRepoService.exchangeCodeForToken(code, state);
-        res.redirect('/#analizador?github_connected=true');
+        const userId = extractUserId(req, res) || 'guest';
+        const { token, account } = req.body || {};
+        const effectiveToken = account ? `sandbox:${account}` : token;
+        const result = await PrivateRepoService.connectWithReadOnlyToken(userId, effectiveToken);
+        res.json(result);
     } catch (err) {
         next(err);
     }
 });
 
 /**
- * Listar Repositorios del Usuario (GET /api/github/repos)
+ * Callback GitHub App / OAuth (GET /api/github/callback)
+ */
+app.get('/api/github/callback', async (req, res, next) => {
+    try {
+        const { code, state } = req.query;
+        if (!code) return res.status(400).send('Código de autorización de GitHub no proporcionado');
+        const userId = extractUserId(req, res);
+        await PrivateRepoService.exchangeCodeForToken(code, state, userId);
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            const status = PrivateRepoService.getConnectionStatus(userId || 'guest');
+            return res.json({ success: true, ...status });
+        }
+        res.redirect('/#analizador');
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Listar Repositorios Públicos y Privados del Usuario (GET /api/github/repos)
  */
 app.get('/api/github/repos', async (req, res, next) => {
     try {
-        const userId = extractUserId(req) || 'guest';
-        const data = await PrivateRepoService.listUserRepositories(userId);
+        const userId = extractUserId(req, res) || 'guest';
+        const visibility = req.query.visibility ? String(req.query.visibility).trim() : 'all';
+        const data = await PrivateRepoService.listUserRepositories(userId, visibility);
         res.json(data);
     } catch (err) {
         next(err);
@@ -1571,11 +1619,26 @@ app.get('/api/github/repos', async (req, res, next) => {
 });
 
 /**
- * Desconectar GitHub (POST /api/github/disconnect)
+ * Obtener Árbol de Archivos de un Repositorio Autorizado (GET /api/github/tree)
+ */
+app.get('/api/github/tree', async (req, res, next) => {
+    try {
+        const userId = extractUserId(req, res) || 'guest';
+        const { repo, branch } = req.query || {};
+        if (!repo) return res.status(400).json({ success: false, error: 'Se requiere el parámetro repo (owner/repo).' });
+        const tree = await PrivateRepoService.fetchPrivateRepoTree(userId, String(repo).trim(), branch ? String(branch).trim() : 'main');
+        res.json({ success: true, ...tree });
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Revocar Conexión de GitHub y Eliminar Credenciales (POST /api/github/disconnect)
  */
 app.post('/api/github/disconnect', async (req, res, next) => {
     try {
-        const userId = extractUserId(req) || 'guest';
+        const userId = extractUserId(req, res) || 'guest';
         const result = await PrivateRepoService.disconnectGitHub(userId);
         res.json(result);
     } catch (err) {

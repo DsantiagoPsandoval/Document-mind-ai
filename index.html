@@ -882,7 +882,7 @@ const ast = await parseSyntaxTree(repoBuffer, {
                     <button type="button" id="tab-gh-btn" class="analyzer-tab-btn active" role="tab" aria-selected="true" aria-controls="panel-gh">
                         <i class="fa-brands fa-github" style="color:#818CF8;"></i>
                         <span>Repositorio GitHub</span>
-                        <span class="tab-badge">URL Pública</span>
+                        <span class="tab-badge">Públicos &amp; Privados</span>
                     </button>
                     <button type="button" id="tab-doc-btn" class="analyzer-tab-btn" role="tab" aria-selected="false" aria-controls="panel-doc">
                         <i class="fa-solid fa-folder-open" style="color:var(--tech-cyan);"></i>
@@ -906,8 +906,96 @@ const ast = await parseSyntaxTree(repoBuffer, {
                 ============================================================ -->
                 <div id="project-input-container">
                     
-                    <!-- 1. GitHub Panel -->
+                    <!-- 1. GitHub Panel (Public & Private Repositories) -->
                     <div id="panel-gh">
+                        <!-- GitHub Account Connection & Repository Selector Bar -->
+                        <div id="github-connection-panel" style="margin-bottom:1.25rem;padding:1rem 1.15rem;background:linear-gradient(135deg,rgba(15,23,42,.88),rgba(9,13,22,.92));border:1px solid rgba(129,140,248,.28);border-radius:.75rem;">
+                            <!-- Disconnected View -->
+                            <div id="gh-conn-disconnected" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.85rem;">
+                                <div style="display:flex;align-items:center;gap:.75rem;">
+                                    <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(129,140,248,.14);border:1px solid rgba(129,140,248,.35);display:flex;align-items:center;justify-content:center;color:#F8FAFC;font-size:1.15rem;">
+                                        <i class="fa-brands fa-github"></i>
+                                    </div>
+                                    <div>
+                                        <div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;">
+                                            <strong style="font-size:.84rem;color:#F8FAFC;">Acceso a Repositorios Públicos y Privados</strong>
+                                            <span style="font-size:.65rem;padding:.12rem .48rem;border-radius:999px;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);color:#34D399;font-family:'JetBrains Mono',monospace;">Solo Lectura (contents:read)</span>
+                                        </div>
+                                        <span style="font-size:.73rem;color:#94A3B8;display:block;margin-top:.15rem;">Conecta tu cuenta de GitHub para listar y analizar tus repositorios privados de forma segura sin exponer credenciales en el navegador.</span>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;">
+                                    <button type="button" id="btn-connect-github-app" class="btn-cyber" style="padding:.48rem 1rem;font-size:.76rem;">
+                                        <i class="fa-brands fa-github" style="margin-right:.4rem;"></i>Conectar Cuenta de GitHub
+                                    </button>
+                                    <button type="button" id="btn-toggle-gh-token" class="btn-ghost" style="padding:.46rem .85rem;font-size:.74rem;border:1px solid rgba(148,163,184,.25);border-radius:.5rem;">
+                                        <i class="fa-solid fa-key" style="color:var(--tech-cyan);margin-right:.35rem;"></i>Usar Token Fine-Grained
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Fine-Grained Read-Only Token Input Drawer (Backend-Only Storage) -->
+                            <div id="gh-token-drawer" style="display:none;margin-top:.9rem;padding-top:.9rem;border-top:1px solid rgba(148,163,184,.15);">
+                                <div style="display:flex;gap:.65rem;flex-wrap:wrap;align-items:center;">
+                                    <div style="flex:1;min-width:220px;">
+                                        <label for="gh-readonly-token-input" style="display:block;font-size:.68rem;font-weight:700;color:#94A3B8;margin-bottom:.3rem;">
+                                            TOKEN DE SOLO LECTURA (GITHUB APP / FINE-GRAINED PAT CON PERMISO CONTENTS:READ)
+                                        </label>
+                                        <input type="password" id="gh-readonly-token-input" class="input-cyber" placeholder="github_pat_... (Se cifra con AES-256-GCM en el servidor; nunca se guarda en localStorage)" autocomplete="off" style="height:2.35rem;font-size:.78rem;">
+                                    </div>
+                                    <button type="button" id="btn-submit-gh-token" class="btn-cyber" style="padding:.48rem 1rem;font-size:.76rem;margin-top:1.1rem;">
+                                        <i class="fa-solid fa-shield-halved" style="margin-right:.35rem;"></i>Autorizar en Servidor
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Connected View (Selector of Public & Private Repositories) -->
+                            <div id="gh-conn-connected" style="display:none;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:.85rem;">
+                                    <div style="display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;">
+                                        <span style="display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:800;color:#F8FAFC;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);padding:.28rem .7rem;border-radius:999px;">
+                                            <span style="width:7px;height:7px;border-radius:50%;background:#34D399;box-shadow:0 0 8px #34D399;"></span>
+                                            <i class="fa-brands fa-github"></i>
+                                            <span id="gh-conn-username">@usuario</span>
+                                        </span>
+                                        <span id="gh-conn-perms-badge" style="font-size:.68rem;color:#38BDF8;font-family:'JetBrains Mono',monospace;background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);padding:.2rem .55rem;border-radius:.4rem;">
+                                            Permisos mínimos: metadata:read, contents:read
+                                        </span>
+                                    </div>
+                                    <div style="display:flex;align-items:center;gap:.5rem;">
+                                        <button type="button" id="btn-refresh-gh-repos" class="btn-ghost" style="padding:.32rem .7rem;font-size:.72rem;border:1px solid rgba(148,163,184,.2);border-radius:.45rem;" title="Actualizar lista de repositorios">
+                                            <i class="fa-solid fa-arrows-rotate"></i> Actualizar
+                                        </button>
+                                        <button type="button" id="btn-disconnect-github" class="btn-ghost" style="padding:.32rem .75rem;font-size:.72rem;color:#FB7185;border:1px solid rgba(251,113,133,.3);border-radius:.45rem;" title="Revocar acceso y eliminar credenciales de la sesión">
+                                            <i class="fa-solid fa-link-slash" style="margin-right:.3rem;"></i>Revocar Conexión
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Repository Selector & Visibility Filter -->
+                                <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;">
+                                    <div style="flex:1;min-width:240px;">
+                                        <label for="gh-repo-select" style="display:block;font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;">
+                                            Seleccionar Repositorio Autorizado (Públicos y Privados)
+                                        </label>
+                                        <select id="gh-repo-select" class="input-cyber" style="height:2.5rem;font-size:.8rem;background:#090E1A;color:#F8FAFC;border:1px solid rgba(56,189,248,.35);border-radius:.5rem;padding:0 .75rem;width:100%;">
+                                            <option value="">-- Selecciona un repositorio de tu cuenta --</option>
+                                        </select>
+                                    </div>
+                                    <div style="width:170px;min-width:140px;">
+                                        <label for="gh-repo-visibility-filter" style="display:block;font-size:.7rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem;">
+                                            Visibilidad
+                                        </label>
+                                        <select id="gh-repo-visibility-filter" class="input-cyber" style="height:2.5rem;font-size:.78rem;background:#090E1A;color:#E2E8F0;border:1px solid rgba(148,163,184,.25);border-radius:.5rem;padding:0 .65rem;width:100%;">
+                                            <option value="all">Todos (Públicos y Privados)</option>
+                                            <option value="private">🔒 Solo Privados</option>
+                                            <option value="public">🌐 Solo Públicos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
                             <div style="flex:1;min-width:min(240px, 100%);">
                                 <label for="repo-input" style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.55rem;">

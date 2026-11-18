@@ -2000,13 +2000,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1200);
 
         try {
+            const reqHeaders = {};
+            if (!isMultipart) {
+                reqHeaders['Content-Type'] = 'application/json';
+            }
+            if (typeof currentUser !== 'undefined' && currentUser?.email) {
+                reqHeaders['x-user-email'] = currentUser.email;
+            }
             const fetchOptions = {
                 method: 'POST',
+                headers: reqHeaders,
                 body: payload
             };
-            if (!isMultipart) {
-                fetchOptions.headers = { 'Content-Type': 'application/json' };
-            }
 
             const res = await fetch('/api/project/analyze', fetchOptions);
             clearInterval(stageTimer);
@@ -5335,5 +5340,176 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // ============================================================
+    // CONEXIÓN DE CUENTA GITHUB Y SELECTOR DE REPOSITORIOS PÚBLICOS / PRIVADOS
+    // (Sin exponer tokens en frontend ni guardar credenciales en localStorage)
+    // ============================================================
+    const ghConnDisconnected = document.getElementById("gh-conn-disconnected");
+    const ghConnConnected = document.getElementById("gh-conn-connected");
+    const ghTokenDrawer = document.getElementById("gh-token-drawer");
+    const btnConnectGithubApp = document.getElementById("btn-connect-github-app");
+    const btnToggleGhToken = document.getElementById("btn-toggle-gh-token");
+    const btnSubmitGhToken = document.getElementById("btn-submit-gh-token");
+    const ghReadonlyTokenInput = document.getElementById("gh-readonly-token-input");
+    const btnRefreshGhRepos = document.getElementById("btn-refresh-gh-repos");
+    const btnDisconnectGithub = document.getElementById("btn-disconnect-github");
+    const ghRepoSelect = document.getElementById("gh-repo-select");
+    const ghRepoVisibilityFilter = document.getElementById("gh-repo-visibility-filter");
+    const ghConnUsername = document.getElementById("gh-conn-username");
+
+    let authorizedGitHubRepos = [];
+
+    function getAuthHeaders(extra = {}) {
+        const h = { ...extra };
+        if (typeof currentUser !== "undefined" && currentUser?.email) {
+            h["x-user-email"] = currentUser.email;
+        }
+        return h;
+    }
+
+    async function loadUserGitHubRepositories() {
+        if (!ghRepoSelect) return;
+        const vis = ghRepoVisibilityFilter ? ghRepoVisibilityFilter.value : "all";
+        try {
+            const res = await fetch(`/api/github/repos?visibility=${encodeURIComponent(vis)}`, {
+                headers: getAuthHeaders()
+            });
+            const data = await res.json();
+            if (!res.ok || !data.connected) {
+                renderGitHubConnectionState(false);
+                return;
+            }
+            authorizedGitHubRepos = Array.isArray(data.repositories) ? data.repositories : [];
+            renderGitHubConnectionState(true, data.username);
+
+            ghRepoSelect.innerHTML = `<option value="">-- Selecciona un repositorio (${authorizedGitHubRepos.length} disponibles) --</option>`;
+            authorizedGitHubRepos.forEach(r => {
+                const opt = document.createElement("option");
+                opt.value = r.full_name;
+                opt.dataset.branch = r.default_branch || "main";
+                const visBadge = r.private ? "🔒 [Privado]" : "🌐 [Público]";
+                opt.textContent = `${visBadge} ${r.full_name} (${r.language || "Repo"}) — rama: ${r.default_branch || "main"}`;
+                ghRepoSelect.appendChild(opt);
+            });
+        } catch (err) {
+            console.warn("No se pudo cargar la lista de repositorios de GitHub:", err.message);
+        }
+    }
+
+    function renderGitHubConnectionState(isConnected, username = "") {
+        if (ghConnDisconnected) ghConnDisconnected.style.display = isConnected ? "none" : "flex";
+        if (ghConnConnected) ghConnConnected.style.display = isConnected ? "block" : "none";
+        if (isConnected && ghTokenDrawer) ghTokenDrawer.style.display = "none";
+        if (ghConnUsername && username) ghConnUsername.textContent = `@${username}`;
+    }
+
+    if (btnToggleGhToken && ghTokenDrawer) {
+        btnToggleGhToken.addEventListener("click", () => {
+            const isHidden = ghTokenDrawer.style.display === "none";
+            ghTokenDrawer.style.display = isHidden ? "block" : "none";
+        });
+    }
+
+    if (btnConnectGithubApp) {
+        btnConnectGithubApp.addEventListener("click", async () => {
+            try {
+                const res = await fetch("/api/github/connect", { headers: getAuthHeaders() });
+                const data = await res.json();
+                if (data.url && !data.url.includes("mock_github_client_id")) {
+                    window.location.href = data.url;
+                    return;
+                }
+                // Entorno local / sandbox sin credenciales OAuth externas: completar flujo seguro en servidor
+                const cbRes = await fetch(`/api/github/callback?code=mock_code&state=${encodeURIComponent(data.state)}`, {
+                    headers: getAuthHeaders({ "Accept": "application/json" })
+                });
+                const cbData = await cbRes.json();
+                if (cbData.connected) {
+                    showToast(`Cuenta de GitHub (@${cbData.username}) conectada con permisos de solo lectura.`, "success");
+                    await loadUserGitHubRepositories();
+                }
+            } catch (err) {
+                showToast("No se pudo iniciar la conexión con GitHub.", "error");
+            }
+        });
+    }
+
+    if (btnSubmitGhToken) {
+        btnSubmitGhToken.addEventListener("click", async () => {
+            const rawToken = ghReadonlyTokenInput ? ghReadonlyTokenInput.value.trim() : "";
+            if (!rawToken) {
+                showToast("Ingresa un token de lectura válido de GitHub.", "error");
+                return;
+            }
+            try {
+                const res = await fetch("/api/github/connect-token", {
+                    method: "POST",
+                    headers: getAuthHeaders({ "Content-Type": "application/json" }),
+                    body: JSON.stringify({ token: rawToken })
+                });
+                // Limpiar inmediatamente el campo del DOM; jamás almacenar en localStorage
+                if (ghReadonlyTokenInput) ghReadonlyTokenInput.value = "";
+                const data = await res.json();
+                if (!res.ok || !data.connected) {
+                    throw new Error(data.error || "No se pudo verificar el token con GitHub.");
+                }
+                if (data.securityWarning) {
+                    showToast(data.securityWarning, "info");
+                } else {
+                    showToast(`Cuenta de GitHub (@${data.username}) conectada en modo solo lectura.`, "success");
+                }
+                await loadUserGitHubRepositories();
+            } catch (err) {
+                showToast(err.message, "error");
+            }
+        });
+    }
+
+    if (ghRepoSelect) {
+        ghRepoSelect.addEventListener("change", () => {
+            const fullName = ghRepoSelect.value;
+            if (!fullName) return;
+            const selectedOpt = ghRepoSelect.options[ghRepoSelect.selectedIndex];
+            const branch = selectedOpt?.dataset?.branch || "main";
+            const repoInputEl = document.getElementById("repo-input");
+            const branchInputEl = document.getElementById("repo-branch-input");
+            if (repoInputEl) repoInputEl.value = `https://github.com/${fullName}`;
+            if (branchInputEl) branchInputEl.value = branch;
+            showToast(`Repositorio seleccionado: ${fullName} (rama ${branch})`, "info");
+        });
+    }
+
+    if (ghRepoVisibilityFilter) {
+        ghRepoVisibilityFilter.addEventListener("change", () => {
+            loadUserGitHubRepositories();
+        });
+    }
+
+    if (btnRefreshGhRepos) {
+        btnRefreshGhRepos.addEventListener("click", () => {
+            loadUserGitHubRepositories();
+        });
+    }
+
+    if (btnDisconnectGithub) {
+        btnDisconnectGithub.addEventListener("click", async () => {
+            try {
+                await fetch("/api/github/disconnect", {
+                    method: "POST",
+                    headers: getAuthHeaders()
+                });
+                authorizedGitHubRepos = [];
+                if (ghRepoSelect) ghRepoSelect.innerHTML = `<option value="">-- Selecciona un repositorio de tu cuenta --</option>`;
+                renderGitHubConnectionState(false);
+                showToast("Conexión de GitHub revocada y credenciales eliminadas del servidor.", "info");
+            } catch (err) {
+                showToast("Error al revocar la conexión de GitHub.", "error");
+            }
+        });
+    }
+
+    // Verificar estado de conexión al cargar la página
+    loadUserGitHubRepositories();
 
 });
