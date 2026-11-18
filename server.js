@@ -1563,14 +1563,25 @@ app.get('/api/github/status', (req, res) => {
 });
 
 /**
- * Conectar GitHub App / OAuth para Repositorios Públicos y Privados (GET /api/github/connect)
+ * Conectar / Autorizar GitHub App para Repositorios Públicos y Privados
+ * Soporta GET /api/github/connect y GET /api/github/authorize
  */
-app.get('/api/github/connect', (req, res) => {
-    const userId = extractUserId(req, res) || 'guest';
-    const accountHint = req.query.account ? String(req.query.account).trim() : null;
-    const authData = PrivateRepoService.getAuthorizationUrl(userId, null, { accountHint });
-    res.json(authData);
-});
+const handleGitHubAuthorize = (req, res, next) => {
+    try {
+        const userId = extractUserId(req, res) || 'guest';
+        const accountHint = req.query.account ? String(req.query.account).trim() : null;
+        const authData = PrivateRepoService.getAuthorizationUrl(userId, null, { accountHint });
+        if (req.headers.accept && req.headers.accept.includes('application/json')) {
+            return res.json(authData);
+        }
+        return res.redirect(authData.url);
+    } catch (err) {
+        next(err);
+    }
+};
+
+app.get('/api/github/connect', handleGitHubAuthorize);
+app.get('/api/github/authorize', handleGitHubAuthorize);
 
 /**
  * Conectar Cuenta de GitHub mediante Token de Solo Lectura o Cuenta Verificada (POST /api/github/connect-token)

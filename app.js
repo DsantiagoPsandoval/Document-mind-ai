@@ -5414,9 +5414,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnConnectGithubApp) {
         btnConnectGithubApp.addEventListener("click", async () => {
             try {
-                const res = await fetch("/api/github/connect", { headers: getAuthHeaders() });
+                const res = await fetch("/api/github/connect", { headers: getAuthHeaders({ "Accept": "application/json" }) });
                 const data = await res.json();
-                if (data.url && !data.url.includes("mock_github_client_id")) {
+                if (!res.ok) {
+                    throw new Error(data.error || "No se pudo obtener la URL de autorización de GitHub App.");
+                }
+                if (data.url) {
                     window.location.href = data.url;
                     return;
                 }
@@ -5430,7 +5433,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     await loadUserGitHubRepositories();
                 }
             } catch (err) {
-                showToast("No se pudo iniciar la conexión con GitHub.", "error");
+                showToast(err.message || "No se pudo iniciar la conexión con GitHub.", "error");
             }
         });
     }

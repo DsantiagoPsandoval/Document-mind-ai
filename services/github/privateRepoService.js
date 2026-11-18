@@ -191,12 +191,26 @@ function decryptToken(encObj) {
 
 class PrivateRepoService {
     /**
-     * Genera la URL de autorización (GitHub App preferido u OAuth con permisos mínimos de lectura)
+     * Genera la URL de autorización nativa de GitHub App (sin scopes tradicionales)
      * y registra un token `state` criptográfico anti-CSRF vinculado al usuario.
      */
     static getAuthorizationUrl(userId, redirectUri, options = {}) {
         const normalizedUser = String(userId || 'guest').trim();
-        const clientId = process.env.GITHUB_APP_CLIENT_ID || process.env.GITHUB_CLIENT_ID || 'mock_github_client_id';
+
+        // 1. Prioridad estricta: GITHUB_APP_CLIENT_ID sobre GITHUB_CLIENT_ID
+        const clientId = (process.env.GITHUB_APP_CLIENT_ID && process.env.GITHUB_APP_CLIENT_ID.trim())
+            ? process.env.GITHUB_APP_CLIENT_ID.trim()
+            : (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_ID.trim())
+                ? process.env.GITHUB_CLIENT_ID.trim()
+                : null;
+
+        // 2. Eliminación de fallback silencioso: error explícito si falta el Client ID
+        if (!clientId) {
+            const err = new Error('Client ID de GitHub App no configurado. Debes configurar GITHUB_APP_CLIENT_ID o GITHUB_CLIENT_ID en las variables de entorno.');
+            err.statusCode = 500;
+            throw err;
+        }
+
         const appSlug = process.env.GITHUB_APP_SLUG || 'documind-ai-connector';
         const state = crypto.randomBytes(16).toString('hex');
 
@@ -206,16 +220,19 @@ class PrivateRepoService {
             createdAt: Date.now()
         });
 
-        // Permisos mínimos de solo lectura: lectura de perfil básico y lectura de contenidos de repositorios autorizados
-        const scope = 'read:user,repo';
-        const callbackUrl = redirectUri || `${process.env.APP_URL || 'http://localhost:3000'}/api/github/callback`;
-        const oauthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=${encodeURIComponent(scope)}&state=${state}&redirect_uri=${encodeURIComponent(callbackUrl)}`;
-        const githubAppInstallUrl = `https://github.com/apps/${appSlug}/installations/new?state=${state}`;
+        // 3. Callback URL exacto de producción en Render si no se especifica redirectUri
+        const baseUrl = (process.env.APP_URL || process.env.FRONTEND_URL || 'https://document-mind-ai.onrender.com').replace(/\/+$/, '');
+        const callbackUrl = redirectUri || `${baseUrl}/api/github/callback`;
+
+        // 4. GitHub Apps NO usan el parámetro scope (sus permisos se configuran en GitHub Developer Settings).
+        // Se preservan únicamente client_id, redirect_uri y state.
+        const oauthUrl = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${encodeURIComponent(state)}`;
+        const githubAppInstallUrl = `https://github.com/apps/${encodeURIComponent(appSlug)}/installations/new?state=${encodeURIComponent(state)}`;
 
         return {
             url: oauthUrl,
             githubAppUrl: githubAppInstallUrl,
-            authMethod: process.env.GITHUB_APP_ID ? 'github_app' : 'oauth_app',
+            authMethod: 'github_app',
             requestedPermissions: {
                 metadata: 'read-only',
                 contents: 'read-only',
@@ -240,11 +257,19 @@ class PrivateRepoService {
             ? stateRecord.accountHint
             : (SANDBOX_GITHUB_ACCOUNTS[code] ? code : 'dev-enterprise-user');
 
-        const clientId = process.env.GITHUB_APP_CLIENT_ID || process.env.GITHUB_CLIENT_ID;
-        const clientSecret = process.env.GITHUB_APP_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET;
+        const clientId = (process.env.GITHUB_APP_CLIENT_ID && process.env.GITHUB_APP_CLIENT_ID.trim())
+            ? process.env.GITHUB_APP_CLIENT_ID.trim()
+            : (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_ID.trim())
+                ? process.env.GITHUB_CLIENT_ID.trim()
+                : null;
+        const clientSecret = (process.env.GITHUB_APP_CLIENT_SECRET && process.env.GITHUB_APP_CLIENT_SECRET.trim())
+            ? process.env.GITHUB_APP_CLIENT_SECRET.trim()
+            : (process.env.GITHUB_CLIENT_SECRET && process.env.GITHUB_CLIENT_SECRET.trim())
+                ? process.env.GITHUB_CLIENT_SECRET.trim()
+                : null;
 
         // Modo sandbox / prueba local cuando no hay credenciales de GitHub App en .env o cuando se pasa un código de prueba
-        if (!clientId || !clientSecret || clientId.startsWith('mock_') || code.startsWith('mock_') || SANDBOX_GITHUB_ACCOUNTS[code]) {
+        if (!clientId || !clientSecret || code.startsWith('mock_') || SANDBOX_GITHUB_ACCOUNTS[code]) {
             const profile = SANDBOX_GITHUB_ACCOUNTS[accountKey] || SANDBOX_GITHUB_ACCOUNTS['dev-enterprise-user'];
             const mockToken = `ghu_mock_${accountKey}_${crypto.randomBytes(12).toString('hex')}`;
 

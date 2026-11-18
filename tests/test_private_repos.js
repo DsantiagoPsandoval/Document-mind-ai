@@ -52,18 +52,49 @@ async function runTests() {
 
     try {
         // --------------------------------------------------------------------
-        // 1. AUTORIZACIÓN CON PERMISOS MÍNIMOS DE LECTURA Y ANTI-CSRF
+        // 1. AUTORIZACIÓN NATIVA GITHUB APP (SIN SCOPES, PRIORIDAD DE CLIENT_ID Y VALIDACIÓN REDIRECT_URI)
         // --------------------------------------------------------------------
-        console.log('--- 1. Autorización GitHub App / OAuth con Permisos Mínimos de Lectura ---');
+        console.log('--- 1. Autorización Nativa GitHub App (Sin Scopes, Prioridad de Variables y Callback Exacto) ---');
+
+        // 1.A Validación de error si falta Client ID (eliminación de fallback silencioso)
+        const oldAppId = process.env.GITHUB_APP_CLIENT_ID;
+        const oldClientId = process.env.GITHUB_CLIENT_ID;
+        delete process.env.GITHUB_APP_CLIENT_ID;
+        delete process.env.GITHUB_CLIENT_ID;
+
+        const missingIdRes = await httpRequest('GET', '/api/github/connect', null, { 'x-user-id': 'usr_account_1' });
+        assert.strictEqual(missingIdRes.status, 500, 'Debe devolver HTTP 500 si falta el Client ID de GitHub App');
+        assert.ok(missingIdRes.body.error.includes('Client ID de GitHub App no configurado'), 'Debe devolver un mensaje de error claro');
+
+        // 1.B Prioridad de variables: GITHUB_APP_CLIENT_ID tiene prioridad sobre GITHUB_CLIENT_ID
+        process.env.GITHUB_CLIENT_ID = 'Iv1_legacy_oauth_id';
+        process.env.GITHUB_APP_CLIENT_ID = 'Iv1.real_production_app_id';
+        process.env.APP_URL = 'https://document-mind-ai.onrender.com';
+
         const connInit = await httpRequest('GET', '/api/github/connect', null, { 'x-user-id': 'usr_account_1' });
         assert.strictEqual(connInit.status, 200);
-        assert.ok(connInit.body.url.includes('github.com/login/oauth/authorize'));
-        assert.ok(connInit.body.githubAppUrl.includes('github.com/apps/'));
-        assert.strictEqual(connInit.body.requestedPermissions.metadata, 'read-only');
-        assert.strictEqual(connInit.body.requestedPermissions.contents, 'read-only');
-        assert.strictEqual(connInit.body.requestedPermissions.writeAccessRequested, false);
-        assert.ok(connInit.body.state && connInit.body.state.length >= 16);
-        console.log('  ✅ [PASS] Permisos mínimos de solo lectura (metadata:read, contents:read) y state anti-CSRF verificados');
+
+        // Validar que NO contiene el parámetro scope
+        assert.strictEqual(connInit.body.url.includes('scope='), false, 'La URL de GitHub App NO debe incluir ningún scope');
+
+        // Validar client_id con prioridad estricta a GITHUB_APP_CLIENT_ID
+        assert.ok(connInit.body.url.includes('client_id=Iv1.real_production_app_id'), 'Debe utilizar con prioridad GITHUB_APP_CLIENT_ID');
+        assert.strictEqual(connInit.body.url.includes('Iv1_legacy_oauth_id'), false, 'No debe utilizar la variable secundaria GITHUB_CLIENT_ID');
+
+        // Validar redirect_uri exacto de Render
+        const expectedCallback = encodeURIComponent('https://document-mind-ai.onrender.com/api/github/callback');
+        assert.ok(connInit.body.url.includes(`redirect_uri=${expectedCallback}`), 'redirect_uri debe coincidir exactamente con https://document-mind-ai.onrender.com/api/github/callback');
+
+        // Validar que se conserva el state anti-CSRF
+        assert.ok(connInit.body.url.includes(`state=${encodeURIComponent(connInit.body.state)}`), 'La URL debe conservar el parámetro state');
+
+        // 1.C Validar la ruta GET /api/github/authorize
+        const authorizeRouteRes = await httpRequest('GET', '/api/github/authorize', null, { 'x-user-id': 'usr_account_1' });
+        assert.strictEqual(authorizeRouteRes.status, 200);
+        assert.strictEqual(authorizeRouteRes.body.authMethod, 'github_app');
+        assert.strictEqual(authorizeRouteRes.body.url.includes('scope='), false);
+
+        console.log('  ✅ [PASS] URL de GitHub App verificada: 0 scopes, prioridad de GITHUB_APP_CLIENT_ID, error explícito si falta, y redirect_uri exacto.');
 
         // --------------------------------------------------------------------
         // 2. BLOQUEO DE ACCESO A REPOSITORIOS PRIVADOS SIN CONEXIÓN AUTORIZADA
