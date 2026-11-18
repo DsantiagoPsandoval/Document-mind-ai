@@ -116,6 +116,7 @@ Tu objetivo es documentar los pasos reales para publicar, alojar y mantener oper
 const PROMPT_ENGINE_VERSION = '3.0.0';
 
 const PROMPT_STANDARDS = {
+    projectUnderstanding: 'Universal Contextual Discovery & Semantic Forensics',
     repoAnalysis: 'ISO/IEC 25010 & AST Static Forensics',
     prd: 'IEEE 830 / Agile Product Discovery',
     srs: 'ISO/IEC/IEEE 29148 & IEEE Std 830-1998',
@@ -156,15 +157,19 @@ function buildProjectContext(ctx = {}) {
 
     const sem = ctx.semanticProfile || analyzeProjectSemantics(ctx);
 
-    let text = `=== CLASIFICACIÓN SEMÁNTICA Y NATURALEZA REAL DEL PROYECTO ===\n`;
-    text += `Categoría Identificada: ${sem.categoryLabel} (${sem.category})\n`;
+    let text = `=== PERFIL DE COMPRENSIÓN CONTEXTUAL DEL PROYECTO ===\n`;
+    text += `Naturaleza Identificada: ${sem.categoryLabel} (${sem.category})\n`;
     text += `Entidad / Nombre Real: ${sem.entityName}\n`;
-    text += `Naturaleza del Proyecto: ${sem.projectNature?.whatItIs || ''}\n`;
-    text += `Misión / Propósito Real: ${sem.projectNature?.mission || ''}\n`;
-    text += `Problemática que Aborda: ${sem.projectNature?.problemAddressed || ''}\n`;
-    text += `Población Beneficiaria / Público Objetivo: ${sem.projectNature?.targetBeneficiaries || ''}\n`;
+    text += `¿Qué es el proyecto?: ${sem.projectNature?.whatItIs || ''}\n`;
+    text += `¿Qué hace / Actividades principales?: ${sem.projectNature?.whatItDoes || ''}\n`;
+    text += `¿Por qué existe / Misión y Propósito?: ${sem.projectNature?.mission || ''}\n`;
+    text += `¿Qué problema aborda?: ${sem.projectNature?.problemAddressed || ''}\n`;
+    text += `¿A quién está dirigido?: ${sem.projectNature?.targetBeneficiaries || ''}\n`;
+    if (sem.webPageAnalysis?.hasWebPage) {
+        text += `Análisis de la Página Web del Proyecto: ${sem.webPageAnalysis.communicatedSummary}\n`;
+    }
     if (Array.isArray(sem.projectNature?.programsAndActivities) && sem.projectNature.programsAndActivities.length > 0) {
-        text += `Actividades, Ejes Temáticos o Servicios Reales:\n`;
+        text += `Actividades, Servicios, Productos o Programas Identificados:\n`;
         sem.projectNature.programsAndActivities.slice(0, 6).forEach(pa => {
             text += `- ${pa.title}: ${pa.detail}\n`;
         });
@@ -174,6 +179,14 @@ function buildProjectContext(ctx = {}) {
         sem.projectNature.executedProjects.forEach(ep => {
             text += `- ${ep.name} (${ep.ally}): ${ep.summary}\n`;
         });
+    }
+    if (Array.isArray(sem.discrepancies) && sem.discrepancies.length > 0) {
+        text += `Discrepancias Detectadas (Web vs README vs Código):\n`;
+        sem.discrepancies.forEach(d => { text += `- ${d}\n`; });
+    }
+    if (Array.isArray(sem.informationLimitations) && sem.informationLimitations.length > 0) {
+        text += `Limitaciones de Información en el Repositorio:\n`;
+        sem.informationLimitations.forEach(l => { text += `- ${l}\n`; });
     }
     text += `\n=== SEPARACIÓN ENTRE PROPÓSITO E IMPLEMENTACIÓN TÉCNICA ===\n`;
     text += `Rol de la Tecnología en este Proyecto: ${sem.technicalImplementation?.roleSummary || ''}\n`;
@@ -236,6 +249,40 @@ function buildSpecializedPrompt(taskType, analysisContext = {}, options = {}) {
     let responseSchemaGuide = '';
 
     switch (taskType) {
+        // -------------------------------------------------------------
+        // 0. UNIVERSAL CONTEXTUAL DISCOVERY (PRE-DOCUMENTATION STAGE)
+        // -------------------------------------------------------------
+        case 'projectUnderstanding':
+            specificInstructions = `Realiza una investigación contextual profunda del repositorio ANTES de generar cualquier documentación:
+1. Determina qué representa realmente el proyecto (organización, fundación, tienda virtual, institución educativa, empresa, proyecto de investigación, aplicación web, plataforma SaaS, biblioteca, etc.).
+2. Explica qué es, qué hace, por qué existe, qué problema aborda y a quién está dirigido.
+3. Si el repositorio contiene una página web, analiza qué organización o negocio representa, qué servicios o productos ofrece, cuál es su misión, qué actividades desarrolla y qué comunica a sus visitantes.
+4. Separa la naturaleza y propósito real del proyecto de las tecnologías empleadas para construirlo o presentarlo.
+5. Si existen contradicciones entre la página web, el README y el código, regístralas en "discrepancies".
+6. Si falta información en el repositorio, regístralo en "informationLimitations" sin inventar datos.`;
+
+            responseSchemaGuide = `Formato de salida requerido: Objeto JSON estricto con la siguiente estructura:
+{
+  "entityName": "Nombre real de la organización, negocio, producto o proyecto",
+  "natureDescription": "Descripción clara y abierta de la naturaleza real del proyecto",
+  "projectTypeSummary": "Tipo de proyecto identificado libremente",
+  "isSoftwareSystem": true,
+  "hasWebPage": true,
+  "whatItIs": "¿Qué es el proyecto u organización?",
+  "whatItDoes": "¿Qué hace, qué actividades desarrolla o qué servicios/productos/funcionalidades ofrece?",
+  "whyItExists": "¿Por qué existe y cuál es su misión o propósito?",
+  "problemAddressed": "¿Qué problema o necesidad aborda?",
+  "targetAudience": "¿A quién está dirigido o a quién beneficia?",
+  "coreOfferingsOrPrograms": [
+    { "title": "Nombre del servicio, producto, programa o funcionalidad", "detail": "Descripción basada en el repositorio" }
+  ],
+  "webPageCommunicatedInfo": "Resumen de lo que la página web comunica a sus visitantes",
+  "technologyRole": "Cómo se utilizan las tecnologías detectadas en relación con el propósito del proyecto",
+  "discrepancies": ["Discrepancia detectada entre web, README y código (si aplica)"],
+  "informationLimitations": ["Limitación de información observada en el repositorio (si aplica)"]
+}`;
+            break;
+
         // -------------------------------------------------------------
         // 1. REPOSITORY DEEP TECHNICAL AUDIT
         // -------------------------------------------------------------

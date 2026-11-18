@@ -14,7 +14,7 @@
  */
 
 const { getGenAIClient, getModelName, executeSpecializedTask } = require('../ai/geminiClient');
-const { analyzeProjectSemantics, stripVerificationTags } = require('./semanticClassifier');
+const { analyzeProjectSemantics, stripVerificationTags, mergeAiUnderstandingIntoProfile } = require('./semanticClassifier');
 
 /**
  * Converts a JavaScript object (such as OpenAPI 3.0.3 spec) into clean YAML format.
@@ -200,8 +200,12 @@ Las tecnologías presentes en el repositorio constituyen el medio de presentaci�
 - **Almacenamiento / Base de datos**: ${dbStr}
 - **Publicación y dominio**: ${infraStr}
 
-## 16. Estructura del Sitio Web
-El repositorio está organizado como un portal web informativo (${topFiles}) que presenta de manera secuencial: encabezado de navegación, presentación institucional (Misión, Visión y Valores), ejes temáticos de acción, portafolio de proyectos e impacto, actualidad/noticias, testimonios comunitarios, sección de transparencia documental y formulario/canales de contacto.
+## 16. Estructura y Comunicación de la Página Web
+${sem.webPageAnalysis?.hasWebPage
+            ? `${sem.webPageAnalysis.communicatedSummary}\n\nEl repositorio está organizado como un portal web informativo (${topFiles}) que presenta a sus visitantes: encabezado de navegación, presentación institucional, líneas de acción o servicios, iniciativas/proyectos y canales de contacto.`
+            : `El repositorio organiza su contenido directamente en los archivos ${topFiles}.`}
+${Array.isArray(sem.discrepancies) && sem.discrepancies.length > 0 ? `\n### Discrepancias Detectadas entre Fuentes del Repositorio\n${sem.discrepancies.map(d => `- ${d}`).join('\n')}` : ''}
+${Array.isArray(sem.informationLimitations) && sem.informationLimitations.length > 0 ? `\n### Alcance y Limitaciones de la Información Disponible\n${sem.informationLimitations.map(l => `- ${l}`).join('\n')}` : ''}
 
 ## 17. Impacto y Resultados Buscados
 1. Fortalecimiento de la dignidad, autonomía y derechos de las mujeres, niñas y comunidades atendidas.
@@ -491,9 +495,21 @@ async function generateDocumentationSuite(analysisContext, options = {}) {
 }
 
 async function generateWithGemini(client, ctx, categories) {
-    const baseDocs = generateDeterministicDocs(ctx, categories);
     const modelName = getModelName();
-    const sem = ctx.semanticProfile || analyzeProjectSemantics(ctx);
+    let sem = ctx.semanticProfile || analyzeProjectSemantics(ctx);
+
+    // STAGE 0: Mandatory Pre-Documentation Contextual Discovery with Gemini
+    try {
+        const understandingResult = await executeSpecializedTask('projectUnderstanding', ctx, { language: categories.language });
+        if (understandingResult.success && understandingResult.data) {
+            sem = mergeAiUnderstandingIntoProfile(sem, understandingResult.data);
+            ctx.semanticProfile = sem;
+        }
+    } catch (uErr) {
+        console.warn('[Doc Generator] Stage-0 projectUnderstanding fallback to deterministic semantic profile:', uErr.message);
+    }
+
+    const baseDocs = generateDeterministicDocs(ctx, categories);
 
     try {
         const repoResult = await executeSpecializedTask('repoAnalysis', ctx, { language: categories.language });
