@@ -523,6 +523,9 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
         res.json({
             success: true,
             projectId,
+            projectCategory: projectData.projectCategory,
+            projectCategoryLabel: projectData.projectCategoryLabel,
+            semanticProfile: projectData.semanticProfile,
             repository: projectData.repository,
             stats: projectData.stats,
             detectedTechnologies: projectData.detectedTechnologies,
