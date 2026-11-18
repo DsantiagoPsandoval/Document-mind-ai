@@ -161,7 +161,7 @@ async function runFase1Tests() {
             logFail(`Título inesperado: ${pageTitle}`);
         }
 
-        // --- TEST 2: Navbar Rediseñado y Eliminación Completa de Monetización ---
+        // --- TEST 2: Navbar Rediseñado, Cero Sobreposición y Menú Desplegable Universal ---
         const navCheck = await cdp.eval(`(() => {
             const links = Array.from(document.querySelectorAll('.nav-links a')).map(a => a.getAttribute('href'));
             const hasInicio = links.includes('#hero') || links.includes('#inicio');
@@ -174,11 +174,40 @@ async function runFase1Tests() {
             const hasContacto = links.includes('#contacto');
             const hasNoPlanes = !links.includes('#planes') && !document.getElementById('planes') && !document.getElementById('checkout-modal');
             const hasLogoMark = !!document.querySelector('.nav-logo-icon img[src*="documind-mark.svg"]');
-            return { hasInicio, hasComoFunciona, hasAnalizador, hasDocumentacion, hasSecurity, hasSimulador, hasEquipo, hasContacto, hasNoPlanes, hasLogoMark, totalLinks: links.length };
+
+            // Verificar geometría sin sobreposición en la barra superior
+            const logoRect = document.querySelector('.nav-logo').getBoundingClientRect();
+            const quickBar = document.querySelector('.nav-quick-bar');
+            const quickRect = quickBar && quickBar.offsetParent !== null ? quickBar.getBoundingClientRect() : null;
+            const actionsRect = document.querySelector('.nav-actions').getBoundingClientRect();
+            const noOverlapLogoQuick = !quickRect || (logoRect.right + 8 <= quickRect.left);
+            const noOverlapQuickActions = !quickRect || (quickRect.right + 8 <= actionsRect.left);
+            const noOverlapLogoActions = logoRect.right + 8 <= actionsRect.left;
+
+            // Verificar apertura y cierre del menú hamburguesa desplegable universal
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const btnVisibleOnDesktop = menuBtn && menuBtn.offsetParent !== null;
+            menuBtn.click();
+            const drawerOpens = !mobileMenu.classList.contains('hidden') && mobileMenu.classList.contains('open');
+            menuBtn.click();
+            const drawerCloses = mobileMenu.classList.contains('hidden');
+
+            return {
+                hasInicio, hasComoFunciona, hasAnalizador, hasDocumentacion, hasSecurity, hasSimulador, hasEquipo, hasContacto,
+                hasNoPlanes, hasLogoMark,
+                noOverlapLogoQuick, noOverlapQuickActions, noOverlapLogoActions,
+                btnVisibleOnDesktop, drawerOpens, drawerCloses,
+                totalLinks: links.length
+            };
         })()`);
 
-        if (navCheck.hasInicio && navCheck.hasComoFunciona && navCheck.hasAnalizador && navCheck.hasDocumentacion && navCheck.hasSecurity && navCheck.hasSimulador && navCheck.hasEquipo && navCheck.hasContacto && navCheck.hasNoPlanes && navCheck.hasLogoMark) {
-            logPass(`Navbar premium validado (Inicio, Cómo funciona, Analizador, Documentación, Security Intelligence, Simulador, Equipo, Contacto) y 0 elementos de monetización`);
+        if (navCheck.hasInicio && navCheck.hasComoFunciona && navCheck.hasAnalizador && navCheck.hasDocumentacion &&
+            navCheck.hasSecurity && navCheck.hasSimulador && navCheck.hasEquipo && navCheck.hasContacto &&
+            navCheck.hasNoPlanes && navCheck.hasLogoMark &&
+            navCheck.noOverlapLogoQuick && navCheck.noOverlapQuickActions && navCheck.noOverlapLogoActions &&
+            navCheck.btnVisibleOnDesktop && navCheck.drawerOpens && navCheck.drawerCloses) {
+            logPass(`Navbar limpio validado: 0px de sobreposición geométrica, menú hamburguesa universal funcional (abre/cierra en desktop y móvil con las 8 secciones) y 0 monetización`);
         } else {
             logFail(`Navbar check falló: ${JSON.stringify(navCheck)}`);
         }

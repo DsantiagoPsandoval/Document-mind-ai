@@ -1411,35 +1411,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnMobileOpenIntegrations = document.getElementById("btn-mobile-open-integrations");
 
     if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const isClosed = mobileMenu.classList.contains("hidden");
-            if (isClosed) {
+        function setDrawerOpenState(open) {
+            if (open) {
                 mobileMenu.classList.remove("hidden");
                 mobileMenu.classList.add("open");
                 mobileMenuBtn.setAttribute("aria-expanded", "true");
+                mobileMenuBtn.innerHTML = '<i class="fa-solid fa-xmark"></i><span class="nav-hamburger-label">Cerrar</span>';
             } else {
                 mobileMenu.classList.add("hidden");
                 mobileMenu.classList.remove("open");
                 mobileMenuBtn.setAttribute("aria-expanded", "false");
+                mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars-staggered"></i><span class="nav-hamburger-label">Menú</span>';
             }
+        }
+
+        mobileMenuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isClosed = mobileMenu.classList.contains("hidden");
+            setDrawerOpenState(isClosed);
         });
 
         // Click outside mobile menu to dismiss
         document.addEventListener("click", (e) => {
             if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target) && !mobileMenu.classList.contains("hidden")) {
-                mobileMenu.classList.add("hidden");
-                mobileMenu.classList.remove("open");
-                mobileMenuBtn.setAttribute("aria-expanded", "false");
+                setDrawerOpenState(false);
             }
         });
 
         // Close mobile drawer on navigation click
         mobileMenu.querySelectorAll("a, button").forEach(item => {
             item.addEventListener("click", () => {
-                mobileMenu.classList.add("hidden");
-                mobileMenu.classList.remove("open");
-                mobileMenuBtn.setAttribute("aria-expanded", "false");
+                setDrawerOpenState(false);
             });
         });
     }
@@ -1524,6 +1526,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mobileNavDocs) mobileNavDocs.addEventListener("click", navigateToDocumentationSuite);
     if (navLinkSecurity) navLinkSecurity.addEventListener("click", navigateToSecurityIntelligence);
     if (mobileNavSecurity) mobileNavSecurity.addEventListener("click", navigateToSecurityIntelligence);
+    const navQuickSecurity = document.getElementById("nav-quick-security");
+    if (navQuickSecurity) navQuickSecurity.addEventListener("click", navigateToSecurityIntelligence);
 
     function updateActiveNavLink() {
         const scrollPosition = window.scrollY + 130;

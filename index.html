@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=8.0">
+    <link rel="stylesheet" href="styles.css?v=9.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- ai-core-3d deferred to body end -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -34,48 +34,30 @@
     <div id="toast-container"></div>
 
     <!-- ============================================================
-         NAVBAR PREMIUM — REDISEÑO ESPACIADO Y EQUILIBRADO
+         NAVBAR PREMIUM — LIMPIO, SIN SOBREPOSICIÓN Y CON MENÚ DESPLEGABLE UNIVERSAL
     ============================================================ -->
     <header id="navbar">
         <div class="nav-inner">
+            <!-- Left: Clean Compact Brand Logo -->
             <a href="#hero" class="nav-logo" aria-label="DocuMind AI - Inicio">
                 <div class="nav-logo-icon">
                     <img src="/assets/documind-mark.svg" alt="DocuMind AI Isotipo" onerror="this.src='/assets/documind-icon.png'">
                 </div>
-                <div class="nav-logo-brand">
-                    <span class="nav-logo-text">DocuMind<span class="ai-badge">AI</span></span>
-                    <span class="nav-logo-sub">Engineering &amp; Security Intelligence</span>
-                </div>
+                <span class="nav-logo-text">DocuMind<span class="ai-badge">AI</span></span>
             </a>
 
-            <!-- Center Navigation Links (Espaciado Equilibrado & Jerarquía Visual) -->
-            <nav class="nav-center-nav" aria-label="Navegación principal">
-                <ul class="nav-links">
-                    <li><a href="#hero" class="nav-link active" data-section="hero"><i class="fa-solid fa-house-signal nav-link-icon"></i><span>Inicio</span></a></li>
-                    <li><a href="#como-funciona" class="nav-link" data-section="como-funciona"><i class="fa-solid fa-diagram-project nav-link-icon"></i><span>Cómo funciona</span></a></li>
-                    <li><a href="#analizador" class="nav-link" data-section="analizador"><i class="fa-solid fa-microchip nav-link-icon"></i><span>Analizador</span></a></li>
-                    <li><a href="#analizador" id="nav-link-docs" class="nav-link" data-section="documentacion"><i class="fa-solid fa-book-open-reader nav-link-icon"></i><span>Documentación</span></a></li>
-                    <li><a href="#security-intelligence" id="nav-link-security" class="nav-link nav-link-sec" data-section="security-intelligence"><i class="fa-solid fa-shield-halved nav-link-icon"></i><span>Security Intelligence</span></a></li>
-                    <li><a href="/simulador" class="nav-link nav-link-sim" data-section="simulador"><i class="fa-solid fa-sliders nav-link-icon"></i><span>Simulador</span></a></li>
-                    <li><a href="#equipo" class="nav-link" data-section="equipo"><i class="fa-solid fa-users nav-link-icon"></i><span>Equipo</span></a></li>
-                    <li><a href="#contacto" class="nav-link" data-section="contacto"><i class="fa-solid fa-envelope-open-text nav-link-icon"></i><span>Contacto</span></a></li>
-                </ul>
-            </nav>
+            <!-- Center Quick Shortcuts (Solo 3 accesos directos en pantallas amplias para cero saturación) -->
+            <div class="nav-quick-bar" aria-label="Accesos directos">
+                <a href="#analizador" class="nav-quick-chip"><i class="fa-solid fa-microchip"></i><span>Analizador</span></a>
+                <a href="#security-intelligence" id="nav-quick-security" class="nav-quick-chip nav-quick-sec"><i class="fa-solid fa-shield-halved"></i><span>Security Intelligence</span></a>
+                <a href="/simulador" class="nav-quick-chip nav-quick-sim"><i class="fa-solid fa-sliders"></i><span>Simulador</span></a>
+            </div>
 
-            <!-- Right Actions: Controles de Usuario y Utilidades -->
+            <!-- Right Actions: Acceso de Usuario + Botón de Menú Hamburguesa Universal -->
             <div class="nav-actions">
-                <button type="button" id="btn-open-tour" class="nav-action-btn btn-tour" aria-label="Guía rápida interactiva" title="Guía rápida de la plataforma">
-                    <i class="fa-solid fa-compass"></i>
-                    <span class="nav-action-label">Guía</span>
-                </button>
-                <button type="button" id="btn-open-integrations" class="nav-action-btn" aria-label="Estado de servicios e integraciones" title="Estado de servicios e integraciones">
-                    <i class="fa-solid fa-server"></i>
-                    <span class="nav-action-label">Estado</span>
-                </button>
-
-                <!-- Guest State: Analizar + Iniciar Sesión -->
-                <div id="nav-auth-guest" class="nav-auth-guest-wrap" style="display:inline-flex;align-items:center;gap:.6rem;">
-                    <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.48rem 1.15rem;font-size:.8rem;border-radius:9999px;">
+                <!-- Guest State: Acceder -->
+                <div id="nav-auth-guest" class="nav-auth-guest-wrap" style="display:inline-flex;align-items:center;">
+                    <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.48rem 1.1rem;font-size:.8rem;border-radius:9999px;">
                         <i class="fa-solid fa-user-shield" style="font-size:.74rem;margin-right:.4rem;"></i><span>Acceder</span>
                     </button>
                 </div>
@@ -121,38 +103,51 @@
                     </div>
                 </div>
 
-                <button type="button" id="mobile-menu-btn" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="mobile-menu">
-                    <i class="fa-solid fa-bars"></i>
+                <!-- Universal Hamburger / Drawer Trigger Button (Visible on Desktop, Tablet & Mobile) -->
+                <button type="button" id="mobile-menu-btn" class="nav-hamburger-trigger" aria-label="Abrir menú completo de navegación" aria-expanded="false" aria-controls="mobile-menu">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                    <span class="nav-hamburger-label">Menú</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Mobile Drawer Navigation (Responsive & Touch-Friendly) -->
-    <nav id="mobile-menu" class="hidden" aria-label="Menú móvil">
-        <a href="#hero" class="mobile-nav-link" data-section="hero"><i class="fa-solid fa-house-signal" style="color:var(--tech-cyan);width:1.35rem;"></i>Inicio</a>
-        <a href="#como-funciona" class="mobile-nav-link" data-section="como-funciona"><i class="fa-solid fa-diagram-project" style="color:#818CF8;width:1.35rem;"></i>Cómo funciona</a>
-        <a href="#analizador" class="mobile-nav-link" data-section="analizador"><i class="fa-solid fa-microchip" style="color:var(--tech-cyan);width:1.35rem;"></i>Analizador</a>
-        <a href="#analizador" id="mobile-nav-docs" class="mobile-nav-link" data-section="documentacion"><i class="fa-solid fa-book-open-reader" style="color:#34D399;width:1.35rem;"></i>Documentación</a>
-        <a href="#security-intelligence" class="mobile-nav-link" data-section="security-intelligence"><i class="fa-solid fa-shield-halved" style="color:#FB7185;width:1.35rem;"></i>Security Intelligence</a>
-        <a href="/simulador" class="mobile-nav-link" style="color:#38BDF8;font-weight:700;"><i class="fa-solid fa-sliders" style="color:#38BDF8;width:1.35rem;"></i>Simulador</a>
-        <a href="#equipo" class="mobile-nav-link" data-section="equipo"><i class="fa-solid fa-users" style="color:#A78BFA;width:1.35rem;"></i>Equipo</a>
-        <a href="#contacto" class="mobile-nav-link" data-section="contacto"><i class="fa-solid fa-envelope-open-text" style="color:#94A3B8;width:1.35rem;"></i>Contacto</a>
+    <!-- ============================================================
+         PANEL DESPLEGABLE UNIVERSAL (MENÚ HAMBURGUESA CON TODO EL SISTEMA)
+    ============================================================ -->
+    <nav id="mobile-menu" class="hidden" aria-label="Menú principal desplegable">
+        <div class="drawer-menu-header">
+            <span class="drawer-menu-kicker"><i class="fa-solid fa-compass" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Navegación de la Plataforma</span>
+            <span class="drawer-menu-badge">DocuMind AI</span>
+        </div>
 
-        <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.4rem 0;padding-top:0.4rem;display:flex;flex-direction:column;gap:0.25rem;">
-            <button type="button" id="btn-mobile-open-tour" class="mobile-nav-link" style="background:transparent;border:none;cursor:pointer;width:100%;text-align:left;color:#38BDF8;">
-                <i class="fa-solid fa-compass" style="width:1.35rem;"></i>Guía rápida interactiva
+        <ul class="nav-links drawer-nav-grid">
+            <li><a href="#hero" class="mobile-nav-link nav-link active" data-section="hero"><i class="fa-solid fa-house-signal" style="color:var(--tech-cyan);width:1.35rem;"></i><span>Inicio</span></a></li>
+            <li><a href="#como-funciona" class="mobile-nav-link nav-link" data-section="como-funciona"><i class="fa-solid fa-diagram-project" style="color:#818CF8;width:1.35rem;"></i><span>Cómo funciona</span></a></li>
+            <li><a href="#analizador" class="mobile-nav-link nav-link" data-section="analizador"><i class="fa-solid fa-microchip" style="color:var(--tech-cyan);width:1.35rem;"></i><span>Analizador de Repositorios</span></a></li>
+            <li><a href="#analizador" id="nav-link-docs" class="mobile-nav-link nav-link" data-section="documentacion"><i class="fa-solid fa-book-open-reader" style="color:#34D399;width:1.35rem;"></i><span>Documentación de Ingeniería</span></a></li>
+            <li><a href="#security-intelligence" id="nav-link-security" class="mobile-nav-link nav-link" data-section="security-intelligence"><i class="fa-solid fa-shield-halved" style="color:#FB7185;width:1.35rem;"></i><span>Security Intelligence (0–100)</span></a></li>
+            <li><a href="/simulador" class="mobile-nav-link nav-link" data-section="simulador" style="color:#34D399;font-weight:700;"><i class="fa-solid fa-sliders" style="color:#34D399;width:1.35rem;"></i><span>Simulador Matemático M/M/c</span></a></li>
+            <li><a href="#equipo" class="mobile-nav-link nav-link" data-section="equipo"><i class="fa-solid fa-users" style="color:#A78BFA;width:1.35rem;"></i><span>Equipo</span></a></li>
+            <li><a href="#contacto" class="mobile-nav-link nav-link" data-section="contacto"><i class="fa-solid fa-envelope-open-text" style="color:#94A3B8;width:1.35rem;"></i><span>Contacto</span></a></li>
+        </ul>
+
+        <div class="drawer-tools-row">
+            <button type="button" id="btn-open-tour" class="drawer-tool-btn">
+                <i class="fa-solid fa-compass" style="color:#38BDF8;"></i>
+                <span>Guía rápida interactiva</span>
             </button>
-            <button type="button" id="btn-mobile-open-integrations" class="mobile-nav-link" style="background:transparent;border:none;cursor:pointer;width:100%;text-align:left;color:#94A3B8;">
-                <i class="fa-solid fa-server" style="width:1.35rem;color:var(--tech-cyan);"></i>Estado de Servicios
+            <button type="button" id="btn-open-integrations" class="drawer-tool-btn">
+                <i class="fa-solid fa-server" style="color:#818CF8;"></i>
+                <span>Estado de Servicios Cloud</span>
             </button>
         </div>
 
-        <!-- Mobile Auth Actions -->
-        <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.4rem 0;padding-top:0.65rem;">
+        <!-- Mobile / Drawer Auth Actions -->
+        <div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.35rem;padding-top:0.75rem;">
             <div id="mobile-auth-guest">
-                <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.7rem 1rem;border-radius:9999px;">
-                    <i class="fa-solid fa-user-shield" style="margin-right:.45rem;"></i>Iniciar Sesión / Registro
+                <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.7rem 1rem;border-radius:0.75rem;">
+                    <i class="fa-solid fa-user-shield" style="margin-right:.45rem;"></i>Iniciar Sesión / Crear Cuenta
                 </button>
             </div>
             <div id="mobile-auth-user" style="display:none;flex-direction:column;gap:0.6rem;">
@@ -2685,30 +2680,13 @@ const ast = await parseSyntaxTree(repoBuffer, {
     <!-- Three.js Real 3D AI CORE Engine -->
     <!-- ai-core-3d.js loaded once -->
 
-    <!-- General UI Helpers (Navbar, Mobile Menu, Scroll reveals) -->
+    <!-- General UI Helpers (Navbar Scroll & Scroll reveals) -->
     <script>
     (function() {
         var nav = document.getElementById('navbar');
         window.addEventListener('scroll', function() {
             if (nav) nav.classList.toggle('scrolled', window.scrollY > 30);
         }, { passive: true });
-
-        var menuBtn = document.getElementById('mobile-menu-btn');
-        var mobileMenu = document.getElementById('mobile-menu');
-        if (menuBtn && mobileMenu) {
-            menuBtn.addEventListener('click', function() {
-                var isOpen = mobileMenu.classList.toggle('open');
-                menuBtn.setAttribute('aria-expanded', isOpen);
-                menuBtn.innerHTML = isOpen ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
-            });
-            mobileMenu.querySelectorAll('a').forEach(function(a) {
-                a.addEventListener('click', function() {
-                    mobileMenu.classList.remove('open');
-                    menuBtn.setAttribute('aria-expanded', 'false');
-                    menuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
-                });
-            });
-        }
 
         var revealObs = new IntersectionObserver(function(entries) {
             entries.forEach(function(e) {
@@ -3793,8 +3771,8 @@ const ast = await parseSyntaxTree(repoBuffer, {
 
     <!-- Client Controller Application -->
     <script src="js/ai-core-3d.js?v=6.0" charset="UTF-8"></script>
-    <script src="js/document-exporter.js?v=7.0" charset="UTF-8"></script>
-    <script src="app.js?v=7.0" charset="UTF-8"></script>
+    <script src="js/document-exporter.js?v=9.0" charset="UTF-8"></script>
+    <script src="app.js?v=9.0" charset="UTF-8"></script>
 </body>
 </html>
 

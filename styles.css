@@ -5195,140 +5195,289 @@ pre, code {
 }
 
 /* ==========================================================================
-   DOCUMIND AI — PREMIUM VISUAL REDESIGN, NAVIGATION & GITHUB OAUTH (v8.0)
-   Estética de nivel empresarial: Azul profundo, violeta tecnológico y detalles luminosos controlados
+   DOCUMIND AI — PREMIUM VISUAL REDESIGN, UNIVERSAL DRAWER & GITHUB OAUTH (v9.0)
+   Cero sobreposición en la barra superior + Menú Hamburguesa Desplegable Universal
    ========================================================================== */
 
 :root {
-    --nav-height: 4.5rem;
+    --nav-height: 4.35rem;
 }
 
 #navbar {
     height: var(--nav-height);
-    background: rgba(6, 10, 18, 0.84);
+    background: rgba(6, 10, 18, 0.88);
     backdrop-filter: blur(20px) saturate(190%);
     -webkit-backdrop-filter: blur(20px) saturate(190%);
-    border-bottom: 1px solid rgba(99, 102, 241, 0.16);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.18);
 }
 
 .nav-inner {
-    max-width: min(1400px, 95vw);
-    gap: clamp(0.85rem, 1.8vw, 1.75rem);
+    max-width: min(1360px, 94vw);
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .nav-logo {
-    gap: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .nav-logo-icon {
-    width: 2.35rem;
-    height: 2.35rem;
-    border-radius: 0.65rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
     background: linear-gradient(135deg, #0B1120 0%, #1E1B4B 100%);
     border: 1px solid rgba(56, 189, 248, 0.38);
-    box-shadow: 0 0 18px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
 }
 
 .nav-logo-icon img {
-    width: 1.65rem;
-    height: 1.65rem;
-}
-
-.nav-logo-text-group {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
+    width: 1.55rem;
+    height: 1.55rem;
 }
 
 .nav-logo-text {
-    font-size: 1.12rem;
+    font-size: 1.08rem;
     font-weight: 900;
     letter-spacing: -0.025em;
     color: #F8FAFC;
     display: inline-flex;
     align-items: center;
-    gap: 0.42rem;
+    gap: 0.4rem;
+    white-space: nowrap;
 }
 
-.nav-logo-brand {
-    background: linear-gradient(90deg, #FFFFFF 0%, #E2E8F0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.nav-logo-sub {
-    font-size: 0.6rem;
-    font-family: "JetBrains Mono", monospace;
-    font-weight: 600;
-    color: #64748B;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-top: 0.12rem;
-}
-
-.nav-links {
-    display: flex;
+/* Center Quick Bar (Only 3 essential shortcuts on wide screens; never crowds) */
+.nav-quick-bar {
+    display: inline-flex;
     align-items: center;
-    gap: clamp(0.28rem, 0.55vw, 0.55rem);
-    background: rgba(15, 23, 42, 0.68);
-    border: 1px solid rgba(129, 140, 248, 0.18);
-    padding: 0.32rem 0.5rem;
+    gap: 0.45rem;
+    padding: 0.28rem 0.45rem;
     border-radius: 9999px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(129, 140, 248, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 16px rgba(0, 0, 0, 0.28);
+    flex-shrink: 1;
+    min-width: 0;
 }
 
-.nav-links a {
+.nav-quick-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.42rem;
-    font-size: clamp(0.75rem, 0.85vw, 0.82rem);
-    font-weight: 600;
-    color: #94A3B8;
-    padding: 0.42rem clamp(0.6rem, 0.9vw, 0.95rem);
+    padding: 0.38rem 0.9rem;
     border-radius: 9999px;
-    position: relative;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #CBD5E1;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
 
-.nav-link-icon {
-    font-size: 0.72rem;
-    opacity: 0.78;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+.nav-quick-chip i {
+    font-size: 0.74rem;
+    color: #38BDF8;
 }
 
-.nav-links a:hover {
+.nav-quick-chip:hover {
     color: #FFFFFF;
-    background: rgba(99, 102, 241, 0.14);
+    background: rgba(56, 189, 248, 0.14);
 }
 
-.nav-links a:hover .nav-link-icon {
-    opacity: 1;
+.nav-quick-chip.nav-quick-sec i {
+    color: #FB7185;
+}
+
+.nav-quick-chip.nav-quick-sim {
+    color: #34D399;
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px solid rgba(52, 211, 153, 0.24);
+}
+
+.nav-quick-chip.nav-quick-sim i {
+    color: #34D399;
+}
+
+.nav-quick-chip.nav-quick-sim:hover {
+    background: rgba(52, 211, 153, 0.16);
+    color: #6EE7B7;
+}
+
+/* Right Actions & Universal Hamburger Button (Always visible on Desktop, Tablet & Mobile) */
+.nav-actions {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.65rem !important;
+    flex-shrink: 0;
+}
+
+#mobile-menu-btn,
+.nav-hamburger-trigger {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.48rem 0.95rem !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 38px !important;
+    border-radius: 9999px !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(56, 189, 248, 0.35) !important;
+    color: #F8FAFC !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.14);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+
+#mobile-menu-btn:hover,
+.nav-hamburger-trigger:hover {
+    background: rgba(56, 189, 248, 0.16) !important;
+    border-color: #38BDF8 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
     transform: translateY(-1px);
 }
 
-.nav-links a.active {
+.nav-hamburger-trigger i {
     color: #38BDF8;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(99, 102, 241, 0.18));
-    border: 1px solid rgba(56, 189, 248, 0.32);
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.18);
+    font-size: 0.88rem;
+}
+
+/* Universal Floating Drawer Menu (#mobile-menu) */
+#mobile-menu {
+    position: fixed;
+    top: calc(var(--nav-height) + 0.5rem);
+    right: max(1rem, calc((100vw - 1360px) / 2 + 1rem));
+    left: auto;
+    width: min(440px, calc(100vw - 2rem));
+    background: rgba(9, 14, 26, 0.98);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 1.15rem;
+    padding: 1.25rem;
+    z-index: 1005;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 32px rgba(56, 189, 248, 0.14);
+    max-height: calc(100vh - var(--nav-height) - 1.5rem);
+    overflow-y: auto;
+}
+
+#mobile-menu.open {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.drawer-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.drawer-menu-kicker {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94A3B8;
+}
+
+.drawer-menu-badge {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.65rem;
     font-weight: 700;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
 }
 
-.nav-links a.nav-link-sim {
-    color: #34D399;
-    border: 1px solid rgba(52, 211, 153, 0.22);
-    background: rgba(52, 211, 153, 0.07);
+#mobile-menu .nav-links,
+.drawer-nav-grid {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 0.35rem !important;
+    list-style: none;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
 }
 
-.nav-links a.nav-link-sim:hover {
-    color: #6EE7B7;
-    background: rgba(52, 211, 153, 0.15);
-    border-color: rgba(52, 211, 153, 0.4);
+#mobile-menu .nav-links li {
+    width: 100%;
 }
 
-.nav-actions {
+#mobile-menu .nav-links a {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
     gap: 0.65rem;
+    padding: 0.65rem 0.85rem !important;
+    border-radius: 0.65rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 600;
+    color: #E2E8F0;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(148, 163, 184, 0.1);
+    transition: all 0.18s ease;
+}
+
+#mobile-menu .nav-links a:hover,
+#mobile-menu .nav-links a.active {
+    background: rgba(56, 189, 248, 0.14) !important;
+    border-color: rgba(56, 189, 248, 0.35) !important;
+    color: #FFFFFF !important;
+}
+
+.drawer-tools-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.drawer-tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.6rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(129, 140, 248, 0.22);
+    color: #CBD5E1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.drawer-tool-btn:hover {
+    background: rgba(56, 189, 248, 0.14);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #FFFFFF;
 }
 
 /* GitHub OAuth Premium Button (Paired with Google OAuth) */
@@ -5375,19 +5524,30 @@ pre, code {
 }
 
 /* Responsive Navigation & Layout Safeguards */
-@media (max-width: 1220px) {
-    .nav-center-nav {
+@media (max-width: 960px) {
+    .nav-quick-bar {
         display: none !important;
     }
-    #mobile-menu-btn {
+    .nav-actions .btn-cyber {
         display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
+        width: auto !important;
+        min-height: 36px !important;
+        padding: 0.42rem 0.9rem !important;
     }
 }
 
 @media (max-width: 640px) {
-    .nav-logo-sub {
+    #mobile-menu {
+        top: var(--nav-height);
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 0 0 1rem 1rem;
+    }
+    .drawer-tools-row {
+        grid-template-columns: 1fr;
+    }
+    .nav-hamburger-label {
         display: none;
     }
     .sec-hero-Banner {
