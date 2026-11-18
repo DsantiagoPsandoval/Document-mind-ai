@@ -42,6 +42,10 @@ function detectLanguages(files) {
         if (extToLang[ext]) {
             counts[extToLang[ext]] = (counts[extToLang[ext]] || 0) + (f.size || 100);
         }
+        if ((ext === '.html' || ext === '.htm') && f.content) {
+            if (/<style\b/i.test(f.content)) counts['CSS3'] = (counts['CSS3'] || 0) + 50;
+            if (/<script\b/i.test(f.content)) counts['JavaScript'] = (counts['JavaScript'] || 0) + 50;
+        }
     });
 
     return Object.entries(counts)

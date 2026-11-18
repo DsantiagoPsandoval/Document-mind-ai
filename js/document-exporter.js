@@ -633,7 +633,7 @@
         if (filter === 'all' || filter === 'arch') {
             let html = '';
             if (d.architecture.overview) {
-                html += `<p class="fact-banner"><span class="fact-tag tag-found">[Encontrado]</span> ${escapeHtml(d.architecture.overview)}</p>`;
+                html += `<p class="fact-banner">${escapeHtml(d.architecture.overview)}</p>`;
             }
             if (d.architecture.c4Context || d.architecture.c4Container) {
                 html += `<h3>Modelo C4: Contexto y Contenedores</h3>`;
@@ -693,7 +693,7 @@
         if (filter === 'all' || filter === 'db') {
             let html = '';
             if (d.database.overview) {
-                html += `<p class="fact-banner"><span class="fact-tag tag-found">[Encontrado]</span> ${escapeHtml(d.database.overview)}</p>`;
+                html += `<p class="fact-banner">${escapeHtml(d.database.overview)}</p>`;
             }
             if (d.database.dataDictionary.length > 0) {
                 html += `
@@ -726,7 +726,7 @@
             } else {
                 html += `
                     <div class="fact-banner">
-                        <strong>[Información Factual]:</strong> No se detectaron archivos de migración SQL o esquemas ORM explícitos en los archivos analizados. El proyecto opera como un microservicio sin estado (stateless) o delega la persistencia en servicios desacoplados.
+                        No se detectaron archivos de migración SQL ni esquemas ORM explícitos en los archivos analizados.
                     </div>
                 `;
             }
@@ -742,7 +742,7 @@
         if (filter === 'all' || filter === 'api') {
             let html = '';
             if (d.api.overview) {
-                html += `<p class="fact-banner"><span class="fact-tag tag-found">[Encontrado]</span> ${escapeHtml(d.api.overview)}</p>`;
+                html += `<p class="fact-banner">${escapeHtml(d.api.overview)}</p>`;
             }
             if (d.api.endpoints.length > 0) {
                 html += `
@@ -778,7 +778,7 @@
             } else {
                 html += `
                     <div class="fact-banner">
-                        <strong>[Información Factual]:</strong> No se detectaron controladores ni rutas HTTP expuestas directamente en la muestra de archivos analizada.
+                        No se detectaron controladores ni rutas HTTP expuestas directamente en la muestra de archivos analizada.
                     </div>
                 `;
             }

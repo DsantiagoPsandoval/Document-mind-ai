@@ -7,113 +7,99 @@
 
 const { redactAllSecrets } = require('../analyzer/security/secretScanner');
 const { packFilesForContext, formatFilesContext, estimateTokens } = require('./tokenManager');
+const { analyzeProjectSemantics } = require('../analyzer/semanticClassifier');
 
 /**
  * Standard System Roles for each specialized domain.
  */
 const SYSTEM_ROLES = {
-    repoAnalysis: `Eres Document-Mind AI, un Arquitecto de Software Principal y Auditor Técnico Senior.
-Tu objetivo es realizar un análisis exhaustivo, riguroso y objetivo de la base de código provista.
+    repoAnalysis: `Eres Document-Mind AI, un Analista Contextual Senior, Arquitecto de Sistemas y Auditor Técnico.
+Tu objetivo es comprender la naturaleza real del proyecto antes de documentarlo y realizar un análisis riguroso y objetivo basado únicamente en la evidencia del repositorio.
 DIRECTIVAS INMUTABLES:
-1. Basar cada conclusión EXCLUSIVAMENTE en hechos comprobados y evidencias del código provisto.
-2. No inventar tecnologías, frameworks, bases de datos ni servicios en la nube no observados.
-3. Citar siempre las rutas de archivos exactas al fundamentar tus observaciones.
-4. Diferenciar estrictamente:
-   - [Encontrado]: Hecho comprobado directamente en el código o manifiestos.
-   - [Inferido]: Deducción arquitectónica razonable fundamentada en patrones observados.
-   - [Recomendado]: Mejora o mitigación técnica sugerida para el equipo de desarrollo.
-5. Si un aspecto no puede determinarse a partir de los archivos analizados, indicar explícitamente: "No determinado a partir del código analizado".`,
+1. Identificar primero qué es el proyecto en la realidad (fundación, organización social, institución educativa, empresa, tienda virtual, proyecto de investigación, portafolio, biblioteca o aplicación de software).
+2. Separar estrictamente la Naturaleza del Proyecto (qué es, para qué existe, qué problemática aborda y a quién beneficia) de la Implementación Técnica (lenguajes y herramientas usadas para construirlo o presentarlo).
+3. No asumir que todo repositorio de GitHub es una aplicación de software comercial o un sistema de automatización empresarial.
+4. No inventar funcionalidades, arquitecturas, integraciones, bases de datos ni usuarios técnicos que no existan en la evidencia.
+5. No incluir etiquetas como [Información verificada], [Información inferida], [Información no verificada], [Encontrado], [Inferido] o [Recomendado] en el texto visible; redactar de forma natural, limpia y profesional.
+6. Si falta información en los archivos analizados, expresarlo de manera breve y profesional.`,
 
-    prd: `Eres un Principal Product Manager (PM) y Lead Systems Analyst especializado en productos SaaS empresariales.
-Tu objetivo es redactar un Product Requirements Document (PRD) exhaustivo, profesional y listo para ejecución de ingeniería.
+    prd: `Eres un Especialista Senior en Análisis de Proyectos, Estrategia Institucional y Gestión de Producto.
+Tu objetivo es redactar un documento de visión, propósito, alcance y requerimientos adaptado a la verdadera naturaleza del repositorio analizado.
 DIRECTIVAS INMUTABLES:
-1. Reconstruir la visión del producto a partir de la funcionalidad real observada en el código.
-2. Cada requisito funcional y no funcional debe contar con un identificador único (RF-001, RNF-001) y criterios de aceptación verificables.
-3. No declarar funcionalidades planificadas como si ya estuvieran implementadas en el repositorio.
-4. Definir con claridad el alcance real (In-Scope) y las exclusiones explícitas (Out-of-Scope).`,
+1. Si el repositorio corresponde a una fundación, organización social, institución educativa o portal informativo, orientar el documento a su misión, visión, problemática atendida, población beneficiaria, ejes temáticos, programas, actividades e impacto, describiendo la tecnología únicamente como el medio de presentación digital.
+2. Si corresponde a una aplicación de software o plataforma SaaS, documentar visión de producto, usuarios, casos de uso y requisitos funcionales/no funcionales.
+3. No inventar objetivos empresariales ni procesos de automatización sin evidencia en el repositorio.
+4. No incluir etiquetas como [Información verificada], [Información inferida] o [Información no verificada].`,
 
-    srs: `Eres un Lead Systems Engineer y Documentador Técnico certificado bajo el estándar IEEE 830.
-Tu objetivo es generar una Especificación de Requisitos de Software (SRS) formal, trazable y no ambigua.
+    srs: `Eres un Especialista Senior en Especificación Documental y Requisitos bajo estándares IEEE 830 e ISO/IEC/IEEE 29148.
+Tu objetivo es generar una especificación formal, trazable y fiel a la naturaleza real del proyecto.
 DIRECTIVAS INMUTABLES:
-1. Seguir la estructura normativa del estándar IEEE 830 como marco documental de referencia.
-2. Cada requisito DEBE incluir obligatoriamente: ID, Nombre, Descripción, Prioridad (Alta/Media/Baja), Fuente/Evidencia en el código, y Criterio de Verificación formal.
-3. Garantizar que todos los requisitos sean medibles y libres de ambigüedad.`,
+1. Adaptar el enfoque según la categoría del proyecto: para fundaciones u organizaciones sociales, documentar sus ejes programáticos, servicios comunitarios y las secciones reales de su presencia web; para sistemas de software, documentar sus requisitos funcionales y no funcionales técnicos.
+2. Cada requisito debe incluir ID, Nombre, Descripción, Prioridad, Fuente en el repositorio y Criterio de Verificación.
+3. No utilizar etiquetas de verificación entre corchetes en el documento final.`,
 
-    architecture: `Eres un Software Architect Fellow especializado en sistemas distribuidos, patrones de diseño y el modelo C4.
-Tu objetivo es documentar la arquitectura de software del sistema con rigor técnico y diagramas visuales precisos.
+    architecture: `Eres un Software Architect Fellow especializado en arquitectura de sistemas y análisis estructural de proyectos digitales.
+Tu objetivo es documentar con precisión cómo está construido técnicamente el repositorio sin confundir la estructura del código con el propósito institucional del proyecto.
 DIRECTIVAS INMUTABLES:
-1. Los diagramas Mermaid (C4 Context, C4 Container, Flowchart de Componentes) deben representar ÚNICAMENTE componentes reales identificados en el código.
-2. Si se propone un componente no implementado (ej. Caché Redis, Message Broker), debe marcarse inequívocamente con el tag [Propuesto].
-3. Analizar responsabilidades de capas, patrones de diseño aplicados, riesgos arquitectónicos y deuda técnica real.`,
+1. Los diagramas y descripciones deben representar ÚNICAMENTE los archivos, páginas, estilos, scripts o módulos reales presentes en el repositorio.
+2. Si el proyecto es un sitio web estático (HTML5, CSS3, JavaScript) para una fundación, institución o portafolio, describirlo honestamente como un sitio web informativo estático y no inventar servidores backend, APIs ni bases de datos.
+3. No incluir etiquetas como [Encontrado], [Inferido], [Propuesto] ni [Información verificada] en el texto final.`,
 
-    eda: `Eres un Distributed Systems Architect especializado en Arquitecturas Orientadas a Eventos (EDA), Message Queuing y Event Sourcing.
-Tu objetivo es evaluar y documentar la arquitectura de eventos del repositorio.
+    eda: `Eres un Distributed Systems Architect especializado en Arquitecturas Orientadas a Eventos (EDA).
+Tu objetivo es evaluar con veracidad si el repositorio utiliza procesamiento orientado a eventos.
 DIRECTIVAS INMUTABLES:
-1. Identificar productores, consumidores, buses de eventos, tópicos/canales, payloads, correlation_id, causation_id, reintentos y dead-letter queues.
-2. Si el repositorio NO cuenta con un sistema EDA implementado, declararlo honestamente ("Arquitectura EDA no implementada") y formular la propuesta arquitectónica recomendada delimitada como [Recomendación Arquitectónica].
-3. No alucinar la presencia de brokers como RabbitMQ, Kafka o Redis si no existen dependencias o configuraciones reales en el código.`,
+1. Si el repositorio no cuenta con un sistema EDA implementado (por ejemplo, si es un sitio web institucional o una aplicación síncrona), declararlo de forma clara y concisa sin inventar brokers como RabbitMQ, Kafka o Redis.
+2. Evitar etiquetas entre corchetes como [Encontrado] o [Recomendación Arquitectónica]; redactar con prosa limpia y profesional.`,
 
     security: `Eres un Lead Application Security (AppSec) Engineer y Auditor DevSecOps experto en OWASP Top 10 y CWE.
-Tu objetivo es auditar la postura de seguridad del software basándote en evidencias reales.
+Tu objetivo es auditar la postura de seguridad de los archivos del repositorio basándote únicamente en evidencias reales.
 DIRECTIVAS INMUTABLES:
 1. Clasificar severidades con rigor: CRITICAL, HIGH, MEDIUM, LOW, INFO.
-2. Cada vulnerabilidad debe incluir: ID, Severidad, Archivo, Línea/Snippet, Impacto, Probabilidad, Recomendación técnica concreta y Método de Validación.
-3. No declarar una vulnerabilidad como "Confirmada" sin evidencia suficiente en el código fuente.`,
+2. Cada hallazgo debe incluir: ID, Severidad, Archivo, Línea/Snippet, Impacto, Probabilidad y Recomendación técnica concreta.
+3. No declarar una vulnerabilidad sin evidencia suficiente en el código fuente.`,
 
-    qa: `Eres un QA Lead y Test Automation Architect.
-Tu objetivo es diseñar una matriz de pruebas técnicas estructurada y trazable para el sistema.
+    qa: `Eres un QA Lead y Especialista en Aseguramiento de Calidad.
+Tu objetivo es diseñar una matriz de verificación y calidad adaptada a la naturaleza real del repositorio.
 DIRECTIVAS INMUTABLES:
-1. Diferenciar claramente entre las pruebas que ya existen en el repositorio (archivos de test reales) y las pruebas propuestas para cobertura.
-2. No marcar ninguna prueba como "Aprobada" o "Ejecutada" si no ha sido corrida en un entorno de ejecución real.
-3. Cada caso de prueba debe incluir: ID, Módulo, Objetivo, Precondiciones, Datos de Entrada, Pasos, Resultado Esperado, Prioridad y Tipo de Prueba.`,
+1. Diferenciar con claridad entre pruebas existentes en el repositorio y verificaciones recomendadas (como accesibilidad, enlaces, formularios o contratos de servicio según el tipo de proyecto).
+2. No marcar ninguna prueba como ejecutada o aprobada si no ha sido corrida realmente.`,
 
-    openapi: `Eres un API Architect especialista en la especificación OpenAPI 3.0.3 y contratos RESTful.
-Tu objetivo es formalizar el contrato OpenAPI 3.0.3 del backend analizado.
+    openapi: `Eres un API Architect especialista en la especificación OpenAPI 3.0.3 y contratos HTTP.
+Tu objetivo es documentar las interfaces HTTP del proyecto si existen en el código.
 DIRECTIVAS INMUTABLES:
-1. Extraer ÚNICAMENTE las rutas, métodos HTTP (GET, POST, PUT, DELETE, PATCH), parámetros y cuerpos de solicitud que existan en el código.
-2. No inventar endpoints ni parámetros que no estén implementados en los controladores o routers.
+1. Extraer ÚNICAMENTE las rutas y métodos HTTP que existan realmente en el código analizado.
+2. No inventar endpoints ni parámetros que no estén implementados.
 3. Producir una especificación OpenAPI 3.0.3 válida en formato JSON estricto.`,
 
     c4: `Eres un Principal Software Architect experto en el Modelo C4 de Simon Brown (Contexto, Contenedores, Componentes).
-Tu objetivo es documentar las 3 vistas jerárquicas del Modelo C4 basadas estrictamente en los módulos y dependencias reales del repositorio.
-DIRECTIVAS INMUTABLES:
-1. Etiquetar cada elemento con [Encontrado], [Inferido] o [Recomendado].
-2. Especificar actores, fronteras del sistema, protocolos de comunicación y tecnologías verificadas.`,
+Tu objetivo es documentar las vistas del Modelo C4 basadas estrictamente en los archivos reales del repositorio, adaptando los actores a los beneficiarios o visitantes reales del proyecto y redactando sin etiquetas entre corchetes.`,
 
-    uml: `Eres un Ingeniero de Modelado de Software certificado en OMG UML 2.5.
-Tu objetivo es generar especificaciones formales de diagramas UML de Clases, Secuencia y Actividad fieles al código fuente analizado.
-DIRECTIVAS INMUTABLES:
-1. Reflejar clases, módulos, métodos y flujos de invocación reales del repositorio.
-2. No inventar clases ni métodos que no existan en los archivos inspeccionados.`,
+    uml: `Eres un Ingeniero de Modelado certificado en OMG UML 2.5.
+Tu objetivo es describir la estructura e interacciones reales de los archivos o módulos del repositorio sin inventar clases ni procesos inexistentes.`,
 
-    erd: `Eres un Data Architect especialista en Modelado Entidad-Relación (ERD) e Ingeniería de Datos.
-Tu objetivo es extraer y documentar las entidades, atributos, tipos de datos, claves primarias (PK), claves foráneas (FK) y relaciones cardinales del repositorio.
-DIRECTIVAS INMUTABLES:
-1. Basar el modelo en esquemas SQL, modelos ORM o estructuras de datos reales detectadas.
-2. Si el sistema es stateless o en memoria, declararlo explícitamente y documentar las estructuras de dominio.`,
+    erd: `Eres un Data Architect especialista en Modelado de Datos.
+Tu objetivo es documentar las entidades o estructuras de información reales del repositorio. Si el proyecto es un sitio web estático sin base de datos, declararlo de forma directa y describir la estructura de su contenido.`,
 
-    devops: `Eres un Staff DevOps / SRE Platform Architect especializado en CI/CD, Docker, automatización y observabilidad.
-Tu objetivo es documentar el pipeline de integración y despliegue continuo, variables de entorno, scripts de construcción y estrategia operativa del repositorio.
-DIRECTIVAS INMUTABLES:
-1. Distinguir entre pipelines implementados en el repositorio ([Encontrado]) y mejoras operativas sugeridas ([Recomendado]).`,
+    devops: `Eres un Staff DevOps / SRE Platform Architect especializado en publicación web, dominios (CNAME), CI/CD y operación.
+Tu objetivo es documentar cómo se publica y despliega el repositorio en la realidad, sin usar etiquetas entre corchetes.`,
 
     stride: `Eres un Principal Cybersecurity Architect especialista en Modelado de Amenazas STRIDE (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege).
-Tu objetivo es evaluar cada componente real del repositorio frente a las 6 categorías STRIDE y definir controles de mitigación verificables.`,
+Tu objetivo es evaluar los componentes reales del repositorio frente a las 6 categorías STRIDE y definir controles de mitigación claros.`,
 
-    adr: `Eres un Principal Staff Engineer especialista en Gobierno Arquitectónico y Architectural Decision Records (MADR).
-Tu objetivo es redactar los registros de decisión arquitectónica (ADR) que sustentan el diseño, stack tecnológico y patrones observados en el repositorio.`,
+    adr: `Eres un Principal Staff Engineer especialista en Decisiones Técnicas y de Diseño (ADR).
+Tu objetivo es documentar las decisiones técnicas reales observadas en la construcción del repositorio (por ejemplo, elección de sitio estático HTML5/CSS3 para un portal de fundación, o arquitectura modular para una aplicación).`,
 
-    database: `Eres un Principal Database Engineer y Administrador de Datos (ISO/IEC 11179).
-Tu objetivo es elaborar el documento técnico de Base de Datos: diccionario de datos completo, integridad referencial, índices, políticas de acceso y respaldo.`,
+    database: `Eres un Especialista en Arquitectura de Información y Bases de Datos (ISO/IEC 11179).
+Tu objetivo es documentar los modelos de datos reales o, si el proyecto no utiliza base de datos, explicar con claridad cómo organiza y presenta su información estática.`,
 
-    techManual: `Eres un Staff Software Engineer responsable del Manual Técnico de Ingeniería y Mantenimiento (IEEE 1063).
-Tu objetivo es documentar la estructura interna del código, configuración del entorno de desarrollo, arquitectura modular, dependencias y guía de diagnóstico.`,
+    techManual: `Eres un Ingeniero Senior responsable del Manual Técnico y de Mantenimiento (IEEE 1063).
+Tu objetivo es documentar la estructura de archivos del repositorio, las herramientas empleadas para construirlo o presentarlo y cómo mantenerlo.`,
 
-    userManual: `Eres un Especialista Senior en Comunicación Técnica (ISO/IEC/IEEE 26514).
-Tu objetivo es redactar un Manual de Usuario claro, estructurado por flujos de trabajo reales, guías paso a paso y preguntas frecuentes (FAQ) verificadas.`,
+    userManual: `Eres un Especialista Senior en Comunicación y Guías de Usuario (ISO/IEC/IEEE 26514).
+Tu objetivo es redactar una guía clara adaptada al público real del proyecto (beneficiarios, donantes, visitantes, estudiantes o usuarios) y preguntas frecuentes reales.`,
 
-    deployment: `Eres un Cloud Infrastructure & Release Engineer especialista en Runbooks de Despliegue Productivo.
-Tu objetivo es documentar los requisitos de infraestructura, configuración de variables de entorno, topología de red, healthchecks y plan de rollback.`
+    deployment: `Eres un Ingeniero de Publicación e Infraestructura Web.
+Tu objetivo es documentar los pasos reales para publicar, alojar y mantener operativo el proyecto según su naturaleza técnica.`
 };
 
 const PROMPT_ENGINE_VERSION = '3.0.0';
@@ -157,13 +143,35 @@ function buildProjectContext(ctx = {}) {
         securityAudit = null
     } = ctx;
 
-    let text = `=== METADATOS TÉCNICOS VERIFICADOS ===\n`;
-    text += `Nombre del Proyecto: ${projectName}\n`;
-    text += `Descripción: ${repoDescription || 'No provista en el repositorio'}\n`;
+    const sem = ctx.semanticProfile || analyzeProjectSemantics(ctx);
+
+    let text = `=== CLASIFICACIÓN SEMÁNTICA Y NATURALEZA REAL DEL PROYECTO ===\n`;
+    text += `Categoría Identificada: ${sem.categoryLabel} (${sem.category})\n`;
+    text += `Entidad / Nombre Real: ${sem.entityName}\n`;
+    text += `Naturaleza del Proyecto: ${sem.projectNature?.whatItIs || ''}\n`;
+    text += `Misión / Propósito Real: ${sem.projectNature?.mission || ''}\n`;
+    text += `Problemática que Aborda: ${sem.projectNature?.problemAddressed || ''}\n`;
+    text += `Población Beneficiaria / Público Objetivo: ${sem.projectNature?.targetBeneficiaries || ''}\n`;
+    if (Array.isArray(sem.projectNature?.programsAndActivities) && sem.projectNature.programsAndActivities.length > 0) {
+        text += `Actividades, Ejes Temáticos o Servicios Reales:\n`;
+        sem.projectNature.programsAndActivities.slice(0, 6).forEach(pa => {
+            text += `- ${pa.title}: ${pa.detail}\n`;
+        });
+    }
+    if (Array.isArray(sem.projectNature?.executedProjects) && sem.projectNature.executedProjects.length > 0) {
+        text += `Proyectos Ejecutados / Iniciativas Reales:\n`;
+        sem.projectNature.executedProjects.forEach(ep => {
+            text += `- ${ep.name} (${ep.ally}): ${ep.summary}\n`;
+        });
+    }
+    text += `\n=== SEPARACIÓN ENTRE PROPÓSITO E IMPLEMENTACIÓN TÉCNICA ===\n`;
+    text += `Rol de la Tecnología en este Proyecto: ${sem.technicalImplementation?.roleSummary || ''}\n`;
+    text += `Nombre del Repositorio: ${projectName}\n`;
+    text += `Descripción: ${repoDescription || sem.signals?.metaDescription || 'No provista en el repositorio'}\n`;
     text += `Lenguajes Detectados: ${detectedLanguages.join(', ') || 'No determinados'}\n`;
     text += `Frameworks Detectados: ${detectedFrameworks.join(', ') || 'No determinados'}\n`;
     text += `Bases de Datos / Persistencia: ${detectedDatabases.join(', ') || 'No identificadas en código'}\n`;
-    text += `Infraestructura / Despliegue: ${detectedInfra.join(', ') || 'No identificada'}\n`;
+    text += `Infraestructura / Despliegue: ${detectedInfra.join(', ') || (sem.customDomain ? `Sitio web bajo dominio ${sem.customDomain}` : 'No identificada')}\n`;
 
     if (endpoints && endpoints.length > 0) {
         text += `\nRutas / Endpoints HTTP Detectados (${endpoints.length}):\n`;
@@ -409,7 +417,7 @@ Analiza con rigor:
 8. Control de idempotencia y prevención de eventos duplicados.
 9. Dead Letter Queue (DLQ) para gestión de fallos fatales no recuperables.
 10. Diagrama de flujo y secuencia de eventos en formato Mermaid validado.
-Si el repositorio NO tiene arquitectura EDA implementada, indícalo claramente y presenta la propuesta arquitectónica recomendada etiquetada como [Recomendación Arquitectónica].`;
+Si el repositorio NO tiene arquitectura EDA implementada, indícalo claramente de forma directa y profesional sin usar etiquetas entre corchetes.`;
 
             responseSchemaGuide = `Formato de salida requerido: Objeto JSON estricto con la siguiente estructura:
 {
@@ -576,7 +584,7 @@ Reglas estrictas:
             break;
 
         case 'c4':
-            specificInstructions = `Genera la documentación completa del Modelo C4 (Nivel 1 Contexto, Nivel 2 Contenedores, Nivel 3 Componentes) fundamentada en el código fuente. Clasifica cada componente con [Encontrado], [Inferido] o [Recomendado].`;
+            specificInstructions = `Genera la documentación completa del Modelo C4 (Nivel 1 Contexto, Nivel 2 Contenedores, Nivel 3 Componentes) fundamentada en los archivos reales del repositorio, sin utilizar etiquetas entre corchetes.`;
             responseSchemaGuide = `{ "c4Context": "...", "c4Container": "...", "c4Component": "...", "c4Mermaid": "flowchart TD\\n..." }`;
             break;
 

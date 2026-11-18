@@ -43,6 +43,10 @@ const {
     buildProjectMap
 } = require('./services/analyzer/localAnalyzer');
 const {
+    compactHtmlForAnalysis,
+    analyzeProjectSemantics
+} = require('./services/analyzer/semanticClassifier');
+const {
     ARCHITECTURE_ALTERNATIVES,
     PRESET_SCENARIOS,
     DEFAULT_PROJECT_CONFIG,
@@ -301,13 +305,14 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
                 const clean = sanitizeContent(content);
                 const category = classifyFile(safeName, clean);
                 const hash = computeFileHash(clean);
+                const isHtml = /\.(html?|ejs|hbs)$/i.test(safeName);
 
                 files.push({
                     path: safeName,
                     size: f.size,
                     category,
                     hash,
-                    content: clean.substring(0, 45000)
+                    content: isHtml ? compactHtmlForAnalysis(clean, 85000) : clean.substring(0, 85000)
                 });
             }
 
@@ -439,6 +444,18 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
             });
         }
 
+        // Semantic classification (Identify real nature of the project BEFORE documentation)
+        if (!projectData.semanticProfile) {
+            projectData.semanticProfile = analyzeProjectSemantics(projectData);
+            projectData.projectCategory = projectData.semanticProfile.category;
+            projectData.projectCategoryLabel = projectData.semanticProfile.categoryLabel;
+            if (projectData.repository) {
+                projectData.repository.projectCategory = projectData.semanticProfile.category;
+                projectData.repository.projectCategoryLabel = projectData.semanticProfile.categoryLabel;
+                projectData.repository.entityName = projectData.semanticProfile.entityName;
+            }
+        }
+
         // Execute Security Analyzer (SAST, Secret Scanner, Dependencies, STRIDE, Score)
         const security = await runSecurityAnalysis(projectData);
         projectData.security = security;
@@ -452,6 +469,9 @@ app.post('/api/project/analyze', upload.array('files', 15), async (req, res, nex
         const fullAnalysisResult = {
             projectId,
             projectName: projectData.repository.name,
+            projectCategory: projectData.projectCategory,
+            projectCategoryLabel: projectData.projectCategoryLabel,
+            semanticProfile: projectData.semanticProfile,
             repository: projectData.repository,
             stats: projectData.stats,
             detectedLanguages: projectData.detectedLanguages || [],
@@ -1097,6 +1117,9 @@ app.post('/api/github/analyze', async (req, res, next) => {
         const fullCached = {
             projectId,
             projectName: repoData.repository.name,
+            projectCategory: repoData.projectCategory,
+            projectCategoryLabel: repoData.projectCategoryLabel,
+            semanticProfile: repoData.semanticProfile,
             repository: repoData.repository,
             stats: repoData.stats,
             detectedTechnologies: repoData.detectedTechnologies,
@@ -1115,6 +1138,9 @@ app.post('/api/github/analyze', async (req, res, next) => {
         res.json({
             success: true,
             projectId,
+            projectCategory: repoData.projectCategory,
+            projectCategoryLabel: repoData.projectCategoryLabel,
+            semanticProfile: repoData.semanticProfile,
             repository: repoData.repository,
             stats: repoData.stats,
             detectedTechnologies: repoData.detectedTechnologies,

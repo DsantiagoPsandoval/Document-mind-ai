@@ -2080,17 +2080,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (resFiles) resFiles.textContent = stats.relevantFilesCount || stats.totalFiles || 0;
 
         const resModeBadge = document.getElementById("res-mode-badge");
+        const catLabel = data.projectCategoryLabel || doc.projectCategoryLabel || repo.projectCategoryLabel;
         if (resModeBadge) {
-            resModeBadge.textContent = doc.isAiGenerated ? 'Gemini 2.5 Flash Cognition' : 'Análisis Estático Factual';
+            resModeBadge.textContent = catLabel
+                ? `Categoría: ${catLabel}`
+                : (doc.isAiGenerated ? 'Gemini 2.5 Flash Cognition' : 'Análisis Contextual');
             resModeBadge.className = doc.isAiGenerated ? 'badge badge-cyan' : 'badge badge-emerald';
         }
 
         // 2. Summary KPI Cards
+        const isNonSoftware = Boolean(data.semanticProfile?.isNonSoftwareInstitutional || doc.semanticProfile?.isNonSoftwareInstitutional);
         setKpiText("kpi-lang", repo.primaryLanguage || 'Multi-lenguaje');
         setKpiText("kpi-frameworks", (data.detectedTechnologies || []).slice(0, 3).join(', ') || 'Nativo');
-        setKpiText("kpi-db", (data.dataModels && data.dataModels.length > 0) ? `${data.dataModels.length} modelos` : (data.detectedTechnologies?.find(t => t.includes('SQL') || t.includes('Mongo') || t.includes('Supabase')) || 'No detectada'));
-        setKpiText("kpi-arch", (doc.architecture && doc.architecture.c4Container) ? 'C4 Modular' : 'Modular');
-        setKpiText("kpi-api", (data.endpoints || []).length);
+        setKpiText("kpi-db", (data.dataModels && data.dataModels.length > 0) ? `${data.dataModels.length} modelos` : (data.detectedTechnologies?.find(t => t.includes('SQL') || t.includes('Mongo') || t.includes('Supabase')) || 'No utiliza BD'));
+        setKpiText("kpi-arch", isNonSoftware ? 'Portal Web Estático' : ((doc.architecture && doc.architecture.c4Container) ? 'C4 Modular' : 'Modular'));
+        setKpiText("kpi-api", `${(data.endpoints || []).length}`);
         setKpiText("kpi-auth", (data.projectMap?.auth?.detected) ? 'Detectada' : 'No detectada');
         setKpiText("kpi-qa", (data.projectMap?.tests?.detected) ? `${data.projectMap.tests.testFilesCount} tests` : 'Plan Diseñado');
         setKpiText("kpi-devops", (data.projectMap?.devops?.detected) ? 'Configurado' : 'No detectado');
@@ -2252,12 +2256,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function stripUiVerificationTags(str) {
+        if (!str || typeof str !== 'string') return str || '';
+        return str
+            .replace(/`?\[(?:Información\s+(?:verificada|inferida|no\s+verificada|no\s+encontrada|pendiente\s+de\s+validación|factual)|Encontrado(?:\s*:[^\]]*)?|Inferido|Recomendado(?:\s*\/[^\]]*)?|Recomendación(?:\s+Arquitectónica)?|Propuesto)\]`?/gi, '')
+            .replace(/[ \t]{2,}/g, ' ')
+            .trim();
+    }
+
     function safeMarkdown(text) {
         if (!text) return 'Información no provista.';
+        const cleaned = stripUiVerificationTags(text);
         if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
-            return marked.parse(text);
+            return marked.parse(cleaned);
         }
-        return text.replace(/\n/g, '<br>');
+        return cleaned.replace(/\n/g, '<br>');
     }
 
     function renderProductTab(prod = {}) {

@@ -28,6 +28,7 @@
 
 const { buildDiagramSuite } = require('./diagramEngine');
 const { reviewAndEnhanceDocumentation } = require('../ai/qualityReviewer');
+const { analyzeProjectSemantics, stripVerificationTags } = require('../analyzer/semanticClassifier');
 
 const SCOPE_CONFIG = {
     all: {
@@ -182,10 +183,12 @@ function cleanMarkdownText(md) {
  */
 function stripRawMermaidBlocks(text) {
     if (!text) return '';
-    return String(text)
-        .replace(/```mermaid[\s\S]*?```/gi, '')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
+    return stripVerificationTags(
+        String(text)
+            .replace(/```mermaid[\s\S]*?```/gi, '')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim()
+    );
 }
 
 /**
@@ -195,7 +198,9 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
     const normalizedScope = String(scope || 'all').toLowerCase();
     const cfg = SCOPE_CONFIG[normalizedScope] || SCOPE_CONFIG.all;
 
-    // Run quality review & deterministic enrichment first
+    // Run semantic classification & quality review first
+    const sem = analysisData.semanticProfile || analyzeProjectSemantics(analysisData);
+    analysisData.semanticProfile = sem;
     const qualityReview = reviewAndEnhanceDocumentation(analysisData);
     const allDiagrams = buildDiagramSuite(analysisData);
 
@@ -207,10 +212,16 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
     const projectName = analysisData.projectName || repo.name || 'Proyecto';
     const fullName = repo.fullName || projectName;
     const branch = repo.branch || repo.defaultBranch || 'main';
-    const primaryLanguage = repo.primaryLanguage || (Array.isArray(analysisData.detectedTechnologies) && analysisData.detectedTechnologies[0]) || 'JavaScript / Node.js';
-    const detectedTechnologies = Array.isArray(analysisData.detectedTechnologies) && analysisData.detectedTechnologies.length > 0
-        ? analysisData.detectedTechnologies
-        : [primaryLanguage, 'REST API', 'Modular Architecture'];
+    const rawDetectedTechs = analysisData.detectedTechnologies;
+    const flatTechs = Array.isArray(rawDetectedTechs)
+        ? rawDetectedTechs
+        : (rawDetectedTechs && Array.isArray(rawDetectedTechs.languages)
+            ? [...(rawDetectedTechs.languages || []), ...(rawDetectedTechs.frameworks || []), ...(rawDetectedTechs.databases || []), ...(rawDetectedTechs.infrastructure || [])]
+            : []);
+    const primaryLanguage = repo.primaryLanguage || flatTechs[0] || 'JavaScript / Node.js';
+    const detectedTechnologies = flatTechs.length > 0
+        ? flatTechs
+        : (sem.isNonSoftwareInstitutional ? [primaryLanguage] : [primaryLanguage, 'REST API', 'Modular Architecture']);
 
     const now = new Date();
     const formattedDate = now.toLocaleDateString('es-ES', {
@@ -223,6 +234,9 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
     const metadata = {
         projectName,
         fullName,
+        entityName: sem.entityName || projectName,
+        projectCategory: sem.category,
+        projectCategoryLabel: sem.categoryLabel,
         documentTitle: cfg.title,
         subtitle: cfg.subtitle,
         docCode: `${cfg.code}-${projectName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'SYS'}`,
@@ -230,7 +244,7 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
         date: formattedDate,
         isoDate,
         author: 'DocuMind AI — Motor de Ingeniería Documental',
-        organization: 'Arquitectura de Software & DevSecOps',
+        organization: sem.categoryLabel || 'Arquitectura de Software & DevSecOps',
         standard: cfg.standard,
         scope: normalizedScope,
         branch,
@@ -249,17 +263,11 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
 
     const documentControl = {
         revisionHistory: [
-            { version: '1.0.0', date: isoDate, author: 'AST Static Analyzer', description: `Extracción inicial de topología (${metadata.relevantFilesCount} archivos en rama ${branch}).` },
-            { version: '2.0.0', date: isoDate, author: 'DocuMind AI Pipeline', description: 'Estructuración normativa de requisitos, arquitectura, diagramas y contratos.' },
-            { version: '3.0.0', date: isoDate, author: 'Quality Reviewer Engine', description: `Auditoría editorial y verificación de evidencia (${metadata.qualityScore}% cumplimiento).` }
+            { version: '1.0.0', date: isoDate, author: 'Semantic & Static Analyzer', description: `Clasificación contextual (${sem.categoryLabel}) y lectura de ${metadata.relevantFilesCount} archivo(s) en rama ${branch}.` },
+            { version: '2.0.0', date: isoDate, author: 'DocuMind AI Pipeline', description: 'Estructuración adaptativa de propósito, requerimientos, diagramas y aspectos técnicos.' },
+            { version: '3.0.0', date: isoDate, author: 'Quality Reviewer Engine', description: `Revisión editorial y control de coherencia (${metadata.qualityScore}% cumplimiento).` }
         ],
-        evidenceLegend: [
-            { tag: '[Información verificada]', meaning: 'Evidencia directa encontrada en archivos fuente, manifiestos, esquemas o controladores del repositorio.' },
-            { tag: '[Información inferida]', meaning: 'Deducción técnica fundamentada en la topología de módulos, nombres de rutas y patrones de código.' },
-            { tag: '[Información no encontrada]', meaning: 'Elemento consultado pero ausente en la muestra de archivos procesados.' },
-            { tag: '[Recomendación]', meaning: 'Práctica de ingeniería o control de arquitectura sugerido según normas ISO/IEEE/OWASP.' },
-            { tag: '[Información pendiente de validación]', meaning: 'Aspecto que requiere verificación en entorno de ejecución o infraestructura externa.' }
-        ]
+        evidenceLegend: []
     };
 
     // Extract normalized domain collections
@@ -331,6 +339,9 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
     const includedDiagrams = [];
 
     function registerTable(tbl) {
+        if (Array.isArray(tbl.rows)) {
+            tbl.rows = tbl.rows.map(r => Array.isArray(r) ? r.map(cell => stripVerificationTags(String(cell ?? ''))) : r);
+        }
         globalTables.push(tbl);
         return tbl;
     }
@@ -340,7 +351,6 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
         if (!found) return null;
         if (!includedDiagrams.some(d => d.id === found.id)) {
             found.figureNumber = `Figura ${includedDiagrams.length + 1}`;
-            // Re-render SVG so figureNumber in SVG header matches exact sequential number
             const { renderLayeredDiagramSvg, renderSequenceDiagramSvg, renderEntityClassDiagramSvg } = require('./diagramEngine');
             if (found.layers) found.svg = renderLayeredDiagramSvg(found);
             else if (found.participants) found.svg = renderSequenceDiagramSvg(found);
@@ -354,14 +364,14 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
         if (chKey === 'intro') {
             const stackTable = registerTable({
                 id: 'tbl-tech-stack',
-                title: 'Tabla 1: Inventario del Stack Tecnológico y Evidencia del Repositorio',
-                headers: ['Categoría Técnica', 'Tecnología / Componente', 'Nivel de Evidencia', 'Rol en la Arquitectura'],
+                title: 'Tabla 1: Naturaleza del Proyecto e Implementación Técnica',
+                headers: ['Dimensión Analizada', 'Detalle Identificado', 'Contexto', 'Descripción'],
                 rows: [
-                    ['Lenguaje Principal', metadata.primaryLanguage, '[Encontrado]', 'Núcleo de ejecución y lógica de negocio del sistema'],
-                    ['Stack Detectado', detectedTechnologies.join(', '), '[Encontrado]', 'Frameworks, librerías y herramientas identificadas en manifiestos'],
-                    ['Rama / Control Versiones', `${metadata.fullName} (${metadata.branch})`, '[Encontrado]', `${metadata.relevantFilesCount} archivos técnicos analizados estáticamente`],
-                    ['Superficie de APIs', `${endpoints.length} Endpoints registrados`, endpoints.length ? '[Encontrado]' : '[Inferido]', 'Contratos de comunicación e integración entre capas'],
-                    ['Postura de Seguridad', `Score ${metadata.securityScore}/100 (Grado ${metadata.securityGrade})`, '[Encontrado]', `Nivel de riesgo global: ${metadata.securityRiskLevel}`]
+                    ['Categoría del Proyecto', sem.categoryLabel, sem.entityName, sem.projectNature?.whatItIs || 'Naturaleza identificada del repositorio'],
+                    ['Lenguaje Principal', metadata.primaryLanguage, 'Implementación Técnica', sem.technicalImplementation?.roleSummary || 'Herramientas empleadas en el repositorio'],
+                    ['Tecnologías Detectadas', detectedTechnologies.join(', '), 'Repositorio', 'Lenguajes y herramientas observadas en los archivos'],
+                    ['Rama / Control Versiones', `${metadata.fullName} (${metadata.branch})`, `${metadata.relevantFilesCount} archivo(s)`, 'Archivos analizados de forma estática'],
+                    ['Postura de Seguridad', `Score ${metadata.securityScore}/100 (Grado ${metadata.securityGrade})`, `Riesgo ${metadata.securityRiskLevel}`, 'Evaluación estática de seguridad del repositorio']
                 ]
             });
 
@@ -369,30 +379,29 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-intro',
                 title: 'Introducción, Propósito y Alcance del Documento',
                 standardRef: 'ISO/IEC/IEEE 29148 — Sección 1',
-                summary: `Define el propósito ejecutivo, alcance técnico, objetivos de ingeniería y contexto general del sistema ${projectName}.`,
+                summary: `Define la naturaleza real del proyecto ${sem.entityName} (${sem.categoryLabel}), su propósito y la descripción de su implementación técnica.`,
                 contentMarkdown: [
-                    `### Propósito del Entregable`,
-                    `El presente documento técnico constituye la especificación formal de ingeniería del proyecto **${projectName}** (\`${fullName}\`). Su propósito es proporcionar a arquitectos de software, líderes técnicos, ingenieros de desarrollo, auditores de ciberseguridad (DevSecOps) y equipos de aseguramiento de calidad (QA) una fuente única de verdad (*Single Source of Truth*) verificada directamente contra el código fuente del repositorio.`,
+                    `### Naturaleza del Proyecto`,
+                    `${sem.projectNature?.whatItIs || `El proyecto **${projectName}** corresponde a la categoría **${sem.categoryLabel}**.`} ${sem.projectNature?.mission ? `Su propósito central es: ${sem.projectNature.mission}` : ''}`,
                     ``,
-                    `### Alcance del Sistema`,
-                    `El análisis abarca **${metadata.relevantFilesCount} archivos relevantes** en la rama \`${metadata.branch}\`, identificando el lenguaje principal **${metadata.primaryLanguage}** y el ecosistema tecnológico compuesto por **${detectedTechnologies.join(', ')}** [Encontrado].`,
+                    `### Separación entre Propósito e Implementación Técnica`,
+                    `${sem.technicalImplementation?.roleSummary || `El análisis abarca **${metadata.relevantFilesCount} archivo(s)** en la rama \`${metadata.branch}\`, utilizando **${detectedTechnologies.join(', ')}**.`}`,
                     ``,
-                    `### Objetivos Técnicos del Documento`,
-                    `- **Trazabilidad Estructural**: Vincular los requisitos de negocio y funcionales con los controladores, servicios y modelos reales del código fuente.`,
-                    `- **Claridad Arquitectónica**: Representar visualmente la topología del sistema mediante vistas C4, diagramas UML de clases y secuencia, modelos Entidad-Relación (ERD) y flujos de despliegue.`,
-                    `- **Rigor y Transparencia**: Distinguir explícitamente entre componentes implementados \`[Encontrado]\`, deducciones arquitectónicas \`[Inferido]\` y mejoras normativas \`[Recomendado]\`.`
+                    `### Objetivos del Documento`,
+                    `- **Comprensión Contextual**: Reflejar con fidelidad qué es **${sem.entityName}**, qué problemática atiende y a quién beneficia.`,
+                    `- **Claridad Técnica**: Documentar cómo están organizados los archivos y tecnologías del repositorio sin confundir las herramientas de construcción con el propósito institucional.`
                 ].join('\n'),
                 subsections: [
-                    { title: 'Propósito Ejecutivo y Audiencia', content: 'Dirigido a equipos de Arquitectura, Ingeniería Backend/Frontend, DevOps/SRE y Seguridad.' },
-                    { title: 'Resumen de Evidencia del Repositorio', content: `Se inspeccionaron ${metadata.relevantFilesCount} módulos, ${endpoints.length} endpoints y ${dataDictionary.length} atributos de datos.` }
+                    { title: 'Naturaleza del Proyecto y Público Objetivo', content: sem.projectNature?.targetBeneficiaries || 'Dirigido a los usuarios y beneficiarios reales del proyecto.' },
+                    { title: 'Resumen de Archivos del Repositorio', content: `Se analizaron ${metadata.relevantFilesCount} archivo(s) en la rama ${metadata.branch}.` }
                 ],
                 tables: [stackTable],
                 diagrams: [],
                 callouts: [
                     {
                         type: 'NOTE',
-                        title: 'Criterio de Veracidad Técnica (Anti-Alucinación)',
-                        text: `Toda afirmación técnica en este entregable ha sido auditada por el motor de calidad DocuMind AI (Puntaje de Calidad: ${metadata.qualityScore}% — Grado ${metadata.qualityGrade}).`
+                        title: 'Análisis Contextual y Veracidad',
+                        text: `Este documento distingue entre la finalidad real de ${sem.entityName} (${sem.categoryLabel}) y las tecnologías utilizadas en su repositorio.`
                     }
                 ]
             });
@@ -404,37 +413,35 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
 
             const objectivesTable = registerTable({
                 id: 'tbl-pres-identification',
-                title: 'Ficha Técnica de Identificación del Proyecto (Evidencia Real)',
-                headers: ['Atributo del Proyecto', 'Detalle Verificado en el Repositorio', 'Estado de Evidencia'],
+                title: 'Ficha de Identificación Contextual y Técnica del Proyecto',
+                headers: ['Atributo del Proyecto', 'Detalle en el Repositorio', 'Categoría / Alcance'],
                 rows: [
-                    ['Nombre del Proyecto', projectName, '[Información verificada]'],
-                    ['Repositorio / Rama', `${fullName} (${branch})`, '[Información verificada]'],
-                    ['Lenguaje Principal', metadata.primaryLanguage, '[Información verificada]'],
-                    ['Tecnologías Detectadas', detectedTechnologies.join(', '), '[Información verificada]'],
-                    ['Archivos Examinados', `${metadata.relevantFilesCount} archivos relevantes`, '[Información verificada]'],
-                    ['Endpoints / Modelos', `${endpoints.length} endpoints HTTP / ${dataDictionary.length} atributos de datos`, '[Información verificada]'],
-                    ['Puntuación de Seguridad', `${metadata.securityScore}/100 (${sec.classification || 'Seguridad alta'})`, '[Información verificada]']
+                    ['Nombre / Entidad', sem.entityName || projectName, sem.categoryLabel],
+                    ['Repositorio / Rama', `${fullName} (${branch})`, `${metadata.relevantFilesCount} archivo(s)`],
+                    ['Naturaleza del Proyecto', sem.projectNature?.whatItIs || sem.categoryLabel, 'Propósito Principal'],
+                    ['Implementación Técnica', detectedTechnologies.join(', '), 'Herramientas Utilizadas'],
+                    ['Puntuación de Seguridad', `${metadata.securityScore}/100 (${sec.classification || 'Seguridad alta'})`, 'Security Intelligence']
                 ]
             });
 
             rawSections.push({
                 id: 'sec-presentation',
                 title: 'Documento Formal de Presentación del Proyecto (19 Secciones)',
-                standardRef: 'Ingeniería de Software & ISO/IEC/IEEE 15288',
-                summary: `Presentación ejecutiva, contexto, planteamiento del problema, justificación, objetivo general y específicos, alcance, limitaciones, metodología, tecnologías, arquitectura y conclusiones de ${projectName}.`,
+                standardRef: 'Análisis Contextual & Ingeniería Documental',
+                summary: `Presentación integral, naturaleza del proyecto, problemática, justificación, objetivos, alcance, metodología, tecnologías y conclusiones de ${sem.entityName || projectName}.`,
                 contentMarkdown: stripRawMermaidBlocks(presMd),
                 subsections: [
-                    { title: 'Identificación, Introducción y Planteamiento del Problema', content: 'Contexto real, antecedentes y justificación técnica, académica, organizacional y operativa.' },
-                    { title: 'Objetivos, Alcance, Limitaciones y Metodología', content: 'Objetivo general, objetivos específicos verificables, alcance y metodología basada en evidencia.' },
-                    { title: 'Tecnologías, Arquitectura, Resultados y Conclusiones', content: 'Stack tecnológico, arquitectura general, resultados esperados y referencias.' }
+                    { title: 'Naturaleza del Proyecto, Introducción y Problemática', content: 'Propósito real, población beneficiaria y contexto.' },
+                    { title: 'Objetivos, Alcance y Metodología', content: 'Objetivo general, objetivos específicos y líneas de trabajo.' },
+                    { title: 'Implementación Técnica, Resultados y Conclusiones', content: 'Herramientas empleadas, resultados y conclusiones.' }
                 ],
                 tables: [objectivesTable],
                 diagrams: [],
                 callouts: [
                     {
                         type: 'IMPORTANT',
-                        title: 'Documento Basado en Evidencia del Repositorio',
-                        text: `Los objetivos, alcance, limitaciones y conclusiones han sido formulados directamente a partir de los ${metadata.relevantFilesCount} archivos y ${endpoints.length} endpoints reales de ${fullName}.`
+                        title: 'Documento Adaptado a la Naturaleza del Proyecto',
+                        text: `El contenido se adapta a la categoría "${sem.categoryLabel}" a partir de la información disponible en ${fullName}.`
                     }
                 ]
             });
@@ -487,7 +494,7 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                         t.likelihood || 'Media',
                         t.recommendedControl || t.mitigation || ''
                     ])
-                    : [['STRIDE-01', 'Spoofing / Tampering', projectName, 'Evaluación general de frontera', 'Media', 'Autenticación OAuth y validación de entradas']]
+                    : [['STRIDE-01', 'Spoofing / Tampering', projectName, 'Evaluación general de frontera', 'Media', 'Autenticación y validación de entradas']]
             });
 
             rawSections.push({
@@ -517,36 +524,42 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             const storiesRows = userStories.length > 0
                 ? userStories.map((st, idx) => [
                     `US-0${idx + 1}`,
-                    st.role || 'Usuario / Ingeniero',
-                    `Quiero ${st.action || 'operar el módulo'} para ${st.goal || 'obtener valor técnico'}`,
-                    st.acceptanceCriteria || 'Respuesta HTTP 200 y validación de esquema exitosa'
+                    st.role || 'Actor / Beneficiario',
+                    `Quiero ${st.action || 'acceder al proyecto'} para ${st.goal || 'cumplir mi necesidad'}`,
+                    st.acceptanceCriteria || 'Criterio verificable en el repositorio'
                 ])
-                : [
-                    ['US-01', 'Ingeniero de Software / Usuario', `Ejecutar las operaciones principales de ${projectName} de forma fiable`, 'El sistema procesa la solicitud validando parámetros y retorna estado consistente [Encontrado]'],
-                    ['US-02', 'Administrador / Integrador API', `Consumir los servicios expuestos (${endpoints.length || 1}+ rutas) con trazabilidad`, 'Autenticación verificada, cabeceras seguras y manejo estructurado de errores [Encontrado]'],
-                    ['US-03', 'Auditor DevSecOps / QA', 'Verificar la integridad, seguridad y rendimiento de la plataforma', 'Cumplimiento de controles OWASP y ejecución determinista de pruebas [Inferido]']
-                ];
+                : (sem.isNonSoftwareInstitutional
+                    ? [
+                        ['BEN-01', 'Población Beneficiaria / Comunidad', `Conocer los programas, ejes temáticos y actividades de ${sem.entityName}`, 'Información clara y accesible en el portal institucional'],
+                        ['DON-02', 'Donante / Cooperante / Aliado', 'Consultar proyectos ejecutados e informes de transparencia y rendición de cuentas', 'Sección de proyectos y estados financieros disponibles'],
+                        ['VOL-03', 'Voluntariado / Ciudadanía', 'Contactar a la organización para colaborar o solicitar orientación', 'Canales de contacto y formulario visibles']
+                    ]
+                    : [
+                        ['US-01', 'Usuario del Sistema', `Utilizar las capacidades principales de ${projectName} de forma fiable`, 'El proyecto procesa la solicitud validando parámetros y retorna estado consistente'],
+                        ['US-02', 'Administrador / Integrador', `Interactuar con los módulos y servicios expuestos (${endpoints.length || 1}+ rutas)`, 'Manejo estructurado de entradas y respuestas'],
+                        ['US-03', 'Equipo Técnico / QA', 'Verificar la integridad, seguridad y mantenibilidad del proyecto', 'Cumplimiento de controles de seguridad y pruebas']
+                    ]);
 
             const storiesTable = registerTable({
                 id: 'tbl-user-stories',
-                title: 'Matriz de Historias de Usuario y Criterios de Aceptación (Gherkin / Agile)',
-                headers: ['ID', 'Rol / Actor', 'Historia de Usuario (Acción y Beneficio)', 'Criterios de Aceptación Verificables'],
+                title: 'Matriz de Actores, Escenarios de Uso y Criterios de Aceptación',
+                headers: ['ID', 'Rol / Actor', 'Necesidad o Escenario (Acción y Beneficio)', 'Criterio de Verificación'],
                 rows: storiesRows
             });
 
             rawSections.push({
                 id: 'sec-prd',
                 title: 'Requerimientos de Producto (PRD & SRS IEEE 830)',
-                standardRef: 'ISO/IEC/IEEE 29148 & Agile PRD Standard',
-                summary: `Visión del producto, propuesta de valor, perfiles de usuario, historias de usuario y alcance funcional de ${projectName}.`,
-                contentMarkdown: stripRawMermaidBlocks(doc.product?.prd || '') + (
-                    normalizedScope === 'all' && doc.product?.srs
-                        ? `\n\n### Especificación Formal de Requisitos (IEEE 830)\n\n${stripRawMermaidBlocks(doc.product.srs)}`
+                standardRef: 'ISO/IEC/IEEE 29148 & Análisis Contextual',
+                summary: `Propósito del proyecto, problemática atendida, población objetivo, actividades/funcionalidades y alcance de ${sem.entityName || projectName}.`,
+                contentMarkdown: stripRawMermaidBlocks(doc.product?.prd || doc.prd || '') + (
+                    normalizedScope === 'all' && (doc.product?.srs || doc.srs)
+                        ? `\n\n### Especificación de Requisitos y Alcance\n\n${stripRawMermaidBlocks(doc.product?.srs || doc.srs)}`
                         : ''
                 ),
                 subsections: [
-                    { title: 'Visión del Producto y Valor de Negocio', content: 'Alineación entre capacidades técnicas implementadas y objetivos operativos.' },
-                    { title: 'Historias de Usuario y Criterios de Aceptación', content: 'Escenarios funcionales derivados de los controladores y vistas del sistema.' }
+                    { title: 'Propósito del Proyecto y Problemática Abordada', content: 'Alineación entre la naturaleza del proyecto y sus actividades reales.' },
+                    { title: 'Actores, Beneficiarios y Escenarios de Uso', content: 'Perfiles identificados a partir del contenido del repositorio.' }
                 ],
                 tables: [storiesTable],
                 diagrams: [],
@@ -559,11 +572,11 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-srs',
                 title: 'Especificación Formal de Requisitos de Software (SRS IEEE 830)',
                 standardRef: 'IEEE Std 830-1998 / ISO 29148',
-                summary: 'Catálogo estructurado de requisitos funcionales (RF), requisitos no funcionales (RNF) y criterios de verificación.',
-                contentMarkdown: stripRawMermaidBlocks(doc.product?.srs || ''),
+                summary: 'Catálogo estructurado de componentes, actividades o requisitos y criterios de verificación.',
+                contentMarkdown: stripRawMermaidBlocks(doc.product?.srs || doc.srs || ''),
                 subsections: [
-                    { title: 'Requisitos Funcionales (RF)', content: 'Capacidades verificables en los módulos y endpoints del repositorio.' },
-                    { title: 'Requisitos No Funcionales (RNF)', content: 'Atributos de seguridad, rendimiento, mantenibilidad y portabilidad.' }
+                    { title: 'Actividades y Requisitos Funcionales', content: 'Elementos verificables en los archivos del repositorio.' },
+                    { title: 'Atributos de Calidad y Requisitos No Funcionales', content: 'Seguridad, accesibilidad, mantenibilidad y disponibilidad.' }
                 ],
                 tables: [],
                 diagrams: [],
@@ -582,12 +595,12 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
 
             const compTable = registerTable({
                 id: 'tbl-arch-components',
-                title: 'Matriz de Capas Arquitectónicas, Componentes y Responsabilidades',
-                headers: ['Capa / Nivel C4', 'Componente / Módulo', 'Tecnología Asociada', 'Responsabilidad Técnica'],
+                title: 'Matriz de Estructura Técnica, Componentes y Responsabilidades',
+                headers: ['Vista / Nivel', 'Componente / Archivo', 'Tecnología Asociada', 'Rol en el Proyecto'],
                 rows: [
-                    ['Nivel 1 — Contexto', `Sistema ${projectName}`, metadata.primaryLanguage, stripRawMermaidBlocks(doc.architecture?.c4Context || 'Frontera principal del sistema e interacción con actores externos [Encontrado].')],
-                    ['Nivel 2 — Contenedores', 'Servidor de Aplicación & UI', detectedTechnologies.slice(0, 3).join(', '), stripRawMermaidBlocks(doc.architecture?.c4Container || 'Unidades de despliegue, transporte HTTP y almacenamiento [Encontrado].')],
-                    ['Nivel 3 — Componentes', 'Controladores, Servicios y Motores', detectedTechnologies.join(', '), stripRawMermaidBlocks(doc.architecture?.c4Component || 'Descomposición modular interna y separación de responsabilidades [Encontrado].')]
+                    ['Nivel 1 — Contexto', `${sem.entityName || projectName}`, metadata.primaryLanguage, stripRawMermaidBlocks(doc.architecture?.c4Context || `${sem.projectNature?.whatItIs || 'Interacción con visitantes y usuarios del proyecto.'}`)],
+                    ['Nivel 2 — Contenedor', sem.isStaticWebsite ? 'Sitio Web Estático' : 'Aplicación & Servicios', detectedTechnologies.slice(0, 3).join(', '), stripRawMermaidBlocks(doc.architecture?.c4Container || sem.technicalImplementation?.roleSummary || 'Estructura técnica empleada para presentar o ejecutar el proyecto.')],
+                    ['Nivel 3 — Componentes', 'Archivos y Secciones del Repositorio', detectedTechnologies.join(', '), stripRawMermaidBlocks(doc.architecture?.c4Component || 'Organización interna de los archivos del repositorio.')]
                 ]
             });
 
@@ -595,27 +608,30 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-arch',
                 title: 'Arquitectura de Software & Modelo C4',
                 standardRef: 'ISO/IEC/IEEE 42010 • Modelo C4 • OMG UML 2.5',
-                summary: `Descripción general del sistema, descomposición en niveles C4 (Contexto, Contenedores, Componentes), modelo UML de clases y secuencia de ejecución.`,
+                summary: `Descripción de la implementación técnica del repositorio, separando el propósito del proyecto de las herramientas utilizadas.`,
                 contentMarkdown: [
-                    `### Visión General de la Arquitectura`,
-                    stripRawMermaidBlocks(doc.architecture?.overview || `El sistema **${projectName}** implementa una arquitectura modular sobre **${detectedTechnologies.join(', ')}** [Encontrado].`),
+                    `### Separación entre Naturaleza del Proyecto e Implementación Técnica`,
+                    `${sem.technicalImplementation?.roleSummary || ''}`,
                     ``,
-                    `### Análisis de Niveles C4 (Contexto, Contenedores y Componentes)`,
-                    `- **Vista de Contexto (Nivel 1)**: ${stripRawMermaidBlocks(doc.architecture?.c4Context || `Define la interacción de usuarios y sistemas externos con ${projectName}.`)}`,
-                    `- **Vista de Contenedores (Nivel 2)**: ${stripRawMermaidBlocks(doc.architecture?.c4Container || `Describe el runtime principal en ${metadata.primaryLanguage}, la capa de interfaz y la persistencia.`)}`,
-                    `- **Vista de Componentes (Nivel 3)**: ${stripRawMermaidBlocks(doc.architecture?.c4Component || `Detalla los routers, controladores, analizadores y generadores internos.`)}`
+                    `### Estructura Técnica Observada`,
+                    stripRawMermaidBlocks(typeof doc.architecture === 'string' ? doc.architecture : (doc.architecture?.overview || `El repositorio **${projectName}** utiliza **${detectedTechnologies.join(', ')}**.`)),
+                    ``,
+                    `### Vistas de Contexto, Contenedor y Componentes`,
+                    `- **Vista de Contexto (Nivel 1)**: ${stripRawMermaidBlocks(doc.architecture?.c4Context || `Interacción de los destinatarios con ${sem.entityName || projectName}.`)}`,
+                    `- **Vista de Contenedores (Nivel 2)**: ${stripRawMermaidBlocks(doc.architecture?.c4Container || `Implementación sobre ${metadata.primaryLanguage}.`)}`,
+                    `- **Vista de Componentes (Nivel 3)**: ${stripRawMermaidBlocks(doc.architecture?.c4Component || `Organización de archivos y módulos del repositorio.`)}`
                 ].join('\n'),
                 subsections: [
-                    { title: 'Modelo C4: Contexto, Contenedores y Componentes', content: 'Representación jerárquica de la arquitectura estática y dinámica.' },
-                    { title: 'Modelado UML 2.5: Clases y Secuencia de Ejecución', content: 'Contratos estructurales entre módulos y trazabilidad cronológica de peticiones.' }
+                    { title: 'Vistas Estructurales (Contexto, Contenedor y Componentes)', content: 'Representación de cómo está construido y presentado el repositorio.' },
+                    { title: 'Diagramas de Interacción', content: 'Flujo de consulta o ejecución según los archivos reales.' }
                 ],
                 tables: [compTable],
                 diagrams: archDiagrams,
                 callouts: [
                     {
                         type: 'IMPORTANT',
-                        title: 'Coherencia Arquitectónica Verificada',
-                        text: 'Los diagramas incluidos en esta sección han sido generados a partir de los componentes, rutas y tecnologías reales detectadas en el repositorio.'
+                        title: 'Distinción entre Propósito y Tecnología',
+                        text: sem.technicalImplementation?.roleSummary || 'Las tecnologías se describen como las herramientas empleadas para construir o presentar el proyecto.'
                     }
                 ]
             });
@@ -629,38 +645,38 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                     d.field || 'id',
                     d.type || 'VARCHAR',
                     d.isPk ? 'PK (Clave Primaria)' : (d.required ? 'NOT NULL' : 'NULLABLE'),
-                    d.description || 'Atributo de persistencia verificado en el modelo de datos'
+                    d.description || 'Atributo definido en el modelo de datos'
                 ])
-                : [
-                    ['projects', 'id', 'UUID', 'PK / NOT NULL', 'Identificador único del proyecto analizado [Inferido]'],
-                    ['projects', 'name', 'VARCHAR(255)', 'NOT NULL', 'Nombre técnico del repositorio o sistema [Encontrado]'],
-                    ['projects', 'metadata_json', 'JSONB', 'NOT NULL', 'Estructura consolidada de métricas, tecnologías y estado [Encontrado]'],
-                    ['documents', 'id', 'UUID', 'PK / NOT NULL', 'Identificador único del entregable documental generado [Inferido]'],
-                    ['documents', 'scope', 'VARCHAR(64)', 'NOT NULL', 'Tipo de documento (all, prd, srs, arch, api, sec) [Encontrado]']
-                ];
+                : (sem.isNonSoftwareInstitutional
+                    ? [
+                        ['Sitio Estático', 'Contenido HTML', 'HTML5 / Texto', 'Estático', `El repositorio de ${sem.entityName} es un sitio web informativo estático y no utiliza base de datos.`]
+                    ]
+                    : [
+                        ['Estado en Memoria / Archivos', 'Configuración y Datos', 'JSON / Memoria', 'Sin Motor SQL/ORM', 'No se detectaron tablas SQL ni esquemas ORM dedicados en los archivos analizados.']
+                    ]);
 
             const dbTable = registerTable({
                 id: 'tbl-data-dictionary',
-                title: 'Diccionario de Datos Técnico y Especificación de Atributos (ISO/IEC 11179)',
-                headers: ['Entidad / Tabla', 'Campo / Atributo', 'Tipo de Dato', 'Restricción / Clave', 'Descripción Técnica'],
+                title: 'Estructura de Información y Diccionario de Datos (ISO/IEC 11179)',
+                headers: ['Entidad / Origen', 'Campo / Elemento', 'Tipo', 'Carácter', 'Descripción'],
                 rows: dictRows
             });
 
             rawSections.push({
                 id: 'sec-db',
                 title: 'Modelos de Datos & Diccionario de Base de Datos',
-                standardRef: 'ISO/IEC 11179 & Modelo Entidad-Relación (ERD)',
-                summary: 'Arquitectura de persistencia, diagrama Entidad-Relación (ERD), diccionario de datos y políticas de integridad.',
+                standardRef: 'ISO/IEC 11179 & Modelo de Información',
+                summary: 'Evaluación de persistencia, organización de la información y diccionario de datos cuando aplica.',
                 contentMarkdown: [
-                    `### Arquitectura de Persistencia y Gestión de Estado`,
-                    stripRawMermaidBlocks(doc.database?.overview || `El modelo de datos de **${projectName}** estructura las entidades principales del dominio garantizando integridad tipada y validación de esquemas.`),
+                    `### Gestión de Información y Persistencia`,
+                    stripRawMermaidBlocks(typeof doc.database === 'string' ? doc.database : (doc.database?.overview || `Evaluación de almacenamiento de datos para **${projectName}**.`)),
                     dataDictionary.length === 0
-                        ? `\n> **Nota de Transparencia Técnica**: No se detectaron migraciones SQL directas en la raíz; se documentan las entidades lógicas y estructuras de datos persistidas por la aplicación \`[Inferido]\`.`
-                        : `\nSe identificaron **${dataDictionary.length} atributos/campos** distribuidos en las entidades del sistema \`[Encontrado]\`.`
+                        ? `\n> **Nota Técnica**: El repositorio no incluye motores de base de datos ni migraciones SQL; la información se presenta directamente a través de los archivos del proyecto.`
+                        : `\nSe identificaron **${dataDictionary.length} atributos/campos** en las entidades del repositorio.`
                 ].join('\n'),
                 subsections: [
-                    { title: 'Diagrama Entidad-Relación (ERD)', content: 'Topología visual de entidades, claves primarias (PK) y relaciones.' },
-                    { title: 'Diccionario de Datos Detallado', content: 'Definición atributo por atributo de tipos y restricciones.' }
+                    { title: 'Organización de Datos e Información', content: 'Estructura de las entidades o secciones informativas del proyecto.' },
+                    { title: 'Diccionario de Datos', content: 'Detalle de los campos o contenidos identificados.' }
                 ],
                 tables: [dbTable],
                 diagrams: diagErd ? [diagErd] : [],
@@ -673,31 +689,31 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 ? endpoints.map(ep => [
                     ep.method || 'GET',
                     ep.path || '/',
-                    ep.requiresAuth ? 'Requerida (JWT / Bearer)' : 'Pública / Rate-Limited',
-                    ep.description || 'Controlador HTTP verificado en el enrutador del proyecto [Encontrado]'
+                    ep.requiresAuth ? 'Requerida (JWT / Bearer)' : 'Pública',
+                    ep.description || 'Ruta identificada en el proyecto'
                 ])
                 : [
-                    ['POST', '/api/project/analyze', 'Rate-Limited', 'Ejecuta el pipeline de análisis técnico y generación documental [Encontrado]'],
-                    ['POST', '/api/project/export/:format', 'Rate-Limited', 'Genera y descarga directamente el entregable en formato DOCX, PDF, HTML, MD, JSON o TXT [Encontrado]'],
-                    ['GET', '/api/ai/diagnostics', 'Pública / Monitoreo', 'Retorna telemetría operativa del motor de IA y presupuesto de tokens [Encontrado]']
+                    ['N/A', 'Sin endpoints de backend', 'N/A', sem.isNonSoftwareInstitutional
+                        ? `El repositorio aloja el portal web estático de ${sem.entityName} y no expone APIs ni servicios backend.`
+                        : 'No se detectaron rutas HTTP/REST expuestas en los archivos analizados.']
                 ];
 
             const apiTable = registerTable({
                 id: 'tbl-api-endpoints',
-                title: 'Catálogo de Endpoints HTTP y Contratos de Interfaz (OpenAPI 3.0.3)',
-                headers: ['Método HTTP', 'Ruta / Endpoint', 'Autenticación / Seguridad', 'Descripción y Comportamiento Técnico'],
+                title: 'Inventario de Interfaces HTTP / Endpoints',
+                headers: ['Método', 'Ruta / Recurso', 'Acceso', 'Descripción'],
                 rows: epRows
             });
 
             const codeSnippets = [];
-            if (doc.api?.openApiJson) {
+            if (doc.api?.openApiJson && endpoints.length > 0) {
                 const jsonPreview = typeof doc.api.openApiJson === 'string'
                     ? doc.api.openApiJson
                     : JSON.stringify(doc.api.openApiJson, null, 2);
                 codeSnippets.push({
                     language: 'json',
-                    title: 'Especificación de Contrato OpenAPI 3.0.3 (Extracto Verificado)',
-                    explanation: 'Esquema formal de rutas y metadatos OpenAPI extraído de los controladores del sistema.',
+                    title: 'Especificación de Contrato OpenAPI 3.0.3',
+                    explanation: 'Esquema OpenAPI extraído de los enrutadores del repositorio.',
                     code: jsonPreview.slice(0, 1400)
                 });
             }
@@ -706,17 +722,17 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-api',
                 title: 'Catálogo de APIs & Especificación de Contratos',
                 standardRef: 'OpenAPI Specification (OAS) 3.0.3 & RFC 9110',
-                summary: `Inventario de endpoints RESTful (${endpoints.length || epRows.length} rutas), semántica HTTP, controles de acceso y contrato OpenAPI.`,
+                summary: endpoints.length > 0
+                    ? `Inventario de endpoints RESTful (${endpoints.length} rutas) y contrato OpenAPI.`
+                    : `Verificación de interfaces HTTP (0 endpoints de backend detectados).`,
                 contentMarkdown: [
-                    `### Arquitectura de Interfaces y Contratos HTTP`,
-                    stripRawMermaidBlocks(doc.api?.overview || `La capa de transporte expone servicios estructurados bajo convenciones REST, utilizando serialización JSON UTF-8, validación de payloads y códigos de estado HTTP estándar.`),
-                    ``,
-                    `### Políticas de Comunicación y Manejo de Errores`,
-                    `- **Respuestas Exitosas (\`200 OK\` / \`201 Created\`)**: Retornan estructuras JSON deterministas o flujos binarios con cabeceras \`Content-Disposition\` apropiadas.`,
-                    `- **Errores de Cliente (\`400 Bad Request\` / \`404 Not Found\` / \`429 Too Many Requests\`)**: Informan causas específicas sin exponer trazas internas de pila (*stack traces*).`
+                    `### Interfaces de Comunicación`,
+                    stripRawMermaidBlocks(doc.api?.overview || doc.apiView || (endpoints.length > 0
+                        ? `El proyecto expone ${endpoints.length} rutas HTTP estructuradas.`
+                        : `El repositorio analizado no implementa un servidor de APIs RESTful ni rutas de backend.`))
                 ].join('\n'),
                 subsections: [
-                    { title: 'Inventario de Endpoints Detectados', content: 'Listado completo de métodos, rutas y requisitos de autorización.' }
+                    { title: 'Inventario de Rutas Detectadas', content: 'Resultado de la inspección de controladores y archivos del repositorio.' }
                 ],
                 tables: [apiTable],
                 diagrams: [],
@@ -734,16 +750,14 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-eda',
                 title: 'Arquitectura Orientada a Eventos (EDA) y Flujos Asíncronos',
                 standardRef: 'AsyncAPI 2.6 & CloudEvents Pattern',
-                summary: 'Evaluación de desacoplamiento asíncrono, productores, consumidores, contratos de eventos y resiliencia operativa.',
+                summary: 'Evaluación de procesamiento de eventos y flujos asíncronos.',
                 contentMarkdown: [
-                    `### Evaluación de Capacidades Orientadas a Eventos`,
+                    `### Evaluación de Procesamiento de Eventos`,
                     isImplemented
-                        ? `El repositorio implementa patrones de notificación y procesamiento de eventos \`[Encontrado]\`, desacoplando los emisores de las tareas de procesamiento intensivo.`
-                        : `El sistema opera principalmente bajo un modelo petición-respuesta síncrono \`[Encontrado]\`. A continuación se documenta la topología de desacoplamiento asíncrono y manejo de eventos aplicable como evolución arquitectónica \`[Recomendado]\`.`,
-                    ``,
-                    `### Garantías de Entrega y Resiliencia`,
-                    `- **Idempotencia**: Cada evento o tarea de análisis se identifica mediante claves hash deterministas (SHA-256) para evitar reprocesamiento duplicado.`,
-                    `- **Manejo de Fallos y Reintentos**: Aplicación de *Exponential Backoff* con *Jitter* ante límites de cuota (HTTP 429) o fallos transitorios de red.`
+                        ? `El repositorio implementa emisores y consumidores de eventos para desacoplar operaciones asíncronas.`
+                        : (sem.isNonSoftwareInstitutional
+                            ? `Dado que el repositorio corresponde al portal web estático de **${sem.entityName}** (${sem.categoryLabel}), no requiere ni utiliza buses de eventos ni colas de mensajería de servidor.`
+                            : `El proyecto opera mediante flujo directo sin un bus de mensajería distribuido dedicado en los archivos analizados.`)
                 ].join('\n'),
                 subsections: [],
                 tables: [],
@@ -757,15 +771,15 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             rawSections.push({
                 id: 'sec-devops',
                 title: 'Guía de Desarrollo, DevOps & Despliegue CI/CD',
-                standardRef: 'Twelve-Factor App • CI/CD & Cloud Runbook',
-                summary: 'Configuración de entorno local, pipeline de integración continua, topología de despliegue y procedimientos operativos.',
+                standardRef: 'Publicación, Mantenimiento & Operación',
+                summary: 'Configuración de publicación, mantenimiento de archivos y despliegue del repositorio.',
                 contentMarkdown: [
-                    `### Pipeline de Integración y Entrega Continua (CI/CD)`,
-                    stripRawMermaidBlocks(doc.devops?.ciCdPipeline || 'Automatización de pruebas, análisis estático de seguridad y despliegue continuo desde la rama principal.'),
+                    `### Publicación y Entrega`,
+                    stripRawMermaidBlocks(typeof doc.devops === 'string' ? doc.devops : (doc.devops?.ciCdPipeline || 'Gestión de versiones y publicación desde la rama principal del repositorio.')),
                     ``,
-                    `### Manual de Despliegue y Operación Productiva`,
-                    stripRawMermaidBlocks(doc.devops?.deploymentGuide || 'Ejecución sobre contenedor Node.js con configuración inyectada mediante variables de entorno seguras.'),
-                    doc.development?.readme ? `\n### Guía Técnica de Desarrollo y Mantenimiento\n${stripRawMermaidBlocks(doc.development.readme)}` : ''
+                    `### Guía de Despliegue y Mantenimiento`,
+                    stripRawMermaidBlocks(doc.devops?.deploymentGuide || 'Procedimiento de publicación a partir de los archivos del repositorio.'),
+                    doc.development?.readme ? `\n### Documentación de Mantenimiento (README)\n${stripRawMermaidBlocks(doc.development.readme)}` : ''
                 ].join('\n'),
                 subsections: [],
                 tables: [],
@@ -778,30 +792,29 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             const qaRows = testCases.length > 0
                 ? testCases.map((tc, i) => [
                     tc.id || `TC-0${i + 1}`,
-                    tc.title || 'Caso de prueba funcional',
-                    tc.preconditions || 'Entorno inicializado y datos válidos',
-                    tc.expectedResult || 'Operación completada sin errores',
-                    tc.status || 'Definido / Verificable'
+                    tc.title || 'Caso de verificación',
+                    tc.preconditions || 'Archivos del proyecto disponibles',
+                    tc.expectedResult || 'Funcionamiento correcto',
+                    tc.status || 'Definido'
                 ])
                 : [
-                    ['TC-01', 'Validación de análisis y generación documental', 'Repositorio o archivos de entrada válidos', 'Modelo unificado generado con 0 secciones vacías', 'Verificable [Encontrado]'],
-                    ['TC-02', 'Exportación directa a Word (.docx) y PDF (.pdf)', 'Documento compilado en memoria', 'Descarga binaria directa con cabeceras válidas (PK / %PDF)', 'Verificable [Encontrado]'],
-                    ['TC-03', 'Resiliencia ante entradas inválidas o límites de cuota', 'Petición malformada o error 429 simulado', 'Respuesta controlada con fallback determinista sin caída del servidor', 'Verificable [Encontrado]']
+                    ['TC-01', 'Verificación de integridad de archivos del repositorio', 'Rama principal disponible', 'Archivos cargados sin errores de sintaxis', 'Definido'],
+                    ['TC-02', 'Verificación de enlaces, recursos y presentación', 'Entorno o navegador activo', 'Secciones y recursos accesibles correctamente', 'Definido']
                 ];
 
             const qaTable = registerTable({
                 id: 'tbl-qa-matrix',
-                title: 'Matriz de Casos de Prueba y Verificación de Calidad (ISO/IEC/IEEE 29119)',
-                headers: ['ID Caso', 'Objetivo / Escenario de Prueba', 'Precondiciones', 'Resultado Esperado', 'Estado / Nivel'],
+                title: 'Matriz de Verificación y Aseguramiento de Calidad',
+                headers: ['ID Caso', 'Objetivo / Escenario', 'Precondiciones', 'Resultado Esperado', 'Estado'],
                 rows: qaRows
             });
 
             rawSections.push({
                 id: 'sec-qa',
                 title: 'Plan de Aseguramiento de Calidad (QA) & Casos de Prueba',
-                standardRef: 'ISO/IEC/IEEE 29119 Software Testing',
-                summary: 'Estrategia de pruebas unitarias, de integración, validación de contratos de exportación y matriz de casos de prueba.',
-                contentMarkdown: stripRawMermaidBlocks(doc.qa?.testPlan || `El plan de aseguramiento de calidad de **${projectName}** valida la integridad funcional de los endpoints, la exactitud del motor documental y la ausencia de regresiones.`),
+                standardRef: 'ISO/IEC 25010 & Verificación de Calidad',
+                summary: 'Criterios de calidad, accesibilidad, integridad funcional y casos de verificación.',
+                contentMarkdown: stripRawMermaidBlocks(typeof doc.qa === 'string' ? doc.qa : (doc.qa?.testPlan || `Evaluación de calidad para **${sem.entityName || projectName}**.`)),
                 subsections: [],
                 tables: [qaTable],
                 diagrams: [],
@@ -822,12 +835,12 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                     v.remediation || v.recommendation || 'Aplicar sanitización y validación estricta'
                 ])
                 : [
-                    ['SEC-AUDIT-01', 'INFO', 'A05:2021 Security Misconfiguration', 'Configuración HTTP', 'No se detectaron vulnerabilidades críticas activas en el análisis SAST', 'Mantener cabeceras Helmet CSP, CORS restrictivo y Rate-Limiting activos [Encontrado]']
+                    ['SEC-AUDIT-01', 'INFO', 'A05:2021 Security Misconfiguration', 'Archivos analizados', 'No se detectaron vulnerabilidades críticas activas en el análisis estático', 'Mantener buenas prácticas de configuración y revisión periódica']
                 ];
 
             secTables.push(registerTable({
                 id: 'tbl-sec-vulns',
-                title: 'Matriz de Hallazgos SAST y Auditoría OWASP Top 10:2021',
+                title: 'Matriz de Hallazgos SAST y Auditoría OWASP Top 10',
                 headers: ['ID', 'Severidad', 'Categoría OWASP', 'Ubicación', 'Descripción del Hallazgo', 'Mitigación Técnica'],
                 rows: vulnRows
             }));
@@ -838,13 +851,13 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                     t.category || 'STRIDE',
                     t.component || projectName,
                     t.scenario || 'Escenario de amenaza evaluado',
-                    t.recommendedControl || 'Control defensivo implementado'
+                    t.recommendedControl || 'Control defensivo recomendado'
                 ])
                 : [
-                    ['STR-01', 'Spoofing (Suplantación)', 'API Gateway / Auth', 'Intento de acceso no autorizado a rutas protegidas', 'Verificación de sesión OAuth 2.0 / JWT y validación de origen [Encontrado]'],
-                    ['STR-02', 'Tampering (Manipulación)', 'Payloads de Entrada', 'Inyección de contenido malicioso o scripts en parámetros', 'Sanitización estricta, escape XML/HTML y validación de esquemas [Encontrado]'],
-                    ['STR-03', 'Information Disclosure', 'Logs y Respuestas API', 'Exposición accidental de claves API o secretos en trazas', 'Redacción automática de secretos (SecretScanner) antes de procesar prompts [Encontrado]'],
-                    ['STR-04', 'Denial of Service (DoS)', 'Endpoints de Análisis/Exportación', 'Saturación mediante solicitudes masivas concurrentes', 'Rate-Limiting por IP y límite de tamaño de payload (15 MB) [Encontrado]']
+                    ['STR-01', 'Spoofing (Suplantación)', projectName, 'Suplantación de identidad o dominio', 'Uso de HTTPS/TLS y verificación de dominio oficial'],
+                    ['STR-02', 'Tampering (Manipulación)', 'Archivos del Repositorio', 'Modificación no autorizada de contenidos o código', 'Control de acceso al repositorio Git y protección de la rama principal'],
+                    ['STR-03', 'Information Disclosure', 'Configuración y Archivos', 'Exposición accidental de credenciales o datos sensibles', 'Revisión de secretos antes de publicar cambios'],
+                    ['STR-04', 'Denial of Service (DoS)', 'Alojamiento / Servicio', 'Indisponibilidad temporal por tráfico elevado', 'Uso de CDN y alojamiento con mitigación DDoS']
                 ];
 
             secTables.push(registerTable({
@@ -857,7 +870,7 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             if (secRequirements.length > 0) {
                 secTables.push(registerTable({
                     id: 'tbl-sec-reqs',
-                    title: 'Requisitos de Seguridad de Software (OWASP ASVS)',
+                    title: 'Requisitos de Seguridad (OWASP ASVS)',
                     headers: ['ID', 'Prioridad', 'Categoría', 'Requisito de Seguridad', 'Estado'],
                     rows: secRequirements.map(r => [r.id || 'SEC', r.priority || 'Alta', r.category || 'AppSec', r.description || '', r.status || 'Verificado'])
                 }));
@@ -866,15 +879,15 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             rawSections.push({
                 id: 'sec-security',
                 title: 'Auditoría DevSecOps & Seguridad de Código (SAST)',
-                standardRef: 'OWASP Top 10:2021 • OWASP ASVS 4.0 • STRIDE',
-                summary: `Evaluación integral de ciberseguridad (Puntaje: ${metadata.securityScore}/100 — Grado ${metadata.securityGrade}), análisis SAST, modelo de amenazas STRIDE y controles de protección.`,
+                standardRef: 'OWASP Top 10 • OWASP ASVS 4.0 • STRIDE',
+                summary: `Evaluación de ciberseguridad (Puntaje: ${metadata.securityScore}/100 — Grado ${metadata.securityGrade}), análisis estático y matriz STRIDE.`,
                 contentMarkdown: [
-                    `### Postura General de Seguridad del Sistema`,
-                    stripRawMermaidBlocks(sec.summary || `El análisis estático de seguridad (SAST) sobre **${projectName}** arroja una calificación de **${metadata.securityScore}/100 (Grado ${metadata.securityGrade} — Riesgo ${metadata.securityRiskLevel})** [Encontrado].`),
+                    `### Postura General de Seguridad del Repositorio`,
+                    stripRawMermaidBlocks(typeof doc.security === 'string' ? doc.security : (sec.summary || `El análisis estático de seguridad sobre **${projectName}** registra una calificación de **${metadata.securityScore}/100 (Grado ${metadata.securityGrade} — Riesgo ${metadata.securityRiskLevel})**.`)),
                     ``,
-                    `### Controles Defensivos y Privacidad de Datos`,
-                    `- **Protección de Secretos**: Escaneo y enmascaramiento preventivo de credenciales (\`API_KEY\`, tokens JWT, claves privadas) antes de cualquier procesamiento externo.`,
-                    `- **Endurecimiento HTTP**: Uso de políticas Content-Security-Policy (CSP), limitación de tasa de peticiones (*Rate Limiting*) y validación de tipos MIME.`
+                    `### Buenas Prácticas de Protección`,
+                    `- **Prevención de Fuga de Secretos**: Ninguna clave privada ni credencial sensible debe incluirse en archivos públicos del repositorio.`,
+                    `- **Integridad del Contenido**: Mantener enlaces externos con atributos seguros (\`rel="noopener noreferrer"\`) y transporte cifrado HTTPS.`
                 ].join('\n'),
                 subsections: [],
                 tables: secTables,
@@ -887,21 +900,20 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             const adrRows = adrs.length > 0
                 ? adrs.map((a, i) => [
                     a.id || `ADR-00${i + 1}`,
-                    a.title || 'Decisión de Arquitectura',
+                    a.title || 'Decisión Técnica',
                     a.status || 'Aceptada',
-                    a.context || 'Necesidad técnica del sistema',
-                    a.decision || 'Patrón seleccionado',
-                    a.consequences || 'Mejora en mantenibilidad y cohesión'
+                    a.context || 'Contexto del proyecto',
+                    a.decision || 'Enfoque adoptado',
+                    a.consequences || 'Mayor simplicidad y mantenibilidad'
                 ])
                 : [
-                    ['ADR-001', `Adopción de ${metadata.primaryLanguage} y Arquitectura Modular`, 'Aceptada', 'Requerimiento de alta cohesión, bajo acoplamiento y mantenibilidad a largo plazo', `Estructurar el sistema sobre ${detectedTechnologies.slice(0, 3).join(', ')} con separación entre controladores y servicios`, 'Facilita pruebas automatizadas, evolución independiente y claridad documental [Encontrado]'],
-                    ['ADR-002', 'Fuente Única de Verdad para Generación y Exportación Documental', 'Aceptada', 'Evitar divergencias entre la vista previa interactiva y los archivos descargados (Word/PDF/HTML)', 'Compilar un Modelo Documental Unificado previo a la serialización multi-formato', 'Consistencia total del 100% entre previsualización A4 y entregables descargables [Encontrado]']
+                    ['ADR-001', `Uso de ${metadata.primaryLanguage} para la implementación de ${sem.entityName || projectName}`, 'Aceptada', `Responder a las necesidades reales de un proyecto de categoría "${sem.categoryLabel}"`, `Construir el repositorio empleando ${detectedTechnologies.slice(0, 3).join(', ')}`, 'Facilita el mantenimiento, la claridad estructural y la publicación directa']
                 ];
 
             const adrTable = registerTable({
                 id: 'tbl-adrs',
-                title: 'Registro de Decisiones de Arquitectura (ADR)',
-                headers: ['ID', 'Título de la Decisión', 'Estado', 'Contexto Técnico', 'Decisión Adoptada', 'Consecuencias y Trade-offs'],
+                title: 'Registro de Decisiones Técnicas y de Diseño (ADR)',
+                headers: ['ID', 'Título de la Decisión', 'Estado', 'Contexto', 'Decisión Adoptada', 'Consecuencias'],
                 rows: adrRows
             });
 
@@ -909,8 +921,8 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-adrs',
                 title: 'Decisiones de Arquitectura (ADRs)',
                 standardRef: 'MADR — Architectural Decision Records',
-                summary: 'Bitácora formal de decisiones arquitectónicas, alternativas técnicas evaluadas e implicaciones operativas.',
-                contentMarkdown: `Los **Registros de Decisión de Arquitectura (ADR)** documentan las elecciones estructurales clave realizadas en **${projectName}**, preservando el contexto racional para futuros equipos de ingeniería.`,
+                summary: 'Decisiones técnicas observadas en la construcción del repositorio.',
+                contentMarkdown: stripRawMermaidBlocks(typeof doc.adrs === 'string' ? doc.adrs : `Los **Registros de Decisión Técnica (ADR)** explican por qué se eligieron las herramientas actuales (**${detectedTechnologies.join(', ')}**) para construir o presentar **${sem.entityName || projectName}**.`),
                 subsections: [],
                 tables: [adrTable],
                 diagrams: [],
@@ -920,16 +932,16 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
 
         if (chKey === 'user') {
             const faqRows = faqList.length > 0
-                ? faqList.map((f, i) => [`FAQ-0${i + 1}`, f.question || '¿Pregunta operativa?', f.answer || 'Respuesta verificada.'])
+                ? faqList.map((f, i) => [`FAQ-0${i + 1}`, f.question || '¿Pregunta frecuente?', f.answer || 'Respuesta basada en el repositorio.'])
                 : [
-                    ['FAQ-01', `¿Cómo iniciar y operar ${projectName}?`, 'Asegúrese de configurar las variables de entorno requeridas e iniciar el servicio principal según el manual de despliegue.'],
-                    ['FAQ-02', '¿Cómo exportar los entregables técnicos a Word (.docx) o PDF (.pdf)?', 'Utilice el botón principal "Exportar documento" en la barra de acciones para descargar directamente el formato deseado sin depender de la ventana de impresión.']
+                    ['FAQ-01', `¿Qué es ${sem.entityName || projectName}?`, sem.projectNature?.whatItIs || `Es un proyecto de la categoría ${sem.categoryLabel}.`],
+                    ['FAQ-02', `¿Qué tecnologías utiliza el repositorio?`, sem.technicalImplementation?.roleSummary || `Utiliza ${detectedTechnologies.join(', ')}.`]
                 ];
 
             const faqTable = registerTable({
                 id: 'tbl-user-faq',
-                title: 'Preguntas Frecuentes (FAQ) y Guía de Resolución Rápida',
-                headers: ['Código', 'Consulta / Escenario Operativo', 'Procedimiento / Respuesta Oficial'],
+                title: 'Preguntas Frecuentes (FAQ)',
+                headers: ['Código', 'Pregunta', 'Respuesta'],
                 rows: faqRows
             });
 
@@ -937,8 +949,8 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                 id: 'sec-user',
                 title: 'Manual de Usuario Final & FAQ',
                 standardRef: 'ISO/IEC/IEEE 26514 User Documentation',
-                summary: 'Guía operativa paso a paso para usuarios finales y matriz de preguntas frecuentes (FAQ).',
-                contentMarkdown: stripRawMermaidBlocks(doc.userGuide?.guide || `Guía operativa de uso para **${projectName}**, diseñada para facilitar la adopción rápida y la resolución autónoma de dudas frecuentes.`),
+                summary: 'Guía de consulta y preguntas frecuentes adaptadas al público del proyecto.',
+                contentMarkdown: stripRawMermaidBlocks(typeof doc.userGuide === 'string' ? doc.userGuide : (doc.userGuide?.guide || `Guía de consulta para **${sem.entityName || projectName}**.`)),
                 subsections: [],
                 tables: [faqTable],
                 diagrams: [],

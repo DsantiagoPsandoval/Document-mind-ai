@@ -16,10 +16,14 @@ const {
     extractDataModels,
     buildProjectMap
 } = require('../analyzer/localAnalyzer');
+const {
+    compactHtmlForAnalysis,
+    analyzeProjectSemantics
+} = require('../analyzer/semanticClassifier');
 
 const MAX_KEY_FILES = 25;
-const MAX_TOTAL_BYTES = 220 * 1024; // 220 KB total content limit for AI synthesis
-const MAX_SINGLE_FILE_BYTES = 45 * 1024; // 45 KB per file limit
+const MAX_TOTAL_BYTES = 300 * 1024; // 300 KB total content limit for AI synthesis
+const MAX_SINGLE_FILE_BYTES = 85 * 1024; // 85 KB per file limit (with HTML style/SVG compaction)
 
 // Manifest and config files given top reading priority
 const MANIFEST_FILES = [
@@ -264,7 +268,10 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
                     cleanContent = sanitizeContent(rawContent);
                 }
 
-                const contentSnippet = cleanContent.substring(0, MAX_SINGLE_FILE_BYTES);
+                const isHtmlFile = /\.(html?|ejs|hbs)$/i.test(fileName);
+                const contentSnippet = isHtmlFile
+                    ? compactHtmlForAnalysis(cleanContent, MAX_SINGLE_FILE_BYTES)
+                    : cleanContent.substring(0, MAX_SINGLE_FILE_BYTES);
                 totalBytesFetched += contentSnippet.length;
 
                 const hash = computeFileHash(contentSnippet);
@@ -290,7 +297,7 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     }
 
     // 5. Local Static Analysis
-    const detectedLanguages = detectLanguages(relevantFiles);
+    const detectedLanguages = Array.from(new Set([...detectLanguages(relevantFiles), ...detectLanguages(prioritizedFiles)]));
     const detectedFrameworks = detectFrameworks(manifests, relevantFiles);
     const detectedDatabases = detectDatabases(manifests, relevantFiles);
     const detectedInfra = detectInfrastructure(manifests, relevantFiles);
@@ -307,12 +314,30 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
     const treeDiagram = buildTreeDiagram(relevantFiles);
     const projectMap = buildProjectMap(prioritizedFiles, allDetectedTechnologies, endpoints, dataModels);
 
+    const semanticProfile = analyzeProjectSemantics({
+        projectName: repoData.name,
+        repoDescription: repoData.description || '',
+        repository: { name: repoData.name, fullName: repoData.full_name, description: repoData.description || '' },
+        detectedLanguages,
+        detectedFrameworks,
+        detectedDatabases,
+        detectedInfra,
+        endpoints,
+        dataModels,
+        prioritizedFiles
+    });
+
+    const effectiveDescription = repoData.description
+        || semanticProfile.signals?.metaDescription
+        || semanticProfile.projectNature?.whatItIs
+        || 'Repositorio analizado por DocuMind AI.';
+
     return {
         repository: {
             name: repoData.name,
             fullName: repoData.full_name,
             owner: repoData.owner ? repoData.owner.login : owner,
-            description: repoData.description || 'Sin descripción provista por el repositorio.',
+            description: effectiveDescription,
             url: cleanUrl,
             stars: repoData.stargazers_count || 0,
             forks: repoData.forks_count || 0,
@@ -322,8 +347,14 @@ async function fetchAndAnalyzeRepo(rawUrl, branch = null) {
             primaryLanguage: repoData.language || (detectedLanguages[0] || 'Multi-lenguaje'),
             createdAt: repoData.created_at,
             updatedAt: repoData.updated_at,
-            analysisDate: new Date().toISOString()
+            analysisDate: new Date().toISOString(),
+            projectCategory: semanticProfile.category,
+            projectCategoryLabel: semanticProfile.categoryLabel,
+            entityName: semanticProfile.entityName
         },
+        projectCategory: semanticProfile.category,
+        projectCategoryLabel: semanticProfile.categoryLabel,
+        semanticProfile,
         stats: {
             totalFiles: rawTree.length,
             relevantFilesCount: relevantFiles.length,
@@ -428,20 +459,43 @@ async function fetchAndAnalyzeViaZipball(owner, repo, branch, cleanUrl) {
     const projectMap = buildProjectMap(files, allDetectedTechnologies, endpoints, dataModels);
     const treeDiagram = buildTreeDiagram(files);
 
-    const prioritizedFiles = files.slice(0, MAX_KEY_FILES).map(f => ({
-        path: f.path,
-        size: f.size,
-        category: f.category || classifyFile(f.path),
-        hash: computeFileHash(f.content || ''),
-        content: f.content
-    }));
+    const prioritizedFiles = files.slice(0, MAX_KEY_FILES).map(f => {
+        const isHtmlFile = /\.(html?|ejs|hbs)$/i.test(f.path || '');
+        const cleanBody = isHtmlFile
+            ? compactHtmlForAnalysis(f.content || '', MAX_SINGLE_FILE_BYTES)
+            : (f.content || '').substring(0, MAX_SINGLE_FILE_BYTES);
+        return {
+            path: f.path,
+            size: f.size,
+            category: f.category || classifyFile(f.path),
+            hash: computeFileHash(cleanBody),
+            content: cleanBody
+        };
+    });
+
+    const semanticProfile = analyzeProjectSemantics({
+        projectName: repo,
+        repoDescription: '',
+        repository: { name: repo, fullName: `${owner}/${repo}` },
+        detectedLanguages,
+        detectedFrameworks,
+        detectedDatabases,
+        detectedInfra,
+        endpoints,
+        dataModels,
+        prioritizedFiles
+    });
+
+    const effectiveDescription = semanticProfile.signals?.metaDescription
+        || semanticProfile.projectNature?.whatItIs
+        || `Repositorio público ${owner}/${repo}`;
 
     return {
         repository: {
             name: repo,
             fullName: `${owner}/${repo}`,
             owner: owner,
-            description: `Repositorio público ${owner}/${repo} (analizado vía descarga de código fuente directo)`,
+            description: effectiveDescription,
             url: cleanUrl,
             stars: 0,
             forks: 0,
@@ -451,8 +505,14 @@ async function fetchAndAnalyzeViaZipball(owner, repo, branch, cleanUrl) {
             primaryLanguage: detectedLanguages[0] || 'Multi-lenguaje',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            analysisDate: new Date().toISOString()
+            analysisDate: new Date().toISOString(),
+            projectCategory: semanticProfile.category,
+            projectCategoryLabel: semanticProfile.categoryLabel,
+            entityName: semanticProfile.entityName
         },
+        projectCategory: semanticProfile.category,
+        projectCategoryLabel: semanticProfile.categoryLabel,
+        semanticProfile,
         stats: {
             totalFiles: files.length,
             relevantFilesCount: files.length,

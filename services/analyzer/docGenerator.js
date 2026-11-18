@@ -1,12 +1,20 @@
 /**
- * DOCUMIND AI — COMPREHENSIVE EVIDENCE-BASED DOCUMENTATION GENERATOR
- * Generates Project Presentation (19 sections), PRD, SRS (IEEE 830 / ISO 29148),
- * Architecture (ISO 42010 & C4), Mermaid Diagrams, Database Dictionary, ERD & RLS,
- * OpenAPI 3.0.3 (JSON & YAML), DevOps & CI/CD, QA (ISO 25010), Security (ISO 27001/27002 & OWASP),
- * ADRs, and User Guides with strict evidence citations and anti-hallucination controls.
+ * DOCUMIND AI — ADAPTIVE & CONTEXT-AWARE DOCUMENTATION GENERATOR
+ * ==============================================================
+ * Understands the true nature of a repository (Foundation/Non-profit, Social
+ * Organization, Educational Institution, Research Project, Portfolio, Company,
+ * E-commerce, Dev Library, Web/Mobile App, SaaS, or Enterprise System) before
+ * generating documentation.
+ *
+ * Strictly separates:
+ *   1. Project Nature (what it is, why it exists, what problem it addresses, whom it benefits)
+ *   2. Technical Implementation (languages, tools, and files used to build or present it)
+ *
+ * Produces clean, natural, professional documentation free of bracketed verification tags.
  */
 
 const { getGenAIClient, getModelName, executeSpecializedTask } = require('../ai/geminiClient');
+const { analyzeProjectSemantics, stripVerificationTags } = require('./semanticClassifier');
 
 /**
  * Converts a JavaScript object (such as OpenAPI 3.0.3 spec) into clean YAML format.
@@ -47,7 +55,7 @@ function toYaml(obj, indent = 0) {
 }
 
 /**
- * Builds the 19-section Project Presentation Document grounded in real repository evidence.
+ * Builds the 19-section Project Presentation Document adapted to the true nature of the repository.
  */
 function buildProjectPresentationMarkdown(ctx = {}) {
     const {
@@ -67,197 +75,328 @@ function buildProjectPresentationMarkdown(ctx = {}) {
         security = {}
     } = ctx;
 
+    const sem = ctx.semanticProfile || analyzeProjectSemantics(ctx);
+    const nature = sem.projectNature || {};
+    const techImpl = sem.technicalImplementation || {};
+    const secObj = security || ctx.securityAudit || {};
+
     const files = keyFiles.length > 0 ? keyFiles : prioritizedFiles;
     const fullName = repository.fullName || projectName;
     const branch = repository.defaultBranch || repository.branch || 'main';
-    const owner = repository.owner || 'Equipo de Ingeniería';
+    const owner = repository.owner || 'Responsable del Proyecto';
     const dateStr = new Date().toISOString().split('T')[0];
-    const langStr = detectedLanguages.length > 0 ? detectedLanguages.join(', ') : (repository.primaryLanguage || 'JavaScript / Node.js');
-    const fwStr = detectedFrameworks.length > 0 ? detectedFrameworks.join(', ') : 'Ecosistema nativo del lenguaje';
-    const dbStr = detectedDatabases.length > 0 ? detectedDatabases.join(', ') : 'Sin motor de base de datos relacional/NoSQL dedicado detectado en manifiestos';
-    const infraStr = detectedInfra.length > 0 ? detectedInfra.join(', ') : 'Ejecución estándar en servidor / contenedor';
+    const langStr = detectedLanguages.length > 0 ? detectedLanguages.join(', ') : (repository.primaryLanguage || 'HTML5 / CSS3 / JavaScript');
+    const fwStr = detectedFrameworks.length > 0 ? detectedFrameworks.join(', ') : (sem.isStaticWebsite ? 'Maquetación web nativa sin frameworks adicionales' : 'Ecosistema estándar del lenguaje');
+    const dbStr = detectedDatabases.length > 0 ? detectedDatabases.join(', ') : 'Sin base de datos (no utiliza motor de persistencia)';
+    const infraStr = detectedInfra.length > 0 ? detectedInfra.join(', ') : (sem.customDomain ? `Publicación web estática bajo el dominio ${sem.customDomain}` : 'Alojamiento estándar en repositorio / servidor');
     const filesCount = stats.relevantFilesCount || stats.totalFiles || files.length || 1;
-    const topFiles = files.slice(0, 8).map(f => `\`${f.path}\``).join(', ') || '`server.js`';
+    const topFiles = files.slice(0, 8).map(f => `\`${f.path}\``).join(', ') || '`index.html`';
 
-    // Detect methodology strictly from repository evidence
+    // =========================================================================
+    // CASE A: FOUNDATIONS, SOCIAL ORGANIZATIONS & INSTITUTIONAL NON-SOFTWARE PROJECTS
+    // =========================================================================
+    if (sem.isNonSoftwareInstitutional) {
+        const entityTitle = sem.entityName || projectName;
+        const programsMd = (nature.programsAndActivities && nature.programsAndActivities.length > 0)
+            ? nature.programsAndActivities.map((p, i) => `${i + 1}. **${p.title}**: ${p.detail}`).join('\n')
+            : `1. **Difusión institucional y programas comunitarios**: Presentación de las líneas de trabajo y servicios registrados en ${topFiles}.`;
+
+        const projectsMd = (nature.executedProjects && nature.executedProjects.length > 0)
+            ? nature.executedProjects.map(ep => `- **${ep.name}** (*Aliado / Donante: ${ep.ally}*): ${ep.summary}`).join('\n')
+            : `- Las actividades e iniciativas vigentes se encuentran descritas en las secciones principales de ${topFiles}.`;
+
+        const valuesStr = (nature.values && nature.values.length > 0)
+            ? nature.values.join(', ')
+            : 'Solidaridad, respeto, transparencia y compromiso comunitario';
+
+        const transparencyStr = (nature.transparencyDocs && nature.transparencyDocs.length > 0)
+            ? nature.transparencyDocs.map(td => `- ${td}`).join('\n')
+            : '- Información institucional publicada directamente en el portal del proyecto.';
+
+        const contactLines = [];
+        if (nature.contactInfo?.director) contactLines.push(`- **Dirección / Responsable**: ${nature.contactInfo.director}`);
+        if (nature.contactInfo?.location) contactLines.push(`- **Sede / Ubicación**: ${nature.contactInfo.location}`);
+        if (nature.contactInfo?.phone) contactLines.push(`- **Teléfono / WhatsApp**: ${nature.contactInfo.phone}`);
+        if (nature.contactInfo?.domain) contactLines.push(`- **Dominio Web Oficial**: \`${nature.contactInfo.domain}\``);
+
+        return `# DOCUMENTO CONTEXTUAL Y DE PRESENTACIÓN DEL PROYECTO — ${entityTitle.toUpperCase()}
+
+## 1. Portada Profesional
+- **Título del Entregable**: Diagnóstico Contextual, Propósito Institucional y Ficha Técnica del Proyecto
+- **Entidad / Proyecto**: **${entityTitle}** (\`${fullName}\`)
+- **Categoría Identificada**: ${sem.categoryLabel}
+- **Rama Analizada**: \`${branch}\`
+- **Responsable / Propietario del Repositorio**: ${owner}
+- **Fecha de Emisión**: ${dateStr}
+
+## 2. Nombre y Naturaleza del Proyecto
+**${entityTitle}** (Repositorio: \`${fullName}\`) — Clasificado en la categoría **${sem.categoryLabel}**.
+
+## 3. Separación entre Naturaleza del Proyecto e Implementación Técnica
+| Dimensión Analizada | Descripción Basada en el Contenido del Repositorio |
+| :--- | :--- |
+| **Naturaleza Real del Proyecto** | ${nature.whatItIs} |
+| **Categoría del Proyecto** | ${sem.categoryLabel} |
+| **Misión / Propósito** | ${nature.mission} |
+| **Población Beneficiaria / Público** | ${nature.targetBeneficiaries} |
+| **Implementación Técnica (Medio Digital)** | ${techImpl.roleSummary} |
+| **Archivos Examinados** | ${filesCount} archivo(s) en el repositorio (${topFiles}) |
+
+## 4. Descripción General
+${nature.whatItIs} Su propósito central es ${nature.mission.charAt(0).toLowerCase() + nature.mission.slice(1)}
+
+Es importante distinguir su finalidad humana y social de las herramientas empleadas para su presencia en internet: el repositorio contiene su sitio web informativo (${topFiles}), construido con **${langStr}**${sem.customDomain ? ` y publicado bajo el dominio **${sem.customDomain}**` : ''} para dar a conocer su labor, sus programas, sus informes de transparencia y sus canales de contacto.
+
+## 5. Resumen Institucional y Funcional
+- **¿Qué es el proyecto?**: ${nature.whatItIs}
+- **¿Cuál es su misión?**: ${nature.mission}
+- **¿Cuál es su visión?**: ${nature.vision}
+- **¿Qué valores promueve?**: ${valuesStr}.
+- **¿Qué problemática busca atender?**: ${nature.problemAddressed}
+- **¿A qué población beneficia?**: ${nature.targetBeneficiaries}
+
+## 6. Ejes Temáticos, Actividades y Programas que Desarrolla
+${programsMd}
+
+## 7. Proyectos Ejecutados e Impacto en el Territorio
+${projectsMd}
+
+## 8. Problemática Social o Institucional Abordada
+${nature.problemAddressed}
+
+La organización actúa directamente en los territorios mediante formación en derechos, entrega de insumos y acompañamiento psicosocial, comunitario y organizativo, articulando esfuerzos entre las comunidades, entidades cooperantes y donantes.
+
+## 9. Justificación e Impacto Social
+- **Impacto Social y Comunitario**: Contribuye de forma directa a la dignidad, la salud, la prevención de violencias y el fortalecimiento de capacidades en comunidades vulnerables.
+- **Transparencia y Rendición de Cuentas**: Dispone de mecanismos públicos de información financiera y documental para donantes, cooperantes, beneficiarias y ciudadanía.
+- **Presencia Digital Accesible**: Utiliza tecnologías web estándar (${langStr}) como medio de difusión abierta y contacto directo con personas que desean conocer o apoyar la causa.
+
+## 10. Objetivo General del Proyecto
+Cumplir la misión institucional de **${entityTitle}**, promoviendo oportunidades de formación, protección de derechos, empoderamiento y bienestar comunitario, apoyándose en su portal web (\`${sem.customDomain || fullName}\`) como canal de difusión, transparencia y articulación con aliados y beneficiarios.
+
+## 11. Objetivos Específicos
+1. **Desarrollar sus líneas de acción y programas**: Ejecutar los ejes de trabajo institucionales descritos en el proyecto para atender a su población beneficiaria.
+2. **Visibilizar el impacto y los resultados en territorio**: Comunicar de forma clara las campañas, talleres, alianzas y beneficiarios alcanzados en cada iniciativa.
+3. **Garantizar la transparencia y rendición de cuentas**: Facilitar el acceso público a estados financieros, declaraciones tributarias, actas e informes de gestión.
+4. **Facilitar el contacto, voluntariado y donaciones**: Brindar canales directos de comunicación para personas, organizaciones y cooperantes interesados en colaborar.
+
+## 12. Alcance del Repositorio Analizado
+- **En el ámbito institucional**: Presentación de la identidad corporativa/social de **${entityTitle}**, sus líneas de acción, proyectos realizados, testimonios, documentos de rendición de cuentas y datos de contacto.
+- **En el ámbito técnico**: Sitio web informativo conformado por ${filesCount} archivo(s) (${topFiles})${sem.customDomain ? ` configurado para el dominio \`${sem.customDomain}\`` : ''}.
+
+## 13. Transparencia, Rendición de Cuentas y Contacto
+### Documentos de Transparencia Registrados
+${transparencyStr}
+
+${contactLines.length > 0 ? `### Información de Contacto Identificada\n${contactLines.join('\n')}` : ''}
+
+## 14. Metodología de Trabajo
+En el plano institucional, **${entityTitle}** emplea metodologías participativas, pedagógicas y comunitarias enfocadas en derechos humanos, enfoque de género, innovación social y trabajo en red con aliados locales e internacionales. En el plano técnico, su portal web se mantiene mediante control de versiones Git en la rama \`${branch}\`.
+
+## 15. Recursos y Herramientas Tecnológicas Utilizadas
+Las tecnologías presentes en el repositorio constituyen el medio de presentación web del proyecto:
+- **Lenguajes de maquetación y estilo**: ${langStr}
+- **Estructura del sitio**: ${fwStr}
+- **Almacenamiento / Base de datos**: ${dbStr}
+- **Publicación y dominio**: ${infraStr}
+
+## 16. Estructura del Sitio Web
+El repositorio está organizado como un portal web informativo (${topFiles}) que presenta de manera secuencial: encabezado de navegación, presentación institucional (Misión, Visión y Valores), ejes temáticos de acción, portafolio de proyectos e impacto, actualidad/noticias, testimonios comunitarios, sección de transparencia documental y formulario/canales de contacto.
+
+## 17. Impacto y Resultados Buscados
+1. Fortalecimiento de la dignidad, autonomía y derechos de las mujeres, niñas y comunidades atendidas.
+2. Consolidación de alianzas con entidades públicas, cooperación internacional y organizaciones de base.
+3. Visibilidad transparente de la gestión financiera y social ante la comunidad y los órganos de control.
+4. Mantenimiento de un canal digital claro, seguro (puntuación de revisión estática: **${typeof secObj.score === 'number' ? secObj.score : 90}/100**) y accesible para todo público.
+
+## 18. Conclusiones
+1. El repositorio \`${fullName}\` pertenece a **${entityTitle}**, una entidad perteneciente a la categoría **${sem.categoryLabel}**, cuya finalidad es social y comunitaria, no el desarrollo comercial de software.
+2. Sus actividades se estructuran en programas reales orientados a la población beneficiaria, respaldados por proyectos ejecutados en territorio y documentación pública de rendición de cuentas.
+3. El uso de **${langStr}** en el repositorio cumple la función de construir y publicar su sitio web oficial${sem.customDomain ? ` (\`${sem.customDomain}\`)` : ''}, sirviendo como puente informativo entre la organización, las comunidades beneficiarias, el voluntariado y los cooperantes.
+
+## 19. Referencias del Repositorio
+- **Repositorio Analizado**: \`${fullName}\` — Rama \`${branch}\` (${filesCount} archivo(s): ${topFiles}).
+${sem.customDomain ? `- **Dominio Configurado**: \`${sem.customDomain}\` (definido en archivo \`CNAME\`).` : ''}
+`;
+    }
+
+    // =========================================================================
+    // CASE B: SOFTWARE APPLICATIONS, SAAS PLATFORMS, LIBRARIES & TECH SYSTEMS
+    // =========================================================================
     const hasGithubWorkflows = files.some(f => /\.github\/workflows/i.test(f.path));
     const hasTests = files.some(f => /test|spec/i.test(f.path));
-    const hasDocs = files.some(f => /readme|\.md$/i.test(f.path));
-    const methodologyText = `[Información verificada] A partir de los artefactos del repositorio (${filesCount} archivos analizados), se evidencia una práctica de **desarrollo incremental apoyado en control de versiones Git** (rama principal \`${branch}\`)${hasTests ? ', con suites de pruebas automatizadas identificadas en el árbol de archivos' : ''}${hasGithubWorkflows ? ' e integración continua automatizada' : ''}. [Información no encontrada] No existen artefactos en el repositorio que certifiquen formalmente el uso de marcos ceremoniales como Scrum, Kanban o SAFe, por lo que no se atribuye ninguna metodología ágil nominal sin respaldo documental.`;
+    const methodologyText = `A partir de los artefactos del repositorio (${filesCount} archivos analizados), se observa un flujo de desarrollo incremental apoyado en control de versiones Git sobre la rama principal \`${branch}\`${hasTests ? ', acompañado de suites de pruebas automatizadas en el árbol de archivos' : ''}${hasGithubWorkflows ? ' y flujos de integración continua configurados' : ''}. No se atribuyen marcos ceremoniales específicos que no estén explícitamente declarados en la documentación del repositorio.`;
 
-    // Specific objectives derived from actual modules/endpoints
     const specificObjectives = [];
     if (endpoints.length > 0) {
-        specificObjectives.push(`1. **Exponer y gestionar los contratos de servicio HTTP/API**: Proveer y validar las **${endpoints.length} rutas identificadas** en el backend (incluyendo ${endpoints.slice(0, 3).map(e => `\`${e.method} ${e.path}\` en \`${e.file || 'servidor'}\``).join(', ')}) [Información verificada].`);
+        specificObjectives.push(`1. **Exponer y gestionar los contratos de servicio HTTP/API**: Proveer y validar las **${endpoints.length} rutas identificadas** en el backend (incluyendo ${endpoints.slice(0, 3).map(e => `\`${e.method} ${e.path}\` en \`${e.file || 'servidor'}\``).join(', ')}).`);
     } else {
-        specificObjectives.push(`1. **Ejecutar la lógica modular del sistema**: Procesar de forma determinista las operaciones definidas en los módulos principales (${topFiles}) [Información verificada].`);
+        specificObjectives.push(`1. **Ejecutar la lógica modular del proyecto**: Procesar las operaciones definidas en los archivos principales (${topFiles}).`);
     }
     if (projectMap?.frontend?.detected) {
-        specificObjectives.push(`2. **Proporcionar una interfaz de usuario interactiva y responsive**: Articular los ${projectMap.frontend.componentsCount || 1}+ componentes de capa cliente detectados con los servicios de negocio [Información verificada].`);
+        specificObjectives.push(`2. **Proporcionar una interfaz de usuario clara y responsive**: Articular los componentes de capa cliente detectados con los servicios de la aplicación.`);
     } else {
-        specificObjectives.push(`2. **Garantizar la cohesión modular de los servicios internos**: Mantener el desacoplamiento entre los módulos de entrada, procesamiento y utilidades del proyecto [Información verificada].`);
+        specificObjectives.push(`2. **Garantizar la cohesión modular de los servicios internos**: Mantener el desacoplamiento entre los módulos de entrada, procesamiento y utilidades del proyecto.`);
     }
     if (dataModels.length > 0 || detectedDatabases.length > 0) {
-        specificObjectives.push(`3. **Asegurar la integridad y persistencia de datos**: Administrar las estructuras de datos (${dataModels.length} entidades/modelos sobre ${dbStr}) previniendo accesos no autorizados [Información verificada].`);
+        specificObjectives.push(`3. **Asegurar la integridad y persistencia de datos**: Administrar las estructuras de datos (${dataModels.length} entidades/modelos sobre ${dbStr}) previniendo accesos no autorizados.`);
     } else {
-        specificObjectives.push(`3. **Gestionar el estado y procesamiento en memoria/archivos**: Procesar las estructuras de datos de entrada y salida manteniendo consistencia tipada [Información verificada].`);
+        specificObjectives.push(`3. **Gestionar el estado y procesamiento en memoria/archivos**: Procesar las estructuras de datos de entrada y salida manteniendo consistencia tipada.`);
     }
-    specificObjectives.push(`4. **Fortalecer la seguridad y calidad operativa**: Mantener controles defensivos verificables (puntuación SAST actual: **${typeof security.score === 'number' ? security.score : 90}/100**) y facilitar la mantenibilidad técnica del código [Información verificada].`);
+    specificObjectives.push(`4. **Fortalecer la seguridad y calidad operativa**: Mantener controles defensivos verificables (puntuación SAST actual: **${typeof secObj.score === 'number' ? secObj.score : 90}/100**) y facilitar la mantenibilidad técnica del código.`);
 
     return `# DOCUMENTO FORMAL DE PRESENTACIÓN DEL PROYECTO — ${projectName.toUpperCase()}
 
 ## 1. Portada Profesional
 - **Título del Entregable**: Documento Maestro de Presentación e Ingeniería del Proyecto
 - **Sistema / Repositorio**: \`${fullName}\`
+- **Categoría Identificada**: ${sem.categoryLabel}
 - **Rama Analizada**: \`${branch}\`
 - **Responsable / Autoría**: ${owner}
 - **Fecha de Emisión**: ${dateStr}
-- **Generador Técnico**: DocuMind AI — Motor de Ingeniería Documental Basado en Evidencia
+- **Generador Técnico**: DocuMind AI
 
-## 2. Nombre del Proyecto
-**${projectName}** (\`${fullName}\`) [Información verificada].
+## 2. Nombre y Categoría del Proyecto
+**${projectName}** (\`${fullName}\`) — Categoría: **${sem.categoryLabel}**.
 
-## 3. Identificación del Proyecto
-| Atributo Técnico | Valor Identificado en el Repositorio | Nivel de Evidencia |
-| :--- | :--- | :---: |
-| **Nombre Oficial** | ${projectName} | \`[Información verificada]\` |
-| **Identificador / Ruta** | \`${fullName}\` (Rama: \`${branch}\`) | \`[Información verificada]\` |
-| **Lenguajes Detectados** | ${langStr} | \`[Información verificada]\` |
-| **Frameworks y Librerías** | ${fwStr} | \`[Información verificada]\` |
-| **Persistencia / Datos** | ${dbStr} | \`[Información verificada]\` |
-| **Volumen Analizado** | ${filesCount} archivos relevantes, ${endpoints.length} endpoints, ${dataModels.length} modelos | \`[Información verificada]\` |
+## 3. Identificación del Proyecto (Naturaleza vs. Implementación Técnica)
+| Atributo del Proyecto | Valor Identificado en el Repositorio |
+| :--- | :--- |
+| **Nombre Oficial** | ${projectName} |
+| **Categoría del Proyecto** | ${sem.categoryLabel} |
+| **Naturaleza y Propósito** | ${nature.whatItIs} |
+| **Identificador / Ruta** | \`${fullName}\` (Rama: \`${branch}\`) |
+| **Lenguajes Detectados** | ${langStr} |
+| **Frameworks y Librerías** | ${fwStr} |
+| **Persistencia / Datos** | ${dbStr} |
+| **Volumen Analizado** | ${filesCount} archivos relevantes, ${endpoints.length} endpoints, ${dataModels.length} modelos |
 
 ## 4. Descripción Ejecutiva
-**${projectName}** es una solución de software desarrollada principalmente en **${langStr}** sobre el ecosistema **${fwStr}** [Información verificada]. ${repoDescription ? `De acuerdo con los metadatos del proyecto: *"${repoDescription}"* [Información verificada].` : 'Su propósito funcional se fundamenta en los controladores, servicios y módulos verificados directamente en su árbol de código fuente [Información inferida].'} El sistema integra **${filesCount} archivos técnicos**, exponiendo **${endpoints.length} puntos de entrada HTTP/API** y **${dataModels.length} modelos/esquemas de datos** para satisfacer los requerimientos operativos de sus usuarios.
+**${projectName}** corresponde a la categoría **${sem.categoryLabel}**, desarrollado principalmente en **${langStr}** sobre **${fwStr}**. ${repoDescription ? `De acuerdo con la descripción del proyecto: *"${repoDescription}"*.` : nature.mission} El repositorio comprende **${filesCount} archivos técnicos**${endpoints.length > 0 ? `, exponiendo **${endpoints.length} puntos de entrada HTTP/API**` : ''}${dataModels.length > 0 ? ` y **${dataModels.length} modelos de datos**` : ''}.
 
 ## 5. Resumen del Sistema
-El sistema se estructura en módulos claramente diferenciados (${topFiles}) [Información verificada]. ${projectMap?.frontend?.detected ? 'Cuenta con una capa de presentación cliente que consume servicios del backend' : 'Opera como un servicio/plataforma modular'} e interactúa con ${detectedDatabases.length > 0 ? `la capa de persistencia en **${dbStr}**` : 'estructuras de datos en memoria y almacenamiento local'} [Información verificada].
+El proyecto se estructura en módulos diferenciados (${topFiles}). ${projectMap?.frontend?.detected ? 'Cuenta con una capa de presentación cliente que interactúa con los servicios de la aplicación' : 'Opera mediante módulos y componentes estructurados'} y gestiona la información a través de ${detectedDatabases.length > 0 ? `la capa de persistencia en **${dbStr}**` : 'estructuras de datos en memoria y archivos de configuración'}.
 
 ## 6. Introducción
-- **¿Qué es el proyecto?**: Es una aplicación/plataforma de software llamada **${projectName}**, construida con **${langStr}** y **${fwStr}**, compuesta por ${filesCount} módulos analizados [Información verificada].
-- **¿Qué problema busca resolver?**: Resuelve la necesidad de automatizar, centralizar y ejecutar de forma estructurada los procesos implementados en sus rutas (${endpoints.slice(0, 3).map(e => `\`${e.path}\``).join(', ') || 'módulos principales'}) evitando operaciones manuales fragmentadas [Información inferida].
-- **¿Por qué es importante?**: Proporciona una arquitectura estandarizada, trazable y mantenible que reduce errores operativos y centraliza la lógica de negocio en servicios verificables [Información verificada].
-- **¿A quién está dirigido?**: A usuarios finales de la aplicación, ingenieros de software, integradores de API y administradores técnicos del sistema [Información inferida].
-- **¿Qué tecnologías utiliza?**: Emplea **${langStr}**, **${fwStr}**, **${dbStr}** e infraestructura **${infraStr}** [Información verificada].
-- **¿Qué beneficios proporciona?**: Automatización de flujos técnicos, consistencia en el manejo de datos, modularidad para evolución futura y controles de seguridad auditables [Información verificada].
+- **¿Qué es el proyecto?**: ${nature.whatItIs}
+- **¿Qué problema busca resolver?**: ${nature.problemAddressed}
+- **¿A quién está dirigido?**: ${nature.targetBeneficiaries}
+- **¿Qué tecnologías utiliza?**: Emplea **${langStr}**, **${fwStr}**, **${dbStr}** e infraestructura **${infraStr}** como soporte técnico de implementación.
 
 ## 7. Contexto y Antecedentes
-El proyecto surge ante el requerimiento de contar con una plataforma especializada que articule ${projectMap?.api?.detected ? `servicios web (${endpoints.length} endpoints)` : 'procesamiento técnico modular'} con una estructura mantenible en **${langStr}** [Información verificada]. La revisión del árbol de archivos (${topFiles}) muestra una arquitectura evolutiva orientada a la separación de responsabilidades entre interfaz, controladores, lógica de dominio y configuración.
+El proyecto responde a la necesidad de contar con una solución dentro de la categoría **${sem.categoryLabel}** que articule ${projectMap?.api?.detected ? `servicios web (${endpoints.length} endpoints)` : 'módulos funcionales'} con una estructura mantenible en **${langStr}**. La revisión del árbol de archivos (${topFiles}) refleja una organización orientada a la claridad y mantenibilidad.
 
 ## 8. Planteamiento del Problema
-- **Situación actual y dificultades existentes**: Sin una plataforma integrada como **${projectName}**, los flujos gestionados por los módulos ${files.slice(0, 3).map(f => `\`${f.path}\``).join(', ')} requieren ejecución manual, carecen de validación estandarizada de entradas y presentan dispersión de información entre múltiples herramientas [Información inferida].
-- **Necesidad que justifica el desarrollo**: Se requiere un sistema centralizado capaz de procesar solicitudes de manera determinista, validar contratos de entrada/salida y mantener la integridad de la información bajo controles de seguridad verificables [Información verificada].
+- **Necesidad identificada**: ${nature.problemAddressed}
+- **Propósito de la solución**: Proveer una implementación estructurada a través de los módulos ${files.slice(0, 3).map(f => `\`${f.path}\``).join(', ')} que responda a los requerimientos del proyecto bajo controles de calidad y seguridad.
 
 ## 9. Justificación
-- **Relevancia Técnica**: Implementa una arquitectura modular sobre **${langStr}** y **${fwStr}**, facilitando la escalabilidad, la inspección estática y la integración mediante contratos estándar [Información verificada].
-- **Relevancia Académica y Metodológica**: Aplica principios formales de ingeniería de software (separación de capas, gestión de dependencias, control de versiones y documentación trazable) [Información verificada].
-- **Relevancia Organizacional y Operativa**: Optimiza los tiempos de respuesta y estandariza la operación mediante rutas y componentes bien definidos (${endpoints.length} endpoints y ${filesCount} archivos) [Información verificada].
+- **Relevancia Funcional**: Atiende de forma directa los objetivos de **${projectName}** mediante funcionalidades concretas verificadas en el repositorio.
+- **Relevancia Técnica**: Emplea **${langStr}** y **${fwStr}** con separación de responsabilidades y control de versiones.
 
 ## 10. Objetivo General
-Desarrollar, operar y mantener el sistema **${projectName}** utilizando **${langStr}** y **${fwStr}**, con el fin de proveer una solución robusta, segura y modular que ejecute las capacidades funcionales definidas en sus ${filesCount} módulos y ${endpoints.length} rutas de servicio [Información verificada].
+Desarrollar, operar y mantener **${projectName}** (${sem.categoryLabel}) utilizando **${langStr}** y **${fwStr}**, con el fin de cumplir su propósito funcional a través de sus ${filesCount} módulos${endpoints.length > 0 ? ` y ${endpoints.length} rutas de servicio` : ''}.
 
 ## 11. Objetivos Específicos
 ${specificObjectives.join('\n')}
 
 ## 12. Alcance del Proyecto
 - **Dentro del Alcance (In-Scope)**:
-  - Los **${filesCount} archivos fuente y de configuración** presentes en la rama \`${branch}\` (${topFiles}) [Información verificada].
-  - ${endpoints.length > 0 ? `Los **${endpoints.length} endpoints HTTP/REST** identificados en los enrutadores del proyecto [Información verificada].` : 'Los módulos de ejecución y procesamiento local incluidos en el repositorio [Información verificada].'}
-  - ${dataModels.length > 0 ? `Los **${dataModels.length} esquemas/entidades de datos** definidos en la capa de persistencia [Información verificada].` : 'El manejo de estructuras de datos en memoria y archivos de configuración [Información verificada].'}
+  - Los **${filesCount} archivos fuente y de configuración** presentes en la rama \`${branch}\` (${topFiles}).
+  - ${endpoints.length > 0 ? `Los **${endpoints.length} endpoints HTTP/REST** identificados en los enrutadores del proyecto.` : 'Los módulos y componentes incluidos en el repositorio.'}
+  - ${dataModels.length > 0 ? `Los **${dataModels.length} esquemas/entidades de datos** definidos en la capa de persistencia.` : 'El manejo de estructuras de datos definidas en los archivos del proyecto.'}
 - **Fuera del Alcance (Out-of-Scope)**:
-  - Módulos externos, microservicios de terceros o integraciones propietarias cuyo código fuente no reside en el repositorio \`${fullName}\` [Información verificada].
+  - Sistemas externos o integraciones de terceros cuyo código no reside en el repositorio \`${fullName}\`.
 
 ## 13. Limitaciones
-- **Restricciones Técnicas**: El entorno de ejecución requiere compatibilidad con **${langStr}** y las versiones declaradas en los manifiestos del repositorio [Información verificada].
-- **Dependencias Externas**: ${detectedFrameworks.length > 0 || detectedDatabases.length > 0 ? `El sistema depende de la disponibilidad de ${[...detectedFrameworks, ...detectedDatabases].join(', ')} y de la correcta configuración de variables de entorno (\`.env\`) [Información verificada].` : 'El sistema depende de las librerías estándar del entorno de ejecución [Información verificada].'}
-- **Limitaciones del Análisis**: La evaluación documental y de seguridad se basa en los **${filesCount} archivos** efectivamente inspeccionados en modo estático [Información verificada].
+- **Restricciones Técnicas**: El entorno requiere compatibilidad con **${langStr}** y las dependencias declaradas en el repositorio.
+- **Alcance del Análisis**: La evaluación documental y de seguridad se fundamenta en los **${filesCount} archivos** examinados de forma estática.
 
 ## 14. Metodología de Desarrollo
 ${methodologyText}
 
-## 15. Tecnologías Utilizadas
-- **Lenguajes de Programación**: ${langStr} \`[Información verificada]\`
-- **Frameworks y Bibliotecas**: ${fwStr} \`[Información verificada]\`
-- **Bases de Datos y Almacenamiento**: ${dbStr} \`[Información verificada]\`
-- **Infraestructura y Entorno**: ${infraStr} \`[Información verificada]\`
+## 15. Tecnologías Utilizadas (Implementación Técnica)
+- **Lenguajes**: ${langStr}
+- **Frameworks y Bibliotecas**: ${fwStr}
+- **Bases de Datos y Almacenamiento**: ${dbStr}
+- **Infraestructura y Entorno**: ${infraStr}
 
 ## 16. Arquitectura General
-El sistema presenta una arquitectura modular organizada en torno a los archivos clave ${topFiles} [Información verificada].
-- **Capa de Presentación / Cliente**: ${projectMap?.frontend?.detected ? `Detectada (${projectMap.frontend.componentsCount || 1} componentes/vistas).` : 'No detectada como capa web separada en este repositorio.'}
-- **Capa de Aplicación / Backend**: ${projectMap?.backend?.detected ? `Detectada (${(projectMap.backend.controllersCount || 0) + (projectMap.backend.servicesCount || 0)} módulos de control y servicio).` : 'Integrada en los módulos principales del proyecto.'}
+El proyecto presenta una estructura organizada en torno a los archivos clave ${topFiles}.
+- **Capa de Presentación / Cliente**: ${projectMap?.frontend?.detected ? `Presente (${projectMap.frontend.componentsCount || 1}+ componentes/vistas).` : 'No definida como capa web separada en este repositorio.'}
+- **Capa de Aplicación / Backend**: ${projectMap?.backend?.detected ? `Presente (${(projectMap.backend.controllersCount || 0) + (projectMap.backend.servicesCount || 0)} módulos de control y servicio).` : 'Integrada en los módulos principales del proyecto.'}
 - **Capa de API / Contratos**: ${endpoints.length} endpoints registrados.
 - **Capa de Persistencia**: ${dbStr} (${dataModels.length} entidades detectadas).
 
 ## 17. Resultados Esperados
-1. Operación estable de los módulos y rutas verificadas en \`${fullName}\`.
-2. Cumplimiento de los requisitos funcionales (\`RF\`) y no funcionales (\`RNF\`) trazados contra el código fuente.
-3. Mitigación de los hallazgos reportados por el módulo **Security Intelligence** (Puntuación actual: **${typeof security.score === 'number' ? security.score : 90}/100**).
-4. Disponibilidad de documentación técnica viva sincronizada con la rama \`${branch}\`.
+1. Operación estable de los módulos y componentes de \`${fullName}\`.
+2. Cumplimiento de los requisitos funcionales y de calidad identificados en el repositorio.
+3. Atención de las recomendaciones del módulo **Security Intelligence** (Puntuación actual: **${typeof secObj.score === 'number' ? secObj.score : 90}/100**).
+4. Disponibilidad de documentación sincronizada con la rama \`${branch}\`.
 
 ## 18. Conclusiones
-1. El repositorio **${projectName}** cuenta con una base técnica verificable en **${langStr}** (${filesCount} archivos analizados), estructurada mediante **${fwStr}** [Información verificada].
-2. Se identificaron **${endpoints.length} endpoints** y **${dataModels.length} modelos de datos**, lo que permite establecer una trazabilidad directa entre requisitos, arquitectura C4 y pruebas de calidad [Información verificada].
-3. El diagnóstico de ciberseguridad arroja un puntaje de **${typeof security.score === 'number' ? security.score : 90}/100 (${security.classification || 'Seguridad alta'})**, contando con un plan de remediación priorizado para fortalecer continuamente la plataforma [Información verificada].
+1. El repositorio **${projectName}** corresponde a la categoría **${sem.categoryLabel}**, implementado con **${langStr}** (${filesCount} archivos analizados) y **${fwStr}**.
+2. ${endpoints.length > 0 || dataModels.length > 0 ? `Se identificaron **${endpoints.length} endpoints** y **${dataModels.length} modelos de datos**, permitiendo trazar su estructura funcional y técnica.` : `Su estructura se apoya en los archivos ${topFiles} para cumplir los objetivos del proyecto.`}
+3. El diagnóstico de ciberseguridad registra una puntuación de **${typeof secObj.score === 'number' ? secObj.score : 90}/100 (${secObj.classification || 'Seguridad alta'})**, acompañada de recomendaciones preventivas y de remediación.
 
 ## 19. Referencias Bibliográficas y Técnicas
-- **Repositorio Fuente Analizado**: \`${fullName}\` — Rama \`${branch}\` (${filesCount} archivos inspeccionados) \`[Información verificada]\`.
-- **ISO/IEC/IEEE 29148:2018**: *Systems and software engineering — Life cycle processes — Requirements engineering* (Referencia histórica complementaria: **IEEE Std 830-1998**).
-- **ISO/IEC/IEEE 42010:2022**: *Software, systems and enterprise — Architecture description* & **Simon Brown C4 Model**.
-- **ISO/IEC 25010:2023**: *Systems and software Quality Requirements and Evaluation (SQuaRE) — Product quality model*.
-- **ISO/IEC 27001:2022 & ISO/IEC 27002:2022**: *Information security, cybersecurity and privacy protection* & **OWASP Top 10 / ASVS 4.0**.
-- **OpenAPI Specification v3.0.3**: *Linux Foundation / OpenAPI Initiative*.
+- **Repositorio Fuente Analizado**: \`${fullName}\` — Rama \`${branch}\` (${filesCount} archivos inspeccionados).
+- **ISO/IEC/IEEE 29148:2018 & IEEE Std 830-1998**: *Requirements engineering*.
+- **ISO/IEC/IEEE 42010:2022 & Modelo C4**: *Architecture description*.
+- **ISO/IEC 25010:2023**: *Product quality model*.
+- **ISO/IEC 27001:2022, ISO/IEC 27002:2022 & OWASP Top 10 / ASVS 4.0**: *Cybersecurity and application security*.
 `;
 }
 
 /**
- * Formats structured PRD JSON data into clean, professional Markdown.
+ * Formats structured PRD JSON data into clean, professional Markdown without verification tags.
  */
 function formatPrdMarkdown(prd) {
     if (!prd || typeof prd !== 'object') return '';
-    let md = '# Product Requirements Document (PRD)\n\n';
-    if (prd.executiveSummary) md += '## 1. Resumen Ejecutivo\n' + prd.executiveSummary + '\n\n';
-    if (prd.problemStatement) md += '## 2. Problema y Oportunidad de Negocio\n' + prd.problemStatement + '\n\n';
+    let md = '# Documento de Visión, Propósito y Requisitos (PRD)\n\n';
+    if (prd.executiveSummary) md += '## 1. Resumen Ejecutivo\n' + stripVerificationTags(prd.executiveSummary) + '\n\n';
+    if (prd.problemStatement) md += '## 2. Problemática y Propósito\n' + stripVerificationTags(prd.problemStatement) + '\n\n';
     if (Array.isArray(prd.objectives) && prd.objectives.length > 0) {
-        md += '## 3. Objetivos del Producto\n' + prd.objectives.map(o => '- ' + o).join('\n') + '\n\n';
+        md += '## 3. Objetivos del Proyecto\n' + prd.objectives.map(o => '- ' + stripVerificationTags(o)).join('\n') + '\n\n';
     }
     if (Array.isArray(prd.targetUsers) && prd.targetUsers.length > 0) {
-        md += '## 4. Usuarios Objetivo & Personas\n';
+        md += '## 4. Público Objetivo / Beneficiarios / Usuarios\n';
         prd.targetUsers.forEach(u => {
-            md += '### ' + (u.role || 'Usuario') + '\n- **Descripción**: ' + (u.description || '') + '\n- **Puntos de Dolor Resueltos**: ' + (u.painPoints || '') + '\n\n';
+            md += '### ' + stripVerificationTags(u.role || 'Perfil') + '\n- **Descripción**: ' + stripVerificationTags(u.description || '') + '\n- **Necesidades Atendidas**: ' + stripVerificationTags(u.painPoints || '') + '\n\n';
         });
     }
     if (Array.isArray(prd.functionalRequirements) && prd.functionalRequirements.length > 0) {
-        md += '## 5. Requisitos Funcionales\n\n| ID | Título | Descripción Verificable | Prioridad |\n| :--- | :--- | :--- | :---: |\n';
+        md += '## 5. Actividades, Servicios o Requisitos Funcionales\n\n| ID | Título | Descripción | Prioridad |\n| :--- | :--- | :--- | :---: |\n';
         prd.functionalRequirements.forEach((r, idx) => {
             const idCode = r.id && /^RF-\d+/i.test(r.id) ? r.id.toUpperCase() : `RF-${String(idx + 1).padStart(3, '0')}`;
-            md += '| `' + idCode + '` | **' + (r.title || '') + '** | ' + (r.description || '') + ' | `' + (r.priority || 'Media') + '` |\n';
+            md += '| `' + idCode + '` | **' + stripVerificationTags(r.title || '') + '** | ' + stripVerificationTags(r.description || '') + ' | `' + stripVerificationTags(r.priority || 'Media') + '` |\n';
         });
         md += '\n';
     }
     if (Array.isArray(prd.nonFunctionalRequirements) && prd.nonFunctionalRequirements.length > 0) {
-        md += '## 6. Requisitos No Funcionales (RNF)\n\n| ID | Categoría | Requisito Técnico | Métrica Verificable |\n| :--- | :--- | :--- | :--- |\n';
+        md += '## 6. Atributos de Calidad y Requisitos No Funcionales\n\n| ID | Categoría | Especificación | Criterio |\n| :--- | :--- | :--- | :--- |\n';
         prd.nonFunctionalRequirements.forEach((r, idx) => {
             const idCode = r.id && /^RNF-\d+/i.test(r.id) ? r.id.toUpperCase() : `RNF-${String(idx + 1).padStart(3, '0')}`;
-            md += '| `' + idCode + '` | **' + (r.category || 'General') + '** | ' + (r.requirement || '') + ' | `' + (r.metric || 'N/A') + '` |\n';
+            md += '| `' + idCode + '` | **' + stripVerificationTags(r.category || 'General') + '** | ' + stripVerificationTags(r.requirement || '') + ' | `' + stripVerificationTags(r.metric || 'Estándar') + '` |\n';
         });
         md += '\n';
     }
     if (prd.scope) {
-        md += '## 7. Alcance del Producto\n';
+        md += '## 7. Alcance del Proyecto\n';
         if (Array.isArray(prd.scope.inScope) && prd.scope.inScope.length > 0) {
-            md += '### Dentro del Alcance (In-Scope)\n' + prd.scope.inScope.map(i => '- ' + i).join('\n') + '\n\n';
+            md += '### Dentro del Alcance\n' + prd.scope.inScope.map(i => '- ' + stripVerificationTags(i)).join('\n') + '\n\n';
         }
         if (Array.isArray(prd.scope.outOfScope) && prd.scope.outOfScope.length > 0) {
-            md += '### Fuera del Alcance (Out-of-Scope)\n' + prd.scope.outOfScope.map(o => '- ' + o).join('\n') + '\n\n';
+            md += '### Fuera del Alcance\n' + prd.scope.outOfScope.map(o => '- ' + stripVerificationTags(o)).join('\n') + '\n\n';
         }
     }
     if (Array.isArray(prd.successMetrics) && prd.successMetrics.length > 0) {
-        md += '## 8. Métricas de Éxito (KPIs)\n' + prd.successMetrics.map(m => '- ' + m).join('\n') + '\n\n';
+        md += '## 8. Indicadores de Impacto y Éxito\n' + prd.successMetrics.map(m => '- ' + stripVerificationTags(m)).join('\n') + '\n\n';
     }
     if (Array.isArray(prd.risks) && prd.risks.length > 0) {
         md += '## 9. Matriz de Riesgos y Mitigación\n\n| Riesgo | Impacto | Estrategia de Mitigación |\n| :--- | :---: | :--- |\n';
         prd.risks.forEach(rk => {
-            md += '| ' + rk.risk + ' | **' + (rk.impact || 'Medio') + '** | ' + (rk.mitigation || '') + ' |\n';
+            md += '| ' + stripVerificationTags(rk.risk) + ' | **' + stripVerificationTags(rk.impact || 'Medio') + '** | ' + stripVerificationTags(rk.mitigation || '') + ' |\n';
         });
         md += '\n';
     }
@@ -265,44 +404,48 @@ function formatPrdMarkdown(prd) {
 }
 
 /**
- * Formats structured SRS JSON data into IEEE 830 (historical reference) & ISO/IEC/IEEE 29148:2018 Markdown.
+ * Formats structured SRS JSON data into clean Markdown without verification tags.
  */
 function formatSrsMarkdown(srs) {
     if (!srs || typeof srs !== 'object') return '';
-    let md = '# Especificación de Requisitos de Software (SRS — Referencia Histórica IEEE 830 & Norma ISO/IEC/IEEE 29148:2018)\n\n';
-    md += '> **Nota Normativa**: Se conserva la estructura clásica de **IEEE Std 830-1998** como referencia documental histórica, incorporando los lineamientos vigentes de la norma **ISO/IEC/IEEE 29148:2018** para trazabilidad, criterios de aceptación y verificación de requisitos.\n\n';
+    let md = '# Especificación de Requisitos (Referencia IEEE 830 & ISO/IEC/IEEE 29148:2018)\n\n';
     if (srs.introduction) {
         md += '## 1. Introducción\n';
-        if (srs.introduction.purpose) md += '### 1.1 Propósito\n' + srs.introduction.purpose + '\n\n';
-        if (srs.introduction.scope) md += '### 1.2 Alcance del Sistema\n' + srs.introduction.scope + '\n\n';
+        if (srs.introduction.purpose) md += '### 1.1 Propósito\n' + stripVerificationTags(srs.introduction.purpose) + '\n\n';
+        if (srs.introduction.scope) md += '### 1.2 Alcance\n' + stripVerificationTags(srs.introduction.scope) + '\n\n';
         if (Array.isArray(srs.introduction.definitions) && srs.introduction.definitions.length > 0) {
-            md += '### 1.3 Definiciones, Acrónimos y Abreviaturas\n\n| Término | Definición Técnica |\n| :--- | :--- |\n';
+            md += '### 1.3 Definiciones y Conceptos Clave\n\n| Término | Definición |\n| :--- | :--- |\n';
             srs.introduction.definitions.forEach(d => {
-                md += '| **' + d.term + '** | ' + d.definition + ' |\n';
+                md += '| **' + stripVerificationTags(d.term) + '** | ' + stripVerificationTags(d.definition) + ' |\n';
             });
             md += '\n';
         }
     }
     if (srs.generalDescription) {
         md += '## 2. Descripción General\n';
-        if (srs.generalDescription.productPerspective) md += '### 2.1 Perspectiva del Producto\n' + srs.generalDescription.productPerspective + '\n\n';
+        if (srs.generalDescription.productPerspective) md += '### 2.1 Perspectiva del Proyecto\n' + stripVerificationTags(srs.generalDescription.productPerspective) + '\n\n';
         if (Array.isArray(srs.generalDescription.productFunctions) && srs.generalDescription.productFunctions.length > 0) {
-            md += '### 2.2 Funciones Principales del Sistema\n' + srs.generalDescription.productFunctions.map(f => '- ' + f).join('\n') + '\n\n';
+            md += '### 2.2 Actividades o Funciones Principales\n' + srs.generalDescription.productFunctions.map(f => '- ' + stripVerificationTags(f)).join('\n') + '\n\n';
         }
-        if (srs.generalDescription.userCharacteristics) md += '### 2.3 Características de los Usuarios\n' + srs.generalDescription.userCharacteristics + '\n\n';
+        if (srs.generalDescription.userCharacteristics) {
+            const uc = Array.isArray(srs.generalDescription.userCharacteristics)
+                ? srs.generalDescription.userCharacteristics.join(', ')
+                : srs.generalDescription.userCharacteristics;
+            md += '### 2.3 Público Objetivo y Beneficiarios\n' + stripVerificationTags(uc) + '\n\n';
+        }
     }
     if (Array.isArray(srs.specificRequirements) && srs.specificRequirements.length > 0) {
-        md += '## 3. Requisitos Funcionales y Matriz de Trazabilidad (RF-001...)\n\n| ID | Nombre | Descripción Técnica | Prioridad | Fuente / Evidencia | Criterio de Aceptación / Verificación |\n| :--- | :--- | :--- | :---: | :--- | :--- |\n';
+        md += '## 3. Especificación de Requisitos y Trazabilidad\n\n| ID | Nombre | Descripción | Prioridad | Fuente en Repositorio | Criterio de Verificación |\n| :--- | :--- | :--- | :---: | :--- | :--- |\n';
         srs.specificRequirements.forEach((r, idx) => {
             const idCode = r.id && /^RF-\d+/i.test(r.id) ? r.id.toUpperCase() : `RF-${String(idx + 1).padStart(3, '0')}`;
-            md += '| `' + idCode + '` | **' + (r.name || '') + '** | ' + (r.description || '') + ' | `' + (r.priority || 'Alta') + '` | `' + (r.evidenceSource || 'Código fuente') + '` | ' + (r.verificationMethod || 'Prueba de Integración HTTP 200') + ' |\n';
+            md += '| `' + idCode + '` | **' + stripVerificationTags(r.name || '') + '** | ' + stripVerificationTags(r.description || '') + ' | `' + stripVerificationTags(r.priority || 'Alta') + '` | `' + stripVerificationTags(r.evidenceSource || 'Repositorio') + '` | ' + stripVerificationTags(r.verificationMethod || 'Inspección') + ' |\n';
         });
         md += '\n';
     }
     if (srs.qualityAttributes) {
-        md += '## 4. Requisitos No Funcionales (RNF-001...) y Atributos de Calidad\n\n| ID | Categoría | Especificación del Requisito No Funcional |\n| :--- | :--- | :--- |\n';
+        md += '## 4. Atributos de Calidad\n\n| ID | Categoría | Especificación |\n| :--- | :--- | :--- |\n';
         Object.entries(srs.qualityAttributes).forEach(([k, v], idx) => {
-            md += `| \`RNF-${String(idx + 1).padStart(3, '0')}\` | **${k.toUpperCase()}** | ${v} |\n`;
+            md += `| \`RNF-${String(idx + 1).padStart(3, '0')}\` | **${k.toUpperCase()}** | ${stripVerificationTags(v)} |\n`;
         });
         md += '\n';
     }
@@ -311,6 +454,10 @@ function formatSrsMarkdown(srs) {
 
 async function generateDocumentationSuite(analysisContext, options = {}) {
     const client = getGenAIClient();
+    if (!analysisContext.semanticProfile) {
+        analysisContext.semanticProfile = analyzeProjectSemantics(analysisContext);
+    }
+
     const categories = {
         presentation: options.presentation !== false,
         product: options.product !== false,
@@ -330,29 +477,31 @@ async function generateDocumentationSuite(analysisContext, options = {}) {
 
     if (client) {
         try {
-            return await generateWithGemini(client, analysisContext, categories);
+            const aiDocs = await generateWithGemini(client, analysisContext, categories);
+            return stripVerificationTags(aiDocs);
         } catch (err) {
-            console.warn('[Doc Generator] Gemini synthesis failed, using high-fidelity deterministic engine:', err.message);
+            console.warn('[Doc Generator] Gemini synthesis failed, using adaptive deterministic engine:', err.message);
             const fallback = generateDeterministicDocs(analysisContext, categories);
-            fallback.aiNotice = `Generado mediante motor estático determinista basado en evidencia (${err.message}).`;
-            return fallback;
+            fallback.aiNotice = `Generado mediante motor de análisis contextual determinista (${err.message}).`;
+            return stripVerificationTags(fallback);
         }
     }
 
-    return generateDeterministicDocs(analysisContext, categories);
+    return stripVerificationTags(generateDeterministicDocs(analysisContext, categories));
 }
 
 async function generateWithGemini(client, ctx, categories) {
     const baseDocs = generateDeterministicDocs(ctx, categories);
     const modelName = getModelName();
+    const sem = ctx.semanticProfile || analyzeProjectSemantics(ctx);
 
     try {
         const repoResult = await executeSpecializedTask('repoAnalysis', ctx, { language: categories.language });
 
         if (!repoResult.success) {
             baseDocs.aiNotice = repoResult.isQuotaExhausted
-                ? 'Límite de cuota diaria de Gemini alcanzado (429). Operando en modo determinista basado en evidencia AST.'
-                : ('Aviso IA: Modo determinista basado en evidencia (' + (repoResult.error || 'sin respuesta') + ').');
+                ? 'Límite de cuota diaria de Gemini alcanzado (429). Operando en modo contextual determinista.'
+                : ('Aviso IA: Modo contextual determinista (' + (repoResult.error || 'sin respuesta') + ').');
             baseDocs.isAiGenerated = false;
             baseDocs.modelUsed = modelName;
             baseDocs.aiDiagnostics = repoResult.diagnostics;
@@ -363,28 +512,29 @@ async function generateWithGemini(client, ctx, categories) {
             ...baseDocs,
             isAiGenerated: true,
             modelUsed: modelName,
-            aiNotice: 'Generado con motor cognitivo Gemini 2.5 Flash y verificación estática de evidencias AST.',
+            aiNotice: 'Generado con motor cognitivo Gemini 2.5 Flash y análisis semántico contextual.',
             aiDiagnostics: repoResult.diagnostics
         };
 
-        if (repoResult.data?.systemPurpose) {
-            merged.summary = repoResult.data.systemPurpose;
+        // For non-software institutional projects (e.g. Foundations), preserve the rich contextual summary & presentation
+        if (repoResult.data?.systemPurpose && !sem.isNonSoftwareInstitutional) {
+            merged.summary = stripVerificationTags(repoResult.data.systemPurpose);
         }
-        if (repoResult.data?.architecturalStyle) {
-            merged.architecture.overview = repoResult.data.architecturalStyle + '\n\n' + baseDocs.architecture.overview;
+        if (repoResult.data?.architecturalStyle && !sem.isNonSoftwareInstitutional) {
+            merged.architecture.overview = stripVerificationTags(repoResult.data.architecturalStyle) + '\n\n' + baseDocs.architecture.overview;
         }
 
-        if (categories.product) {
+        if (categories.product && !sem.isNonSoftwareInstitutional) {
             try {
                 const prdResult = await executeSpecializedTask('prd', ctx, { language: categories.language });
                 if (prdResult.success && prdResult.data) {
                     merged.product.prd = formatPrdMarkdown(prdResult.data);
                     if (Array.isArray(prdResult.data.userStories) && prdResult.data.userStories.length > 0) {
                         merged.product.userStories = prdResult.data.userStories.map(us => ({
-                            role: us.asA || us.role || 'Usuario',
-                            action: us.iWant || us.action || 'Interactuar con el sistema',
-                            goal: us.soThat || us.goal || 'Completar flujo',
-                            acceptanceCriteria: us.acceptanceCriteria || 'Given ... When ... Then ...'
+                            role: stripVerificationTags(us.asA || us.role || 'Usuario'),
+                            action: stripVerificationTags(us.iWant || us.action || 'Interactuar con el proyecto'),
+                            goal: stripVerificationTags(us.soThat || us.goal || 'Completar objetivo'),
+                            acceptanceCriteria: stripVerificationTags(us.acceptanceCriteria || 'Criterio verificable')
                         }));
                     }
                 }
@@ -402,24 +552,24 @@ async function generateWithGemini(client, ctx, categories) {
             }
         }
 
-        if (categories.architecture) {
+        if (categories.architecture && !sem.isNonSoftwareInstitutional) {
             try {
                 const archResult = await executeSpecializedTask('architecture', ctx, { language: categories.language });
                 if (archResult.success && archResult.data) {
                     if (archResult.data.architectureOverview) {
-                        merged.architecture.overview = archResult.data.architectureOverview + '\n\n' + baseDocs.architecture.overview;
+                        merged.architecture.overview = stripVerificationTags(archResult.data.architectureOverview) + '\n\n' + baseDocs.architecture.overview;
                     }
                     if (archResult.data.c4ContextMermaid) merged.diagrams.c4Mermaid = archResult.data.c4ContextMermaid;
                     if (archResult.data.c4ContainerMermaid) merged.diagrams.componentMermaid = archResult.data.c4ContainerMermaid;
                     if (Array.isArray(archResult.data.architecturalDecisions) && archResult.data.architecturalDecisions.length > 0) {
                         merged.adrs = archResult.data.architecturalDecisions.map((a, idx) => ({
                             id: a.id || `ADR-${String(idx + 1).padStart(3, '0')}`,
-                            title: a.decision || a.title || 'Decisión de Arquitectura',
-                            context: a.context || 'Contexto identificado en el repositorio',
-                            problem: a.problem || a.context || 'Necesidad de estructuración modular y escalabilidad',
-                            decision: a.decision || 'Decisión técnica observada en código fuente',
-                            alternatives: a.alternatives || 'Acoplamiento monolítico o frameworks alternativos',
-                            consequences: a.consequences || 'Mayor cohesión y mantenibilidad verificada',
+                            title: stripVerificationTags(a.decision || a.title || 'Decisión Técnica'),
+                            context: stripVerificationTags(a.context || 'Contexto identificado en el repositorio'),
+                            problem: stripVerificationTags(a.problem || a.context || 'Necesidad de estructuración del proyecto'),
+                            decision: stripVerificationTags(a.decision || 'Decisión observada en los archivos'),
+                            alternatives: stripVerificationTags(a.alternatives || 'Alternativas evaluadas'),
+                            consequences: stripVerificationTags(a.consequences || 'Mayor claridad y mantenibilidad'),
                             status: a.status || 'Aceptada'
                         }));
                     }
@@ -429,12 +579,12 @@ async function generateWithGemini(client, ctx, categories) {
             }
         }
 
-        if (categories.qa) {
+        if (categories.qa && !sem.isNonSoftwareInstitutional) {
             try {
                 const qaResult = await executeSpecializedTask('qa', ctx, { language: categories.language });
                 if (qaResult.success && qaResult.data) {
                     if (qaResult.data.testStrategy) {
-                        merged.qa.testPlan = qaResult.data.testStrategy + '\n\n' + baseDocs.qa.testPlan;
+                        merged.qa.testPlan = stripVerificationTags(qaResult.data.testStrategy) + '\n\n' + baseDocs.qa.testPlan;
                     }
                     if (Array.isArray(qaResult.data.testCases) && qaResult.data.testCases.length > 0) {
                         merged.qa.testCases = [...baseDocs.qa.testCases, ...qaResult.data.testCases];
@@ -464,7 +614,7 @@ async function generateWithGemini(client, ctx, categories) {
             }
         }
         if (!merged.api.openApiJson || typeof merged.api.openApiJson !== 'object' || !merged.api.openApiJson.openapi) {
-            merged.api.openApiJson = buildOpenApiSpec(ctx.projectName || 'Proyecto', ctx.endpoints);
+            merged.api.openApiJson = buildOpenApiSpec(ctx.projectName || 'Proyecto', ctx.endpoints, sem);
         } else {
             merged.api.openApiJson.openapi = '3.0.3';
         }
@@ -473,14 +623,14 @@ async function generateWithGemini(client, ctx, categories) {
         return merged;
     } catch (err) {
         console.warn('[Doc Generator] Gemini orchestration failed, returning deterministic docs:', err.message);
-        baseDocs.aiNotice = 'Generado mediante motor estático determinista (' + err.message + ').';
+        baseDocs.aiNotice = 'Generado mediante motor contextual determinista (' + err.message + ').';
         return baseDocs;
     }
 }
 
 /**
- * Deterministic Evidence-Based Engine: Generates complete, factual, rigorous documentation
- * directly from parsed code, AST, endpoints, models, and security audit.
+ * Adaptive Deterministic Engine: Generates complete, factual, context-aware documentation
+ * adapted to the identified project category (Foundation, Social Org, Education, Web App, SaaS, etc.).
  */
 function generateDeterministicDocs(ctx, categories) {
     const {
@@ -500,38 +650,374 @@ function generateDeterministicDocs(ctx, categories) {
         security = {}
     } = ctx || {};
 
+    const sem = ctx?.semanticProfile || analyzeProjectSemantics(ctx || {});
+    const nature = sem.projectNature || {};
+    const techImpl = sem.technicalImplementation || {};
+    const entityTitle = sem.entityName || projectName;
+    const secInfo = security || ctx?.securityAudit || {};
+
     const files = keyFiles.length > 0 ? keyFiles : prioritizedFiles;
-    const langStr = detectedLanguages.length > 0 ? detectedLanguages.join(', ') : (repository.primaryLanguage || 'JavaScript / Node.js');
-    const frameworkStr = detectedFrameworks.length > 0 ? detectedFrameworks.join(', ') : 'Librerías estándar del lenguaje';
-    const dbStr = detectedDatabases.length > 0 ? detectedDatabases.join(', ') : 'Sin motor de base de datos dedicado detectado en manifiestos';
-    const infraStr = detectedInfra.length > 0 ? detectedInfra.join(', ') : 'Entorno de servidor estándar';
-    const topFileNames = files.slice(0, 6).map(f => f.path).join(', ') || 'código fuente';
+    const langStr = detectedLanguages.length > 0 ? detectedLanguages.join(', ') : (repository.primaryLanguage || 'HTML5 / CSS3 / JavaScript');
+    const frameworkStr = detectedFrameworks.length > 0 ? detectedFrameworks.join(', ') : (sem.isStaticWebsite ? 'Sitio web estático nativo' : 'Librerías estándar del lenguaje');
+    const dbStr = detectedDatabases.length > 0 ? detectedDatabases.join(', ') : 'Sin motor de base de datos dedicado';
+    const infraStr = detectedInfra.length > 0 ? detectedInfra.join(', ') : (sem.customDomain ? `Sitio web público (${sem.customDomain})` : 'Entorno de alojamiento estándar');
+    const topFileNames = files.slice(0, 6).map(f => f.path).join(', ') || 'archivos del repositorio';
 
-    // A. Nuevo Documento de Presentación del Proyecto (19 secciones)
-    const presentation = buildProjectPresentationMarkdown(ctx);
+    // A. Documento de Presentación del Proyecto (19 secciones adaptativas)
+    const presentation = buildProjectPresentationMarkdown({ ...ctx, semanticProfile: sem });
 
-    // B. PRD & SRS (IEEE 830 + ISO/IEC/IEEE 29148:2018)
+    // =========================================================================
+    // ADAPTIVE BRANCH 1: FOUNDATIONS, SOCIAL ORGS & NON-SOFTWARE PROJECTS
+    // =========================================================================
+    if (sem.isNonSoftwareInstitutional) {
+        const programsList = (nature.programsAndActivities && nature.programsAndActivities.length > 0)
+            ? nature.programsAndActivities
+            : [{ title: 'Difusión Institucional', detail: `Presentación de las actividades y objetivos de ${entityTitle}.` }];
+
+        const projectsList = (nature.executedProjects && nature.executedProjects.length > 0)
+            ? nature.executedProjects
+            : [];
+
+        const prd = `# Diagnóstico Contextual, Misión Social y Alcance — ${entityTitle}
+
+## 1. ¿Qué es ${entityTitle}? (Naturaleza del Proyecto)
+- **Categoría Identificada**: **${sem.categoryLabel}**
+- **Descripción**: ${nature.whatItIs}
+- **Separación entre Propósito y Tecnología**: ${techImpl.roleSummary}
+
+## 2. Misión, Visión y Valores Institucionales
+- **Misión**: ${nature.mission}
+- **Visión**: ${nature.vision}
+${nature.values && nature.values.length > 0 ? `- **Valores**: ${nature.values.join(', ')}.` : ''}
+
+## 3. ¿Qué Problemática Busca Atender?
+${nature.problemAddressed}
+
+## 4. ¿A Qué Población Beneficia?
+${nature.targetBeneficiaries}
+
+## 5. ¿Qué Actividades, Programas o Servicios Desarrolla?
+${programsList.map((p, i) => `### 5.${i + 1}. ${p.title}\n${p.detail}`).join('\n\n')}
+
+${projectsList.length > 0 ? `## 6. Proyectos Ejecutados e Impacto en el Territorio\n` + projectsList.map(ep => `- **${ep.name}** (*Aliado / Donante: ${ep.ally}*): ${ep.summary}`).join('\n') + '\n' : ''}
+## 7. ¿Qué Recursos y Herramientas Utiliza?
+- **Recursos Institucionales y de Transparencia**: ${nature.transparencyDocs && nature.transparencyDocs.length > 0 ? nature.transparencyDocs.join('; ') : 'Información institucional disponible en el portal'}.
+- **Herramientas Tecnológicas (Presencia Web)**: El repositorio utiliza **${langStr}** (${topFileNames})${sem.customDomain ? ` y el dominio **${sem.customDomain}**` : ''} para construir y presentar el sitio web oficial de la organización.
+`;
+
+        const srs = `# Especificación de Programas, Servicios y Estructura del Portal — ${entityTitle}
+
+## 1. Propósito del Proyecto y de su Sitio Web
+Documentar de forma estructurada las líneas de acción, programas sociales, mecanismos de transparencia y canales de atención de **${entityTitle}** (${sem.categoryLabel}), diferenciando su propósito social de la implementación técnica de su sitio web (${topFileNames}).
+
+## 2. Alcance Institucional y Digital
+- **Alcance Institucional**: Atención a ${nature.targetBeneficiaries.charAt(0).toLowerCase() + nature.targetBeneficiaries.slice(1)}
+- **Alcance Digital**: Portal web informativo desarrollado en **${langStr}** (${files.length} archivo(s) en el repositorio).
+
+## 3. Componentes y Servicios Presentados en el Proyecto
+| Código | Eje / Programa / Sección del Portal | Descripción Basada en el Repositorio | Fuente |
+| :--- | :--- | :--- | :--- |
+${programsList.map((p, i) => `| \`PROG-${String(i + 1).padStart(2, '0')}\` | **${p.title}** | ${p.detail} | \`${files[0]?.path || 'index.html'}\` |`).join('\n')}
+${projectsList.map((ep, i) => `| \`PROY-${String(i + 1).padStart(2, '0')}\` | **${ep.name}** | ${ep.summary} | \`${files[0]?.path || 'index.html'}\` |`).join('\n')}
+| \`TRANS-01\` | **Rendición de Cuentas y Transparencia** | Publicación de estados financieros, declaraciones tributarias y actas de gestión. | \`${files[0]?.path || 'index.html'}\` |
+| \`CONT-01\` | **Canales de Contacto y Colaboración** | Vinculación para donación económica, voluntariado, alianzas estratégicas e información general. | \`${files[0]?.path || 'index.html'}\` |
+`;
+
+        const userStories = [
+            {
+                id: 'BEN-001',
+                role: 'Mujer, niña o comunidad beneficiaria',
+                action: `conocer los programas de formación, derechos menstruales, prevención de violencias y fortalecimiento comunitario de ${entityTitle}`,
+                goal: 'participar en los talleres, recibir acompañamiento y acceder a oportunidades de desarrollo integral',
+                acceptanceCriteria: `El portal presenta de forma clara los ejes temáticos, proyectos territoriales y canales de contacto en ${files[0]?.path || 'index.html'}.`
+            },
+            {
+                id: 'DON-002',
+                role: 'Donante, cooperante internacional o aliado estratégico',
+                action: `consultar los proyectos ejecutados, las métricas de impacto territorial y los informes financieros de rendición de cuentas`,
+                goal: 'verificar la transparencia de la fundación y establecer alianzas o realizar donaciones con confianza',
+                acceptanceCriteria: `Sección de proyectos y módulo de transparencia (estados financieros, declaraciones de renta y actas) accesibles en el sitio web.`
+            },
+            {
+                id: 'VOL-003',
+                role: 'Voluntario(a) o ciudadano(a) interesado(a) en apoyar',
+                action: 'comunicarse con la fundación mediante el formulario de colaboración, WhatsApp o redes sociales',
+                goal: 'sumarse como voluntario, realizar un aporte o solicitar información institucional',
+                acceptanceCriteria: 'Canales de contacto directo y opciones de colaboración visibles y funcionales.'
+            }
+        ];
+
+        const architecture = {
+            overview: `### Implementación Técnica del Sitio Web Institucional
+- **Separación entre Propósito y Tecnología**: **${entityTitle}** es una organización perteneciente a la categoría **${sem.categoryLabel}**. El repositorio no corresponde a una aplicación de software empresarial ni a una plataforma de automatización, sino al código fuente de su sitio web informativo.
+- **Archivos que Componen el Sitio**:
+${files.map(f => `  - \`${f.path}\` (${(f.size / 1024).toFixed(1)} KB): ${/cname/i.test(f.path) ? `Configuración del dominio personalizado \`${sem.customDomain}\`.` : 'Documento web con la estructura, estilos y contenido institucional.'}`).join('\n')}
+- **Tecnologías Utilizadas como Herramienta de Presentación**: **${langStr}**.
+- **Servidor Backend y Base de Datos**: El sitio es estático; no requiere servidor de aplicaciones backend ni motor de base de datos.`,
+            c4Context: `Vista de Contexto: Beneficiarias, comunidades, donantes, cooperantes y ciudadanía acceden al sitio web oficial de ${entityTitle}${sem.customDomain ? ` (${sem.customDomain})` : ''} para consultar sus ejes temáticos, proyectos, informes de transparencia y canales de contacto.`,
+            c4Container: `Vista de Contenedor Web: Sitio web estático alojado y servido directamente al navegador web mediante ${langStr}, sin contenedores de backend ni bases de datos externas.`,
+            c4Component: `Estructura de Secciones del Portal: Encabezado de navegación, Nuestra Identidad (Misión, Visión y Valores), Ejes Temáticos (${programsList.map(p => p.title.split('—')[0].trim()).join(', ')}), Proyectos e Impacto, Actualidad, Voces/Testimonios, Transparencia y Contacto.`
+        };
+
+        const c4Mermaid = `flowchart TD
+    Visitor["👥 Beneficiarias, Donantes y Ciudadanía"] -->|Navegador Web HTTPS| WebPortal["🌐 Sitio Web Institucional: ${entityTitle} (${langStr})"]
+    WebPortal --> Identity["💜 Identidad: Misión, Visión y Valores"]
+    WebPortal --> Programs["🌿 Ejes Temáticos y Programas Sociales"]
+    WebPortal --> Projects["📊 Proyectos en Territorio e Impacto"]
+    WebPortal --> Transparency["📄 Rendición de Cuentas y Transparencia"]
+    WebPortal --> Contact["🤝 Contacto, Donaciones y Voluntariado"]
+
+    style Visitor fill:#0B1120,stroke:#38BDF8,stroke-width:2px,color:#F8FAFC
+    style WebPortal fill:#0B1120,stroke:#818CF8,stroke-width:2px,color:#F8FAFC
+    style Identity fill:#0B1120,stroke:#38BDF8,stroke-width:2px,color:#F8FAFC
+    style Programs fill:#0B1120,stroke:#34D399,stroke-width:2px,color:#F8FAFC
+    style Projects fill:#0B1120,stroke:#6366F1,stroke-width:2px,color:#F8FAFC
+    style Transparency fill:#0B1120,stroke:#F59E0B,stroke-width:2px,color:#F8FAFC
+    style Contact fill:#0B1120,stroke:#EC4899,stroke-width:2px,color:#F8FAFC`;
+
+        const erdMermaid = `erDiagram
+    ORGANIZACION ||--o{ EJE_TEMATICO : "desarrolla"
+    EJE_TEMATICO ||--o{ PROYECTO_TERRITORIAL : "ejecuta"
+    ORGANIZACION ||--o{ DOCUMENTO_TRANSPARENCIA : "publica"
+    ORGANIZACION {
+        string nombre "${entityTitle}"
+        string categoria "${sem.categoryLabel}"
+        string sede "${nature.contactInfo?.location || 'Colombia'}"
+        string dominio "${sem.customDomain || 'Web'}"
+    }
+    EJE_TEMATICO {
+        string linea "Línea Púrpura / Verde / Naranja"
+        string enfoque "Derechos, Fortalecimiento y Prevención"
+    }
+    PROYECTO_TERRITORIAL {
+        string nombre "Iniciativa comunitaria"
+        string aliado "Entidad cooperante o donante"
+        string resultados "Población beneficiada"
+    }
+    DOCUMENTO_TRANSPARENCIA {
+        string tipo "Estados financieros / Actas / Renta"
+        string periodo "2020 - 2025"
+    }`;
+
+        const sequenceMermaid = `sequenceDiagram
+    autonumber
+    actor V as Visitante / Beneficiaria / Donante
+    participant W as Sitio Web (${sem.customDomain || entityTitle})
+    participant C as Canales de Contacto y Transparencia
+
+    V->>W: Ingresa al portal web institucional
+    W-->>V: Presenta Misión, Visión, Ejes Temáticos y Proyectos
+    V->>W: Consulta informes de Rendición de Cuentas o Proyectos
+    W-->>V: Muestra documentos financieros y resultados en territorio
+    V->>C: Solicita colaborar (Donación, Voluntariado o Alianza)
+    C-->>V: Canaliza contacto vía WhatsApp, redes o correo institucional`;
+
+        const componentMermaid = `flowchart LR
+    subgraph Portal["🌐 Sitio Web (${topFileNames})"]
+        S1["Identidad: Misión y Visión"]
+        S2["Ejes Temáticos y Programas"]
+        S3["Proyectos y Resultados"]
+        S4["Transparencia Documental"]
+        S5["Contacto y Colaboración"]
+    end
+    S1 --> S2 --> S3 --> S4 --> S5`;
+
+        const processFlowMermaid = `flowchart TD
+    Start(["Necesidad Comunitaria en Territorio"]) --> Lineas["Ejes de Acción de ${entityTitle}"]
+    Lineas --> Formacion["Formación en Derechos y Prevención"]
+    Lineas --> Entrega["Entrega de Kits e Insumos"]
+    Lineas --> Fortalecimiento["Fortalecimiento de Organizaciones y Alianzas"]
+    Formacion --> Impacto(["Transformación Social y Rendición de Cuentas"])
+    Entrega --> Impacto
+    Fortalecimiento --> Impacto`;
+
+        const dbOverviewMarkdown = `### Organización de la Información en el Repositorio
+- **Uso de Base de Datos**: El repositorio corresponde a un sitio web estático y **no utiliza un motor de base de datos relacional ni NoSQL**.
+- **Estructuración del Contenido**: Toda la información institucional (misión, visión, ejes temáticos, proyectos ejecutados, testimonios y enlaces a documentos de rendición de cuentas en PDF) se encuentra estructurada directamente en el marcado HTML (\`${files[0]?.path || 'index.html'}\`).`;
+
+        const openApiJson = buildOpenApiSpec(entityTitle, [], sem);
+        const openApiYaml = toYaml(openApiJson);
+
+        const qaTestPlan = `# Verificación de Calidad y Accesibilidad del Sitio Web — ${entityTitle}
+
+## 1. Criterios de Calidad Aplicables al Portal Institucional
+| Aspecto Evaluado | Observación Basada en los Archivos del Repositorio |
+| :--- | :--- |
+| **Claridad Institucional** | Presenta de forma completa la misión, visión, valores, líneas de acción, proyectos e informes de transparencia de ${entityTitle}. |
+| **Accesibilidad Web** | Incluye atributos semánticos HTML5 (\`lang="es"\`, enlace \`Saltar al contenido principal\`, etiquetas ARIA y contraste legible). |
+| **Diseño Responsive** | Emplea diseño adaptable para dispositivos móviles, tabletas y escritorio mediante CSS Grid, Flexbox y unidades fluidas (\`clamp\`). |
+| **Seguridad Estática** | Puntuación en **Security Intelligence: ${typeof secInfo.score === 'number' ? secInfo.score : 90}/100 (${secInfo.classification || 'Seguridad alta'})**. |`;
+
+        const testCases = [
+            {
+                id: 'VER-001',
+                title: 'Verificación de secciones institucionales y ejes temáticos',
+                category: 'Contenido y Navegación',
+                preconditions: `Archivo \`${files[0]?.path || 'index.html'}\` cargado en el navegador.`,
+                steps: '1. Navegar por las secciones Nosotras, Ejes Temáticos, Proyectos, Transparencia y Contacto.\n2. Confirmar que cada sección muestra su información completa.',
+                expectedResult: 'Todas las secciones institucionales e informativas se visualizan correctamente.',
+                status: 'Definido para revisión web',
+                type: 'Verificación Web'
+            },
+            {
+                id: 'VER-002',
+                title: 'Verificación de enlaces a documentos de transparencia y contacto',
+                category: 'Transparencia y Comunicación',
+                preconditions: 'Sección de Rendición de Cuentas y Contacto visible.',
+                steps: '1. Revisar enlaces de descarga de estados financieros, actas y declaraciones.\n2. Verificar canales de WhatsApp, redes sociales y formulario.',
+                expectedResult: 'Los enlaces documentales y canales de comunicación dirigen a los recursos institucionales correspondientes.',
+                status: 'Definido para revisión web',
+                type: 'Verificación Web'
+            }
+        ];
+
+        const devops = {
+            ciCdPipeline: sem.customDomain
+                ? `Publicación web estática directamente desde la rama \`${repository.defaultBranch || 'main'}\` con dominio personalizado configurado en \`CNAME\` (\`${sem.customDomain}\`).`
+                : `Publicación web estática desde el repositorio Git en la rama \`${repository.defaultBranch || 'main'}\`.`,
+            containerization: 'No requiere contenedores Docker ni servidores de aplicaciones; los archivos estáticos son servidos directamente por el alojamiento web (como GitHub Pages).',
+            deploymentGuide: `### Publicación y Mantenimiento del Sitio Web
+- **Archivos Principales**: ${topFileNames}.
+- **Dominio Configurado**: ${sem.customDomain ? `\`${sem.customDomain}\` (definido en el archivo \`CNAME\`).` : 'Alojamiento web estándar.'}
+- **Actualización de Contenidos**: Para actualizar proyectos, noticias o documentos de rendición de cuentas, se edita el archivo \`${files[0]?.path || 'index.html'}\` y se realiza commit en la rama \`${repository.defaultBranch || 'main'}\`.`
+        };
+
+        const adrs = [
+            {
+                id: 'DEC-001',
+                title: `Sitio Web Estático en ${langStr} para Difusión Institucional`,
+                context: `${entityTitle} (${sem.categoryLabel}) requiere presencia web rápida, accesible y de bajo costo de mantenimiento para difundir su labor social y publicar sus informes de transparencia.`,
+                problem: 'Brindar acceso público permanente a la información de la fundación sin incurrir en costos ni complejidad de servidores backend o bases de datos.',
+                decision: `Construir el portal mediante archivos estáticos (${topFileNames})${sem.customDomain ? ` vinculados al dominio ${sem.customDomain}` : ''}.`,
+                alternatives: 'Gestores de contenido pesados (CMS con base de datos) o aplicaciones complejas con servidor dedicado.',
+                consequences: 'Carga rápida, alta disponibilidad, superficie de ataque reducida y facilidad de alojamiento en servicios gratuitos como GitHub Pages.',
+                status: 'Implementada'
+            }
+        ];
+
+        const readme = `# ${entityTitle}
+
+> **Categoría del Proyecto**: ${sem.categoryLabel}${sem.customDomain ? ` | **Sitio Web**: https://${sem.customDomain}` : ''}
+
+## 1. ¿Qué es ${entityTitle}?
+${nature.whatItIs}
+
+## 2. Misión y Visión
+- **Misión**: ${nature.mission}
+- **Visión**: ${nature.vision}
+
+## 3. Ejes Temáticos y Líneas de Acción
+${programsList.map(p => `- **${p.title}**: ${p.detail}`).join('\n')}
+
+## 4. Implementación Técnica del Repositorio
+${techImpl.roleSummary}
+
+### Estructura de Archivos
+\`\`\`text
+${(treeDiagram || '').substring(0, 1500)}
+\`\`\`
+`;
+
+        const userGuide = {
+            guide: `# Guía de Consulta del Portal — ${entityTitle}
+
+## 1. Propósito del Portal Web
+El sitio web de **${entityTitle}** permite a beneficiarias, organizaciones sociales, donantes, cooperantes y ciudadanía conocer la labor de la fundación, sus proyectos en territorio y su gestión transparente.
+
+## 2. Secciones Principales Disponibles
+1. **Nosotras**: Historia, propósito, misión, visión y valores de la fundación.
+2. **Ejes Temáticos**: Descripción detallada de sus líneas de acción (${programsList.map(p => p.title.split('—')[0].trim()).join(', ')}).
+3. **Proyectos**: Iniciativas finalizadas y en ejecución con sus aliados, objetivos y resultados medibles.
+4. **Actualidad y Voces**: Noticias, investigaciones y testimonios reales de beneficiarias y lideresas comunitarias.
+5. **Transparencia**: Descarga pública de estados financieros, actas de reunión y declaraciones de renta.
+6. **Contacto / Quiero Ayudar**: Opciones para donación económica, voluntariado, alianzas estratégicas y comunicación directa.`,
+            faq: [
+                {
+                    question: `¿Qué es ${entityTitle} y cuál es su finalidad?`,
+                    answer: `${nature.whatItIs} Su misión es: ${nature.mission}`
+                },
+                {
+                    question: `¿A qué población beneficia ${entityTitle}?`,
+                    answer: nature.targetBeneficiaries
+                },
+                {
+                    question: `¿Qué tecnologías utiliza el repositorio y con qué propósito?`,
+                    answer: techImpl.roleSummary
+                }
+            ]
+        };
+
+        return {
+            isStaticAnalysis: true,
+            projectCategory: sem.category,
+            projectCategoryLabel: sem.categoryLabel,
+            semanticProfile: sem,
+            summary: `${nature.whatItIs} ${techImpl.roleSummary}`,
+            presentation,
+            product: { prd, srs, userStories, presentation },
+            architecture,
+            diagrams: {
+                c4Mermaid,
+                erdMermaid,
+                sequenceMermaid,
+                componentMermaid,
+                processFlowMermaid
+            },
+            database: {
+                overview: dbOverviewMarkdown,
+                dataDictionary: [],
+                rlsPolicies: [],
+                indexes: []
+            },
+            api: {
+                overview: `El repositorio corresponde al sitio web estático de ${entityTitle} (${sem.categoryLabel}) y no expone endpoints HTTP/REST de servidor (0 endpoints).`,
+                endpoints: [],
+                openApiJson,
+                openApiYaml
+            },
+            development: {
+                readme,
+                contributing: `# Guía de Actualización del Portal — ${entityTitle}\n\nPara actualizar información de proyectos, ejes temáticos o documentos de transparencia, modifique \`${files[0]?.path || 'index.html'}\` en la rama \`${repository.defaultBranch || 'main'}\`.`,
+                codingGuidelines: `## Criterios de Mantenimiento Web\n- Conservar la estructura semántica HTML5, accesibilidad y diseño responsive.\n- Mantener actualizados los enlaces de la sección de transparencia y contacto.`
+            },
+            devops,
+            qa: {
+                testPlan: qaTestPlan,
+                testCases,
+                executedTestCases: [],
+                proposedTestCases: testCases
+            },
+            security: ctx.security || security,
+            adrs,
+            userGuide
+        };
+    }
+
+    // =========================================================================
+    // ADAPTIVE BRANCH 2: SOFTWARE APPLICATIONS, SAAS, LIBRARIES & TECH PROJECTS
+    // =========================================================================
     const prd = `# Product Requirements Document (PRD) — ${projectName}
 
-## 1. Resumen Ejecutivo y Contexto Basado en Evidencia
-- **Estado de Evidencia**: \`[Información verificada]\`
-- El repositorio **${projectName}** está desarrollado en **${langStr}**, utilizando **${frameworkStr}**.
-- ${repoDescription ? `Descripción oficial del repositorio: *"${repoDescription}"* \`[Información verificada]\`.` : 'El alcance del producto se extrae directamente del análisis estático de sus controladores, vistas y módulos de servicio `[Información inferida]`.'}
+## 1. Resumen Ejecutivo y Naturaleza del Proyecto
+- **Categoría Identificada**: **${sem.categoryLabel}**
+- **Naturaleza del Proyecto**: ${nature.whatItIs}
+- **Implementación Técnica**: Desarrollado en **${langStr}**, utilizando **${frameworkStr}**.
+- ${repoDescription ? `Descripción del repositorio: *"${repoDescription}"*.` : `El alcance funcional se fundamenta en sus controladores, vistas y módulos de servicio (${topFileNames}).`}
 
-## 2. Objetivos del Producto
-- **Objetivo General**: Proveer una plataforma funcional sobre **${langStr}** capaz de ejecutar con fiabilidad las operaciones implementadas en sus módulos clave (${topFileNames}) \`[Información verificada]\`.
+## 2. Objetivos del Proyecto
+- **Objetivo General**: Proveer una solución funcional dentro de la categoría **${sem.categoryLabel}** sobre **${langStr}** capaz de ejecutar con fiabilidad las operaciones implementadas en sus módulos clave (${topFileNames}).
 - **Objetivos Específicos**:
-  1. Procesar las solicitudes en los **${endpoints.length} endpoints identificados** garantizando respuestas consistentes \`[Información verificada]\`.
-  2. Mantener la integridad estructural de los **${dataModels.length} modelos/esquemas de datos** \`[Información verificada]\`.
-  3. Preservar una postura de seguridad verificable (Score actual: **${typeof security.score === 'number' ? security.score : 90}/100**) \`[Información verificada]\`.
+  1. ${endpoints.length > 0 ? `Procesar las solicitudes en los **${endpoints.length} endpoints identificados** garantizando respuestas consistentes.` : `Ejecutar de forma fiable las funciones y componentes definidos en los ${files.length} archivos del proyecto.`}
+  2. ${dataModels.length > 0 ? `Mantener la integridad estructural de los **${dataModels.length} modelos/esquemas de datos**.` : 'Gestionar de manera consistente las estructuras de datos y configuraciones del proyecto.'}
+  3. Preservar una postura de seguridad verificable (Puntuación actual: **${typeof secInfo.score === 'number' ? secInfo.score : 90}/100**).
 
-## 3. Funcionalidades en Alcance (Verificadas en Código)
+## 3. Funcionalidades en Alcance
 ${endpoints.length > 0
-        ? endpoints.slice(0, 12).map((e, i) => `- **RF-${String(i + 1).padStart(3, '0')}**: \`${e.method} ${e.path}\` — Localizado en \`${e.file || 'servidor'}\` \`[Información verificada]\`.`).join('\n')
-        : files.slice(0, 8).map((f, i) => `- **RF-${String(i + 1).padStart(3, '0')}**: Módulo \`${f.path}\` (${f.category || 'SOURCE_CODE'}) \`[Información verificada]\`.`).join('\n')}
+        ? endpoints.slice(0, 12).map((e, i) => `- **RF-${String(i + 1).padStart(3, '0')}**: \`${e.method} ${e.path}\` — Localizado en \`${e.file || 'servidor'}\`.`).join('\n')
+        : files.slice(0, 8).map((f, i) => `- **RF-${String(i + 1).padStart(3, '0')}**: Módulo \`${f.path}\` (${f.category || 'SOURCE_CODE'}).`).join('\n')}
 
 ## 4. Fuera de Alcance
-- Componentes o servicios externos no presentes en los archivos analizados del repositorio \`[Información no encontrada]\`.
+- Componentes o servicios externos no presentes en los archivos analizados del repositorio.
 `;
 
     const rfList = endpoints.length > 0
@@ -546,20 +1032,20 @@ ${endpoints.length > 0
         : files.slice(0, 6).map((f, idx) => ({
             id: `RF-${String(idx + 1).padStart(3, '0')}`,
             name: `Ejecución del módulo ${f.path}`,
-            desc: `El sistema carga y ejecuta las funciones definidas en el módulo \`${f.path}\` (${f.category || 'CODE'}).`,
+            desc: `El proyecto carga y ejecuta las funciones definidas en el archivo \`${f.path}\` (${f.category || 'CODE'}).`,
             file: f.path,
             auth: 'Interno',
             criteria: `El módulo ${f.path} se importa y ejecuta sin errores de sintaxis ni referencias nulas.`
         }));
 
     const srs = `# Especificación de Requisitos de Software (SRS) — ${projectName}
-> **Marco Normativo**: Estructura basada en **IEEE Std 830-1998** (referencia histórica de ingeniería de software) enriquecida con la norma vigente **ISO/IEC/IEEE 29148:2018** (*Systems and software engineering — Requirements engineering*).
+> **Marco Normativo**: Estructura basada en **IEEE Std 830-1998** y la norma **ISO/IEC/IEEE 29148:2018**.
 
 ## 1. Propósito
-Definir de forma rigurosa, verificable y trazable los requisitos funcionales (\`RF\`), requisitos no funcionales (\`RNF\`), interfaces, restricciones, dependencias y criterios de aceptación del sistema **${projectName}**, sustentados en la evidencia real del código fuente \`[Información verificada]\`.
+Definir los requisitos funcionales (\`RF\`), requisitos no funcionales (\`RNF\`), interfaces, restricciones y criterios de aceptación del proyecto **${projectName}** (${sem.categoryLabel}), sustentados en los archivos del repositorio.
 
 ## 2. Alcance
-El sistema **${projectName}** comprende **${files.length} archivos técnicos** analizados en **${langStr}** (${frameworkStr}), abarcando **${endpoints.length} endpoints HTTP** y **${dataModels.length} modelos de datos** \`[Información verificada]\`.
+El proyecto **${projectName}** comprende **${files.length} archivos técnicos** analizados en **${langStr}** (${frameworkStr}), abarcando **${endpoints.length} endpoints HTTP** y **${dataModels.length} modelos de datos**.
 
 ## 3. Definiciones, Acrónimos y Abreviaturas
 | Término / Acrónimo | Definición en el Contexto del Proyecto |
@@ -568,75 +1054,64 @@ El sistema **${projectName}** comprende **${files.length} archivos técnicos** a
 | **RF / RNF** | Requisito Funcional / Requisito No Funcional con identificador único trazable. |
 | **AST** | Abstract Syntax Tree (Árbol de Sintaxis Abstracta empleado en la inspección estática). |
 | **SAST** | Static Application Security Testing (Análisis estático de vulnerabilidades en código). |
-| **RLS** | Row Level Security (Políticas de seguridad a nivel de fila en PostgreSQL / Supabase). |
 
 ## 4. Descripción General
-- **Perspectiva del Sistema**: Aplicación desarrollada sobre **${langStr}** y **${frameworkStr}**, con persistencia en **${dbStr}** \`[Información verificada]\`.
-- **Funciones Principales**: Procesamiento de entradas, lógica de negocio modular en ${topFileNames} y exposición de contratos de servicio.
-- ** Suposiciones y Dependencias**: Requiere las dependencias declaradas en el manifiesto del proyecto y las variables de entorno documentadas en \`.env.example\`.
+- **Naturaleza del Proyecto**: ${nature.whatItIs}
+- **Implementación Técnica**: Desarrollado sobre **${langStr}** y **${frameworkStr}**, con persistencia en **${dbStr}**.
+- **Funciones Principales**: Procesamiento de entradas, lógica modular en ${topFileNames} y exposición de servicios.
 
 ## 5. Requisitos Funcionales (RF-001...)
-| ID | Requisito Funcional | Descripción Técnica y Evidencia | Archivo Fuente | Criterio de Aceptación |
+| ID | Requisito Funcional | Descripción Técnica | Archivo Fuente | Criterio de Aceptación |
 | :--- | :--- | :--- | :--- | :--- |
-${rfList.map(r => `| \`${r.id}\` | **${r.name}** | ${r.desc} \`[Información verificada]\` | \`${r.file}\` | ${r.criteria} |`).join('\n')}
+${rfList.map(r => `| \`${r.id}\` | **${r.name}** | ${r.desc} | \`${r.file}\` | ${r.criteria} |`).join('\n')}
 
 ## 6. Requisitos No Funcionales (RNF-001...)
-| ID | Categoría ISO 25010 | Requisito No Funcional | Métrica / Criterio Verificable | Estado de Evidencia |
-| :--- | :--- | :--- | :--- | :---: |
-| \`RNF-001\` | **Seguridad (Cabeceras y Transporte)** | El sistema debe proteger las respuestas HTTP mediante políticas CSP, HSTS, CORS controlado y ocultar firmas del servidor. | Cabeceras \`X-Content-Type-Options: nosniff\` y Helmet activas. | \`[Información verificada]\` |
-| \`RNF-002\` | **Seguridad (Gestión de Secretos)** | Ninguna clave API, token privado ni credencial debe almacenarse en texto plano dentro del código fuente versionado. | 0 secretos expuestos en el escáner estático (\`SecretScanner\`). | \`[Información verificada]\` |
-| \`RNF-003\` | **Fiabilidad y Disponibilidad** | El servidor debe manejar errores de ejecución mediante middlewares centralizados sin exponer stack traces en producción. | Respuesta JSON controlada ante códigos HTTP 400/500. | \`[Información verificada]\` |
-| \`RNF-004\` | **Eficiencia de Desempeño** | Las rutas de API deben contar con protección contra abuso mediante limitación de tasa (*Rate Limiting*) y límites de payload. | Límite configurado por ventana de tiempo e ingesta acotada. | \`[Información verificada]\` |
-| \`RNF-005\` | **Mantenibilidad y Modularidad** | La base de código debe mantener separación entre enrutamiento, servicios de dominio, análisis y exportación. | Estructura modular verificada en ${files.length} archivos. | \`[Información verificada]\` |
-| \`RNF-006\` | **Usabilidad y Responsive Design** | La interfaz de usuario debe adaptarse sin desbordamiento horizontal desde móviles (320px) hasta monitores de escritorio (1920px+). | Diseño fluido con CSS Grid, Flexbox y Media Queries. | \`[Información verificada]\` |
+| ID | Categoría ISO 25010 | Requisito No Funcional | Métrica / Criterio Verificable |
+| :--- | :--- | :--- | :--- |
+| \`RNF-001\` | **Seguridad (Cabeceras y Transporte)** | Proteger las respuestas HTTP mediante políticas de seguridad y ocultar firmas innecesarias del servidor. | Cabeceras de seguridad activas. |
+| \`RNF-002\` | **Seguridad (Gestión de Secretos)** | Ninguna clave API, token privado ni credencial debe almacenarse en texto plano dentro del código fuente versionado. | 0 secretos expuestos en el escáner estático. |
+| \`RNF-003\` | **Fiabilidad y Disponibilidad** | Manejar errores de ejecución de forma controlada sin exponer trazas internas en producción. | Respuestas controladas ante errores. |
+| \`RNF-004\` | **Mantenibilidad y Modularidad** | Mantener separación clara entre componentes, servicios y configuración. | Estructura modular en ${files.length} archivos. |
 
 ## 7. Interfaces del Sistema
-- **Interfaces de Usuario (UI)**: ${projectMap?.frontend?.detected ? 'Interfaz web interactiva HTML5/CSS3/JS con soporte responsive.' : 'Interfaz programática / CLI.'} \`[Información verificada]\`
-- **Interfaces de Programación (API)**: ${endpoints.length > 0 ? `${endpoints.length} endpoints HTTP/JSON documentados bajo OpenAPI 3.0.3.` : 'Módulos exportados internamente.'} \`[Información verificada]\`
-- **Interfaces de Datos**: Conexión estructurada con **${dbStr}**.
+- **Interfaces de Usuario (UI)**: ${projectMap?.frontend?.detected ? 'Interfaz web interactiva con soporte responsive.' : 'Interfaz programática / modular.'}
+- **Interfaces de Programación (API)**: ${endpoints.length > 0 ? `${endpoints.length} endpoints HTTP documentados bajo OpenAPI 3.0.3.` : 'Módulos internos sin rutas HTTP públicas expuestas.'}
+- **Interfaces de Datos**: ${dbStr}.
 
-## 8. Restricciones y Dependencias
-- **Restricciones de Runtime**: Ejecución sobre **${langStr}**.
-- **Dependencias de Terceros**: Paquetes declarados en manifiestos (\`${files.find(f => /package\.json|requirements\.txt/i.test(f.path))?.path || 'manifiesto'}\`) \`[Información verificada]\`.
-
-## 9. Matriz de Trazabilidad de Requisitos (ISO/IEC/IEEE 29148)
-| ID Requisito | Módulo / Archivo Asociado | Endpoint / Componente | Caso de Prueba Vinculado | Nivel de Evidencia |
-| :--- | :--- | :--- | :---: | :---: |
-${rfList.map((r, i) => `| \`${r.id}\` | \`${r.file}\` | ${r.name} | \`TC-${String(i + 1).padStart(3, '0')}\` | \`[Información verificada]\` |`).join('\n')}
+## 8. Matriz de Trazabilidad de Requisitos (ISO/IEC/IEEE 29148)
+| ID Requisito | Módulo / Archivo Asociado | Componente | Caso de Prueba Vinculado |
+| :--- | :--- | :--- | :---: |
+${rfList.map((r, i) => `| \`${r.id}\` | \`${r.file}\` | ${r.name} | \`TC-${String(i + 1).padStart(3, '0')}\` |`).join('\n')}
 `;
 
     const userStories = rfList.slice(0, 6).map((r, idx) => ({
         id: `US-${String(idx + 1).padStart(3, '0')}`,
-        role: 'Ingeniero de Software / Usuario Autenticado',
-        action: `ejecutar la capacidad definida en ${r.id} (${r.name})`,
+        role: 'Usuario del Sistema',
+        action: `utilizar la capacidad definida en ${r.id} (${r.name})`,
         goal: `obtener una respuesta procesada y validada desde el módulo ${r.file}`,
         acceptanceCriteria: `Given una solicitud válida hacia ${r.name}\nWhen el módulo ${r.file} procesa la entrada\nThen retorna un resultado consistente cumpliendo ${r.id}.`
     }));
 
-    // C. Arquitectura de Software (ISO/IEC/IEEE 42010 + Modelo C4)
     const architecture = {
         overview: `### Descripción Arquitectónica conforme a ISO/IEC/IEEE 42010
-- **Arquitectura General**: \`[Información verificada]\` El sistema **${projectName}** implementa una arquitectura modular multicapa sobre **${langStr}** y **${frameworkStr}**, con persistencia en **${dbStr}**.
+- **Naturaleza del Proyecto**: ${nature.whatItIs}
+- **Implementación Técnica**: **${projectName}** está construido sobre **${langStr}** y **${frameworkStr}**, con almacenamiento en **${dbStr}**.
 - **Componentes y Responsabilidades**:
-${files.slice(0, 10).map(f => `  - \`${f.path}\` (**${f.category || 'SOURCE_CODE'}**): Módulo verificado de ${(f.size / 1024).toFixed(1)} KB responsable de la lógica de su capa.`).join('\n')}
-- **Comunicación entre Componentes**: Las solicitudes ingresan por la capa HTTP/REST (${endpoints.length} endpoints), se validan y delegan hacia los servicios internos mediante llamadas asíncronas y contratos JSON.
-- **Integraciones Externas**: ${detectedFrameworks.concat(detectedDatabases, detectedInfra).join(', ') || 'Librerías estándar'} \`[Información verificada]\`.
+${files.slice(0, 10).map(f => `  - \`${f.path}\` (**${f.category || 'SOURCE_CODE'}**): Módulo de ${(f.size / 1024).toFixed(1)} KB responsable de la lógica de su capa.`).join('\n')}
+- **Comunicación entre Componentes**: ${endpoints.length > 0 ? `Las solicitudes ingresan por la capa HTTP/REST (${endpoints.length} endpoints) y se delegan hacia los servicios internos.` : 'Los módulos interactúan mediante importaciones directas de funciones y estructuras de datos.'}
 - **Modelo de Datos**: ${dataModels.length} entidades/modelos identificados (${dataModels.map(m => m.name).join(', ') || 'estructuras en memoria/JSON'}).
-- **Despliegue**: Configurado sobre **${infraStr}** con inyección de configuración mediante variables de entorno (\`.env\`).
-- **Seguridad Arquitectónica**: Defensa en profundidad con sanitización de entradas, cabeceras HTTP seguras, control de tasa de peticiones y redacción de secretos (Puntaje SAST: **${typeof security.score === 'number' ? security.score : 90}/100**).
-- **Escalabilidad y Disponibilidad**: Diseño *stateless* en la capa de controladores HTTP que facilita el escalado horizontal y la tolerancia a fallos mediante bloques de contingencia deterministas.`,
-        c4Context: `[Información verificada] Vista C4 Nivel 1 (Contexto): Los usuarios e integradores interactúan con el sistema "${projectName}" mediante peticiones HTTPS/REST hacia sus ${endpoints.length || 1}+ rutas expuestas, apoyándose en servicios de persistencia (${dbStr}) e infraestructura (${infraStr}).`,
-        c4Container: `[Información verificada] Vista C4 Nivel 2 (Contenedores): Compuesto por el Contenedor de Aplicación/API en ${langStr} (${frameworkStr}), la Capa de Interfaz Cliente y el Contenedor de Persistencia (${dbStr}).`,
-        c4Component: `[Información verificada] Vista C4 Nivel 3 (Componentes): Articulado a través de los módulos reales del repositorio: ${topFileNames}.`
+- **Seguridad Arquitectónica**: Puntaje SAST actual de **${typeof secInfo.score === 'number' ? secInfo.score : 90}/100**.`,
+        c4Context: `Vista C4 Nivel 1 (Contexto): Los usuarios interactúan con "${projectName}" (${sem.categoryLabel}) a través de sus interfaces expuestas, apoyándose en ${dbStr} e infraestructura ${infraStr}.`,
+        c4Container: `Vista C4 Nivel 2 (Contenedores): Compuesto por la aplicación en ${langStr} (${frameworkStr})${projectMap?.frontend?.detected ? ', la capa de interfaz cliente' : ''} y el almacenamiento (${dbStr}).`,
+        c4Component: `Vista C4 Nivel 3 (Componentes): Articulado a través de los módulos reales del repositorio: ${topFileNames}.`
     };
 
-    // Diagramas Mermaid basados en la arquitectura real
     const c4Mermaid = `flowchart TD
-    User["👤 Usuario / Cliente"] -->|HTTPS / JSON| Gateway["🛡️ Punto de Entrada (${frameworkStr})"]
-    Gateway --> Controllers["🎮 Enrutadores y Controladores (${endpoints.length} rutas)"]
-    Controllers --> Services["⚙️ Servicios de Dominio (${files.length} archivos en ${langStr})"]
-    Services --> SecEngine["🔒 Controles de Seguridad & Sanitización"]
-    Services --> Persistence[("🗄️ Persistencia (${dbStr})")]
+    User["👤 Usuario / Cliente"] -->|Interacción| Gateway["🛡️ Entrada (${frameworkStr})"]
+    Gateway --> Controllers["🎮 Módulos Principales (${endpoints.length} rutas)"]
+    Controllers --> Services["⚙️ Servicios (${files.length} archivos en ${langStr})"]
+    Services --> SecEngine["🔒 Controles de Seguridad"]
+    Services --> Persistence[("🗄️ Almacenamiento (${dbStr})")]
 
     style User fill:#0B1120,stroke:#38BDF8,stroke-width:2px,color:#F8FAFC
     style Gateway fill:#0B1120,stroke:#818CF8,stroke-width:2px,color:#F8FAFC
@@ -651,9 +1126,10 @@ ${files.slice(0, 10).map(f => `  - \`${f.path}\` (**${f.category || 'SOURCE_CODE
             const safeModelName = (model.name || 'ENTITY').replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase();
             erdMermaid += `    ${safeModelName} {\n`;
             (model.fields || [{ name: 'id', type: 'UUID', isPk: true }]).slice(0, 8).forEach(f => {
-                const typeSafe = (f.type || 'string').replace(/[^a-zA-Z0-9_]/g, '') || 'string';
-                const nameSafe = (f.name || 'id').replace(/[^a-zA-Z0-9_]/g, '') || 'id';
-                const pkTag = f.isPk ? ' PK' : (f.isFk ? ' FK' : '');
+                const fObj = typeof f === 'string' ? { name: f.split(':')[0].trim(), type: (f.split(':')[1] || 'string').trim() } : f;
+                const typeSafe = (fObj.type || 'string').replace(/[^a-zA-Z0-9_]/g, '') || 'string';
+                const nameSafe = (fObj.name || 'id').replace(/[^a-zA-Z0-9_]/g, '') || 'id';
+                const pkTag = fObj.isPk ? ' PK' : (fObj.isFk ? ' FK' : '');
                 erdMermaid += `        ${typeSafe} ${nameSafe}${pkTag}\n`;
             });
             erdMermaid += `    }\n`;
@@ -662,31 +1138,31 @@ ${files.slice(0, 10).map(f => `  - \`${f.path}\` (**${f.category || 'SOURCE_CODE
             const m1 = (dataModels[i].name || 'E1').replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase();
             const m2 = (dataModels[i + 1].name || 'E2').replace(/[^a-zA-Z0-9_]/g, '_').toUpperCase();
             if (m1 !== m2) {
-                erdMermaid += `    ${m1} ||--o{ ${m2} : "relación_verificada"\n`;
+                erdMermaid += `    ${m1} ||--o{ ${m2} : "relación"\n`;
             }
         }
     } else {
-        erdMermaid += `    ESTADO_EN_MEMORIA {\n        string projectId PK\n        jsonb payload\n        timestamp createdAt\n    }\n`;
+        erdMermaid += `    ESTRUCTURA_DE_DATOS {\n        string projectId PK\n        jsonb payload\n        timestamp createdAt\n    }\n`;
     }
 
     const sequenceMermaid = `sequenceDiagram
     autonumber
     actor U as Usuario / Cliente
     participant API as ${projectName} (${frameworkStr})
-    participant SVC as Módulos de Servicio (${langStr})
-    participant DB as Persistencia (${dbStr})
+    participant SVC as Módulos (${langStr})
+    participant DB as Almacenamiento (${dbStr})
 
     U->>API: Solicitud (${endpoints[0] ? endpoints[0].method + ' ' + endpoints[0].path : 'Operación Principal'})
     activate API
     API->>SVC: Validación de entrada y ejecución modular
     activate SVC
-    SVC->>DB: Lectura / Escritura de estado
+    SVC->>DB: Consulta / Actualización de estado
     activate DB
-    DB-->>SVC: Confirmación e integridad verificada
+    DB-->>SVC: Confirmación
     deactivate DB
     SVC-->>API: Resultado estructurado
     deactivate SVC
-    API-->>U: Respuesta HTTP 200 OK
+    API-->>U: Respuesta exitosa
     deactivate API`;
 
     const componentMermaid = `flowchart LR
@@ -703,35 +1179,34 @@ ${files.slice(0, 10).map(f => `  - \`${f.path}\` (**${f.category || 'SOURCE_CODE
     Nucleo --> Datos`;
 
     const processFlowMermaid = `flowchart TD
-    Start(["Inicio de Petición"]) --> Validate{"¿Entrada y Esquema Válidos?"}
-    Validate -- No --> Reject["Retornar HTTP 400 Bad Request"]
-    Validate -- Sí --> Sanitize["Sanitización y Control de Seguridad"]
+    Start(["Inicio de Solicitud"]) --> Validate{"¿Entrada Válida?"}
+    Validate -- No --> Reject["Retornar Error Controlado"]
+    Validate -- Sí --> Sanitize["Validación y Control de Seguridad"]
     Sanitize --> Execute["Ejecutar Lógica en Módulos (${langStr})"]
-    Execute --> Persist[("Persistir / Cachear en ${dbStr}")]
-    Persist --> Response(["Emitir Respuesta Verificada 200 OK"])`;
+    Execute --> Persist[("Gestionar Estado en ${dbStr}")]
+    Persist --> Response(["Emitir Respuesta"])`;
 
-    // D. Documentación de Base de Datos (ERD, PK, FK, Índices, RLS, Diccionario)
     const dataDictionary = [];
     if (dataModels.length > 0) {
         dataModels.forEach(m => {
             (m.fields || []).forEach(f => {
-                const isFk = Boolean(f.isFk || /_id$/i.test(f.name || '') && (f.name || '').toLowerCase() !== 'id');
+                const fObj = typeof f === 'string' ? { name: f.split(':')[0].trim(), type: (f.split(':')[1] || 'VARCHAR').trim() } : f;
+                const isFk = Boolean(fObj.isFk || /_id$/i.test(fObj.name || '') && (fObj.name || '').toLowerCase() !== 'id');
                 dataDictionary.push({
                     table: m.name,
-                    field: f.name,
-                    type: f.type || 'VARCHAR / TEXT',
-                    description: f.isPk
-                        ? 'Clave Primaria (PK) identificadora única de la entidad [Información verificada]'
-                        : (isFk ? `Clave Foránea (FK) de referencia relacional [Información verificada]` : `Atributo de la entidad ${m.name} detectado en esquema (${m.file || 'modelo'}) [Información verificada]`),
-                    required: Boolean(f.isRequired || f.isPk || isFk),
-                    isPk: Boolean(f.isPk),
+                    field: fObj.name,
+                    type: fObj.type || 'VARCHAR / TEXT',
+                    description: fObj.isPk
+                        ? 'Clave Primaria (PK) identificadora única de la entidad'
+                        : (isFk ? 'Clave Foránea (FK) de referencia relacional' : `Atributo de la entidad ${m.name} definido en el modelo`),
+                    required: Boolean(fObj.isRequired || fObj.isPk || isFk),
+                    isPk: Boolean(fObj.isPk),
                     isFk
                 });
             });
         });
     }
 
-    // Extract SQL RLS policies and indexes if SQL files exist
     const sqlFiles = files.filter(f => /\.sql$/i.test(f.path || ''));
     const rlsPoliciesFound = [];
     const indexesFound = [];
@@ -744,37 +1219,35 @@ ${files.slice(0, 10).map(f => `  - \`${f.path}\` (**${f.category || 'SOURCE_CODE
     });
 
     const dbOverviewMarkdown = `### 1. Arquitectura de Persistencia y Modelo Entidad-Relación
-- **Motor / Estrategia Detectada**: **${dbStr}** \`[Información verificada]\`.
+- **Motor / Estrategia Detectada**: **${dbStr}**.
 - **Entidades Identificadas**: **${dataModels.length}** (${dataModels.map(m => `\`${m.name}\``).join(', ') || 'Sin tablas SQL/ORM explícitas; operación en memoria/JSON'}).
 - **Claves Primarias (PK) y Foráneas (FK)**: ${dataDictionary.filter(d => d.isPk).length} claves primarias y ${dataDictionary.filter(d => d.isFk).length} claves foráneas identificadas en los esquemas analizados.
 
 ### 2. Índices de Rendimiento Detectados
 ${indexesFound.length > 0
-        ? indexesFound.map(idx => `- \`${idx}\` \`[Información verificada]\``).join('\n')
-        : '- `[Información no encontrada]` No se detectaron sentencias explícitas `CREATE INDEX` en los archivos analizados.'}
+        ? indexesFound.map(idx => `- \`${idx}\``).join('\n')
+        : '- No se detectaron sentencias explícitas `CREATE INDEX` en los archivos analizados.'}
 
 ### 3. Políticas de Seguridad a Nivel de Fila (Row Level Security — RLS)
 ${rlsPoliciesFound.length > 0
-        ? rlsPoliciesFound.map(p => `- \`${p}\` \`[Información verificada]\``).join('\n')
-        : '- `[Información no encontrada]` No se detectaron políticas `CREATE POLICY` (RLS) en los archivos examinados.'}`;
+        ? rlsPoliciesFound.map(p => `- \`${p}\``).join('\n')
+        : '- No se detectaron políticas `CREATE POLICY` (RLS) en los archivos examinados.'}`;
 
-    // E. Documentación de API (OpenAPI 3.0.3 en JSON y YAML)
     const apiEndpointsList = endpoints.length > 0 ? endpoints.map(e => ({
         method: e.method || 'GET',
         path: e.path || '/',
         file: e.file || 'server.js',
-        description: `Endpoint ${e.method} ${e.path} verificado en \`${e.file || 'código fuente'}\` [Información verificada].`,
+        description: e.description || `Endpoint ${e.method} ${e.path} definido en \`${e.file || 'código fuente'}\`.`,
         requiresAuth: Boolean(e.requiresAuth),
         headers: e.requiresAuth ? 'Content-Type: application/json, Authorization: Bearer <JWT>' : 'Content-Type: application/json',
         params: e.method === 'GET' ? 'Parámetros de ruta/consulta (req.params / req.query)' : 'Payload JSON estructurado en cuerpo HTTP (req.body)',
-        requestExample: e.method === 'GET' ? `GET ${e.path} HTTP/1.1` : JSON.stringify({ sampleKey: 'valor_verificado', timestamp: new Date().toISOString() }),
+        requestExample: e.method === 'GET' ? `GET ${e.path} HTTP/1.1` : JSON.stringify({ sampleKey: 'valor', timestamp: new Date().toISOString() }),
         response: '200 OK (application/json) | 400 Bad Request | 401/403 Auth | 429 Rate Limit | 500 Server Error'
     })) : [];
 
-    const openApiJson = buildOpenApiSpec(projectName, apiEndpointsList);
+    const openApiJson = buildOpenApiSpec(projectName, apiEndpointsList, sem);
     const openApiYaml = toYaml(openApiJson);
 
-    // F. Calidad y Pruebas (ISO/IEC 25010 + Pruebas ejecutadas vs propuestas)
     const testFiles = files.filter(f => /test|spec/i.test(f.path || ''));
     const executedTestCases = testFiles.map((tf, idx) => ({
         id: `TC-EXEC-${String(idx + 1).padStart(3, '0')}`,
@@ -783,42 +1256,43 @@ ${rlsPoliciesFound.length > 0
         preconditions: `Archivo de prueba \`${tf.path}\` presente en el repositorio (${(tf.size / 1024).toFixed(1)} KB).`,
         steps: `1. Ejecutar runner de pruebas sobre \`${tf.path}\`.\n2. Evaluar aserciones de módulos y rutas.`,
         expectedResult: 'Todas las aserciones de la suite finalizan con código de salida 0.',
-        status: 'Implementada en Repositorio [Información verificada]',
-        type: 'Ejecutada / Existente'
+        status: 'Implementada en Repositorio',
+        type: 'Existente'
     }));
 
-    const proposedTestCases = (endpoints.length > 0 ? endpoints.slice(0, 6) : [{ method: 'GET', path: '/api/health', file: 'server.js' }]).map((e, idx) => ({
+    const proposedTestCases = (endpoints.length > 0 ? endpoints.slice(0, 6) : files.slice(0, 3).map(f => ({ method: 'MOD', path: f.path, file: f.path }))).map((e, idx) => ({
         id: `TC-PROP-${String(idx + 1).padStart(3, '0')}`,
-        title: `Prueba de contrato e integridad para ${e.method} ${e.path}`,
+        title: e.method === 'MOD' ? `Prueba de integridad del módulo ${e.path}` : `Prueba de contrato e integridad para ${e.method} ${e.path}`,
         category: 'ISO/IEC 25010 — Adecuación Funcional y Seguridad',
-        preconditions: `Servicio activo e instancia de \`${e.file || 'servidor'}\` inicializada.`,
-        steps: `1. Enviar petición HTTP ${e.method} a \`${e.path}\`.\n2. Validar cabeceras, código de estado HTTP y estructura JSON.\n3. Probar payload malformado para confirmar rechazo seguro HTTP 400.`,
-        expectedResult: 'Respuesta HTTP 200 con contrato válido ante entrada legítima y HTTP 400 sin fuga de stack trace ante entrada inválida.',
-        status: 'Propuesta Técnica [Recomendación]',
+        preconditions: `Entorno de \`${e.file || 'proyecto'}\` inicializado.`,
+        steps: e.method === 'MOD'
+            ? `1. Cargar el archivo \`${e.path}\`.\n2. Verificar que sus funciones o elementos se procesen sin errores.`
+            : `1. Enviar petición HTTP ${e.method} a \`${e.path}\`.\n2. Validar código de estado HTTP y estructura de respuesta.\n3. Probar entrada inválida para confirmar manejo seguro de errores.`,
+        expectedResult: 'Comportamiento consistente ante entradas válidas y manejo controlado ante entradas inválidas.',
+        status: 'Propuesta Técnica',
         type: 'Propuesta'
     }));
 
     const testCases = [...executedTestCases, ...proposedTestCases];
 
-    const qaTestPlan = `# Evaluación de Calidad del Software (Modelo ISO/IEC 25010) y Plan de Pruebas — ${projectName}
+    const qaTestPlan = `# Evaluación de Calidad (Modelo ISO/IEC 25010) y Plan de Pruebas — ${projectName}
 
 ## 1. Evaluación de Características de Calidad según ISO/IEC 25010
-| Característica ISO/IEC 25010 | Evaluación Basada en Evidencia del Repositorio | Nivel de Evidencia |
-| :--- | :--- | :---: |
-| **1. Adecuación Funcional** | Cobertura de las operaciones de negocio mediante ${files.length} módulos y ${endpoints.length} endpoints HTTP identificados. | \`[Información verificada]\` |
-| **2. Eficiencia de Desempeño** | Procesamiento asíncrono no bloqueante sobre ${langStr} (${frameworkStr}) con control de tamaño de carga y caché en memoria. | \`[Información verificada]\` |
-| **3. Compatibilidad** | Interoperabilidad mediante contratos estándar HTTP/REST, JSON UTF-8 y especificación OpenAPI 3.0.3. | \`[Información verificada]\` |
-| **4. Usabilidad (Capacidad de Interacción)** | ${projectMap?.frontend?.detected ? 'Interfaz estructurada con navegación clara, estados de carga, retroalimentación visual y diseño responsive.' : 'API con mensajes de estado claros y estructura predecible.'} | \`[Información verificada]\` |
-| **5. Fiabilidad** | Manejo centralizado de excepciones y mecanismos de contingencia determinista ante fallos de servicios externos. | \`[Información verificada]\` |
-| **6. Seguridad** | Índice **Security Intelligence de ${typeof security.score === 'number' ? security.score : 90}/100 (${security.classification || 'Seguridad alta'})**, cabeceras seguras, sanitización y redacción de secretos. | \`[Información verificada]\` |
-| **7. Mantenibilidad** | Separación modular de responsabilidades (${topFileNames}) y suites de pruebas identificadas (${testFiles.length} archivos de test). | \`[Información verificada]\` |
-| **8. Flexibilidad (Portabilidad)** | Configuración externalizada en variables de entorno (\`.env\`) lista para despliegue en contenedores o plataformas PaaS (Render / Cloud). | \`[Información verificada]\` |
+| Característica ISO/IEC 25010 | Evaluación Basada en el Repositorio |
+| :--- | :--- |
+| **1. Adecuación Funcional** | Cobertura de las capacidades del proyecto mediante ${files.length} archivos y ${endpoints.length} endpoints identificados. |
+| **2. Eficiencia de Desempeño** | Implementación sobre ${langStr} (${frameworkStr}). |
+| **3. Compatibilidad** | Uso de formatos y protocolos estándar (${endpoints.length > 0 ? 'HTTP/REST, JSON y OpenAPI 3.0.3' : langStr}). |
+| **4. Usabilidad** | ${projectMap?.frontend?.detected ? 'Interfaz estructurada con navegación clara y diseño adaptable.' : 'Estructura modular legible y mantenible.'} |
+| **5. Fiabilidad** | Manejo de errores y validación de entradas en los módulos analizados. |
+| **6. Seguridad** | Índice **Security Intelligence de ${typeof secInfo.score === 'number' ? secInfo.score : 90}/100 (${secInfo.classification || 'Seguridad alta'})**. |
+| **7. Mantenibilidad** | Separación modular de responsabilidades (${topFileNames}) y ${testFiles.length} archivo(s) de prueba detectados. |
+| **8. Flexibilidad (Portabilidad)** | Configuración adaptable para despliegue local o en la nube. |
 
-## 2. Distinción entre Pruebas Existentes/Ejecutadas y Pruebas Propuestas
-- **Suites de Prueba Encontradas en el Repositorio**: **${executedTestCases.length}** archivo(s) de prueba detectados (${testFiles.map(t => `\`${t.path}\``).join(', ') || 'Ninguno detectado'}) \`[Información verificada]\`.
-- **Casos de Prueba Propuestos para Ampliación de Cobertura**: **${proposedTestCases.length}** casos diseñados sobre los endpoints reales del sistema \`[Recomendación]\`.`;
+## 2. Suites de Prueba Existentes y Casos Propuestos
+- **Suites de Prueba Encontradas en el Repositorio**: **${executedTestCases.length}** archivo(s) (${testFiles.map(t => `\`${t.path}\``).join(', ') || 'Ninguno detectado'}).
+- **Casos de Prueba Propuestos para Ampliación de Cobertura**: **${proposedTestCases.length}** casos diseñados sobre los componentes reales del proyecto.`;
 
-    // G. DevOps y CI/CD
     const envFile = files.find(f => /\.env\.example$/i.test(f.path || ''));
     const envVarsDetected = envFile && envFile.content
         ? (envFile.content.match(/^[A-Z0-9_]+(?==)/gm) || [])
@@ -826,73 +1300,50 @@ ${rlsPoliciesFound.length > 0
 
     const devops = {
         ciCdPipeline: detectedInfra.includes('GitHub Actions')
-            ? '[Información verificada] Pipeline de Integración y Entrega Continua configurado mediante GitHub Actions (`.github/workflows`).'
+            ? 'Pipeline de Integración y Entrega Continua configurado mediante GitHub Actions (`.github/workflows`).'
             : (detectedInfra.includes('GitLab CI')
-                ? '[Información verificada] Pipeline configurado con GitLab CI (`.gitlab-ci.yml`).'
-                : '[Información no encontrada] No se detectaron archivos `.github/workflows` en la muestra analizada; el despliegue se gestiona mediante integración directa de rama Git con la plataforma PaaS (ej. Render) `[Información inferida]`.'),
+                ? 'Pipeline configurado con GitLab CI (`.gitlab-ci.yml`).'
+                : 'No se detectaron archivos `.github/workflows` en la muestra analizada; el despliegue se gestiona desde la rama principal del repositorio.'),
         containerization: detectedInfra.includes('Docker')
-            ? '[Información verificada] Contenedorización definida mediante `Dockerfile` / `docker-compose.yml`.'
-            : '[Información no encontrada] No se detectó `Dockerfile` en la raíz; ejecución nativa sobre runtime de plataforma.',
+            ? 'Contenedorización definida mediante `Dockerfile` / `docker-compose.yml`.'
+            : 'No se detectó `Dockerfile` en la raíz; ejecución directa sobre el entorno de la plataforma.',
         deploymentGuide: `### 1. Arquitectura de Despliegue y Entornos
-- **Entornos Operativos**: Desarrollo Local (\`development\`), Pruebas/Staging (\`test\`) y Producción Cloud (\`production\`) \`[Información verificada]\`.
-- **Plataforma y Runtime**: Ejecución sobre **${langStr}** (${frameworkStr}) desplegable en servicios PaaS como **Render** o contenedores cloud.
-
-### 2. Variables de Entorno Identificadas
-- Variables detectadas en plantilla de configuración (${envVarsDetected.length}): ${envVarsDetected.map(v => `\`${v}\``).join(', ')} \`[Información verificada]\`.
-
-### 3. Gestión de Versiones y Estrategia de Ramas
-- **Rama Principal**: \`${repository.defaultBranch || 'main'}\` \`[Información verificada]\`.
-- **Estrategia Recomendada**: Ramas de funcionalidad (\`feature/*\`), corrección (\`fix/*\`) y fusión mediante Pull Requests tras verificar el análisis SAST y la suite de pruebas \`[Recomendación]\`.
-
-### 4. Monitoreo, Logs y Recuperación ante Fallos
-- **Healthcheck Operativo**: Endpoint de verificación de salud (\`/api/health\`) con reporte de uptime y estado de motores \`[Información verificada]\`.
-- **Gestión de Logs**: Registro de errores sanitizado (con redacción automática de secretos mediante \`redactAllSecrets\`) \`[Información verificada]\`.
-- **Recuperación ante Fallos**: Modo de contingencia determinista automático cuando los proveedores externos de IA no están disponibles o alcanzan límite de cuota (HTTP 429) \`[Información verificada]\`.`
+- **Plataforma y Runtime**: Ejecución sobre **${langStr}** (${frameworkStr}).
+- **Variables de Entorno**: ${envVarsDetected.map(v => `\`${v}\``).join(', ')}.
+- **Rama Principal**: \`${repository.defaultBranch || 'main'}\`.`
     };
 
-    // H. ADR (Architecture Decision Records)
     const adrs = [
         {
             id: 'ADR-001',
-            title: `Adopción del Stack ${frameworkStr} sobre ${langStr}`,
-            context: `El proyecto ${projectName} requiere un entorno de ejecución modular, con amplio soporte para procesamiento asíncrono, análisis de archivos y servicios HTTP.`,
-            problem: `Definir la plataforma tecnológica base que minimice la fricción entre los módulos (${topFileNames}) y permita escalar las ${endpoints.length} rutas de servicio.`,
-            decision: `Implementar el núcleo del sistema utilizando ${langStr} y ${frameworkStr} [Información verificada].`,
-            alternatives: `Arquitectura de microservicios distribuidos en múltiples lenguajes o frameworks monolíticos acoplados.`,
-            consequences: `Positivas: Alta cohesión, despliegue simplificado y mantenimiento directo. Compromisos: Requiere mantener actualizadas las dependencias del manifiesto.`,
+            title: `Adopción de ${frameworkStr} sobre ${langStr}`,
+            context: `El proyecto ${projectName} (${sem.categoryLabel}) requiere una estructura clara y mantenible para sus ${files.length} archivos.`,
+            problem: `Definir la base tecnológica que articule los componentes (${topFileNames}).`,
+            decision: `Implementar el proyecto utilizando ${langStr} y ${frameworkStr}.`,
+            alternatives: `Otras herramientas o frameworks alternativos del ecosistema.`,
+            consequences: `Positivas: Cohesión técnica, despliegue directo y facilidad de mantenimiento.`,
             status: 'Aceptada'
         },
         {
             id: 'ADR-002',
-            title: `Estrategia de Persistencia y Gestión de Estado (${dbStr})`,
-            context: `El sistema administra ${dataModels.length} modelos/estructuras de datos y requiere aislamiento seguro por usuario.`,
-            problem: `Garantizar la persistencia e integridad de los datos evitando accesos cruzados entre cuentas.`,
-            decision: `Utilizar ${dbStr} complementado con validación de esquemas y políticas de control de acceso (RLS) [Información verificada].`,
-            alternatives: `Almacenamiento plano sin esquema o bases de datos sin seguridad a nivel de fila.`,
-            consequences: `Positivas: Integridad referencial y aislamiento nativo de datos por usuario autenticado.`,
-            status: 'Aceptada'
-        },
-        {
-            id: 'ADR-003',
-            title: `Integración de Auditoría Estática de Seguridad (Security Intelligence) y Redacción de Secretos`,
-            context: `El análisis de código fuente y documentos técnicos conlleva el riesgo de procesar credenciales expuestas o vulnerabilidades de inyección.`,
-            problem: `Evitar la fuga de secretos hacia modelos externos o reportes y cuantificar de forma objetiva el riesgo del repositorio.`,
-            decision: `Incorporar un motor determinista SAST + Secret Scanner + STRIDE independiente de la generación documental [Información verificada].`,
-            alternatives: `Delegar la evaluación de seguridad únicamente a juicios subjetivos no deterministas de un LLM.`,
-            consequences: `Positivas: Puntuación auditable 0-100, cero exposición de credenciales en texto plano y cumplimiento de referencias OWASP e ISO/IEC 27002.`,
+            title: `Estrategia de Gestión de Datos (${dbStr})`,
+            context: `El proyecto gestiona ${dataModels.length} modelos/estructuras de datos.`,
+            problem: `Garantizar la consistencia de la información manejada por el proyecto.`,
+            decision: `Utilizar ${dbStr} de acuerdo con la naturaleza del proyecto.`,
+            alternatives: `Motores de almacenamiento alternativos.`,
+            consequences: `Positivas: Simplicidad operativa y alineación con los requerimientos reales del repositorio.`,
             status: 'Aceptada'
         }
     ];
 
-    // README & Development
     const readme = `# ${projectName}
 
-> Documentación de ingeniería basada en evidencia generada por **DocuMind AI**.
+> Categoría del Proyecto: **${sem.categoryLabel}**
 
 ## 1. Descripción General
-${repoDescription || `Plataforma de software implementada con **${frameworkStr}** sobre **${langStr}** (\`[Información verificada]\`).`}
+${repoDescription || nature.whatItIs}
 
-## 2. Stack Tecnológico Verificado
+## 2. Stack Tecnológico Detectado
 - **Lenguajes**: ${langStr}
 - **Frameworks y Librerías**: ${frameworkStr}
 - **Base de Datos / Persistencia**: ${dbStr}
@@ -909,63 +1360,49 @@ git clone ${repository.url && repository.url !== '#' ? repository.url : `<URL_DE
 cd ${projectName}
 ${detectedLanguages.includes('Python') ? 'pip install -r requirements.txt\npython app.py' : 'npm install\nnpm start'}
 \`\`\`
-
-## 5. Ejecución de Pruebas
-\`\`\`bash
-${detectedLanguages.includes('Python') ? 'pytest' : 'npm test'}
-\`\`\`
 `;
 
-    const contributing = `# Guía de Contribución e Ingeniería — ${projectName}
+    const contributing = `# Guía de Contribución — ${projectName}
 
 ## 1. Flujo de Trabajo en Git
 - **Rama principal**: \`${repository.defaultBranch || 'main'}\`
 - Crear ramas descriptivas (\`feat/nombre\`, \`fix/nombre\`, \`docs/nombre\`).
 
 ## 2. Estándares de Calidad y Seguridad
-- Ejecutar las pruebas automatizadas antes de abrir un Pull Request.
-- Verificar que ningún archivo contenga claves API, tokens o credenciales hardcodeadas.
-- Mantener la trazabilidad con los requisitos \`RF-xxx\` y \`RNF-xxx\`.
+- Verificar que ningún archivo contenga claves API, tokens o credenciales expuestas.
 `;
 
-    const codingGuidelines = `## Convenciones de Ingeniería Verificadas
-- **Modularidad**: Separación clara entre enrutadores, controladores, servicios de análisis y generadores.
-- **Seguridad por Diseño**: Sanitización de entradas, uso de variables de entorno y cabeceras HTTP seguras.`;
+    const codingGuidelines = `## Convenciones de Ingeniería
+- **Modularidad**: Separación clara de responsabilidades entre los archivos del repositorio.
+- **Seguridad**: Sanitización de entradas y uso de variables de entorno para configuraciones sensibles.`;
 
     const userGuide = {
-        guide: `# Manual de Operación para Usuario Final — ${projectName}
+        guide: `# Manual de Uso — ${projectName}
 
-## 1. Inicio Rápido
-1. Accede a la aplicación a través del navegador web en la URL desplegada o en \`http://localhost:3000\`.
-2. Inicia sesión de forma segura mediante **Google OAuth**, **GitHub OAuth** o correo electrónico verificado (gestionado por Supabase Auth).
-3. Selecciona el repositorio de GitHub, sube un archivo comprimido \`.ZIP\` o introduce la especificación técnica en el **Analizador**.
+## 1. Descripción y Propósito
+${nature.whatItIs}
 
-## 2. Generación Documental y Exportación Editorial
-- Explora el **Documento de Presentación del Proyecto**, **SRS (IEEE 830 / ISO 29148)**, **Arquitectura C4 (ISO 42010)**, **Base de Datos**, **OpenAPI 3.0.3**, **Calidad (ISO 25010)**, **DevOps**, **ADR** y **Seguridad**.
-- Exporta cualquier entregable en formato **PDF**, **Word (.docx)**, **Markdown (.md)**, **JSON** o **YAML**.
-
-## 3. Panel Security Intelligence y Simulador
-- En el panel **Security Intelligence**, consulta la puntuación 0–100, el modelo STRIDE, el plan de remediación en 4 niveles y descarga el **Informe de Seguridad en PDF o DOCX**.
-- En el **Simulador de Arquitectura**, ejecuta escenarios de concurrencia y cuellos de botella (distinguiendo claramente los datos simulados de las métricas de producción).`,
+## 2. Inicio Rápido
+1. Revisa los requisitos de entorno (${langStr} / ${frameworkStr}).
+2. Sigue las instrucciones del archivo \`README.md\` para ejecutar o desplegar los módulos principales (${topFileNames}).`,
         faq: [
             {
-                question: `¿Qué tecnologías utiliza ${projectName}?`,
-                answer: `Está desarrollado en ${langStr} utilizando ${frameworkStr} y persistencia en ${dbStr} [Información verificada].`
-            },
-            {
-                question: `¿Cómo se exportan los informes técnicos y de seguridad en PDF y DOCX?`,
-                answer: `Desde la barra superior de resultados o desde el panel Security Intelligence puedes descargar directamente los archivos binarios PDF y Microsoft Word (.docx) con portada e índice automático.`
+                question: `¿Cuál es la naturaleza de ${projectName} y qué tecnologías utiliza?`,
+                answer: `${nature.whatItIs} En su implementación técnica utiliza ${langStr} y ${frameworkStr}.`
             },
             {
                 question: `¿La puntuación de seguridad garantiza que no existan vulnerabilidades?`,
-                answer: `No. La puntuación (0-100) mide objetivamente el código y configuraciones analizados de forma estática (SAST/SCA/Secretos), pero no reemplaza pruebas dinámicas de penetración ni constituye una certificación formal.`
+                answer: `No. La puntuación (0-100) evalúa de forma estática los archivos y configuraciones examinados en el repositorio, pero no reemplaza pruebas dinámicas en tiempo de ejecución.`
             }
         ]
     };
 
     return {
         isStaticAnalysis: true,
-        summary: `Diagnóstico e ingeniería documental del repositorio "${projectName}" (${langStr} / ${frameworkStr}), sustentado en ${files.length} archivos, ${endpoints.length} endpoints y ${dataModels.length} modelos de datos verificados.`,
+        projectCategory: sem.category,
+        projectCategoryLabel: sem.categoryLabel,
+        semanticProfile: sem,
+        summary: `${nature.whatItIs} Implementado técnicamente con ${langStr} (${frameworkStr}), abarcando ${files.length} archivos, ${endpoints.length} endpoints y ${dataModels.length} modelos de datos.`,
         presentation,
         product: { prd, srs, userStories, presentation },
         architecture,
@@ -983,7 +1420,9 @@ ${detectedLanguages.includes('Python') ? 'pytest' : 'npm test'}
             indexes: indexesFound
         },
         api: {
-            overview: `Especificación de contratos RESTful OpenAPI 3.0.3 basada exclusivamente en los ${endpoints.length} endpoints identificados en el código fuente.`,
+            overview: endpoints.length > 0
+                ? `Especificación de contratos RESTful OpenAPI 3.0.3 basada en los ${endpoints.length} endpoints identificados en el código fuente.`
+                : `No se detectaron endpoints HTTP/REST expuestos en los archivos analizados (0 endpoints).`,
             endpoints: apiEndpointsList,
             openApiJson,
             openApiYaml
@@ -1009,11 +1448,9 @@ ${detectedLanguages.includes('Python') ? 'pytest' : 'npm test'}
 /**
  * Builds standard OpenAPI 3.0.3 specification strictly from identified endpoints.
  */
-function buildOpenApiSpec(projectName, endpoints = []) {
+function buildOpenApiSpec(projectName, endpoints = [], sem = null) {
     const paths = {};
-    const list = Array.isArray(endpoints) && endpoints.length > 0
-        ? endpoints
-        : [{ method: 'GET', path: '/api/health', description: 'Verificación de estado operativo del servicio', requiresAuth: false }];
+    const list = Array.isArray(endpoints) ? endpoints : [];
 
     list.forEach(ep => {
         const cleanPath = (ep.path || '/').startsWith('/') ? ep.path : `/${ep.path}`;
@@ -1022,7 +1459,7 @@ function buildOpenApiSpec(projectName, endpoints = []) {
 
         const operation = {
             summary: ep.description || `Operación ${ep.method} en ${cleanPath}`,
-            description: `Endpoint identificado en ${ep.file || 'el servidor'}. ${ep.requiresAuth ? 'Requiere autenticación Bearer JWT.' : 'Acceso público con control de tasa (Rate Limiting).'}`,
+            description: `Endpoint identificado en ${ep.file || 'el servidor'}. ${ep.requiresAuth ? 'Requiere autenticación Bearer JWT.' : 'Acceso público.'}`,
             parameters: [],
             responses: {
                 '200': {
@@ -1041,12 +1478,10 @@ function buildOpenApiSpec(projectName, endpoints = []) {
                     }
                 },
                 '400': { description: 'Solicitud inválida o parámetros malformados' },
-                '429': { description: 'Límite de tasa de solicitudes excedido (Rate Limit)' },
                 '500': { description: 'Error interno controlado del servidor' }
             }
         };
 
-        // Extract path parameters like :id or :projectId
         const pathParams = cleanPath.match(/:([a-zA-Z0-9_]+)/g) || [];
         pathParams.forEach(pp => {
             const paramName = pp.slice(1);
@@ -1070,7 +1505,7 @@ function buildOpenApiSpec(projectName, endpoints = []) {
                         },
                         example: {
                             projectName: projectName,
-                            action: 'analyze'
+                            action: 'execute'
                         }
                     }
                 }
@@ -1088,9 +1523,11 @@ function buildOpenApiSpec(projectName, endpoints = []) {
     return {
         openapi: '3.0.3',
         info: {
-            title: `${projectName} — Especificación Oficial OpenAPI`,
+            title: `${projectName} — Especificación OpenAPI`,
             version: '3.0.3',
-            description: `Contrato OpenAPI 3.0.3 generado por DocuMind AI exclusivamente a partir de los ${list.length} endpoints verificados en el código fuente.`
+            description: list.length > 0
+                ? `Contrato OpenAPI 3.0.3 generado por DocuMind AI a partir de los ${list.length} endpoints identificados en el código fuente.`
+                : `El repositorio ${projectName}${sem?.categoryLabel ? ` (${sem.categoryLabel})` : ''} no define endpoints HTTP/REST de backend (0 rutas registradas).`
         },
         paths,
         components: {
@@ -1099,7 +1536,7 @@ function buildOpenApiSpec(projectName, endpoints = []) {
                     type: 'http',
                     scheme: 'bearer',
                     bearerFormat: 'JWT',
-                    description: 'Token JWT emitido por Supabase Auth (Google OAuth / GitHub OAuth / Email)'
+                    description: 'Token JWT de autenticación'
                 }
             }
         }
