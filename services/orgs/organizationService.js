@@ -38,7 +38,6 @@ class OrganizationService {
             name,
             slug: orgSlug,
             ownerId,
-            plan: 'enterprise',
             createdAt: new Date().toISOString()
         };
 
@@ -186,7 +185,6 @@ class OrganizationService {
                 name: 'DocuMind Engineering Team',
                 slug: 'documind-core',
                 ownerId: 'danisan2326@gmail.com',
-                plan: 'enterprise',
                 createdAt: new Date().toISOString()
             });
             orgMembersStore.set('org_documind_core_danisan2326@gmail.com', {

@@ -31,7 +31,7 @@ const { generateDocumentationSuite } = require('./services/analyzer/docGenerator
 const { classifyFile, computeFileHash } = require('./services/analyzer/fileClassifier');
 const { sanitizeContent } = require('./services/analyzer/sanitizer');
 const { extractSafeZipFiles } = require('./services/analyzer/safeZip');
-const { runSecurityAnalysis } = require('./services/analyzer/securityAnalyzer');
+const { runSecurityAnalysis, compareSecurityRuns, updateFindingStatus, getProjectSecurityHistory } = require('./services/analyzer/securityAnalyzer');
 const { redactAllSecrets } = require('./services/analyzer/security/secretScanner');
 const {
     detectLanguages,
@@ -59,24 +59,29 @@ const { getBranchList, checkRepoUpdate, calculateRepoDrift } = require('./servic
 const { generateCodeModification, createModificationZip } = require('./services/code/codeModificationService');
 const { getIntegrationsStatus } = require('./services/integrations/statusService');
 
-// Enterprise SaaS 2.0 Services
-const { PlanService, PLAN_TIERS, PLAN_DEFINITIONS } = require('./services/plans/planService');
-const {
-    requireWordPdfExport,
-    requirePrivateRepoAnalysis,
-    requirePublicRepoQuota,
-    requireBlastRadius,
-    requirePRWebhooks,
-    requireByokAndSecurity,
-    requireOrganizations,
-    extractUserId
-} = require('./middleware/planLimiter');
-const { PaymentGateway } = require('./services/billing/paymentGateway');
+// Colaboración, Integración GitHub y Configuración de Seguridad
 const { PrivateRepoService } = require('./services/github/privateRepoService');
 const { ASTDeepAnalyzer } = require('./services/analyzer/astDeepAnalyzer');
 const { PRAutomationService } = require('./services/github/prAutomationService');
 const { OrganizationService, ROLES } = require('./services/orgs/organizationService');
 const { SecurityConfigService } = require('./services/enterprise/securityConfigService');
+
+function extractUserId(req) {
+    const userEmail = (
+        req.headers['x-user-email'] ||
+        (req.user && req.user.email) ||
+        (req.body && req.body.userEmail) ||
+        (req.query && req.query.userEmail) ||
+        ''
+    ).toLowerCase().trim();
+
+    if (userEmail) return userEmail;
+    if (req.user && req.user.id) return req.user.id;
+    if (req.headers['x-user-id']) return req.headers['x-user-id'];
+    if (req.body && req.body.userId) return req.body.userId;
+    if (req.query && req.query.userId) return req.query.userId;
+    return null;
+}
 
 const modificationCache = new Map();
 
@@ -608,7 +613,7 @@ app.get('/api/project/export/docx/:projectId', async (req, res, next) => {
 /**
  * Export Customized or In-Session Microsoft Word Document Endpoint (POST /api/project/export/docx)
  */
-app.post('/api/project/export/docx', requireWordPdfExport, async (req, res, next) => {
+app.post('/api/project/export/docx', async (req, res, next) => {
     try {
         const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
         const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
@@ -658,7 +663,7 @@ app.get('/api/project/export/pdf/:projectId', async (req, res, next) => {
 /**
  * Direct Binary PDF Export from Session Payload (POST /api/project/export/pdf)
  */
-app.post('/api/project/export/pdf', requireWordPdfExport, async (req, res, next) => {
+app.post('/api/project/export/pdf', async (req, res, next) => {
     try {
         const { analysisData, scope = 'all', customDoc, projectName } = req.body || {};
         const payload = analysisData || { projectName: projectName || 'DocuMind_Project', customDoc };
@@ -775,6 +780,203 @@ app.get('/api/project/export/security-md/:projectId', (req, res, next) => {
         res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
         res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_SECURITY_REPORT.md"`);
         res.send(analysis.security.markdownReport || '# Informe Técnico de Seguridad\n\nNo disponible.');
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Download Exportable Security Report in PDF (GET & POST /api/project/export/security-pdf)
+ */
+app.get('/api/project/export/security-pdf/:projectId', async (req, res, next) => {
+    try {
+        const { projectId } = req.params;
+        const analysis = getCachedAnalysis(projectId);
+        if (!analysis || !analysis.security) {
+            return res.status(404).json({ success: false, error: 'El reporte de seguridad solicitado ha expirado o no fue encontrado.' });
+        }
+        const exported = await exportDocumentByFormat(analysis, 'pdf', 'security-report');
+        const cleanName = (analysis.projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_Informe_Seguridad.pdf"`);
+        res.send(exported.buffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post('/api/project/export/security-pdf', async (req, res, next) => {
+    try {
+        const { analysisData, projectId, projectName } = req.body || {};
+        const source = (projectId ? getCachedAnalysis(projectId) : null) || analysisData || { projectName: projectName || 'Proyecto' };
+        const exported = await exportDocumentByFormat(source, 'pdf', 'security-report');
+        const cleanName = (source.projectName || projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_Informe_Seguridad.pdf"`);
+        res.send(exported.buffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Download Exportable Security Report in DOCX (GET & POST /api/project/export/security-docx)
+ */
+app.get('/api/project/export/security-docx/:projectId', async (req, res, next) => {
+    try {
+        const { projectId } = req.params;
+        const analysis = getCachedAnalysis(projectId);
+        if (!analysis || !analysis.security) {
+            return res.status(404).json({ success: false, error: 'El reporte de seguridad solicitado ha expirado o no fue encontrado.' });
+        }
+        const docxBuffer = await generateWordDocumentBuffer(analysis, 'security-report');
+        const cleanName = (analysis.projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_Informe_Seguridad.docx"`);
+        res.send(docxBuffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post('/api/project/export/security-docx', async (req, res, next) => {
+    try {
+        const { analysisData, projectId, projectName } = req.body || {};
+        const source = (projectId ? getCachedAnalysis(projectId) : null) || analysisData || { projectName: projectName || 'Proyecto' };
+        const docxBuffer = await generateWordDocumentBuffer(source, 'security-report');
+        const cleanName = (source.projectName || projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        res.setHeader('Content-Disposition', `attachment; filename="${cleanName}_Informe_Seguridad.docx"`);
+        res.send(docxBuffer);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * Standalone Security Intelligence Module Endpoints:
+ *   - POST /api/security/audit (Independent Security Audit)
+ *   - POST /api/security/finding-status (Update finding status with mandatory code verification for 'Solucionado')
+ *   - POST /api/security/compare (Compare two security audits)
+ */
+app.post('/api/security/audit', async (req, res, next) => {
+    try {
+        const { repoUrl, branch, projectId, manualCode, files: rawFiles, totalRepoFiles, endpoints, detectedTechnologies, projectName = 'Repositorio-Auditado' } = req.body || {};
+        let projectData = projectId ? getCachedAnalysis(projectId) : null;
+
+        if (!projectData && Array.isArray(rawFiles) && rawFiles.length > 0) {
+            const files = rawFiles.map(f => ({
+                path: f.path || 'file.js',
+                size: (f.content || '').length,
+                category: f.category || 'SOURCE_CODE',
+                content: f.content || ''
+            }));
+            projectData = {
+                projectName,
+                repository: { name: projectName, fullName: projectName, defaultBranch: 'main' },
+                stats: {
+                    totalFiles: totalRepoFiles || files.length,
+                    relevantFilesCount: files.length,
+                    analyzedFilesCount: files.length,
+                    filesAnalyzed: files.length
+                },
+                prioritizedFiles: files,
+                detectedTechnologies: detectedTechnologies || [],
+                endpoints: endpoints || extractEndpoints(files),
+                dataModels: extractDataModels(files),
+                detectedDatabases: detectDatabases({}, files),
+                projectMap: buildProjectMap(files, detectLanguages(files), extractEndpoints(files), extractDataModels(files))
+            };
+        } else if (!projectData && repoUrl && typeof repoUrl === 'string' && repoUrl.trim().length > 5) {
+            projectData = await fetchAndAnalyzeRepo(repoUrl.trim(), branch ? String(branch).trim() : null);
+        } else if (!projectData && manualCode && typeof manualCode === 'string') {
+            const clean = sanitizeContent(manualCode);
+            const files = [{
+                path: 'audit-target.js',
+                size: clean.length,
+                category: 'SOURCE_CODE',
+                hash: computeFileHash(clean),
+                content: clean
+            }];
+            projectData = {
+                projectName,
+                repository: { name: projectName, fullName: projectName, defaultBranch: 'main' },
+                stats: { totalFiles: 1, relevantFilesCount: 1, analyzedFilesCount: 1, filesAnalyzed: 1 },
+                prioritizedFiles: files,
+                endpoints: extractEndpoints(files),
+                dataModels: extractDataModels(files),
+                detectedDatabases: detectDatabases({}, files),
+                projectMap: buildProjectMap(files, detectLanguages(files), extractEndpoints(files), extractDataModels(files))
+            };
+        }
+
+        if (!projectData) {
+            return res.status(400).json({
+                success: false,
+                error: 'Proporciona un projectId activo, una URL de repositorio GitHub, una lista de archivos o código fuente para ejecutar la auditoría de seguridad.'
+            });
+        }
+
+        const security = await runSecurityAnalysis(projectData);
+        if (projectId && getCachedAnalysis(projectId)) {
+            const cached = getCachedAnalysis(projectId);
+            cached.security = security;
+            setCachedAnalysis(projectId, cached);
+        }
+
+        res.json({
+            success: true,
+            projectName: projectData.repository?.fullName || projectData.projectName || projectName,
+            security
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post('/api/security/finding-status', (req, res, next) => {
+    try {
+        const { projectId, findingId, status, updatedFileContent, securityData } = req.body || {};
+        const cached = projectId ? getCachedAnalysis(projectId) : null;
+        const targetSec = (cached && cached.security) ? cached.security : (securityData || { vulnerabilities: [{ id: findingId || 'SEC-001', ruleId: 'SAST-SQLI-001', title: 'Hallazgo', severity: 'HIGH', findingStatus: 'Pendiente' }] });
+
+        const result = updateFindingStatus(targetSec, findingId, status, updatedFileContent);
+        if (!result.success) {
+            return res.status(400).json(result);
+        }
+
+        if (cached && result.securityAudit) {
+            cached.security = result.securityAudit;
+            setCachedAnalysis(projectId, cached);
+        }
+
+        res.json({
+            success: true,
+            ...result
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+app.post('/api/security/compare', (req, res, next) => {
+    try {
+        const { previousRun, currentRun, oldProjectId, newProjectId } = req.body || {};
+        const prev = previousRun || (oldProjectId ? getCachedAnalysis(oldProjectId)?.security : null);
+        const curr = currentRun || (newProjectId ? getCachedAnalysis(newProjectId)?.security : null);
+
+        if (!curr) {
+            return res.status(400).json({
+                success: false,
+                error: 'Se requiere al menos la auditoría actual para ejecutar la comparación de seguridad.'
+            });
+        }
+
+        const comparison = compareSecurityRuns(prev, curr);
+        res.json({
+            success: true,
+            comparison
+        });
     } catch (err) {
         next(err);
     }
@@ -1303,138 +1505,11 @@ app.post('/api/simulator/scenarios', (req, res, next) => {
 });
 
 // ============================================================
-// ENTERPRISE SAAS 2.0 — RUTAS DE PLANES, PAGOS, REPOS, AST, PRs & ORGS
+// INTEGRACIÓN GITHUB, BLAST RADIUS, WEBHOOKS Y COLABORACIÓN RBAC
 // ============================================================
 
 /**
- * 1. Consulta de Plan y Cuotas del Usuario (GET /api/user/plan-status)
- */
-app.get('/api/user/plan-status', async (req, res, next) => {
-    try {
-        const userId = extractUserId(req);
-        const sub = await PlanService.getUserSubscription(userId);
-        const usage = await PlanService.getUserUsage(userId);
-
-        res.json({
-            success: true,
-            plan: sub.plan,
-            status: sub.status,
-            billingCycle: sub.billingCycle,
-            periodEnd: sub.periodEnd,
-            definition: sub.definition,
-            usage: {
-                period: usage.periodYM,
-                publicReposAnalyzed: usage.publicReposAnalyzed,
-                privateReposAnalyzed: usage.privateReposAnalyzed,
-                exportDocsCount: usage.exportDocsCount
-            }
-        });
-    } catch (err) {
-        next(err);
-    }
-});
-
-/**
- * 2. Cambio / Actualización de Plan (POST /api/user/change-plan)
- */
-app.post('/api/user/change-plan', async (req, res, next) => {
-    try {
-        const userId = extractUserId(req);
-        const { planId, billingCycle = 'monthly' } = req.body || {};
-        if (!planId) {
-            return res.status(400).json({ success: false, error: 'planId es requerido' });
-        }
-
-        const updated = await PlanService.setUserSubscription(userId, planId, billingCycle);
-        res.json({
-            success: true,
-            message: `Plan actualizado exitosamente a ${updated.definition.name}`,
-            subscription: updated
-        });
-    } catch (err) {
-        next(err);
-    }
-});
-
-/**
- * 3. Crear Orden de Pago / Checkout (POST /api/billing/create-checkout)
- */
-app.post('/api/billing/create-checkout', async (req, res, next) => {
-    try {
-        const userId = extractUserId(req) || 'guest_buyer';
-        const { planId, billingCycle = 'monthly', provider = 'wompi', termsAccepted = true, userEmail } = req.body || {};
-
-        const checkout = await PaymentGateway.createCheckoutSession({
-            userId,
-            userEmail: userEmail || req.user?.email || 'cliente@empresa.com',
-            planId,
-            billingCycle,
-            provider,
-            termsAccepted
-        });
-
-        res.json(checkout);
-    } catch (err) {
-        next(err);
-    }
-});
-
-/**
- * 4. Webhook Wompi (POST /api/billing/webhook/wompi)
- */
-app.post('/api/billing/webhook/wompi', async (req, res, next) => {
-    try {
-        const signatureHeader = req.headers['x-event-checksum'];
-        const result = await PaymentGateway.handleWompiWebhook(req.body, signatureHeader);
-        res.json(result);
-    } catch (err) {
-        console.error('[Wompi Webhook Error]:', err);
-        res.status(400).json({ success: false, error: err.message });
-    }
-});
-
-/**
- * 5. Webhook Mercado Pago (POST /api/billing/webhook/mercadopago)
- */
-app.post('/api/billing/webhook/mercadopago', async (req, res, next) => {
-    try {
-        const result = await PaymentGateway.handleMercadoPagoWebhook(req.body, req.query);
-        res.json(result);
-    } catch (err) {
-        console.error('[MercadoPago Webhook Error]:', err);
-        res.status(400).json({ success: false, error: err.message });
-    }
-});
-
-/**
- * 6. Confirmación de Pago Sandbox / Mock (POST /api/billing/mock-confirm)
- */
-app.post('/api/billing/mock-confirm', async (req, res, next) => {
-    try {
-        const { reference } = req.body || {};
-        if (!reference) return res.status(400).json({ success: false, error: 'Referencia requerida' });
-        const confirmed = await PaymentGateway.confirmMockPayment(reference);
-        res.json(confirmed);
-    } catch (err) {
-        next(err);
-    }
-});
-
-/**
- * 7. Historial de Transacciones (GET /api/billing/transactions)
- */
-app.get('/api/billing/transactions', async (req, res, next) => {
-    try {
-        const userId = extractUserId(req);
-        const txs = await PaymentGateway.getUserTransactions(userId);
-        res.json({ success: true, count: txs.length, transactions: txs });
-    } catch (err) {
-        next(err);
-    }
-});
-
-/**
- * 8. Conectar GitHub OAuth (GET /api/github/connect)
+ * Conectar GitHub OAuth para Repositorios (GET /api/github/connect)
  */
 app.get('/api/github/connect', (req, res) => {
     const userId = extractUserId(req) || 'guest';
@@ -1443,14 +1518,13 @@ app.get('/api/github/connect', (req, res) => {
 });
 
 /**
- * 9. Callback GitHub OAuth (GET /api/github/callback)
+ * Callback GitHub OAuth (GET /api/github/callback)
  */
 app.get('/api/github/callback', async (req, res, next) => {
     try {
         const { code, state } = req.query;
         if (!code) return res.status(400).send('Código de GitHub no proporcionado');
-        const tokenResult = await PrivateRepoService.exchangeCodeForToken(code, state);
-        // Redirigir de vuelta a la aplicación
+        await PrivateRepoService.exchangeCodeForToken(code, state);
         res.redirect('/#analizador?github_connected=true');
     } catch (err) {
         next(err);
@@ -1458,7 +1532,7 @@ app.get('/api/github/callback', async (req, res, next) => {
 });
 
 /**
- * 10. Listar Repositorios del Usuario (GET /api/github/repos)
+ * Listar Repositorios del Usuario (GET /api/github/repos)
  */
 app.get('/api/github/repos', async (req, res, next) => {
     try {
@@ -1471,7 +1545,7 @@ app.get('/api/github/repos', async (req, res, next) => {
 });
 
 /**
- * 11. Desconectar GitHub (POST /api/github/disconnect)
+ * Desconectar GitHub (POST /api/github/disconnect)
  */
 app.post('/api/github/disconnect', async (req, res, next) => {
     try {
@@ -1484,9 +1558,9 @@ app.post('/api/github/disconnect', async (req, res, next) => {
 });
 
 /**
- * 12. Blast Radius Analysis (POST /api/project/blast-radius)
+ * Blast Radius Analysis (POST /api/project/blast-radius)
  */
-app.post('/api/project/blast-radius', requireBlastRadius, async (req, res, next) => {
+app.post('/api/project/blast-radius', async (req, res, next) => {
     try {
         const { targetComponent, projectId } = req.body || {};
         const analysis = projectId ? getCachedAnalysis(projectId) : null;
@@ -1499,18 +1573,16 @@ app.post('/api/project/blast-radius', requireBlastRadius, async (req, res, next)
 });
 
 /**
- * 13. Webhook de Pull Requests de GitHub (POST /api/webhooks/github)
+ * Webhook de Pull Requests de GitHub (POST /api/webhooks/github)
  */
 app.post('/api/webhooks/github', async (req, res, next) => {
     try {
-        const signatureHeader = req.headers['x-hub-signature-256'];
         const eventType = req.headers['x-github-event'];
 
         if (eventType === 'ping') {
             return res.json({ success: true, message: 'Pong! Webhook de DocuMind AI activo' });
         }
 
-        // Si es un PR o Push
         if (eventType === 'pull_request' || req.body?.pull_request) {
             const report = await PRAutomationService.handlePullRequestEvent(req.body);
             return res.json(report);
@@ -1524,10 +1596,7 @@ app.post('/api/webhooks/github', async (req, res, next) => {
 });
 
 /**
- * 14. Organizaciones: Crear (POST /api/orgs/create)
- */
-/**
- * 13.5 Listar Organizaciones del Usuario (GET /api/orgs/my-orgs)
+ * Listar Organizaciones del Usuario (GET /api/orgs/my-orgs)
  */
 app.get('/api/orgs/my-orgs', async (req, res, next) => {
     try {
@@ -1540,7 +1609,7 @@ app.get('/api/orgs/my-orgs', async (req, res, next) => {
 });
 
 /**
- * 16.5 Listar Aprobaciones de una Organización (GET /api/orgs/:orgId/approvals)
+ * Listar Aprobaciones de una Organización (GET /api/orgs/:orgId/approvals)
  */
 app.get('/api/orgs/:orgId/approvals', async (req, res, next) => {
     try {
@@ -1552,9 +1621,9 @@ app.get('/api/orgs/:orgId/approvals', async (req, res, next) => {
     }
 });
 
-app.post('/api/orgs/create', requireOrganizations, async (req, res, next) => {
+app.post('/api/orgs/create', async (req, res, next) => {
     try {
-        const userId = extractUserId(req);
+        const userId = extractUserId(req) || 'danisan2326@gmail.com';
         const { name, slug } = req.body || {};
         const org = await OrganizationService.createOrganization({ name, slug, ownerId: userId });
         res.json({ success: true, organization: org });
@@ -1564,7 +1633,7 @@ app.post('/api/orgs/create', requireOrganizations, async (req, res, next) => {
 });
 
 /**
- * 15. Organizaciones: Miembros (GET & POST /api/orgs/:orgId/members)
+ * Organizaciones: Miembros (GET & POST /api/orgs/:orgId/members)
  */
 app.get('/api/orgs/:orgId/members', async (req, res, next) => {
     try {
@@ -1588,12 +1657,12 @@ app.post('/api/orgs/:orgId/members', async (req, res, next) => {
 });
 
 /**
- * 16. Aprobaciones Documentales (POST /api/orgs/:orgId/approvals/submit y /review)
+ * Aprobaciones Documentales (POST /api/orgs/:orgId/approvals/submit y /review)
  */
 app.post('/api/orgs/:orgId/approvals/submit', async (req, res, next) => {
     try {
         const { orgId } = req.params;
-        const userId = extractUserId(req);
+        const userId = extractUserId(req) || 'danisan2326@gmail.com';
         const { projectId, docType, version } = req.body || {};
         const approval = await OrganizationService.submitDocumentForReview({
             orgId,
@@ -1611,7 +1680,7 @@ app.post('/api/orgs/:orgId/approvals/submit', async (req, res, next) => {
 app.post('/api/orgs/:orgId/approvals/:approvalId/review', async (req, res, next) => {
     try {
         const { orgId, approvalId } = req.params;
-        const userId = extractUserId(req);
+        const userId = extractUserId(req) || 'danisan2326@gmail.com';
         const { decision, comments } = req.body || {};
         const result = await OrganizationService.processDocumentApproval({
             orgId,
@@ -1627,7 +1696,7 @@ app.post('/api/orgs/:orgId/approvals/:approvalId/review', async (req, res, next)
 });
 
 /**
- * 17. Auditoría de Organización (GET /api/orgs/:orgId/audit)
+ * Auditoría de Organización (GET /api/orgs/:orgId/audit)
  */
 app.get('/api/orgs/:orgId/audit', async (req, res, next) => {
     try {
@@ -1640,9 +1709,9 @@ app.get('/api/orgs/:orgId/audit', async (req, res, next) => {
 });
 
 /**
- * 18. Configuración Enterprise (BYOK, Cero Retención, Marca Blanca)
+ * Configuración de Seguridad y Personalización (Cero Retención, BYOK, Identidad)
  */
-app.post('/api/enterprise/config', requireByokAndSecurity, async (req, res, next) => {
+app.post('/api/enterprise/config', async (req, res, next) => {
     try {
         const userId = extractUserId(req);
         const orgId = req.body?.orgId || `org_${userId || 'default'}`;

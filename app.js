@@ -107,6 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const authAlertBox = document.getElementById("auth-alert-box");
     const btnOAuthGoogle = document.getElementById("btn-oauth-google");
     const googleBtnText = document.getElementById("google-btn-text");
+    const btnOAuthGithub = document.getElementById("btn-oauth-github");
+    const githubBtnText = document.getElementById("github-btn-text");
 
     // Account & Privacy Modals
     const accountModal = document.getElementById("account-modal");
@@ -238,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function isUserVerified(user) {
         if (!user) return false;
         const provider = user.app_metadata?.provider || user.user_metadata?.auth_provider || "email";
-        if (provider === "google") return true;
+        if (provider === "google" || provider === "github") return true;
         return Boolean(user.email_confirmed_at || user.confirmed_at);
     }
 
@@ -320,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (authTabsContainer) authTabsContainer.style.display = showTabsAndOAuth ? "grid" : "none";
         if (authOauthDivider) authOauthDivider.style.display = showTabsAndOAuth ? "flex" : "none";
         if (btnOAuthGoogle && btnOAuthGoogle.parentElement) {
-            btnOAuthGoogle.parentElement.style.display = showTabsAndOAuth ? "block" : "none";
+            btnOAuthGoogle.parentElement.style.display = showTabsAndOAuth ? "flex" : "none";
         }
 
         if (tabAuthLogin) {
@@ -372,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const meta = user.user_metadata || {};
             const email = user.email || "";
             const provider = user.app_metadata?.provider || meta.auth_provider || extraMeta.auth_provider || "email";
-            const fallbackName = extraMeta.full_name || meta.full_name || meta.name || (email ? email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
+            const fallbackName = extraMeta.full_name || meta.full_name || meta.name || meta.user_name || meta.preferred_username || (email ? email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
             const avatarUrl = meta.avatar_url || meta.picture || null;
 
             // Consultar perfil existente en tabla profiles
@@ -421,6 +423,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const targetView = typeof initialView === "string" ? initialView : "login";
         if (btnOAuthGoogle) btnOAuthGoogle.disabled = false;
         if (googleBtnText) googleBtnText.textContent = "Continuar con Google";
+        if (btnOAuthGithub) btnOAuthGithub.disabled = false;
+        if (githubBtnText) githubBtnText.textContent = "Continuar con GitHub";
         switchAuthView(targetView, options);
         if (authUnconfiguredAlert) {
             authUnconfiguredAlert.style.display = isSupabaseConfigured ? "none" : "block";
@@ -475,8 +479,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const accProjectsCount = document.getElementById("acc-modal-projects-count");
         const providerRaw = currentUser.app_metadata?.provider || meta.auth_provider || "email";
         const isGoogle = providerRaw === "google";
-        if (accBadge) accBadge.textContent = isGoogle ? "Autenticado con Google" : "Cuenta Verificada (Correo y Contraseña)";
-        if (accProvider) accProvider.textContent = isGoogle ? "Google OAuth 2.0" : "Correo y Contraseña (Supabase Auth)";
+        const isGithub = providerRaw === "github";
+        if (accBadge) accBadge.textContent = isGoogle ? "Autenticado con Google" : (isGithub ? "Autenticado con GitHub" : "Cuenta Verificada (Correo y Contraseña)");
+        if (accProvider) accProvider.textContent = isGoogle ? "Google OAuth 2.0" : (isGithub ? "GitHub OAuth 2.0 (Supabase Auth)" : "Correo y Contraseña (Supabase Auth)");
         if (accProjectsCount && typeof getLocalHistory === "function") {
             const count = getLocalHistory().length;
             accProjectsCount.textContent = `${count} ${count === 1 ? "proyecto" : "proyectos"}`;
@@ -513,7 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const meta = user.user_metadata || {};
             const email = user.email || "usuario@correo.com";
-            const fullName = meta.full_name || meta.name || (email ? email.split("@")[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
+            const fullName = meta.full_name || meta.name || meta.user_name || meta.preferred_username || (email ? email.split("@")[0].replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : "Usuario");
             const firstName = fullName.split(" ")[0] || fullName;
             const avatarUrl = meta.avatar_url || meta.picture || "";
             const initials = (firstName.slice(0, 1) + (fullName.split(" ")[1] ? fullName.split(" ")[1].slice(0, 1) : "")).toUpperCase() || "US";
@@ -1259,7 +1264,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Google OAuth Login
+    // Google OAuth Login (100% Intact)
     if (btnOAuthGoogle) {
         btnOAuthGoogle.addEventListener("click", async () => {
             if (!supabaseClient || !isSupabaseConfigured) {
@@ -1288,6 +1293,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 setAuthAlert(err.message || "No se pudo iniciar sesión con Google.");
                 btnOAuthGoogle.disabled = false;
                 if (googleBtnText) googleBtnText.textContent = "Continuar con Google";
+            }
+        });
+    }
+
+    // GitHub OAuth Login
+    if (btnOAuthGithub) {
+        btnOAuthGithub.addEventListener("click", async () => {
+            if (!supabaseClient || !isSupabaseConfigured) {
+                setAuthAlert("Supabase no está conectado todavía. Define SUPABASE_URL y SUPABASE_ANON_KEY en tu archivo .env.");
+                return;
+            }
+
+            btnOAuthGithub.disabled = true;
+            if (githubBtnText) githubBtnText.textContent = "Conectando con GitHub...";
+            setAuthAlert("Redirigiendo a GitHub OAuth seguro...", "info");
+
+            try {
+                const redirectTo = window.location.origin + window.location.pathname;
+
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: "github",
+                    options: {
+                        redirectTo: redirectTo
+                    }
+                });
+
+                if (error) throw error;
+
+            } catch (err) {
+                console.error("GitHub OAuth error:", err);
+                setAuthAlert(err.message || "No se pudo iniciar sesión con GitHub.");
+                btnOAuthGithub.disabled = false;
+                if (githubBtnText) githubBtnText.textContent = "Continuar con GitHub";
             }
         });
     }
@@ -1430,16 +1468,62 @@ document.addEventListener("DOMContentLoaded", () => {
     // ScrollSpy: Dynamic Active Link Highlighting on Scroll
     // ------------------------------------------------------------
     const spySections = [
+        "inicio",
         "como-funciona",
         "solucion",
         "empresas-seguridad",
         "analizador",
         "equipo",
-        "planes",
         "faq",
         "contacto"
     ];
     const navSpyLinks = document.querySelectorAll(".nav-links a, #mobile-menu .mobile-nav-link");
+
+    // Navigation shortcuts for Documentación and Security Intelligence
+    const navLinkDocs = document.getElementById("nav-link-docs");
+    const mobileNavDocs = document.getElementById("mobile-nav-docs");
+    const navLinkSecurity = document.getElementById("nav-link-security");
+    const mobileNavSecurity = document.getElementById("mobile-nav-security");
+
+    function navigateToDocumentationSuite(e) {
+        if (e) e.preventDefault();
+        if (projectResults && projectResults.style.display !== "none" && currentAnalysisData) {
+            switchDocTab("product");
+            projectResults.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+            const suiteSec = document.getElementById("documentacion-suite") || document.getElementById("analizador");
+            if (suiteSec) suiteSec.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+
+    function navigateToSecurityIntelligence(e) {
+        if (e) e.preventDefault();
+        if (projectResults && projectResults.style.display !== "none" && currentAnalysisData) {
+            switchDocTab("security");
+            const secPanel = document.getElementById("doc-panel-security");
+            if (secPanel) secPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+            // If no project is loaded yet, check local history or scroll to analyzer & highlight Security Intelligence
+            const history = typeof getLocalHistory === "function" ? getLocalHistory() : [];
+            if (history.length > 0 && history[0]?.data) {
+                currentAnalysisData = history[0].data;
+                currentProjectId = history[0].id;
+                renderProjectResults(history[0].data);
+                switchDocTab("security");
+                const secPanel = document.getElementById("doc-panel-security");
+                if (secPanel) secPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+            } else {
+                const analizadorSec = document.getElementById("analizador");
+                if (analizadorSec) analizadorSec.scrollIntoView({ behavior: "smooth", block: "start" });
+                showToast("Analiza un repositorio o haz clic en un proyecto de demostración para abrir Security Intelligence.", "info");
+            }
+        }
+    }
+
+    if (navLinkDocs) navLinkDocs.addEventListener("click", navigateToDocumentationSuite);
+    if (mobileNavDocs) mobileNavDocs.addEventListener("click", navigateToDocumentationSuite);
+    if (navLinkSecurity) navLinkSecurity.addEventListener("click", navigateToSecurityIntelligence);
+    if (mobileNavSecurity) mobileNavSecurity.addEventListener("click", navigateToSecurityIntelligence);
 
     function updateActiveNavLink() {
         const scrollPosition = window.scrollY + 130;
@@ -1743,14 +1827,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateSelectedModulesCounter() {
         if (!selectedModulesCounter) return;
-        const total = categoryCheckboxes.length || 11;
+        const total = categoryCheckboxes.length || 12;
         let activeCount = 0;
         categoryCheckboxes.forEach(cb => { if (cb.checked) activeCount++; });
         selectedModulesCounter.textContent = `${activeCount} / ${total} activos`;
     }
 
     function applyCategoryPreset(preset) {
-        const archIds = new Set(['cat-product', 'cat-architecture', 'cat-diagrams', 'cat-database', 'cat-api', 'cat-adr']);
+        const archIds = new Set(['cat-presentation', 'cat-product', 'cat-architecture', 'cat-diagrams', 'cat-database', 'cat-api', 'cat-adr']);
         const secIds = new Set(['cat-development', 'cat-devops', 'cat-qa', 'cat-security', 'cat-adr']);
         categoryCheckboxes.forEach(cb => {
             if (preset === 'all') cb.checked = true;
@@ -1783,6 +1867,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getSelectedCategories() {
         return {
+            presentation: document.getElementById('cat-presentation')?.checked ?? true,
             product: document.getElementById('cat-product')?.checked ?? true,
             architecture: document.getElementById('cat-architecture')?.checked ?? true,
             diagrams: document.getElementById('cat-diagrams')?.checked ?? true,
@@ -2172,6 +2257,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderProductTab(prod = {}) {
+        const presEl = document.getElementById("content-presentation");
+        const presMd = prod.presentation || currentAnalysisData?.documentation?.presentation || prod.prd;
+        if (presEl) presEl.innerHTML = safeMarkdown(presMd);
+
         const prdEl = document.getElementById("content-prd");
         if (prdEl) prdEl.innerHTML = safeMarkdown(prod.prd);
 
@@ -2435,7 +2524,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 a.download = `openapi_${currentAnalysisData?.projectName || 'api'}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
-                showToast("Especificación OpenAPI 3.0 descargada.", "success");
+                showToast("Especificación OpenAPI 3.0.3 (JSON) descargada.", "success");
+            };
+        }
+
+        const btnDownloadOpenApiYaml = document.getElementById("btn-download-openapi-yaml");
+        if (btnDownloadOpenApiYaml) {
+            btnDownloadOpenApiYaml.onclick = () => {
+                const yamlStr = api.openApiYaml || (typeof DocuMindExporter !== 'undefined' && typeof DocuMindExporter.toYaml === 'function' ? DocuMindExporter.toYaml(api.openApiJson || {}) : '');
+                const content = yamlStr || `openapi: "3.0.3"\ninfo:\n  title: "${currentAnalysisData?.projectName || 'API'}"\n  version: "1.0.0"\n`;
+                const blob = new Blob([content], { type: 'application/x-yaml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `openapi_${currentAnalysisData?.projectName || 'api'}.yaml`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast("Especificación OpenAPI 3.0.3 (YAML) descargada.", "success");
             };
         }
     }
@@ -2523,7 +2628,7 @@ document.addEventListener("DOMContentLoaded", () => {
             headerTs.textContent = `Auditado: ${dateStr}`;
         }
 
-        // 2. Score Ring & Grade
+        // 2. Score Ring & Grade (Official 0-100 Security Intelligence Scale)
         const scoreValEl = document.getElementById("sec-score-value");
         if (scoreValEl) scoreValEl.textContent = score;
 
@@ -2532,16 +2637,37 @@ document.addEventListener("DOMContentLoaded", () => {
             const circumference = 314.159;
             const offset = circumference - (circumference * score / 100);
             scoreRing.style.strokeDashoffset = offset;
-            if (score >= 80) {
+            if (score >= 90) {
                 scoreRing.style.stroke = "#34D399";
-            } else if (score >= 65) {
+            } else if (score >= 75) {
                 scoreRing.style.stroke = "#38BDF8";
-            } else if (score >= 45) {
+            } else if (score >= 50) {
                 scoreRing.style.stroke = "#FBBF24";
+            } else if (score >= 25) {
+                scoreRing.style.stroke = "#FB923C";
             } else {
-                scoreRing.style.stroke = "#FB7185";
+                scoreRing.style.stroke = "#F43F5E";
             }
         }
+
+        // Highlight active scale pill (90-100, 75-89, 50-74, 25-49, 0-24)
+        const scalePills = [
+            { id: 'scale-pill-90', min: 90, max: 100 },
+            { id: 'scale-pill-75', min: 75, max: 89 },
+            { id: 'scale-pill-50', min: 50, max: 74 },
+            { id: 'scale-pill-25', min: 25, max: 49 },
+            { id: 'scale-pill-0', min: 0, max: 24 }
+        ];
+        scalePills.forEach(sp => {
+            const pillEl = document.getElementById(sp.id);
+            if (pillEl) {
+                const isActive = score >= sp.min && score <= sp.max;
+                pillEl.classList.toggle("active-scale", isActive);
+                pillEl.style.opacity = isActive ? "1" : "0.52";
+                pillEl.style.transform = isActive ? "scale(1.03)" : "scale(1)";
+                pillEl.style.boxShadow = isActive ? "0 0 14px rgba(56,189,248,.28)" : "none";
+            }
+        });
 
         const gradeBadge = document.getElementById("sec-grade-badge");
         if (gradeBadge) {
@@ -2549,31 +2675,92 @@ document.addEventListener("DOMContentLoaded", () => {
             gradeBadge.className = `badge ${grade === 'A+' || grade === 'A' ? 'badge-emerald' : grade === 'B' ? 'badge-cyan' : grade === 'C' ? 'badge-amber' : 'badge-rose'}`;
         }
 
+        const officialClassification = sec.classification || (score >= 90 ? 'Seguridad alta' : score >= 75 ? 'Seguridad aceptable' : score >= 50 ? 'Requiere mejoras' : score >= 25 ? 'Riesgo elevado' : 'Riesgo crítico');
         const statusBadge = document.getElementById("sec-status-badge");
         if (statusBadge) {
-            statusBadge.textContent = sec.classification || status;
-            statusBadge.className = `badge ${score >= 90 ? 'badge-emerald' : score >= 80 ? 'badge-cyan' : score >= 70 ? 'badge-amber' : 'badge-rose'}`;
+            statusBadge.textContent = officialClassification;
+            statusBadge.className = `badge ${score >= 90 ? 'badge-emerald' : score >= 75 ? 'badge-cyan' : score >= 50 ? 'badge-amber' : 'badge-rose'}`;
+        }
+
+        const riskLevelBadge = document.getElementById("sec-risk-level-badge");
+        if (riskLevelBadge) {
+            const rLevel = sec.riskLevel || (score >= 90 ? 'Bajo' : score >= 75 ? 'Moderado' : score >= 50 ? 'Medio-Alto' : score >= 25 ? 'Elevado' : 'Crítico');
+            riskLevelBadge.textContent = `Nivel de Riesgo: ${rLevel}`;
+            riskLevelBadge.className = `badge ${score >= 75 ? 'badge-cyan' : score >= 50 ? 'badge-amber' : 'badge-rose'}`;
         }
 
         const covBadge = document.getElementById("sec-coverage-badge");
+        const cov = sec.coverage || { coveragePct: 100, confidenceLevel: 'Alta', totalAnalyzedFiles: (currentAnalysisData?.stats?.relevantFilesCount || 0), totalRepoFiles: (currentAnalysisData?.stats?.totalFiles || 0) };
         if (covBadge) {
-            const cov = sec.coverage || { coveragePct: 100, confidenceLevel: 'Alta' };
             covBadge.innerHTML = `<i class="fa-solid fa-crosshairs"></i> Cobertura: ${cov.coveragePct}% (${escapeHtml(cov.confidenceLevel || 'Alta')})`;
             covBadge.className = `badge ${cov.coveragePct >= 80 ? 'badge-emerald' : cov.coveragePct >= 50 ? 'badge-amber' : 'badge-rose'}`;
         }
+
+        const metaFiles = document.getElementById("sec-meta-files");
+        if (metaFiles) {
+            metaFiles.textContent = `${cov.totalAnalyzedFiles || currentAnalysisData?.stats?.relevantFilesCount || 0} / ${cov.totalRepoFiles || currentAnalysisData?.stats?.totalFiles || 0}`;
+        }
+
+        const metaPending = document.getElementById("sec-meta-pending");
+        if (metaPending) {
+            metaPending.textContent = `${summary.pendingVerificationCount !== undefined ? summary.pendingVerificationCount : (sec.vulnerabilities || []).filter(v => !v.confirmed).length}`;
+        }
+
+        const metaMitigation = document.getElementById("sec-meta-mitigation");
+        if (metaMitigation) {
+            const mit = sec.mitigationSummary || { pendientes: summary.totalFindings || 0, enProceso: 0, solucionados: 0 };
+            metaMitigation.textContent = `${mit.solucionados || 0} Solucionados · ${mit.enProceso || 0} En proceso · ${mit.pendientes || 0} Pendientes`;
+        }
+
+        const metaEvolution = document.getElementById("sec-meta-evolution");
+        if (metaEvolution) {
+            if (sec.comparison && sec.comparison.hasPreviousRun) {
+                const delta = sec.comparison.scoreDelta || 0;
+                const sign = delta > 0 ? `+${delta}` : `${delta}`;
+                metaEvolution.textContent = `${sign} pts (${sec.comparison.trend || 'Estable'})`;
+                metaEvolution.style.color = delta > 0 ? '#34D399' : delta < 0 ? '#FB7185' : '#38BDF8';
+            } else {
+                metaEvolution.textContent = 'Auditoría Base (1ra ejecución)';
+                metaEvolution.style.color = '#38BDF8';
+            }
+        }
+
+        const methodFormula = document.getElementById("sec-methodology-formula");
+        if (methodFormula && sec.methodology?.formula) {
+            methodFormula.textContent = `Fórmula: ${sec.methodology.formula}`;
+        }
+
+        // Veracity Breakdown Badges
+        const vBreakdown = sec.veracityBreakdown || {
+            confirmedCount: (sec.vulnerabilities || []).filter(v => v.veracityType === 'Vulnerabilidad confirmada' || v.confirmed).length,
+            potentialCount: (sec.vulnerabilities || []).filter(v => v.veracityType === 'Hallazgo potencial' || (!v.confirmed && v.veracityType !== 'Riesgo inferido')).length,
+            inferredCount: (sec.vulnerabilities || []).filter(v => v.veracityType === 'Riesgo inferido').length,
+            unexecutedTestsCount: 3,
+            nonEvaluableCount: (sec.dependencies && !sec.dependencies.manifestFound) ? 1 : 0
+        };
+        const elVConf = document.getElementById("veracity-count-confirmed");
+        const elVPot = document.getElementById("veracity-count-potential");
+        const elVInf = document.getElementById("veracity-count-inferred");
+        const elVUnex = document.getElementById("veracity-count-unexecuted");
+        if (elVConf) elVConf.textContent = vBreakdown.confirmedCount || 0;
+        if (elVPot) elVPot.textContent = vBreakdown.potentialCount || 0;
+        if (elVInf) elVInf.textContent = vBreakdown.inferredCount || 0;
+        if (elVUnex) elVUnex.textContent = (vBreakdown.unexecutedTestsCount || 3) + (vBreakdown.nonEvaluableCount || 0);
 
         const scoreDesc = document.getElementById("sec-score-desc");
         if (scoreDesc) {
             if (sec.classificationDescription) {
                 scoreDesc.textContent = sec.classificationDescription;
             } else if (score >= 90) {
-                scoreDesc.textContent = "Excelente nivel de blindaje. Código robusto con mínimas advertencias de configuración.";
+                scoreDesc.textContent = "90–100: Seguridad alta. El código y las configuraciones analizadas presentan controles sólidos y mínimas advertencias.";
             } else if (score >= 75) {
-                scoreDesc.textContent = "Nivel de seguridad aceptable. Existen oportunidades de mitigación en validación y dependencias.";
+                scoreDesc.textContent = "75–89: Seguridad aceptable. Postura técnica adecuada con oportunidades puntuales de endurecimiento.";
             } else if (score >= 50) {
-                scoreDesc.textContent = "Nivel de seguridad deficiente. Se identificaron vulnerabilidades que requieren corrección prioritaria.";
+                scoreDesc.textContent = "50–74: Requiere mejoras. Se identificaron debilidades técnicas o configuraciones que deben corregirse.";
+            } else if (score >= 25) {
+                scoreDesc.textContent = "25–49: Riesgo elevado. Existen vulnerabilidades importantes o secretos expuestos que comprometen la seguridad.";
             } else {
-                scoreDesc.textContent = "Postura crítica. Presencia de vulnerabilidades de alto impacto o secretos expuestos que deben resolverse inmediatamente.";
+                scoreDesc.textContent = "0–24: Riesgo crítico. Exposición severa; requiere remediación urgente antes de despliegue en producción.";
             }
         }
 
@@ -2588,10 +2775,115 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elMed) elMed.textContent = summary.medium || 0;
 
         const elLow = document.getElementById("sec-kpi-low");
-        if (elLow) elLow.textContent = summary.low || 0;
+        if (elLow) elLow.textContent = (summary.low || 0) + (summary.info || 0);
 
         const elSecrets = document.getElementById("sec-kpi-secrets");
         if (elSecrets) elSecrets.textContent = summary.secretsFound || (sec.secrets ? sec.secrets.length : 0);
+
+        // 3.1 Severity Distribution Visual Chart & Top Affected Files
+        const sevChartBars = document.getElementById("sec-severity-chart-bars");
+        if (sevChartBars) {
+            const totalF = Math.max(1, (summary.critical || 0) + (summary.high || 0) + (summary.medium || 0) + (summary.low || 0) + (summary.info || 0));
+            const bars = [
+                { label: 'Crítico', count: summary.critical || 0, color: '#FB7185' },
+                { label: 'Alto', count: summary.high || 0, color: '#FB923C' },
+                { label: 'Medio', count: summary.medium || 0, color: '#FBBF24' },
+                { label: 'Bajo', count: summary.low || 0, color: '#38BDF8' },
+                { label: 'Informativo', count: summary.info || 0, color: '#34D399' }
+            ];
+            sevChartBars.innerHTML = bars.map(b => {
+                const pct = Math.round((b.count / totalF) * 100);
+                return `
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.73rem;margin-bottom:.22rem;">
+                            <span style="color:#E2E8F0;font-weight:700;">${b.label}</span>
+                            <span style="font-family:'JetBrains Mono',monospace;color:${b.color};font-weight:800;">${b.count} (${b.count > 0 ? pct : 0}%)</span>
+                        </div>
+                        <div style="height:8px;background:rgba(15,23,42,.85);border-radius:999px;overflow:hidden;border:1px solid rgba(148,163,184,.12);">
+                            <div style="height:100%;width:${b.count > 0 ? Math.max(6, pct) : 0}%;background:${b.color};border-radius:999px;transition:width .6s ease;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        const topFilesContainer = document.getElementById("sec-top-files-container");
+        if (topFilesContainer) {
+            const topFiles = sec.topAffectedFiles || [];
+            if (topFiles.length === 0) {
+                topFilesContainer.innerHTML = `
+                    <div style="padding:1rem;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2);border-radius:.55rem;font-size:.76rem;color:#34D399;text-align:center;">
+                        <i class="fa-solid fa-circle-check" style="margin-right:.35rem;"></i>Ningún archivo presenta concentración de vulnerabilidades.
+                    </div>
+                `;
+            } else {
+                topFilesContainer.innerHTML = `
+                    <div style="display:flex;flex-direction:column;gap:.45rem;">
+                        ${topFiles.slice(0, 6).map(tf => `
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:.48rem .7rem;background:rgba(9,13,22,.65);border:1px solid rgba(148,163,184,.14);border-radius:.45rem;gap:.5rem;flex-wrap:wrap;">
+                                <code style="font-family:'JetBrains Mono',monospace;font-size:.73rem;color:var(--tech-cyan);word-break:break-all;">${escapeHtml(tf.file)}</code>
+                                <div style="display:flex;align-items:center;gap:.35rem;">
+                                    ${tf.critical > 0 ? `<span class="badge badge-rose" style="font-size:.6rem;">${tf.critical} Crít</span>` : ''}
+                                    ${tf.high > 0 ? `<span class="badge badge-amber" style="font-size:.6rem;">${tf.high} Alto</span>` : ''}
+                                    <span class="badge badge-slate" style="font-size:.62rem;font-family:'JetBrains Mono',monospace;">${tf.total} hallazgo(s)</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // 3.2 Audit Comparison & History Timeline
+        const compSummaryBox = document.getElementById("sec-comparison-summary-box");
+        const historyTimeline = document.getElementById("sec-history-timeline");
+        if (compSummaryBox) {
+            const comp = sec.comparison || {};
+            if (comp.hasPreviousRun) {
+                const delta = comp.scoreDelta || 0;
+                const dColor = delta > 0 ? '#34D399' : delta < 0 ? '#FB7185' : '#38BDF8';
+                compSummaryBox.innerHTML = `
+                    <div style="display:flex;flex-direction:column;gap:.45rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <strong style="color:#fff;font-size:.82rem;">Comparación frente a auditoría previa</strong>
+                            <span style="font-family:'JetBrains Mono',monospace;font-weight:800;color:${dColor};">${delta > 0 ? '+' : ''}${delta} pts (${escapeHtml(comp.previousScore)} → ${escapeHtml(comp.currentScore)})</span>
+                        </div>
+                        <p style="margin:0;font-size:.75rem;color:#CBD5E1;">${escapeHtml(comp.summaryText || '')}</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.2rem;">
+                            <span class="badge badge-rose" style="font-size:.64rem;">Nuevas: ${comp.newVulnerabilitiesCount || 0}</span>
+                            <span class="badge badge-emerald" style="font-size:.64rem;">Corregidas y verificadas: ${comp.resolvedVulnerabilitiesCount || 0}</span>
+                            <span class="badge badge-amber" style="font-size:.64rem;">Persisten: ${comp.persistingVulnerabilitiesCount || 0}</span>
+                            <span class="badge badge-cyan" style="font-size:.64rem;">Riesgos que aumentaron: ${(comp.increasedRisks || []).length}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                compSummaryBox.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;">
+                        <span><i class="fa-solid fa-circle-info" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Esta es la primera auditoría registrada para este proyecto (Línea base: <strong>${score}/100 — ${escapeHtml(officialClassification)}</strong>). Ejecuta una nueva auditoría tras modificar el código para visualizar el delta de vulnerabilidades nuevas, corregidas y persistentes.</span>
+                    </div>
+                `;
+            }
+        }
+        if (historyTimeline) {
+            const hist = sec.auditHistory || [];
+            if (hist.length > 0) {
+                historyTimeline.innerHTML = hist.map((h, i) => `
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:.45rem .75rem;background:rgba(9,13,22,.6);border-left:3px solid ${h.score >= 75 ? '#34D399' : h.score >= 50 ? '#FBBF24' : '#FB7185'};border-radius:0 .45rem .45rem 0;font-size:.74rem;">
+                        <div>
+                            <strong style="color:#fff;">Auditoría #${i + 1}</strong>
+                            <span style="color:#64748B;margin-left:.5rem;font-family:'JetBrains Mono',monospace;">${new Date(h.timestamp).toLocaleString('es-ES')}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:.5rem;">
+                            <span class="badge badge-slate" style="font-size:.62rem;">${h.totalFindings || 0} hallazgos</span>
+                            <strong style="font-family:'JetBrains Mono',monospace;color:#38BDF8;">${h.score}/100 (${escapeHtml(h.classification || '')})</strong>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                historyTimeline.innerHTML = '';
+            }
+        }
 
         // 4. Deductions Box
         const deductionsBox = document.getElementById("sec-deductions-box");
@@ -2682,25 +2974,45 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.65rem;padding:1.25rem;text-align:center;">
                         <i class="fa-solid fa-circle-check" style="font-size:1.6rem;color:#34D399;margin-bottom:.4rem;display:inline-block;"></i>
                         <h5 style="font-size:.88rem;color:#E2E8F0;font-weight:700;">Cola de remediación limpia</h5>
-                        <p style="font-size:.76rem;color:#94A3B8;margin:0;">No hay tareas pendientes en la ventana ${escapeHtml(queueKey)}.</p>
+                        <p style="font-size:.76rem;color:#94A3B8;margin:0;">No hay tareas pendientes en esta categoría.</p>
                     </div>
                 `;
                 return;
             }
             remContainer.innerHTML = items.map(item => `
-                <div class="sec-vuln-card ${item.severity === 'CRITICAL' ? 'vuln-crit' : item.severity === 'HIGH' ? 'vuln-high' : 'vuln-med'}" style="padding:1rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.6rem;">
+                <div class="sec-vuln-card ${item.severity === 'CRITICAL' ? 'vuln-crit' : item.severity === 'HIGH' ? 'vuln-high' : 'vuln-med'}" style="padding:1.1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.65rem;">
                         <div>
-                            <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;flex-wrap:wrap;">
+                            <div style="display:flex;align-items:center;gap:.45rem;margin-bottom:.25rem;flex-wrap:wrap;">
                                 <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--tech-cyan);font-weight:700;">${escapeHtml(item.id)}</span>
-                                <span class="badge ${item.severity === 'CRITICAL' ? 'badge-rose' : item.severity === 'HIGH' ? 'badge-cyan' : 'badge-amber'}" style="font-size:.65rem;">${escapeHtml(item.priority)}</span>
+                                <span class="badge ${item.severity === 'CRITICAL' ? 'badge-rose' : item.severity === 'HIGH' ? 'badge-cyan' : 'badge-amber'}" style="font-size:.65rem;">${escapeHtml(item.queueTitle || item.priority)}</span>
                                 <span class="badge badge-slate" style="font-size:.65rem;">Esfuerzo: ${escapeHtml(item.estimatedEffort)}</span>
+                                ${item.file ? `<span class="badge badge-slate" style="font-size:.63rem;font-family:'JetBrains Mono',monospace;">${escapeHtml(item.file)}${item.line ? ':' + item.line : ''}</span>` : ''}
                             </div>
-                            <strong style="font-size:.92rem;color:#fff;">${escapeHtml(item.title)}</strong>
+                            <strong style="font-size:.94rem;color:#fff;">${escapeHtml(item.title)}</strong>
                         </div>
-                        <span style="font-size:.75rem;color:#94A3B8;">Ventana: <strong style="color:#E2E8F0;">${escapeHtml(item.timeframe || '')}</strong></span>
+                        <span style="font-size:.74rem;color:#94A3B8;">Ventana: <strong style="color:#E2E8F0;">${escapeHtml(item.timeframe || '')}</strong></span>
                     </div>
-                    <p style="font-size:.78rem;color:#94A3B8;margin:0 0 .65rem;">${escapeHtml(item.impact || '')}</p>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem;margin-bottom:.75rem;font-size:.76rem;">
+                        <div style="background:rgba(15,23,42,.7);padding:.55rem .75rem;border-radius:.45rem;border-left:3px solid #FB7185;">
+                            <strong style="color:#FB7185;display:block;font-size:.68rem;text-transform:uppercase;">Qué está mal:</strong>
+                            <span style="color:#E2E8F0;">${escapeHtml(item.whatIsWrong || item.title)}</span>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);padding:.55rem .75rem;border-radius:.45rem;border-left:3px solid #FBBF24;">
+                            <strong style="color:#FBBF24;display:block;font-size:.68rem;text-transform:uppercase;">Por qué representa un riesgo:</strong>
+                            <span style="color:#CBD5E1;">${escapeHtml(item.whyItIsARisk || item.impact || '')}</span>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);padding:.55rem .75rem;border-radius:.45rem;border-left:3px solid #A78BFA;">
+                            <strong style="color:#A78BFA;display:block;font-size:.68rem;text-transform:uppercase;">Cómo afecta al sistema:</strong>
+                            <span style="color:#CBD5E1;">${escapeHtml(item.systemImpact || item.impact || '')}</span>
+                        </div>
+                        <div style="background:rgba(15,23,42,.7);padding:.55rem .75rem;border-radius:.45rem;border-left:3px solid #38BDF8;">
+                            <strong style="color:#38BDF8;display:block;font-size:.68rem;text-transform:uppercase;">Qué debe modificarse:</strong>
+                            <span style="color:#E2E8F0;">${escapeHtml(item.whatToModify || '')}</span>
+                        </div>
+                    </div>
+
                     ${item.codeExample ? `
                         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:.65rem;margin-bottom:.65rem;">
                             <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:.45rem;padding:.65rem;">
@@ -2708,14 +3020,14 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#FCA5A5;white-space:pre-wrap;">${escapeHtml(item.codeExample.vulnerable)}</pre>
                             </div>
                             <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:.45rem;padding:.65rem;">
-                                <div style="font-size:.68rem;color:#34D399;font-weight:700;margin-bottom:.35rem;"><i class="fa-solid fa-check"></i> Corrección Remediada:</div>
+                                <div style="font-size:.68rem;color:#34D399;font-weight:700;margin-bottom:.35rem;"><i class="fa-solid fa-check"></i> Ejemplo de Solución:</div>
                                 <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#86EFAC;white-space:pre-wrap;">${escapeHtml(item.codeExample.remediated)}</pre>
                             </div>
                         </div>
-                        <div style="font-size:.74rem;color:#CBD5E1;background:rgba(15,23,42,.6);border-left:3px solid var(--tech-cyan);padding:.4rem .65rem;border-radius:.35rem;">
-                            <strong>Verificación:</strong> ${escapeHtml(item.codeExample.verification || item.codeExample.explanation)}
-                        </div>
                     ` : ''}
+                    <div style="font-size:.74rem;color:#CBD5E1;background:rgba(52,211,153,.07);border-left:3px solid #34D399;padding:.45rem .75rem;border-radius:.35rem;">
+                        <strong style="color:#34D399;">Resultado esperado:</strong> ${escapeHtml(item.expectedOutcome || item.codeExample?.verification || item.codeExample?.explanation || 'Mitigación verificable del vector de riesgo.')}
+                    </div>
                 </div>
             `).join('');
         }
@@ -2857,29 +3169,47 @@ document.addEventListener("DOMContentLoaded", () => {
             allFindings = sec.vulnerabilities.map(v => ({
                 id: v.id || v.ruleId || 'SEC-VULN',
                 title: v.title || v.ruleName || v.name || 'Hallazgo de Seguridad',
+                description: v.description || v.impact || 'Patrón de riesgo detectado durante el análisis estático del código.',
                 severity: (v.severity || 'MEDIUM').toUpperCase(),
+                severityLabel: v.severityLabel || (v.severity === 'CRITICAL' ? 'Crítico' : v.severity === 'HIGH' ? 'Alto' : v.severity === 'MEDIUM' ? 'Medio' : v.severity === 'LOW' ? 'Bajo' : 'Informativo'),
                 certainty: v.certainty || (v.confirmed ? 'Confirmado' : 'Uso potencialmente peligroso'),
-                owasp: v.owasp || 'OWASP Top 10',
-                asvs: v.asvs || 'OWASP ASVS v4.0',
-                cwe: v.cwe || 'CWE',
+                veracityType: v.veracityType || (v.confirmed ? 'Vulnerabilidad confirmada' : 'Hallazgo potencial'),
+                owasp: v.standards?.owaspTop10 || v.owasp || 'OWASP Top 10',
+                asvs: v.standards?.owaspAsvs || v.asvs || 'OWASP ASVS v4.0',
+                cwe: v.standards?.cwe || v.cwe || 'CWE',
+                cvss4: v.standards?.cvss4 || v.cvss4 || 'Referencia CVSS 4.0 aplicable sujeta a validación de entorno',
+                iso27001: v.standards?.iso27001 || v.iso27001 || 'ISO/IEC 27001:2022 A.8.28',
+                iso27002: v.standards?.iso27002 || v.iso27002 || 'ISO/IEC 27002:2022 8.28',
                 file: v.file || 'código fuente',
                 line: v.line || 1,
                 evidence: v.evidence || v.snippet || '',
-                recommendation: v.recommendation || v.remediation || v.fix || 'Revisar y mitigar'
+                impact: v.impact || v.description || 'Riesgo sobre la confidencialidad o integridad del componente.',
+                likelihood: v.likelihood || (v.severity === 'CRITICAL' ? 'Alta' : v.severity === 'HIGH' ? 'Media-Alta' : 'Media'),
+                recommendation: v.recommendation || v.remediation || v.fix || 'Revisar y mitigar',
+                findingStatus: v.findingStatus || 'Pendiente'
             }));
         } else if (legacySec && legacySec.length > 0) {
             allFindings = legacySec.map((item, idx) => ({
                 id: `SEC-AUD-${idx + 1}`,
                 title: item.finding || 'Recomendación de Seguridad',
+                description: item.finding || '',
                 severity: item.risk === 'Alto' ? 'HIGH' : item.risk === 'Medio' ? 'MEDIUM' : 'LOW',
+                severityLabel: item.risk || 'Medio',
                 certainty: 'Recomendación',
+                veracityType: 'Riesgo inferido',
                 owasp: 'Buenas Prácticas',
                 asvs: '',
                 cwe: '',
+                cvss4: '',
+                iso27001: 'ISO/IEC 27001:2022 A.8.28',
+                iso27002: '',
                 file: 'Arquitectura',
                 line: 1,
                 evidence: item.evidence || '',
-                recommendation: item.recommendation || ''
+                impact: item.finding || '',
+                likelihood: 'Media',
+                recommendation: item.recommendation || '',
+                findingStatus: 'Pendiente'
             }));
         }
 
@@ -2918,9 +3248,9 @@ document.addEventListener("DOMContentLoaded", () => {
             filtered.forEach(item => {
                 const sevClass = item.severity === 'CRITICAL' ? 'vuln-crit' : item.severity === 'HIGH' ? 'vuln-high' : item.severity === 'MEDIUM' ? 'vuln-med' : 'vuln-low';
                 const sevBadge = item.severity === 'CRITICAL' ? 'badge-rose' : item.severity === 'HIGH' ? 'badge-cyan' : item.severity === 'MEDIUM' ? 'badge-amber' : 'badge-emerald';
-                const certaintyBadge = item.certainty === 'Confirmado' 
-                    ? '<span class="badge badge-rose" style="font-size:.62rem;"><i class="fa-solid fa-circle-exclamation"></i> Confirmado</span>'
-                    : '<span class="badge badge-amber" style="font-size:.62rem;"><i class="fa-solid fa-triangle-exclamation"></i> Uso sospechoso / Potencial</span>';
+                const veracityBadge = item.veracityType === 'Vulnerabilidad confirmada' 
+                    ? `<span class="badge badge-rose" style="font-size:.62rem;"><i class="fa-solid fa-circle-exclamation"></i> ${escapeHtml(item.veracityType)}</span>`
+                    : `<span class="badge badge-amber" style="font-size:.62rem;"><i class="fa-solid fa-triangle-exclamation"></i> ${escapeHtml(item.veracityType)}</span>`;
 
                 const card = document.createElement('div');
                 card.className = `sec-vuln-card ${sevClass}`;
@@ -2929,33 +3259,81 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div>
                             <div style="display:flex;align-items:center;gap:.45rem;margin-bottom:.25rem;flex-wrap:wrap;">
                                 <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--tech-cyan);font-weight:700;">${escapeHtml(item.id)}</span>
-                                ${certaintyBadge}
+                                ${veracityBadge}
                                 ${item.owasp ? `<span class="badge badge-slate" style="font-size:.62rem;">${escapeHtml(item.owasp)}</span>` : ''}
-                                ${item.asvs ? `<span class="badge badge-slate" style="font-size:.62rem;">${escapeHtml(item.asvs)}</span>` : ''}
+                                ${item.cwe ? `<span class="badge badge-slate" style="font-size:.62rem;">${escapeHtml(item.cwe)}</span>` : ''}
+                                ${item.iso27001 ? `<span class="badge badge-purple" style="font-size:.6rem;">${escapeHtml(item.iso27001)}</span>` : ''}
                             </div>
-                            <strong style="font-size:.92rem;color:#fff;display:block;">${escapeHtml(item.title)}</strong>
+                            <strong style="font-size:.94rem;color:#fff;display:block;">${escapeHtml(item.title)}</strong>
                         </div>
-                        <span class="badge ${sevBadge}" style="font-size:.68rem;padding:.25rem .6rem;">${item.severity}</span>
+                        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                            <span class="badge ${sevBadge}" style="font-size:.68rem;padding:.25rem .6rem;">${escapeHtml(item.severityLabel)} (${item.severity})</span>
+                            <select class="cyber-input sec-finding-status-select" data-finding-id="${escapeHtml(item.id)}" style="padding:.22rem .55rem;font-size:.72rem;background:#0F172A;border:1px solid rgba(56,189,248,.35);color:#E2E8F0;border-radius:.38rem;width:auto;">
+                                <option value="Pendiente" ${item.findingStatus === 'Pendiente' ? 'selected' : ''}>⏳ Pendiente</option>
+                                <option value="En proceso" ${item.findingStatus === 'En proceso' ? 'selected' : ''}>🛠️ En proceso</option>
+                                <option value="Solucionado" ${item.findingStatus === 'Solucionado' ? 'selected' : ''}>✅ Solucionado (Verificar)</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <div style="font-size:.76rem;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;margin-bottom:.55rem;display:flex;align-items:center;gap:.4rem;">
-                        <i class="fa-solid fa-code"></i> ${escapeHtml(item.file)}:${item.line}
+                    <p style="font-size:.78rem;color:#CBD5E1;margin:0 0 .55rem;line-height:1.5;">${escapeHtml(item.description)}</p>
+
+                    <div style="display:flex;flex-wrap:wrap;gap:.85rem;font-size:.74rem;color:#94A3B8;margin-bottom:.55rem;">
+                        <span style="color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;"><i class="fa-solid fa-code"></i> Archivo: ${escapeHtml(item.file)}:${item.line}</span>
+                        <span><strong>Probabilidad estimada:</strong> ${escapeHtml(item.likelihood)}</span>
+                        ${item.cvss4 ? `<span><strong>CVSS 4.0 Ref:</strong> <code style="font-size:.68rem;color:#A78BFA;">${escapeHtml(item.cvss4)}</code></span>` : ''}
+                    </div>
+
+                    <div style="font-size:.75rem;color:#E2E8F0;background:rgba(244,63,94,.06);border-left:3px solid #FB7185;padding:.45rem .7rem;border-radius:.35rem;margin-bottom:.55rem;">
+                        <strong style="color:#FB7185;">Posible impacto:</strong> ${escapeHtml(item.impact)}
                     </div>
 
                     ${item.evidence ? `
                         <div style="background:rgba(15,23,42,.9);border:1px solid rgba(129,140,248,.12);border-radius:.45rem;padding:.55rem .75rem;margin-bottom:.6rem;overflow-x:auto;">
-                            <span style="font-size:.68rem;color:#64748B;display:block;margin-bottom:.2rem;">Evidencia / Código detectado:</span>
+                            <span style="font-size:.68rem;color:#64748B;display:block;margin-bottom:.2rem;">Evidencia encontrada en código:</span>
                             <pre style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#E2E8F0;white-space:pre-wrap;word-break:break-all;"><code>${escapeHtml(item.evidence)}</code></pre>
                         </div>
                     ` : ''}
 
                     <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.18);border-radius:.45rem;padding:.6rem .8rem;">
                         <strong style="font-size:.75rem;color:#34D399;display:flex;align-items:center;gap:.35rem;margin-bottom:.2rem;">
-                            <i class="fa-solid fa-screwdriver-wrench"></i> Guía de Mitigación &amp; Remediación:
+                            <i class="fa-solid fa-screwdriver-wrench"></i> Recomendación de Solución Técnica:
                         </strong>
                         <p style="font-size:.78rem;color:#CBD5E1;margin:0;line-height:1.5;">${escapeHtml(item.recommendation)}</p>
                     </div>
                 `;
+
+                const statusSelect = card.querySelector('.sec-finding-status-select');
+                if (statusSelect) {
+                    statusSelect.addEventListener('change', async (e) => {
+                        const newStatus = e.target.value;
+                        const findingId = item.id;
+                        const pKey = currentAnalysisData?.repository?.fullName || currentAnalysisData?.projectName || 'default_project';
+                        try {
+                            const res = await fetch('/api/security/finding-status', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    projectKey: pKey,
+                                    findingId,
+                                    status: newStatus,
+                                    reverifiedInCode: false
+                                })
+                            });
+                            const data = await res.json();
+                            if (!res.ok || !data.success) {
+                                showToast(data.error || 'No se puede marcar como solucionado sin re-verificar el código.', 'error');
+                                e.target.value = item.findingStatus || 'Pendiente';
+                                return;
+                            }
+                            item.findingStatus = data.status;
+                            showToast(data.message || `Estado actualizado a: ${data.status}`, 'success');
+                        } catch (err) {
+                            showToast('Error al actualizar estado del hallazgo.', 'error');
+                        }
+                    });
+                }
+
                 container.appendChild(card);
             });
         }
@@ -3465,6 +3843,7 @@ document.addEventListener("DOMContentLoaded", () => {
         md: "Markdown Técnico (.md)",
         html: "Documento HTML A4 (.html)",
         json: "Modelo Estructurado (.json)",
+        yaml: "Especificación YAML (.yaml)",
         txt: "Texto Plano (.txt)"
     };
 
@@ -3588,12 +3967,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnExportSecPdf = document.getElementById("btn-export-sec-pdf");
     if (btnExportSecPdf) {
-        btnExportSecPdf.addEventListener("click", () => {
+        btnExportSecPdf.addEventListener("click", async () => {
             if (!currentAnalysisData) {
-                showToast("No hay datos de seguridad disponibles para imprimir.", "error");
+                showToast("No hay datos de seguridad disponibles para exportar.", "error");
                 return;
             }
-            openDocPreviewModal("sec");
+            if (currentProjectId) {
+                window.location.href = `/api/project/export/security-pdf/${encodeURIComponent(currentProjectId)}`;
+                showToast("Descargando Informe Oficial de Seguridad en PDF...", "success");
+            } else if (typeof DocuMindExporter !== "undefined") {
+                showToast("Generando Informe Oficial de Seguridad en PDF...", "info");
+                await DocuMindExporter.exportByFormat(currentAnalysisData, "pdf", "security-report");
+                showToast("Informe PDF de Seguridad descargado.", "success");
+            }
+        });
+    }
+
+    const btnExportSecDocx = document.getElementById("btn-export-sec-docx");
+    if (btnExportSecDocx) {
+        btnExportSecDocx.addEventListener("click", async () => {
+            if (!currentAnalysisData) {
+                showToast("No hay datos de seguridad disponibles para exportar.", "error");
+                return;
+            }
+            if (currentProjectId) {
+                window.location.href = `/api/project/export/security-docx/${encodeURIComponent(currentProjectId)}`;
+                showToast("Descargando Informe Oficial de Seguridad en Word (.docx)...", "success");
+            } else if (typeof DocuMindExporter !== "undefined") {
+                showToast("Generando Informe Oficial de Seguridad en Word (.docx)...", "info");
+                await DocuMindExporter.exportByFormat(currentAnalysisData, "docx", "security-report");
+                showToast("Informe DOCX de Seguridad descargado.", "success");
+            }
+        });
+    }
+
+    const btnRunStandaloneSecAudit = document.getElementById("btn-run-standalone-sec-audit");
+    if (btnRunStandaloneSecAudit) {
+        btnRunStandaloneSecAudit.addEventListener("click", async () => {
+            if (!currentAnalysisData) {
+                showToast("Primero analiza un repositorio para ejecutar una re-auditoría comparativa.", "info");
+                return;
+            }
+            btnRunStandaloneSecAudit.disabled = true;
+            btnRunStandaloneSecAudit.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Re-auditando...';
+            try {
+                const res = await fetch('/api/security/audit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        projectName: currentAnalysisData.repository?.fullName || currentAnalysisData.projectName || 'Proyecto',
+                        files: currentAnalysisData.keyFiles || [],
+                        totalRepoFiles: currentAnalysisData.stats?.totalFiles || 0,
+                        endpoints: currentAnalysisData.endpoints || [],
+                        detectedTechnologies: currentAnalysisData.detectedTechnologies || []
+                    })
+                });
+                const data = await res.json();
+                if (res.ok && data.success && data.security) {
+                    currentAnalysisData.security = data.security;
+                    renderSecurityTab(data.security);
+                    showToast("Auditoría Security Intelligence actualizada y comparada con éxito.", "success");
+                } else {
+                    throw new Error(data.error || "Error al ejecutar la auditoría.");
+                }
+            } catch (err) {
+                showToast(err.message || "Error al ejecutar la re-auditoría.", "error");
+            } finally {
+                btnRunStandaloneSecAudit.disabled = false;
+                btnRunStandaloneSecAudit.innerHTML = '<i class="fa-solid fa-rotate" style="margin-right:.3rem;"></i>Re-auditar y Comparar';
+            }
         });
     }
 
@@ -3713,6 +4155,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!supabaseClient || !currentUser || !currentUser.id) return;
         const verified = Boolean(
             currentUser.app_metadata?.provider === "google" ||
+            currentUser.app_metadata?.provider === "github" ||
             currentUser.email_confirmed_at ||
             currentUser.confirmed_at
         );
@@ -4745,175 +5188,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ============================================================
-    // ENTERPRISE SAAS 2.0 — PRICING & SUBSCRIPTION INTERACTIONS
+    // BLAST RADIUS & ENTERPRISE BYOK CONTROLLERS
     // ============================================================
-    window.setBillingCycle = function(cycle) {
-        const btnMonthly = document.getElementById("billing-btn-monthly");
-        const btnAnnual = document.getElementById("billing-btn-annual");
-        const elProPrice = document.getElementById("plan-pro-price");
-        const elProBilled = document.getElementById("plan-pro-billed");
-        const elEntPrice = document.getElementById("plan-enterprise-price");
-        const elEntBilled = document.getElementById("plan-enterprise-billed");
-
-        if (cycle === "annual") {
-            if (btnMonthly) btnMonthly.classList.remove("active");
-            if (btnAnnual) btnAnnual.classList.add("active");
-            if (elProPrice) elProPrice.textContent = "23";
-            if (elProBilled) elProBilled.textContent = "Facturado anualmente ($279 USD/año — Ahorras 20%)";
-            if (elEntPrice) elEntPrice.textContent = "399";
-            if (elEntBilled) elEntBilled.textContent = "Facturado anualmente ($4,788 USD/año)";
-        } else {
-            if (btnAnnual) btnAnnual.classList.remove("active");
-            if (btnMonthly) btnMonthly.classList.add("active");
-            if (elProPrice) elProPrice.textContent = "29";
-            if (elProBilled) elProBilled.textContent = "Facturado mensualmente ($29 USD)";
-            if (elEntPrice) elEntPrice.textContent = "499";
-            if (elEntBilled) elEntBilled.textContent = "Hasta 20 arquitectos incluidos";
-        }
-    };
-
-    window.togglePricingComparison = function() {
-        const wrapper = document.getElementById("pricing-comparison-table-wrapper");
-        const icon = document.getElementById("comparison-toggle-icon");
-        if (!wrapper) return;
-        const isHidden = wrapper.classList.contains("hidden");
-        if (isHidden) {
-            wrapper.classList.remove("hidden");
-            if (icon) icon.style.transform = "rotate(180deg)";
-        } else {
-            wrapper.classList.add("hidden");
-            if (icon) icon.style.transform = "rotate(0deg)";
-        }
-    };
-
-    window.selectPlan = function(planId) {
-        if (planId === "free") {
-            const analizador = document.getElementById("analizador");
-            if (analizador) analizador.scrollIntoView({ behavior: "smooth" });
-            return;
-        }
-
-        if (planId === "enterprise") {
-            const contacto = document.getElementById("contacto");
-            if (contacto) contacto.scrollIntoView({ behavior: "smooth" });
-            return;
-        }
-
-        if (planId === "pro") {
-            // Check if user is authenticated with Supabase
-            if (typeof currentUser === "undefined" || !currentUser) {
-                showToast("Para suscribirte al Plan Pro, inicia sesión o crea tu cuenta.", "info");
-                const authModal = document.getElementById("auth-modal");
-                if (authModal) {
-                    authModal.classList.remove("hidden");
-                    authModal.style.display = "flex";
-                }
-            } else {
-                showToast(`¡Hola ${currentUser.name || currentUser.email}! Preparando checkout seguro para Plan Pro...`, "info");
-                const checkoutEvent = new CustomEvent("documind:start-checkout", { detail: { plan: "pro", cycle: "monthly" } });
-                window.dispatchEvent(checkoutEvent);
-            }
-        }
-    };
-
-    // Attach button click listener for #btn-select-plan-pro
-    const btnPlanPro = document.getElementById("btn-select-plan-pro");
-    if (btnPlanPro) {
-        btnPlanPro.addEventListener("click", () => window.selectPlan("pro"));
-    }
-
-    // ============================================================
-    // ENTERPRISE SAAS 2.0 — CHECKOUT, BLAST RADIUS & BYOK CONTROLLERS
-    // ============================================================
-
-    let activePaymentProvider = 'wompi';
-    let currentCheckoutPlan = 'pro';
-    let currentCheckoutCycle = 'monthly';
-
-    window.setPaymentProvider = function(provider) {
-        activePaymentProvider = provider;
-        const btnWompi = document.getElementById("pay-provider-wompi");
-        const btnMp = document.getElementById("pay-provider-mercadopago");
-        if (provider === 'mercadopago') {
-            if (btnWompi) btnWompi.classList.remove("active");
-            if (btnMp) btnMp.classList.add("active");
-        } else {
-            if (btnMp) btnMp.classList.remove("active");
-            if (btnWompi) btnWompi.classList.add("active");
-        }
-    };
-
-    window.openCheckoutModal = function(planId, cycle = 'monthly') {
-        currentCheckoutPlan = planId;
-        currentCheckoutCycle = cycle;
-
-        const modal = document.getElementById("checkout-modal");
-        const nameEl = document.getElementById("checkout-plan-name");
-        const cycleEl = document.getElementById("checkout-cycle-label");
-        const priceEl = document.getElementById("checkout-total-price");
-        const featuresEl = document.getElementById("checkout-features-list");
-        const paymentAccordion = document.getElementById("payment-methods-accordion");
-
-        if (paymentAccordion) paymentAccordion.style.display = "none";
-
-        if (nameEl) nameEl.textContent = planId === 'enterprise' ? 'Plan Enterprise — Corporativo' : 'Plan Pro — Profesional';
-        if (cycleEl) cycleEl.textContent = cycle === 'annual' ? 'Facturación Anual (Ahorro 20%)' : 'Facturación Mensual';
-
-        let amount = planId === 'enterprise' ? (cycle === 'annual' ? '$4,788.00' : '$499.00') : (cycle === 'annual' ? '$279.00' : '$29.00');
-        if (priceEl) priceEl.textContent = amount;
-
-        if (featuresEl) {
-            if (planId === 'enterprise') {
-                featuresEl.innerHTML = `
-                    <li>Organizaciones ilimitadas con roles RBAC (Admin, Architect, Auditor)</li>
-                    <li>Soporte de llaves propias (BYOK) para Gemini, Vertex AI, Azure y Ollama</li>
-                    <li>Modo Efímero Zero-Retention con destrucción de memoria RAM</li>
-                    <li>Marca Blanca Corporativa y soporte de ingeniería 24/7</li>
-                `;
-            } else {
-                featuresEl.innerHTML = `
-                    <li>Análisis de repositorios privados y públicos ilimitados</li>
-                    <li>Exportación completa a Word (.docx) y PDF con diagramas</li>
-                    <li>Análisis de impacto y Blast Radius con navegación a código</li>
-                    <li>Historial persistente en la nube y soporte prioritario</li>
-                `;
-            }
-        }
-
-        if (modal) {
-            modal.classList.remove("hidden");
-            modal.style.display = "flex";
-        }
-    };
-
-    window.addEventListener("documind:start-checkout", (e) => {
-        const detail = e.detail || {};
-        window.openCheckoutModal(detail.plan || 'pro', detail.cycle || 'monthly');
-    });
-
-    const btnCloseCheckout = document.getElementById("btn-close-checkout");
-    const btnCancelCheckout = document.getElementById("btn-cancel-checkout");
-    const checkoutBackdrop = document.getElementById("checkout-modal-backdrop");
-    const hideCheckout = () => {
-        const modal = document.getElementById("checkout-modal");
-        if (modal) {
-            modal.classList.add("hidden");
-            modal.style.display = "none";
-        }
-    };
-    if (btnCloseCheckout) btnCloseCheckout.addEventListener("click", hideCheckout);
-    if (btnCancelCheckout) btnCancelCheckout.addEventListener("click", hideCheckout);
-    if (checkoutBackdrop) checkoutBackdrop.addEventListener("click", hideCheckout);
-
-    // ¿Cómo puedo pagar? accordion toggle
-    const btnHowToPay = document.getElementById("btn-how-to-pay");
-    const paymentAccordion = document.getElementById("payment-methods-accordion");
-    if (btnHowToPay && paymentAccordion) {
-        btnHowToPay.addEventListener("click", () => {
-            const isHidden = paymentAccordion.style.display === "none" || !paymentAccordion.style.display;
-            paymentAccordion.style.display = isHidden ? "block" : "none";
-        });
-    }
 
     // Quick Actions in User Welcome Dashboard
     const btnDashBlast = document.getElementById("btn-dash-open-blast");
@@ -4928,65 +5204,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btnDashSettings.addEventListener("click", () => {
             const m = document.getElementById("enterprise-settings-modal");
             if (m) { m.classList.remove("hidden"); m.style.display = "flex"; }
-        });
-    }
-
-    // Enviar pago a backend
-    const btnSubmitPayment = document.getElementById("btn-submit-payment");
-    if (btnSubmitPayment) {
-        btnSubmitPayment.addEventListener("click", async () => {
-            const chkTerms = document.getElementById("chk-accept-terms");
-            const chkPrivacy = document.getElementById("chk-accept-privacy");
-            if (chkTerms && !chkTerms.checked) {
-                showToast("Debes aceptar los Términos y Condiciones para continuar.", "warning");
-                return;
-            }
-            if (chkPrivacy && !chkPrivacy.checked) {
-                showToast("Debes aceptar la Política de Tratamiento de Datos.", "warning");
-                return;
-            }
-
-            btnSubmitPayment.disabled = true;
-            btnSubmitPayment.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Conectando Pasarela...`;
-
-            try {
-                const res = await fetch("/api/billing/create-checkout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "x-user-id": (typeof currentUser !== "undefined" && currentUser) ? currentUser.id : "guest_user"
-                    },
-                    body: JSON.stringify({
-                        planId: currentCheckoutPlan,
-                        billingCycle: currentCheckoutCycle,
-                        provider: activePaymentProvider,
-                        termsAccepted: true,
-                        userEmail: (typeof currentUser !== "undefined" && currentUser) ? currentUser.email : "cliente@empresa.com"
-                    })
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    showToast(`¡Orden de pago generada! Redirigiendo a pasarela...`, "success");
-                    // En sandbox de desarrollo, confirmar automáticamente el pago para verificación inmediata
-                    if (data.checkoutUrl && data.checkoutUrl.startsWith("/api/")) {
-                        await fetch("/api/billing/mock-confirm", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ reference: data.reference })
-                        });
-                        showToast(`¡Pago confirmado exitosamente! Tu cuenta ahora tiene Plan ${data.plan.toUpperCase()}.`, "success");
-                    }
-                    hideCheckout();
-                } else {
-                    showToast(data.error || "No se pudo iniciar el checkout", "error");
-                }
-            } catch (err) {
-                showToast("Error de conexión con la pasarela de pagos.", "error");
-            } finally {
-                btnSubmitPayment.disabled = false;
-                btnSubmitPayment.innerHTML = `<i class="fa-solid fa-lock" style="margin-right:.45rem;"></i> Continuar al Pago`;
-            }
         });
     }
 

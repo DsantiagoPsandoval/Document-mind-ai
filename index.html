@@ -13,69 +13,70 @@
     <meta property="og:title" content="DocuMind AI | Tu código cambia todos los dias. Tu documentación ahora también.">
     <meta property="og:description" content="Plataforma de IA para documentación viva de software basada en análisis AST y modelos de lenguaje.">
     <meta property="og:image" content="https://dsantiagopsandoval.github.io/Document-mind-ai/assets/qr-landing.png">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23090D16' stroke='%2338BDF8' stroke-width='3'/%3E%3Cpath d='M30 45 C30 35,45 32,48 40 C52 32,70 35,70 45 C70 55,62 65,50 72 C38 65,30 55,30 45Z' fill='%23818CF8'/%3E%3C/svg%3E">
-    <meta name="theme-color" content="#090D16">
+    <link rel="icon" type="image/svg+xml" href="/assets/documind-mark.svg">
+    <link rel="alternate icon" type="image/png" href="/assets/favicon.png">
+    <meta name="theme-color" content="#060A12">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=6.0">
+    <link rel="stylesheet" href="styles.css?v=8.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- ai-core-3d deferred to body end -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body style="background-color:#090D16;color:#E2E8F0;">
+<body style="background-color:#060A12;color:#E2E8F0;">
 
     <div id="cursor-spotlight"></div>
     <div id="toast-container"></div>
 
     <!-- ============================================================
-         NAVBAR
+         NAVBAR PREMIUM — REDISEÑO ESPACIADO Y EQUILIBRADO
     ============================================================ -->
     <header id="navbar">
         <div class="nav-inner">
-            <a href="#" class="nav-logo" aria-label="DocuMind AI - Inicio">
-                <div class="nav-logo-icon"><img src="/assets/documind-icon.png" alt="DocuMind AI Logo"></div>
-                <span class="nav-logo-text">DocuMind<span class="ai-badge">AI</span></span>
+            <a href="#hero" class="nav-logo" aria-label="DocuMind AI - Inicio">
+                <div class="nav-logo-icon">
+                    <img src="/assets/documind-mark.svg" alt="DocuMind AI Isotipo" onerror="this.src='/assets/documind-icon.png'">
+                </div>
+                <div class="nav-logo-brand">
+                    <span class="nav-logo-text">DocuMind<span class="ai-badge">AI</span></span>
+                    <span class="nav-logo-sub">Engineering &amp; Security Intelligence</span>
+                </div>
             </a>
 
-            <!-- Center Navigation Links -->
+            <!-- Center Navigation Links (Espaciado Equilibrado & Jerarquía Visual) -->
             <nav class="nav-center-nav" aria-label="Navegación principal">
                 <ul class="nav-links">
-                    <li><a href="#hero" class="nav-link" data-section="hero">Inicio</a></li>
-                    <li><a href="#como-funciona" class="nav-link" data-section="como-funciona">Cómo funciona</a></li>
-                    <li><a href="#solucion" class="nav-link" data-section="solucion">Soluciones</a></li>
-                    <li><a href="#empresas-seguridad" class="nav-link" data-section="empresas-seguridad">Empresas</a></li>
-                    <li><a href="#analizador" class="nav-link" data-section="analizador">Analizador</a></li>
-                    <li><a href="/simulador" target="_blank" rel="noopener noreferrer" class="nav-link" style="color:var(--tech-cyan);font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.35rem;font-size:.75rem;"></i>Simulador <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
-                    <li><a href="javascript:void(0)" id="nav-btn-orgs" class="nav-link" style="color:#818CF8;font-weight:700;"><i class="fa-solid fa-users-gear" style="margin-right:.35rem;font-size:.75rem;"></i>Grupos</a></li>
-                    <li><a href="#planes" class="nav-link" data-section="planes">Planes &amp; Precios</a></li>
-                    <li><a href="#faq" class="nav-link" data-section="faq">FAQ</a></li>
-                    <li><a href="#contacto" class="nav-link" data-section="contacto">Contacto</a></li>
+                    <li><a href="#hero" class="nav-link active" data-section="hero"><i class="fa-solid fa-house-signal nav-link-icon"></i><span>Inicio</span></a></li>
+                    <li><a href="#como-funciona" class="nav-link" data-section="como-funciona"><i class="fa-solid fa-diagram-project nav-link-icon"></i><span>Cómo funciona</span></a></li>
+                    <li><a href="#analizador" class="nav-link" data-section="analizador"><i class="fa-solid fa-microchip nav-link-icon"></i><span>Analizador</span></a></li>
+                    <li><a href="#analizador" id="nav-link-docs" class="nav-link" data-section="documentacion"><i class="fa-solid fa-book-open-reader nav-link-icon"></i><span>Documentación</span></a></li>
+                    <li><a href="#security-intelligence" id="nav-link-security" class="nav-link nav-link-sec" data-section="security-intelligence"><i class="fa-solid fa-shield-halved nav-link-icon"></i><span>Security Intelligence</span></a></li>
+                    <li><a href="/simulador" class="nav-link nav-link-sim" data-section="simulador"><i class="fa-solid fa-sliders nav-link-icon"></i><span>Simulador</span></a></li>
+                    <li><a href="#equipo" class="nav-link" data-section="equipo"><i class="fa-solid fa-users nav-link-icon"></i><span>Equipo</span></a></li>
+                    <li><a href="#contacto" class="nav-link" data-section="contacto"><i class="fa-solid fa-envelope-open-text nav-link-icon"></i><span>Contacto</span></a></li>
                 </ul>
             </nav>
 
-            <!-- Right Actions -->
+            <!-- Right Actions: Controles de Usuario y Utilidades -->
             <div class="nav-actions">
-                <button type="button" id="btn-open-tour" class="nav-action-btn btn-tour" aria-label="Guía rápida y tour interactivo">
-                    <i class="fa-solid fa-circle-question"></i>
-                    <span>Guía rápida</span>
+                <button type="button" id="btn-open-tour" class="nav-action-btn btn-tour" aria-label="Guía rápida interactiva" title="Guía rápida de la plataforma">
+                    <i class="fa-solid fa-compass"></i>
+                    <span class="nav-action-label">Guía</span>
                 </button>
-                <button type="button" id="btn-open-integrations" class="nav-action-btn" aria-label="Ver servicios e integraciones">
+                <button type="button" id="btn-open-integrations" class="nav-action-btn" aria-label="Estado de servicios e integraciones" title="Estado de servicios e integraciones">
                     <i class="fa-solid fa-server"></i>
-                    <span>Servicios</span>
+                    <span class="nav-action-label">Estado</span>
                 </button>
 
-                <!-- Guest State: Comenzar Gratis + Iniciar Sesión Buttons -->
-                <div id="nav-auth-guest" style="display:inline-flex;align-items:center;gap:.45rem;">
-                    <a href="#analizador" class="btn-cyber-outline" style="padding:.4rem .9rem;font-size:.78rem;border-radius:9999px;">
-                        <i class="fa-solid fa-bolt" style="font-size:.7rem;margin-right:.35rem;color:var(--tech-cyan);"></i>Comenzar Gratis
-                    </a>
-                    <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.42rem 1.1rem;font-size:.8rem;border-radius:9999px;">
-                        <i class="fa-solid fa-user-lock" style="font-size:.72rem;margin-right:.45rem;"></i>Iniciar Sesión
+                <!-- Guest State: Analizar + Iniciar Sesión -->
+                <div id="nav-auth-guest" class="nav-auth-guest-wrap" style="display:inline-flex;align-items:center;gap:.6rem;">
+                    <button type="button" id="btn-open-auth-modal" class="btn-cyber" style="padding:.48rem 1.15rem;font-size:.8rem;border-radius:9999px;">
+                        <i class="fa-solid fa-user-shield" style="font-size:.74rem;margin-right:.4rem;"></i><span>Acceder</span>
                     </button>
                 </div>
 
@@ -89,27 +90,26 @@
                     <!-- Dropdown Menu -->
                     <div id="user-dropdown-menu" class="user-dropdown-cyber hidden">
                         <div class="user-dropdown-header">
-                            <span style="font-size:.68rem;color:#64748B;text-transform:uppercase;letter-spacing:.05em;">Conectado como</span>
-                            <span id="dropdown-user-name" style="display:block;font-size:.82rem;font-weight:800;color:#F8FAFC;">Usuario</span>
-                            <strong id="dropdown-user-email" style="display:block;font-size:.78rem;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">usuario@correo.com</strong>
+                            <span style="font-size:.68rem;color:#64748B;text-transform:uppercase;letter-spacing:.05em;">Sesión autenticada</span>
+                            <span id="dropdown-user-name" style="display:block;font-size:.84rem;font-weight:800;color:#F8FAFC;">Usuario</span>
+                            <strong id="dropdown-user-email" style="display:block;font-size:.76rem;color:#94A3B8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">usuario@correo.com</strong>
                             <div style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.35rem;font-size:.65rem;color:#34D399;font-family:'JetBrains Mono',monospace;">
                                 <span style="width:6px;height:6px;border-radius:50%;background:#34D399;box-shadow:0 0 8px #34D399;"></span>
-                                Supabase DB Sync
+                                Supabase Auth &amp; RLS Activo
                             </div>
                         </div>
                         <div class="user-dropdown-divider"></div>
                         <button type="button" id="btn-user-account" class="user-dropdown-item">
-                            <i class="fa-solid fa-user-circle" style="color:var(--tech-cyan);"></i>Mi Cuenta
+                            <i class="fa-solid fa-user-circle" style="color:var(--tech-cyan);"></i>Mi Perfil y Cuenta
                         </button>
                         <a href="#analizador" id="btn-user-history" class="user-dropdown-item">
-                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Mis Análisis Guardados
+                            <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i>Historial de Proyectos
                         </a>
                         <button type="button" id="btn-user-orgs" class="user-dropdown-item">
-                            <i class="fa-solid fa-users-gear" style="color:#818CF8;"></i>Mis Grupos y Equipos
-                            <span class="badge badge-purple" style="margin-left:auto;font-size:.58rem;padding:.12rem .4rem;">Enterprise</span>
+                            <i class="fa-solid fa-users-gear" style="color:#818CF8;"></i>Equipos y Gobernanza RBAC
                         </button>
                         <button type="button" id="btn-user-privacy" class="user-dropdown-item" style="color:#94A3B8;">
-                            <i class="fa-solid fa-shield-halved" style="color:#38BDF8;"></i>Configuración y Privacidad
+                            <i class="fa-solid fa-shield-halved" style="color:#38BDF8;"></i>Privacidad y Seguridad
                         </button>
                         <div class="user-dropdown-divider"></div>
                         <button type="button" id="btn-user-delete-account" class="user-dropdown-item" style="color:#FB7185;">
@@ -121,37 +121,38 @@
                     </div>
                 </div>
 
-                <button id="mobile-menu-btn" aria-label="Abrir menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+                <button type="button" id="mobile-menu-btn" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="mobile-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Mobile Drawer Navigation -->
+    <!-- Mobile Drawer Navigation (Responsive & Touch-Friendly) -->
     <nav id="mobile-menu" class="hidden" aria-label="Menú móvil">
-        <a href="#como-funciona" class="mobile-nav-link"><i class="fa-solid fa-network-wired" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Cómo funciona</a>
-        <a href="#solucion" class="mobile-nav-link"><i class="fa-solid fa-cube" style="color:var(--indigo-glow);margin-right:.4rem;"></i>Solución Técnica</a>
-        <a href="#empresas-seguridad" class="mobile-nav-link"><i class="fa-solid fa-shield-halved" style="color:#38BDF8;margin-right:.4rem;"></i>Empresas &amp; Seguridad</a>
-        <a href="#analizador" class="mobile-nav-link"><i class="fa-solid fa-brain" style="color:var(--tech-cyan);margin-right:.4rem;"></i>Analizador</a>
-        <a href="#planes" class="mobile-nav-link"><i class="fa-solid fa-tags" style="color:#F59E0B;margin-right:.4rem;"></i>Planes &amp; Precios</a>
-        <a href="#faq" class="mobile-nav-link"><i class="fa-solid fa-circle-question" style="color:#818CF8;margin-right:.4rem;"></i>FAQ</a>
-        <a href="/simulador" target="_blank" rel="noopener noreferrer" class="mobile-nav-link" style="color:#34D399;font-weight:700;"><i class="fa-solid fa-sliders" style="margin-right:.4rem;"></i>Simulador de Ingeniería <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.7rem;margin-left:.35rem;opacity:.8;"></i></a>
-        <a href="#equipo" class="mobile-nav-link"><i class="fa-solid fa-users" style="color:#94A3B8;margin-right:.4rem;"></i>Equipo</a>
-        <a href="#contacto" class="mobile-nav-link"><i class="fa-solid fa-envelope" style="color:#94A3B8;margin-right:.4rem;"></i>Contacto &amp; Ventas</a>
+        <a href="#hero" class="mobile-nav-link" data-section="hero"><i class="fa-solid fa-house-signal" style="color:var(--tech-cyan);width:1.35rem;"></i>Inicio</a>
+        <a href="#como-funciona" class="mobile-nav-link" data-section="como-funciona"><i class="fa-solid fa-diagram-project" style="color:#818CF8;width:1.35rem;"></i>Cómo funciona</a>
+        <a href="#analizador" class="mobile-nav-link" data-section="analizador"><i class="fa-solid fa-microchip" style="color:var(--tech-cyan);width:1.35rem;"></i>Analizador</a>
+        <a href="#analizador" id="mobile-nav-docs" class="mobile-nav-link" data-section="documentacion"><i class="fa-solid fa-book-open-reader" style="color:#34D399;width:1.35rem;"></i>Documentación</a>
+        <a href="#security-intelligence" class="mobile-nav-link" data-section="security-intelligence"><i class="fa-solid fa-shield-halved" style="color:#FB7185;width:1.35rem;"></i>Security Intelligence</a>
+        <a href="/simulador" class="mobile-nav-link" style="color:#38BDF8;font-weight:700;"><i class="fa-solid fa-sliders" style="color:#38BDF8;width:1.35rem;"></i>Simulador</a>
+        <a href="#equipo" class="mobile-nav-link" data-section="equipo"><i class="fa-solid fa-users" style="color:#A78BFA;width:1.35rem;"></i>Equipo</a>
+        <a href="#contacto" class="mobile-nav-link" data-section="contacto"><i class="fa-solid fa-envelope-open-text" style="color:#94A3B8;width:1.35rem;"></i>Contacto</a>
 
-        <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.5rem 0;padding-top:0.5rem;display:flex;flex-direction:column;gap:0.35rem;">
+        <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.4rem 0;padding-top:0.4rem;display:flex;flex-direction:column;gap:0.25rem;">
             <button type="button" id="btn-mobile-open-tour" class="mobile-nav-link" style="background:transparent;border:none;cursor:pointer;width:100%;text-align:left;color:#38BDF8;">
-                <i class="fa-solid fa-circle-question" style="margin-right:.4rem;"></i>Guía rápida
+                <i class="fa-solid fa-compass" style="width:1.35rem;"></i>Guía rápida interactiva
             </button>
             <button type="button" id="btn-mobile-open-integrations" class="mobile-nav-link" style="background:transparent;border:none;cursor:pointer;width:100%;text-align:left;color:#94A3B8;">
-                <i class="fa-solid fa-server" style="margin-right:.4rem;color:var(--tech-cyan);"></i>Servicios e Integraciones
+                <i class="fa-solid fa-server" style="width:1.35rem;color:var(--tech-cyan);"></i>Estado de Servicios
             </button>
         </div>
 
         <!-- Mobile Auth Actions -->
-        <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.5rem 0;padding-top:0.75rem;">
+        <div style="border-top:1px solid rgba(255,255,255,0.08);margin:0.4rem 0;padding-top:0.65rem;">
             <div id="mobile-auth-guest">
-                <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.65rem 1rem;border-radius:9999px;">
-                    <i class="fa-solid fa-user-lock" style="margin-right:.45rem;"></i>Iniciar Sesión / Registro
+                <button type="button" id="btn-mobile-open-auth" class="btn-cyber" style="width:100%;justify-content:center;padding:.7rem 1rem;border-radius:9999px;">
+                    <i class="fa-solid fa-user-shield" style="margin-right:.45rem;"></i>Iniciar Sesión / Registro
                 </button>
             </div>
             <div id="mobile-auth-user" style="display:none;flex-direction:column;gap:0.6rem;">
@@ -172,45 +173,45 @@
     ============================================================ -->
     <section id="hero" style="position:relative;min-height:92vh;display:flex;align-items:center;overflow:hidden;padding:3.5rem 0 3rem;">
         <!-- Background Ambient Lighting -->
-        <div style="position:absolute;top:0;left:0;width:50%;height:50%;background:radial-gradient(ellipse at 0% 0%,rgba(129,140,248,.12) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
-        <div style="position:absolute;bottom:0;right:0;width:50%;height:50%;background:radial-gradient(ellipse at 100% 100%,rgba(56,189,248,.09) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;top:0;left:0;width:50%;height:50%;background:radial-gradient(ellipse at 0% 0%,rgba(99,102,241,.14) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
+        <div style="position:absolute;bottom:0;right:0;width:50%;height:50%;background:radial-gradient(ellipse at 100% 100%,rgba(56,189,248,.1) 0%,transparent 70%);pointer-events:none;z-index:0;"></div>
         <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(129,140,248,.12) 1px,transparent 1px);background-size:32px 32px;opacity:.45;pointer-events:none;z-index:0;"></div>
 
         <div class="container" style="position:relative;z-index:1;width:100%;">
             <!-- 2-COLUMN HERO GRID -->
             <div class="hero-grid">
                 
-                <!-- LEFT COLUMN: Value Proposition & CTAs (45-55%) -->
+                <!-- LEFT COLUMN: Value Proposition & CTAs -->
                 <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;">
                     
                     <div style="margin-bottom:1.25rem;" class="reveal">
                         <span class="badge badge-cyan">
                             <i class="fa-solid fa-microchip"></i>
-                            DocuMind AI Enterprise 2.0 &bull; Arquitectura Viva &amp; Sincronización Continua
+                            DocuMind AI &bull; Ingeniería de Software, Documentación Basada en Evidencia &amp; Security Intelligence
                         </span>
                     </div>
 
-                    <h1 class="hero-title reveal reveal-delay-1" style="font-size:clamp(2.35rem, 4.4vw, 3.6rem);font-weight:900;line-height:1.15;letter-spacing:-0.03em;margin-bottom:1.15rem;color:#FFFFFF;">
-                        La inteligencia detrás de <span class="gradient-text">la documentación de software</span>
+                    <h1 class="hero-title reveal reveal-delay-1" style="font-size:clamp(2.25rem, 4.3vw, 3.55rem);font-weight:900;line-height:1.14;letter-spacing:-0.03em;margin-bottom:1.15rem;color:#FFFFFF;">
+                        La inteligencia detrás de <span class="gradient-text">la ingeniería documental y seguridad de software</span>
                     </h1>
 
-                    <p style="font-size:clamp(.98rem,1.35vw,1.12rem);color:#CBD5E1;line-height:1.75;max-width:540px;margin-bottom:2rem;font-weight:400;" class="reveal reveal-delay-2">
-                        Transforma repositorios de código en documentación técnica inteligente. Analiza arquitecturas, descubre dependencias y mantén tus proyectos documentados con inteligencia artificial.
+                    <p style="font-size:clamp(.96rem,1.3vw,1.1rem);color:#CBD5E1;line-height:1.75;max-width:560px;margin-bottom:2rem;font-weight:400;" class="reveal reveal-delay-2">
+                        Analiza repositorios con rigor estático AST e inteligencia artificial para generar documentación de ingeniería (Presentación, SRS IEEE 830 / ISO 29148, Arquitectura C4 ISO 42010, OpenAPI 3.0.3, ISO 25010) y diagnóstico cuantificable de ciberseguridad 0–100.
                     </p>
 
                     <!-- CTAs with Analyze Repository sequence trigger -->
-                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
-                        <a href="#analizador" id="btn-hero-analyze" class="btn-cyber" style="padding:.85rem 1.65rem;font-size:.92rem;">
-                            <i class="fa-solid fa-sparkles" style="margin-right:.5rem;font-size:.75rem;"></i>
-                            Comenzar gratis
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.8rem;margin-bottom:2.25rem;" class="reveal reveal-delay-3">
+                        <a href="#analizador" id="btn-hero-analyze" class="btn-cyber" style="padding:.85rem 1.65rem;font-size:.9rem;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="margin-right:.5rem;font-size:.8rem;"></i>
+                            Analizar Repositorio
                         </a>
-                        <a href="#como-funciona" class="btn-ghost" style="padding:.85rem 1.45rem;font-size:.92rem;color:#E2E8F0;border:1px solid rgba(255,255,255,0.12);border-radius:9999px;">
-                            <i class="fa-solid fa-circle-nodes" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.85rem;"></i>
-                            Explorar funcionalidades
+                        <a href="#security-intelligence" class="btn-cyber-outline" style="padding:.85rem 1.45rem;font-size:.9rem;">
+                            <i class="fa-solid fa-shield-halved" style="margin-right:.5rem;color:#FB7185;font-size:.82rem;"></i>
+                            Security Intelligence
                         </a>
-                        <a href="#planes" class="btn-cyber-outline" style="padding:.85rem 1.35rem;font-size:.92rem;">
-                            <i class="fa-solid fa-tags" style="margin-right:.5rem;color:#F59E0B;font-size:.75rem;"></i>
-                            Ver Planes
+                        <a href="/simulador" class="btn-ghost" style="padding:.85rem 1.35rem;font-size:.9rem;color:#E2E8F0;border:1px solid rgba(255,255,255,0.12);border-radius:9999px;">
+                            <i class="fa-solid fa-sliders" style="margin-right:.5rem;color:var(--tech-cyan);font-size:.82rem;"></i>
+                            Simulador M/M/c
                         </a>
                     </div>
 
@@ -822,62 +823,58 @@ const ast = await parseSyntaxTree(repoBuffer, {
                     </div>
                 </div>
 
-                <!-- Authenticated User Real-Time Stats & Action Strip -->
-                <div class="user-dashboard-stats-strip" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.08);">
-                    <!-- Stat 1: Plan actual -->
-                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                <!-- Authenticated User Real-Time Engineering Dashboard Strip -->
+                <div class="user-dashboard-stats-strip" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:1rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,0.08);">
+                    <!-- Stat 1: Estado de la Plataforma -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(56,189,248,.22);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
                         <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);font-size:1rem;">
-                            <i class="fa-solid fa-crown"></i>
+                            <i class="fa-solid fa-shield-check"></i>
                         </div>
                         <div>
-                            <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Plan Activo</span>
+                            <span style="font-size:.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Acceso a Motores</span>
                             <div style="display:flex;align-items:center;gap:.4rem;">
-                                <strong id="dash-plan-badge" style="font-size:1.05rem;font-weight:900;color:#FFFFFF;text-transform:uppercase;">FREE</strong>
-                                <a href="#planes" style="font-size:.68rem;color:var(--tech-cyan);text-decoration:underline;">Mejorar</a>
+                                <strong id="dash-plan-badge" style="font-size:.92rem;font-weight:800;color:#34D399;">SUITE COMPLETA ACTIVA</strong>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Stat 2: Repositorios usados -->
-                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                    <!-- Stat 2: Documentación y Seguridad -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(129,140,248,.22);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
                         <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);display:flex;align-items:center;justify-content:center;color:#818CF8;font-size:1rem;">
-                            <i class="fa-solid fa-code-branch"></i>
+                            <i class="fa-solid fa-book-atlas"></i>
                         </div>
                         <div style="flex:1;">
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Repositorios Mes</span>
-                                <span style="font-size:.72rem;font-family:'JetBrains Mono',monospace;color:#CBD5E1;"><span id="dash-repos-used">0</span> / <span id="dash-repos-limit">3</span></span>
-                            </div>
-                            <div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:.4rem;overflow:hidden;">
-                                <div id="dash-repos-progress" style="width:0%;height:100%;background:linear-gradient(90deg, #38BDF8, #818CF8);transition:width 0.3s ease;"></div>
+                            <span style="font-size:.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Estándares Integrados</span>
+                            <div>
+                                <strong style="font-size:.82rem;color:#E2E8F0;">IEEE 830 · ISO 29148 · C4 · OWASP</strong>
                             </div>
                         </div>
                     </div>
 
                     <!-- Stat 3: Proyectos Guardados -->
-                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(52,211,153,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(52,211,153,.22);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
                         <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;color:#34D399;font-size:1rem;">
                             <i class="fa-solid fa-folder-tree"></i>
                         </div>
                         <div>
-                            <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Proyectos Guardados</span>
+                            <span style="font-size:.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Proyectos Analizados</span>
                             <div><strong id="dash-saved-count" style="font-size:1.05rem;font-weight:900;color:#FFFFFF;font-family:'JetBrains Mono',monospace;">0</strong></div>
                         </div>
                     </div>
 
-                    <!-- Stat 4: Accesos Rápidos Enterprise -->
-                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(245,158,11,.2);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
+                    <!-- Stat 4: Accesos Rápidos de Ingeniería -->
+                    <div style="background:rgba(15,23,42,.7);border:1px solid rgba(245,158,11,.22);border-radius:.75rem;padding:.9rem 1.15rem;display:flex;align-items:center;gap:.9rem;">
                         <div style="width:2.4rem;height:2.4rem;border-radius:.6rem;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);display:flex;align-items:center;justify-content:center;color:#F59E0B;font-size:1rem;">
-                            <i class="fa-solid fa-sliders"></i>
+                            <i class="fa-solid fa-bolt"></i>
                         </div>
                         <div>
-                            <span style="font-size:.7rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Herramientas Pro</span>
-                            <div style="display:flex;gap:.5rem;margin-top:.2rem;">
-                                <button type="button" id="btn-dash-open-blast" class="btn-ghost-sm" style="font-size:.7rem;padding:.2rem .5rem;" title="Abrir Blast Radius Analysis">
+                            <span style="font-size:.68rem;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;">Accesos Rápidos</span>
+                            <div style="display:flex;gap:.45rem;margin-top:.2rem;flex-wrap:wrap;">
+                                <button type="button" id="btn-dash-open-blast" class="btn-ghost-sm" style="font-size:.7rem;padding:.2rem .5rem;" title="Análisis de Radio de Impacto (Blast Radius)">
                                     <i class="fa-solid fa-radiation" style="color:#F43F5E;"></i> Blast Radius
                                 </button>
-                                <button type="button" id="btn-dash-open-settings" class="btn-ghost-sm" style="font-size:.7rem;padding:.2rem .5rem;" title="Configuración Enterprise y BYOK">
-                                    <i class="fa-solid fa-key" style="color:#F59E0B;"></i> BYOK
+                                <button type="button" id="btn-dash-open-settings" class="btn-ghost-sm" style="font-size:.7rem;padding:.2rem .5rem;" title="Configuración de Privacidad y Personalización">
+                                    <i class="fa-solid fa-sliders" style="color:#38BDF8;"></i> Ajustes
                                 </button>
                             </div>
                         </div>
@@ -1007,12 +1004,12 @@ const ast = await parseSyntaxTree(repoBuffer, {
                             <h4 style="font-size:.84rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:.45rem;">
                                 <span class="suite-header-icon-box"><i class="fa-solid fa-layer-group"></i></span>
                                 <span>¿Qué quieres generar?</span>
-                                <span id="selected-modules-counter" class="suite-active-counter">11 / 11 activos</span>
+                                <span id="selected-modules-counter" class="suite-active-counter">12 / 12 activos</span>
                             </h4>
                             <div class="suite-header-actions">
                                 <span class="suite-header-subtitle">Selecciona los módulos requeridos para la suite documental</span>
                                 <div class="suite-preset-group" role="group" aria-label="Selección rápida de módulos">
-                                    <button type="button" id="btn-preset-all" class="suite-preset-pill active" data-preset="all" title="Seleccionar todos los 11 módulos">
+                                    <button type="button" id="btn-preset-all" class="suite-preset-pill active" data-preset="all" title="Seleccionar todos los 12 módulos">
                                         <i class="fa-solid fa-check-double"></i> Suite Completa
                                     </button>
                                     <button type="button" id="btn-preset-arch" class="suite-preset-pill" data-preset="arch" title="Seleccionar módulos de Arquitectura, C4, Diagramas, BD y API">
@@ -1027,11 +1024,20 @@ const ast = await parseSyntaxTree(repoBuffer, {
 
                         <div class="category-selector-grid">
                             <label class="category-check-card checked">
+                                <input type="checkbox" id="cat-presentation" checked>
+                                <div class="cat-card-icon cat-purple"><i class="fa-solid fa-book-bookmark"></i></div>
+                                <div class="cat-card-info">
+                                    <span class="cat-card-title">Presentación Proyecto</span>
+                                    <small class="cat-card-sub">19 Secciones · Objetivos &amp; Alcance</small>
+                                </div>
+                                <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
+                            </label>
+                            <label class="category-check-card checked">
                                 <input type="checkbox" id="cat-product" checked>
                                 <div class="cat-card-icon cat-cyan"><i class="fa-solid fa-file-contract"></i></div>
                                 <div class="cat-card-info">
-                                    <span class="cat-card-title">Producto (PRD/SRS)</span>
-                                    <small class="cat-card-sub">IEEE 830 · Alcance &amp; KPIs</small>
+                                    <span class="cat-card-title">SRS &amp; Producto (PRD)</span>
+                                    <small class="cat-card-sub">IEEE 830 · ISO 29148 · RF/RNF</small>
                                 </div>
                                 <span class="cat-card-check"><i class="fa-solid fa-check"></i></span>
                             </label>
@@ -1247,6 +1253,10 @@ const ast = await parseSyntaxTree(repoBuffer, {
                                         <span><i class="fa-solid fa-brackets-curly" style="color:#A78BFA;width:20px;"></i>Descargar JSON</span>
                                         <span class="badge" style="font-size:.62rem;background:rgba(167,139,250,.15);color:#A78BFA;">.json</span>
                                     </button>
+                                    <button type="button" class="export-menu-item" data-export-format="yaml" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+                                        <span><i class="fa-solid fa-file-code" style="color:#38BDF8;width:20px;"></i>Descargar YAML</span>
+                                        <span class="badge badge-cyan" style="font-size:.62rem;">.yaml</span>
+                                    </button>
                                     <button type="button" class="export-menu-item" data-export-format="txt" style="width:100%;text-align:left;padding:.55rem .75rem;border:none;background:transparent;color:#F8FAFC;font-size:.8rem;border-radius:.4rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
                                         <span><i class="fa-solid fa-align-left" style="color:#94A3B8;width:20px;"></i>Descargar TXT</span>
                                         <span class="badge" style="font-size:.62rem;background:rgba(148,163,184,.15);color:#94A3B8;">.txt</span>
@@ -1387,21 +1397,21 @@ const ast = await parseSyntaxTree(repoBuffer, {
                     </div>
 
                     <!-- Documentation Tabs Navigation (Section 38) -->
-                    <div class="doc-suite-nav" role="tablist">
+                    <div class="doc-suite-nav" id="documentacion-tabs-anchor" role="tablist">
                         <button type="button" class="doc-nav-tab active" data-doc-tab="product">
-                            <i class="fa-solid fa-file-contract"></i> Producto
+                            <i class="fa-solid fa-file-contract"></i> Presentación, PRD &amp; SRS
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="architecture">
-                            <i class="fa-solid fa-sitemap"></i> Arquitectura
+                            <i class="fa-solid fa-sitemap"></i> Arquitectura (ISO 42010)
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="diagrams">
-                            <i class="fa-solid fa-diagram-project"></i> Diagramas
+                            <i class="fa-solid fa-diagram-project"></i> Diagramas C4 / UML / ERD
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="database">
-                            <i class="fa-solid fa-database"></i> Base de Datos
+                            <i class="fa-solid fa-database"></i> Base de Datos &amp; RLS
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="api">
-                            <i class="fa-solid fa-network-wired"></i> API &amp; OpenAPI
+                            <i class="fa-solid fa-network-wired"></i> API &amp; OpenAPI 3.0.3
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="development">
                             <i class="fa-solid fa-code"></i> Desarrollo
@@ -1410,10 +1420,10 @@ const ast = await parseSyntaxTree(repoBuffer, {
                             <i class="fa-solid fa-gears"></i> DevOps &amp; CI/CD
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="qa">
-                            <i class="fa-solid fa-vial-circle-check"></i> QA &amp; Tests
+                            <i class="fa-solid fa-vial-circle-check"></i> Calidad (ISO 25010) &amp; QA
                         </button>
-                        <button type="button" class="doc-nav-tab" data-doc-tab="security">
-                            <i class="fa-solid fa-shield-halved"></i> Seguridad
+                        <button type="button" class="doc-nav-tab" data-doc-tab="security" id="tab-btn-security-intel">
+                            <i class="fa-solid fa-shield-halved"></i> Security Intelligence
                         </button>
                         <button type="button" class="doc-nav-tab" data-doc-tab="adr">
                             <i class="fa-solid fa-scale-balanced"></i> ADRs
@@ -1427,9 +1437,33 @@ const ast = await parseSyntaxTree(repoBuffer, {
                          DOCUMENTATION PANELS
                     ============================================================ -->
                     
-                    <!-- 1. Producto (PRD, SRS, User Stories) -->
+                    <!-- 1. Presentación del Proyecto (19 Secciones), PRD, SRS (IEEE 830 / ISO 29148) y User Stories -->
                     <div id="doc-panel-product" class="doc-tab-panel active">
                         <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                            <div style="background:rgba(15,23,42,.88);border:1px solid rgba(56,189,248,.28);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+                                    <h4 style="font-size:1.02rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;margin:0;">
+                                        <i class="fa-solid fa-book-bookmark" style="color:#A78BFA;"></i> A. Documento Formal de Presentación del Proyecto (19 Secciones Basadas en Evidencia)
+                                    </h4>
+                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-presentation" style="font-size:.74rem;">
+                                        <i class="fa-solid fa-copy"></i> Copiar Presentación
+                                    </button>
+                                </div>
+                                <div id="content-presentation" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">Genera un análisis de repositorio para visualizar las 19 secciones formales de presentación del proyecto (Portada, Identificación, Introducción, Planteamiento del Problema, Justificación, Objetivo General, Objetivos Específicos, Alcance, Limitaciones, Metodología, Stack, Arquitectura, Resultados y Conclusiones).</div>
+                            </div>
+
+                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
+                                        <i class="fa-solid fa-list-check" style="color:#818CF8;"></i> B. SRS — Especificación de Requisitos (IEEE 830 &amp; ISO/IEC/IEEE 29148:2018)
+                                    </h4>
+                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-srs" style="font-size:.74rem;">
+                                        <i class="fa-solid fa-copy"></i> Copiar
+                                    </button>
+                                </div>
+                                <div id="content-srs" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
+                            </div>
+
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
                                     <h4 style="font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
@@ -1440,18 +1474,6 @@ const ast = await parseSyntaxTree(repoBuffer, {
                                     </button>
                                 </div>
                                 <div id="content-prd" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
-                            </div>
-
-                            <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
-                                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.5rem;">
-                                        <i class="fa-solid fa-list-check" style="color:#818CF8;"></i> SRS (Software Requirements Specification)
-                                    </h4>
-                                    <button type="button" class="btn-ghost btn-copy-md" data-target="content-srs" style="font-size:.74rem;">
-                                        <i class="fa-solid fa-copy"></i> Copiar
-                                    </button>
-                                </div>
-                                <div id="content-srs" class="markdown-body" style="font-size:.85rem;color:#CBD5E1;line-height:1.75;">...</div>
                             </div>
 
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
@@ -1561,10 +1583,15 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <div style="display:flex;flex-direction:column;gap:1.5rem;">
                             <div style="background:rgba(15,23,42,.85);border:1px solid rgba(129,140,248,.2);border-radius:.85rem;padding:1.5rem;">
                                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
-                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;">Contratos de API &amp; Endpoints</h4>
-                                    <button type="button" id="btn-download-openapi" class="btn-cyber" style="padding:.45rem .95rem;font-size:.76rem;">
-                                        <i class="fa-solid fa-download" style="margin-right:.3rem;"></i>Descargar OpenAPI JSON
-                                    </button>
+                                    <h4 style="font-size:1rem;font-weight:800;color:#fff;">Contratos de API &amp; Endpoints (OpenAPI 3.0.3)</h4>
+                                    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                                        <button type="button" id="btn-download-openapi" class="btn-cyber" style="padding:.45rem .95rem;font-size:.76rem;">
+                                            <i class="fa-solid fa-download" style="margin-right:.3rem;"></i>Descargar OpenAPI JSON
+                                        </button>
+                                        <button type="button" id="btn-download-openapi-yaml" class="btn-cyber-outline" style="padding:.45rem .95rem;font-size:.76rem;">
+                                            <i class="fa-solid fa-file-code" style="margin-right:.3rem;color:var(--tech-cyan);"></i>Descargar OpenAPI YAML
+                                        </button>
+                                    </div>
                                 </div>
                                 <div id="api-endpoints-container" style="display:flex;flex-direction:column;gap:.75rem;">
                                     <!-- Injected dynamically -->
@@ -1650,87 +1677,210 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         </div>
                     </div>
 
-                    <!-- 9. Seguridad (Security Center) -->
+                    <!-- 9. Security Intelligence (Panel Independiente de Auditoría de Ciberseguridad) -->
                     <div id="doc-panel-security" class="doc-tab-panel">
-                        <!-- Header with Title & Export Actions -->
+                        <div id="security-intelligence" style="scroll-margin-top:96px;"></div>
+                        <!-- Header with Title & Export Actions (PDF, DOCX, MD, JSON) -->
                         <div class="sec-center-header">
                             <div>
-                                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;">
+                                <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem;flex-wrap:wrap;">
                                     <span class="badge badge-rose" style="font-size:.7rem;padding:.2rem .6rem;">
-                                        <i class="fa-solid fa-shield-virus"></i> DevSecOps Center
+                                        <i class="fa-solid fa-shield-virus"></i> Security Intelligence
+                                    </span>
+                                    <span class="badge badge-cyan" style="font-size:.66rem;padding:.2rem .55rem;">
+                                        OWASP Top 10 &bull; ASVS 4.0 &bull; CWE &bull; CVSS 4.0 (Ref.) &bull; ISO/IEC 27001 &amp; 27002:2022
                                     </span>
                                     <span id="sec-header-timestamp" style="font-size:.72rem;color:#64748B;font-family:'JetBrains Mono',monospace;"></span>
                                 </div>
                                 <h3 style="font-size:1.35rem;font-weight:900;color:#fff;display:flex;align-items:center;gap:.6rem;margin-bottom:.25rem;">
-                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i> Centro de Seguridad &amp; Auditoría SAST
+                                    <i class="fa-solid fa-shield-halved" style="color:#FB7185;"></i> Security Intelligence — Módulo Avanzado de Auditoría y Evaluación de Seguridad
                                 </h3>
-                                <p style="font-size:.82rem;color:#94A3B8;max-width:700px;margin:0;">
-                                    Evaluación integral Secure-by-Design: escaneo estático de código (SAST), detección de secretos criptográficos, auditoría de dependencias, modelado de amenazas STRIDE y matriz de requerimientos SEC-xxx.
+                                <p style="font-size:.82rem;color:#94A3B8;max-width:760px;margin:0;">
+                                    Diagnóstico técnico, cuantificable y basado en evidencia real: puntuación 0–100 determinista, SAST, Secret Scanner, dependencias (SCA), matriz STRIDE, plan de remediación en 4 niveles e informe exportable en PDF y DOCX.
                                 </p>
                             </div>
                             <!-- Export Buttons Toolbar -->
-                            <div class="sec-export-toolbar">
-                                <button type="button" id="btn-export-sec-json" class="btn-cyber-outline" title="Descargar reporte completo en formato DevSecOps JSON">
-                                    <i class="fa-solid fa-file-code" style="color:var(--tech-cyan);"></i> Exportar JSON
+                            <div class="sec-export-toolbar" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+                                <button type="button" id="btn-run-standalone-sec-audit" class="btn-cyber-outline" style="border-color:rgba(52,211,153,.45);color:#34D399;" title="Re-ejecutar auditoría de seguridad y verificar código">
+                                    <i class="fa-solid fa-rotate"></i> Re-Auditar Código
                                 </button>
-                                <button type="button" id="btn-export-sec-md" class="btn-cyber-outline" title="Descargar informe ejecutivo en Markdown">
-                                    <i class="fa-solid fa-file-lines" style="color:#818CF8;"></i> Exportar Markdown
+                                <button type="button" id="btn-export-sec-pdf" class="btn-cyber" title="Descargar Informe Profesional de Seguridad en PDF (.pdf)">
+                                    <i class="fa-solid fa-file-pdf" style="color:#fff;"></i> Informe PDF
                                 </button>
-                                <button type="button" id="btn-export-sec-pdf" class="btn-cyber" title="Imprimir o guardar como PDF">
-                                    <i class="fa-solid fa-file-pdf" style="color:#fff;"></i> Imprimir / PDF
+                                <button type="button" id="btn-export-sec-docx" class="btn-cyber" style="background:linear-gradient(135deg,#0284C7,#4F46E5);" title="Descargar Informe Profesional de Seguridad en Word (.docx)">
+                                    <i class="fa-solid fa-file-word" style="color:#fff;"></i> Informe DOCX
+                                </button>
+                                <button type="button" id="btn-export-sec-md" class="btn-cyber-outline" title="Descargar informe técnico en Markdown (.md)">
+                                    <i class="fa-solid fa-file-lines" style="color:#818CF8;"></i> Markdown
+                                </button>
+                                <button type="button" id="btn-export-sec-json" class="btn-cyber-outline" title="Descargar reporte estructurado en JSON (.json)">
+                                    <i class="fa-solid fa-file-code" style="color:var(--tech-cyan);"></i> JSON
                                 </button>
                             </div>
                         </div>
 
                         <!-- Score & Severity Overview Banner -->
                         <div class="sec-overview-grid">
-                            <!-- Left: Score Card Gauge -->
-                            <div class="sec-score-card">
-                                <div class="sec-score-circle" id="sec-score-circle">
-                                    <svg viewBox="0 0 120 120" class="sec-gauge-svg">
-                                        <circle class="sec-gauge-bg" cx="60" cy="60" r="50"></circle>
-                                        <circle class="sec-gauge-progress" id="sec-score-ring" cx="60" cy="60" r="50"></circle>
-                                    </svg>
-                                    <div class="sec-score-content">
-                                        <span class="sec-score-val" id="sec-score-value">--</span>
-                                        <span class="sec-score-denom">/100</span>
+                            <!-- Left: Score Card Gauge + Official 0-100 Scale -->
+                            <div class="sec-score-card" style="flex-direction:column;align-items:stretch;gap:1rem;">
+                                <div style="display:flex;align-items:center;gap:1.35rem;flex-wrap:wrap;">
+                                    <div class="sec-score-circle" id="sec-score-circle">
+                                        <svg viewBox="0 0 120 120" class="sec-gauge-svg">
+                                            <circle class="sec-gauge-bg" cx="60" cy="60" r="50"></circle>
+                                            <circle class="sec-gauge-progress" id="sec-score-ring" cx="60" cy="60" r="50"></circle>
+                                        </svg>
+                                        <div class="sec-score-content">
+                                            <span class="sec-score-val" id="sec-score-value">--</span>
+                                            <span class="sec-score-denom">/100</span>
+                                        </div>
+                                    </div>
+                                    <div class="sec-score-details" style="flex:1;min-width:210px;">
+                                        <div style="display:flex;align-items:center;gap:.45rem;margin-bottom:.4rem;flex-wrap:wrap;">
+                                            <span class="badge" id="sec-status-badge">Evaluando...</span>
+                                            <span class="badge" id="sec-risk-level-badge">Riesgo: --</span>
+                                            <span class="badge" id="sec-grade-badge">Grado -</span>
+                                            <span class="badge badge-slate" id="sec-coverage-badge" title="Cobertura de archivos y nivel de confianza"><i class="fa-solid fa-crosshairs"></i> Cobertura: --%</span>
+                                        </div>
+                                        <h4 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Puntuación General de Seguridad (0 a 100)</h4>
+                                        <p style="font-size:.77rem;color:#94A3B8;line-height:1.5;margin:0;" id="sec-score-desc">
+                                            Cálculo determinista mediante criterios técnicos definidos sobre el código y configuraciones analizadas.
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="sec-score-details">
-                                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;">
-                                        <span class="badge" id="sec-grade-badge">Grado -</span>
-                                        <span class="badge" id="sec-status-badge">Estado -</span>
-                                        <span class="badge badge-slate" id="sec-coverage-badge" title="Cobertura de archivos y nivel de confianza"><i class="fa-solid fa-crosshairs"></i> Cobertura: --%</span>
+
+                                <!-- Escala Visual Oficial 0-100 -->
+                                <div class="sec-official-scale-bar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:.4rem;padding-top:.75rem;border-top:1px solid rgba(148,163,184,.12);">
+                                    <div id="scale-pill-90" class="sec-scale-pill" style="padding:.35rem .55rem;border-radius:.45rem;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);font-size:.68rem;">
+                                        <strong style="color:#34D399;display:block;">90–100</strong>
+                                        <span style="color:#CBD5E1;">Seguridad alta</span>
                                     </div>
-                                    <h4 style="font-size:1.05rem;font-weight:800;color:#fff;margin-bottom:.25rem;">Índice Global de Seguridad</h4>
-                                    <p style="font-size:.78rem;color:#94A3B8;line-height:1.5;margin:0;" id="sec-score-desc">
-                                        Cálculo determinista ponderado por severidad de hallazgos en código fuente y dependencias.
-                                    </p>
+                                    <div id="scale-pill-75" class="sec-scale-pill" style="padding:.35rem .55rem;border-radius:.45rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);font-size:.68rem;">
+                                        <strong style="color:#38BDF8;display:block;">75–89</strong>
+                                        <span style="color:#CBD5E1;">Seguridad aceptable</span>
+                                    </div>
+                                    <div id="scale-pill-50" class="sec-scale-pill" style="padding:.35rem .55rem;border-radius:.45rem;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);font-size:.68rem;">
+                                        <strong style="color:#FBBF24;display:block;">50–74</strong>
+                                        <span style="color:#CBD5E1;">Requiere mejoras</span>
+                                    </div>
+                                    <div id="scale-pill-25" class="sec-scale-pill" style="padding:.35rem .55rem;border-radius:.45rem;background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.25);font-size:.68rem;">
+                                        <strong style="color:#FB923C;display:block;">25–49</strong>
+                                        <span style="color:#CBD5E1;">Riesgo elevado</span>
+                                    </div>
+                                    <div id="scale-pill-0" class="sec-scale-pill" style="padding:.35rem .55rem;border-radius:.45rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);font-size:.68rem;">
+                                        <strong style="color:#EF4444;display:block;">0–24</strong>
+                                        <span style="color:#CBD5E1;">Riesgo crítico</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Right: KPI Severity Badges -->
-                            <div class="sec-kpis-container">
-                                <div class="sec-kpi-item kpi-critical">
-                                    <div class="sec-kpi-num" id="sec-kpi-critical">0</div>
-                                    <div class="sec-kpi-label"><i class="fa-solid fa-skull-crossbones"></i> Críticas</div>
+                            <!-- Right: KPI Severity Badges & Audit Metadata -->
+                            <div style="display:flex;flex-direction:column;gap:.85rem;">
+                                <div class="sec-kpis-container">
+                                    <div class="sec-kpi-item kpi-critical">
+                                        <div class="sec-kpi-num" id="sec-kpi-critical">0</div>
+                                        <div class="sec-kpi-label"><i class="fa-solid fa-skull-crossbones"></i> Crítico</div>
+                                    </div>
+                                    <div class="sec-kpi-item kpi-high">
+                                        <div class="sec-kpi-num" id="sec-kpi-high">0</div>
+                                        <div class="sec-kpi-label"><i class="fa-solid fa-triangle-exclamation"></i> Alto</div>
+                                    </div>
+                                    <div class="sec-kpi-item kpi-medium">
+                                        <div class="sec-kpi-num" id="sec-kpi-medium">0</div>
+                                        <div class="sec-kpi-label"><i class="fa-solid fa-circle-exclamation"></i> Medio</div>
+                                    </div>
+                                    <div class="sec-kpi-item kpi-low">
+                                        <div class="sec-kpi-num" id="sec-kpi-low">0</div>
+                                        <div class="sec-kpi-label"><i class="fa-solid fa-circle-info"></i> Bajo / Info</div>
+                                    </div>
+                                    <div class="sec-kpi-item kpi-secrets">
+                                        <div class="sec-kpi-num" id="sec-kpi-secrets">0</div>
+                                        <div class="sec-kpi-label"><i class="fa-solid fa-key"></i> Secretos</div>
+                                    </div>
                                 </div>
-                                <div class="sec-kpi-item kpi-high">
-                                    <div class="sec-kpi-num" id="sec-kpi-high">0</div>
-                                    <div class="sec-kpi-label"><i class="fa-solid fa-triangle-exclamation"></i> Altas</div>
+
+                                <!-- Metadatos de Auditoría, Cobertura y Estado de Mitigación -->
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.6rem;background:rgba(15,23,42,.75);border:1px solid rgba(129,140,248,.18);border-radius:.75rem;padding:.85rem 1rem;font-size:.74rem;">
+                                    <div>
+                                        <span style="color:#64748B;display:block;font-size:.66rem;text-transform:uppercase;">Archivos Analizados</span>
+                                        <strong id="sec-meta-files" style="color:#F8FAFC;font-family:'JetBrains Mono',monospace;">0 / 0</strong>
+                                    </div>
+                                    <div>
+                                        <span style="color:#64748B;display:block;font-size:.66rem;text-transform:uppercase;">Pendientes Verificar</span>
+                                        <strong id="sec-meta-pending" style="color:#FBBF24;font-family:'JetBrains Mono',monospace;">0 hallazgos</strong>
+                                    </div>
+                                    <div>
+                                        <span style="color:#64748B;display:block;font-size:.66rem;text-transform:uppercase;">Estado de Mitigación</span>
+                                        <strong id="sec-meta-mitigation" style="color:#34D399;font-family:'JetBrains Mono',monospace;">0 Solucionados</strong>
+                                    </div>
+                                    <div>
+                                        <span style="color:#64748B;display:block;font-size:.66rem;text-transform:uppercase;">Evolución Auditoría</span>
+                                        <strong id="sec-meta-evolution" style="color:#38BDF8;font-family:'JetBrains Mono',monospace;">Línea Base</strong>
+                                    </div>
                                 </div>
-                                <div class="sec-kpi-item kpi-medium">
-                                    <div class="sec-kpi-num" id="sec-kpi-medium">0</div>
-                                    <div class="sec-kpi-label"><i class="fa-solid fa-circle-exclamation"></i> Medias</div>
+                            </div>
+                        </div>
+
+                        <!-- Aviso de Integridad y Veracidad (Sección 10) -->
+                        <div class="sec-subcard" style="margin-top:1.1rem;background:rgba(15,23,42,.9);border-left:4px solid #38BDF8;padding:.9rem 1.15rem;">
+                            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.75rem;">
+                                <div style="flex:1;min-width:260px;">
+                                    <strong style="font-size:.82rem;color:#38BDF8;display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;">
+                                        <i class="fa-solid fa-scale-balanced"></i> Declaración de Integridad, Metodología y Límites del Análisis
+                                    </strong>
+                                    <p id="sec-methodology-formula" style="font-size:.74rem;color:#CBD5E1;margin:0 0 .25rem 0;line-height:1.5;">
+                                        La puntuación se calcula mediante criterios deterministas sobre los archivos analizados. Una puntuación alta refleja buenas prácticas en el alcance estático evaluado, pero <strong>no garantiza que el repositorio esté libre de vulnerabilidades</strong> ni equivale a una certificación formal ISO/IEC 27001.
+                                    </p>
                                 </div>
-                                <div class="sec-kpi-item kpi-low">
-                                    <div class="sec-kpi-num" id="sec-kpi-low">0</div>
-                                    <div class="sec-kpi-label"><i class="fa-solid fa-circle-info"></i> Bajas / Info</div>
+                                <div id="sec-veracity-badges" style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;">
+                                    <span class="badge badge-rose" style="font-size:.65rem;">Confirmadas: <strong id="veracity-count-confirmed">0</strong></span>
+                                    <span class="badge badge-amber" style="font-size:.65rem;">Potenciales: <strong id="veracity-count-potential">0</strong></span>
+                                    <span class="badge badge-cyan" style="font-size:.65rem;">Riesgos Inferidos: <strong id="veracity-count-inferred">0</strong></span>
+                                    <span class="badge badge-slate" style="font-size:.65rem;">Pruebas Dinámicas No Ejecutadas: <strong id="veracity-count-unexecuted">2</strong></span>
                                 </div>
-                                <div class="sec-kpi-item kpi-secrets">
-                                    <div class="sec-kpi-num" id="sec-kpi-secrets">0</div>
-                                    <div class="sec-kpi-label"><i class="fa-solid fa-key"></i> Secretos</div>
+                            </div>
+                        </div>
+
+                        <!-- Gráficos Interactivos: Distribución por Severidad + Archivos con Más Hallazgos -->
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.15rem;margin-top:1.15rem;">
+                            <!-- Distribución Visual por Severidad -->
+                            <div class="sec-subcard" style="margin-top:0;">
+                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;margin-bottom:.75rem;display:flex;align-items:center;gap:.45rem;">
+                                    <i class="fa-solid fa-chart-pie" style="color:#818CF8;"></i> Distribución de Vulnerabilidades por Severidad
+                                </h4>
+                                <div id="sec-severity-chart-bars" style="display:flex;flex-direction:column;gap:.55rem;">
+                                    <!-- Injected dynamically -->
                                 </div>
+                            </div>
+
+                            <!-- Archivos con Más Hallazgos -->
+                            <div class="sec-subcard" style="margin-top:0;">
+                                <h4 style="font-size:.88rem;font-weight:800;color:#fff;margin-bottom:.75rem;display:flex;align-items:center;gap:.45rem;">
+                                    <i class="fa-solid fa-file-shield" style="color:#FB7185;"></i> Archivos con Mayor Concentración de Hallazgos
+                                </h4>
+                                <div id="sec-top-files-container" style="max-height:190px;overflow-y:auto;">
+                                    <!-- Injected dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Historial y Comparación de Auditorías (Sección 8) -->
+                        <div class="sec-subcard" id="sec-history-comparison-card" style="margin-top:1.15rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem;">
+                                <div>
+                                    <h4 style="font-size:.9rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;margin:0;">
+                                        <i class="fa-solid fa-clock-rotate-left" style="color:#34D399;"></i> Historial de Auditorías y Comparación de Evolución
+                                    </h4>
+                                    <p style="font-size:.73rem;color:#94A3B8;margin:.15rem 0 0 0;">
+                                        Compara análisis anteriores y posteriores: cambio de puntuación, vulnerabilidades nuevas, corregidas y verificadas, persistentes y mejoras implementadas.
+                                    </p>
+                                </div>
+                                <span class="badge badge-emerald" id="sec-history-runs-badge" style="font-size:.66rem;">1 auditoría registrada</span>
+                            </div>
+                            <div id="sec-comparison-summary-box" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.65rem;margin-bottom:.75rem;">
+                                <!-- Injected dynamically -->
+                            </div>
+                            <div id="sec-history-timeline" style="display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.25rem;">
+                                <!-- Injected dynamically -->
                             </div>
                         </div>
 
@@ -1738,9 +1888,9 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <div id="sec-deductions-box" class="sec-subcard" style="display:none;margin-top:1.25rem;">
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem;">
                                 <strong style="font-size:.85rem;color:#FB7185;display:flex;align-items:center;gap:.4rem;">
-                                    <i class="fa-solid fa-scale-unbalanced"></i> Desglose de Penalizaciones de Puntaje
+                                    <i class="fa-solid fa-scale-unbalanced"></i> Desglose Matemático de Penalizaciones de Puntaje
                                 </strong>
-                                <span style="font-size:.72rem;color:#64748B;">Impacto directo en índice de seguridad</span>
+                                <span style="font-size:.72rem;color:#64748B;">Criterio técnico determinista</span>
                             </div>
                             <div id="sec-deductions-list" style="display:flex;flex-direction:column;gap:.35rem;"></div>
                         </div>
@@ -1748,29 +1898,29 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <!-- 12 Dimensions Breakdown Section -->
                         <div class="sec-subcard" style="margin-top:1.25rem;">
                             <h4 style="font-size:.92rem;font-weight:800;color:#fff;margin-bottom:.85rem;display:flex;align-items:center;gap:.45rem;">
-                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> Evaluación por Dimensiones de Arquitectura (12 Categorías — 100%)
+                                <i class="fa-solid fa-layer-group" style="color:var(--tech-cyan);"></i> Categorías de Riesgo y Dimensiones Arquitectónicas (12 Categorías — 100%)
                             </h4>
                             <div class="sec-categories-grid" id="sec-categories-grid">
                                 <!-- 12 categories dynamically rendered -->
                             </div>
                         </div>
 
-                        <!-- Actionable Remediation Plan Section -->
+                        <!-- Actionable Remediation Plan Section (4 Niveles Oficiales) -->
                         <div class="sec-subcard" style="margin-top:1.25rem;">
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;flex-wrap:wrap;gap:.5rem;">
                                 <div>
                                     <h4 style="font-size:.95rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:.45rem;">
-                                        <i class="fa-solid fa-wrench" style="color:#38BDF8;"></i> Plan de Remediación Priorizado (Actionable Remediation Plan)
+                                        <i class="fa-solid fa-wrench" style="color:#38BDF8;"></i> Plan de Mejoras y Remediación Técnica
                                     </h4>
                                     <p style="font-size:.75rem;color:#94A3B8;margin-top:.2rem;margin-bottom:0;">
-                                        Backlog de ingeniería estructurado por ventanas de urgencia con ejemplos de código vulnerable vs mitigado y pasos de verificación.
+                                        Propuestas técnicas completas: qué está mal, por qué es un riesgo, impacto, qué modificar, ejemplo de código, prioridad, esfuerzo y resultado esperado.
                                     </p>
                                 </div>
                                 <div class="sec-filter-group" id="sec-rem-tabs" role="group" aria-label="Colas de remediación">
-                                    <button type="button" class="sec-filter-btn active" data-rem-filter="inmediata">🚨 Inmediata (<span id="count-rem-inm">0</span>)</button>
-                                    <button type="button" class="sec-filter-btn btn-flt-high" data-rem-filter="alta">⚠ Alta (<span id="count-rem-alta">0</span>)</button>
-                                    <button type="button" class="sec-filter-btn btn-flt-med" data-rem-filter="media">⚡ Media (<span id="count-rem-med">0</span>)</button>
-                                    <button type="button" class="sec-filter-btn btn-flt-low" data-rem-filter="baja">ℹ Preventiva (<span id="count-rem-baja">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn active" data-rem-filter="inmediata">1. Acciones urgentes (<span id="count-rem-inm">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-high" data-rem-filter="alta">2. Alta prioridad (<span id="count-rem-alta">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-med" data-rem-filter="media">3. Prioridad media (<span id="count-rem-med">0</span>)</button>
+                                    <button type="button" class="sec-filter-btn btn-flt-low" data-rem-filter="baja">4. Preventivas (<span id="count-rem-baja">0</span>)</button>
                                 </div>
                             </div>
                             <div id="sec-remediation-container" style="display:flex;flex-direction:column;gap:.85rem;">
@@ -2207,7 +2357,7 @@ const ast = await parseSyntaxTree(repoBuffer, {
                     <ul style="display:flex;flex-direction:column;gap:.6rem;border-top:1px solid rgba(129,140,248,.12);padding-top:1.25rem;list-style:none;">
                         <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Landing page interactiva con propuesta de valor y registro de early adopters.</li>
                         <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Entrevistas de descubrimiento con CTOs, Tech Leads y análisis competitivo vs Swimm/Mintlify.</li>
-                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Modelo de precios SaaS B2B, m&eacute;tricas de adquisici&oacute;n y proyecciones comerciales.</li>
+                        <li style="display:flex;align-items:flex-start;gap:.6rem;font-size:.78rem;color:#64748B;"><i class="fa-solid fa-check" style="color:#818CF8;margin-top:.2rem;font-size:.65rem;flex-shrink:0;"></i>Estrategia de adopción empresarial, métricas de productividad y validación en campo.</li>
                     </ul>
                     <div style="display:flex;align-items:center;gap:.65rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(129,140,248,.12);">
                         <a href="https://github.com/nexker" target="_blank" rel="noopener" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="GitHub Nelson Ayala"><i class="fa-brands fa-github"></i></a>
@@ -2215,231 +2365,6 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <a href="mailto:nelsona-ayalaa@unilibre.edu.co" style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.85rem;transition:all .2s;" aria-label="Email Nelson Ayala"><i class="fa-solid fa-envelope"></i></a>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         PLANES Y PRECIOS EMPRESARIALES (SAAS PRICING)
-    ============================================================ -->
-    <section id="planes" class="section-alt" style="padding:6rem 0;position:relative;">
-        <div class="container">
-            <div style="text-align:center;max-width:740px;margin:0 auto 3rem;" class="reveal">
-                <span class="badge badge-purple" style="margin-bottom:1rem;">
-                    <i class="fa-solid fa-tags"></i> Planes Transparentes
-                </span>
-                <h2 class="section-title">Elige el plan adecuado para <span class="gradient-text">escalar tu ingeniería</span></h2>
-                <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
-                    Comienza gratis con proyectos públicos o potencia tu equipo con análisis de repos privados, exportaciones ejecutivas Word/PDF y automatización en Pull Requests.
-                </p>
-
-                <!-- Billing Cycle Selector (Monthly / Annual) -->
-                <div class="pricing-toggle-wrapper">
-                    <button type="button" id="billing-btn-monthly" class="pricing-toggle-btn active" onclick="setBillingCycle('monthly')">
-                        Facturación Mensual
-                    </button>
-                    <button type="button" id="billing-btn-annual" class="pricing-toggle-btn" onclick="setBillingCycle('annual')">
-                        Facturación Anual <span class="pricing-save-badge">Ahorra 20%</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Pricing Cards Grid -->
-            <div class="pricing-grid reveal reveal-delay-1">
-                
-                <!-- Plan 1: Free -->
-                <div class="pricing-card glow-card">
-                    <div class="pricing-card-header">
-                        <div class="plan-badge-type">Developer</div>
-                        <h3 class="plan-name">Plan Free</h3>
-                        <p class="plan-desc">Para desarrolladores individuales y proyectos open source.</p>
-                        <div class="plan-price-box">
-                            <span class="plan-currency">$</span>
-                            <span class="plan-amount" data-monthly="0" data-annual="0">0</span>
-                            <span class="plan-period">/ mes</span>
-                        </div>
-                        <div class="plan-billed-note">Sin costo para siempre</div>
-                    </div>
-
-                    <div class="pricing-card-divider"></div>
-
-                    <ul class="plan-features-list">
-                        <li><i class="fa-solid fa-check feature-check"></i> Hasta 3 repositorios públicos al mes</li>
-                        <li><i class="fa-solid fa-check feature-check"></i> Análisis estático AST en tiempo real</li>
-                        <li><i class="fa-solid fa-check feature-check"></i> Suite documental estándar (4 módulos)</li>
-                        <li><i class="fa-solid fa-check feature-check"></i> Exportación en Markdown y HTML limpio</li>
-                        <li><i class="fa-solid fa-check feature-check"></i> Chat contextual de código (límite básico)</li>
-                        <li><i class="fa-solid fa-check feature-check"></i> Historial local en navegador</li>
-                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Repositorios privados</li>
-                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Exportación Word (.docx) y PDF A4</li>
-                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Webhooks en Pull Requests</li>
-                    </ul>
-
-                    <div class="plan-cta-container">
-                        <a href="#analizador" class="btn-cyber-outline" style="width:100%;justify-content:center;padding:.85rem;">
-                            Comenzar Gratis
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Plan 2: Pro (Featured / Popular) -->
-                <div class="pricing-card glow-card pricing-card-featured">
-                    <div class="pricing-popular-pill">
-                        <i class="fa-solid fa-crown" style="margin-right:.35rem;"></i> Más Popular
-                    </div>
-                    <div class="pricing-card-header">
-                        <div class="plan-badge-type" style="color:var(--tech-cyan);">Profesional</div>
-                        <h3 class="plan-name">Plan Pro</h3>
-                        <p class="plan-desc">Para Tech Leads, consultores de software y startups.</p>
-                        <div class="plan-price-box">
-                            <span class="plan-currency">$</span>
-                            <span class="plan-amount" id="plan-pro-price" data-monthly="29" data-annual="23">29</span>
-                            <span class="plan-period">/ mes</span>
-                        </div>
-                        <div class="plan-billed-note" id="plan-pro-billed">Facturado mensualmente ($29 USD)</div>
-                    </div>
-
-                    <div class="pricing-card-divider"></div>
-
-                    <ul class="plan-features-list">
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> <strong>Repositorios privados y públicos ilimitados</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> <strong>Exportación Word (.docx) y PDF editorial A4</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Suite completa de 11 motores documentales</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Diagramas C4 y de secuencia interactivos</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Análisis profundo de impacto (Blast Radius)</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Chat RAG ilimitado con memoria semántica</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Sincronización en la nube con Supabase DB</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:var(--tech-cyan);"></i> Soporte prioritario por correo (SLA 24h)</li>
-                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Multi-tenancy para organizaciones</li>
-                    </ul>
-
-                    <div class="plan-cta-container">
-                        <button type="button" id="btn-select-plan-pro" class="btn-cyber" style="width:100%;justify-content:center;padding:.85rem;font-weight:700;">
-                            <i class="fa-solid fa-bolt" style="margin-right:.45rem;"></i> Suscribirse al Plan Pro
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Plan 3: Enterprise -->
-                <div class="pricing-card glow-card">
-                    <div class="pricing-card-header">
-                        <div class="plan-badge-type" style="color:#818CF8;">Corporativo</div>
-                        <h3 class="plan-name">Plan Enterprise</h3>
-                        <p class="plan-desc">Para empresas, software factories, fintechs y bancos.</p>
-                        <div class="plan-price-box">
-                            <span class="plan-currency">$</span>
-                            <span class="plan-amount" id="plan-enterprise-price" data-monthly="499" data-annual="399">499</span>
-                            <span class="plan-period">/ mes</span>
-                        </div>
-                        <div class="plan-billed-note" id="plan-enterprise-billed">Hasta 20 arquitectos incluidos</div>
-                    </div>
-
-                    <div class="pricing-card-divider"></div>
-
-                    <ul class="plan-features-list">
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Todo lo incluido en el Plan Pro</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Sincronización en Pull Requests (GitHub Webhooks)</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Organizaciones y Control de Acceso RBAC</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Marca Blanca: Logotipo y portada corporativa</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> <strong>Seguridad BYOK (Bring Your Own Key)</strong></li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> Flujo de firmas y aprobación de arquitectura</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> Facturación corporativa local (Wompi, PSE, Tarjeta)</li>
-                        <li><i class="fa-solid fa-check feature-check" style="color:#818CF8;"></i> SLA 99.9% y gestor técnico dedicado 24/7</li>
-                    </ul>
-
-                    <div class="plan-cta-container">
-                        <a href="#contacto" class="btn-cyber-outline" style="width:100%;justify-content:center;padding:.85rem;border-color:rgba(129,140,248,0.5);color:#818CF8;">
-                            <i class="fa-solid fa-building" style="margin-right:.45rem;"></i> Contactar a Ventas
-                        </a>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Feature Comparison Matrix (Collapsible / Expandable) -->
-            <div class="pricing-comparison-box reveal reveal-delay-2">
-                <div class="comparison-header" onclick="togglePricingComparison()">
-                    <div style="display:flex;align-items:center;gap:.75rem;">
-                        <i class="fa-solid fa-table-list" style="color:var(--tech-cyan);"></i>
-                        <h4 style="font-size:.95rem;font-weight:700;color:#F8FAFC;">Ver tabla comparativa detallada de características</h4>
-                    </div>
-                    <i id="comparison-toggle-icon" class="fa-solid fa-chevron-down" style="font-size:.8rem;color:#94A3B8;transition:transform .3s;"></i>
-                </div>
-                <div id="pricing-comparison-table-wrapper" class="comparison-content hidden">
-                    <table class="comparison-table">
-                        <thead>
-                            <tr>
-                                <th style="text-align:left;">Capacidad de la Plataforma</th>
-                                <th style="text-align:center;">Free</th>
-                                <th style="text-align:center;color:var(--tech-cyan);">Pro</th>
-                                <th style="text-align:center;color:#818CF8;">Enterprise</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Repositorios públicos analizados</td>
-                                <td align="center">3 / mes</td>
-                                <td align="center" style="color:var(--tech-cyan);font-weight:700;">Ilimitados</td>
-                                <td align="center" style="color:#818CF8;font-weight:700;">Ilimitados</td>
-                            </tr>
-                            <tr>
-                                <td>Conexión a repositorios privados (GitHub)</td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Exportación en Word (.docx) y PDF A4</td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i> (Solo MD/HTML)</td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Formato editorial</td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Marca blanca</td>
-                            </tr>
-                            <tr>
-                                <td>Diagramas C4 y Secuencia vectoriales</td>
-                                <td align="center">Básicos</td>
-                                <td align="center" style="color:var(--tech-cyan);font-weight:700;">Interactivos + Zoom</td>
-                                <td align="center" style="color:#818CF8;font-weight:700;">Interactivos + Blast Radius</td>
-                            </tr>
-                            <tr>
-                                <td>Análisis de impacto (Blast Radius Analysis)</td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Webhooks de GitHub en Pull Requests</td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Sincronización continua</td>
-                            </tr>
-                            <tr>
-                                <td>Organizaciones y Roles (RBAC)</td>
-                                <td align="center">1 Usuario</td>
-                                <td align="center">1 Usuario</td>
-                                <td align="center" style="color:#818CF8;font-weight:700;">Multiusuario (Equipos)</td>
-                            </tr>
-                            <tr>
-                                <td>Seguridad BYOK (Trae tu propia clave)</td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
-                                <td align="center" style="color:#64748B;"><i class="fa-solid fa-xmark"></i></td>
-                                <td align="center" style="color:#34D399;"><i class="fa-solid fa-check"></i> Gemini / Azure / Ollama</td>
-                            </tr>
-                            <tr>
-                                <td>SLA de Disponibilidad y Soporte</td>
-                                <td align="center">Comunidad</td>
-                                <td align="center">Email 24h</td>
-                                <td align="center" style="color:#818CF8;font-weight:700;">99.9% + Soporte 24/7</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Payment Security Note -->
-            <div style="margin-top:2.5rem;text-align:center;font-size:.78rem;color:#64748B;" class="reveal">
-                <i class="fa-solid fa-shield-halved" style="color:var(--tech-cyan);margin-right:.4rem;"></i>
-                Pagos seguros procesados con cifrado bancario PCI-DSS nivel 1. Aceptamos tarjetas de crédito, débito y PSE.
-                <a href="#contacto" style="color:var(--tech-cyan);text-decoration:underline;margin-left:.35rem;">¿Requieres facturación con orden de compra? Habla con nuestro equipo.</a>
             </div>
         </div>
     </section>
@@ -2453,9 +2378,9 @@ const ast = await parseSyntaxTree(repoBuffer, {
                 <span class="badge badge-cyan" style="margin-bottom:1rem;">
                     <i class="fa-solid fa-circle-question"></i> Respuestas Claras
                 </span>
-                <h2 class="section-title">Preguntas Frecuentes de <span class="gradient-text">Ingeniería y Negocio</span></h2>
+                <h2 class="section-title">Preguntas Frecuentes de <span class="gradient-text">Ingeniería y Seguridad</span></h2>
                 <p style="color:#94A3B8;margin-top:1rem;line-height:1.7;font-size:1rem;">
-                    Todo lo que necesitas saber sobre confidencialidad de código, integración en pipelines, exportación de documentos y modelos de contratación.
+                    Todo lo que necesitas saber sobre confidencialidad de código, integración en pipelines, exportación de documentos y auditorías técnicas.
                 </p>
             </div>
 
@@ -2501,22 +2426,11 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <i class="fa-solid fa-chevron-down faq-arrow"></i>
                     </summary>
                     <div class="faq-answer">
-                        <p>Sí. En el <strong>Plan Enterprise</strong> dispones del panel BYOK (Bring Your Own Key) para conectar tus API Keys de Google Gemini Enterprise, Google Vertex AI, Azure OpenAI o tus modelos locales desplegados en Ollama. De esta manera, el procesamiento de IA corre bajo tus propios acuerdos y facturación directa con el proveedor de nube.</p>
+                        <p>Sí. En el panel <strong>BYOK (Bring Your Own Key)</strong> puedes conectar tus API Keys de Google Gemini Enterprise, Google Vertex AI, Azure OpenAI o tus modelos locales desplegados en Ollama. De esta manera, el procesamiento de IA corre bajo tus propios entornos y políticas de seguridad.</p>
                     </div>
                 </details>
 
                 <!-- FAQ 5 -->
-                <details class="faq-accordion-item">
-                    <summary class="faq-question">
-                        <span>¿Qué pasarelas y métodos de pago aceptan en Colombia y Latinoamérica?</span>
-                        <i class="fa-solid fa-chevron-down faq-arrow"></i>
-                    </summary>
-                    <div class="faq-answer">
-                        <p>Procesamos pagos mediante pasarelas con certificación bancaria PCI-DSS nivel 1 (Wompi y Mercado Pago). Admitimos tarjetas de crédito internacionales (Visa, MasterCard, Amex), tarjetas débito, PSE para pagos bancarios directos y facturación electrónica para empresas que requieran orden de compra institucional.</p>
-                    </div>
-                </details>
-
-                <!-- FAQ 6 -->
                 <details class="faq-accordion-item">
                     <summary class="faq-question">
                         <span>¿Cómo automatiza DocuMind AI la documentación en cada Pull Request?</span>
@@ -2718,8 +2632,8 @@ const ast = await parseSyntaxTree(repoBuffer, {
             <div class="footer-grid-container" id="footer-grid">
                 <div>
                     <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem;">
-                        <div style="width:2.15rem;height:2.15rem;border-radius:.55rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px rgba(56,189,248,0.35);"><img src="/assets/documind-icon.png" alt="DocuMind AI" style="width:1.42rem;height:1.42rem;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));"></div>
-                        <span style="font-size:1rem;font-weight:800;color:#fff;">DocuMind - AI</span>
+                        <div style="width:2.15rem;height:2.15rem;border-radius:.55rem;background:linear-gradient(135deg,#0B1120,#1E1B4B);border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 14px rgba(56,189,248,0.28);"><img src="/assets/documind-mark.svg" alt="DocuMind AI" style="width:1.45rem;height:1.45rem;object-fit:contain;"></div>
+                        <span style="font-size:1.05rem;font-weight:900;color:#fff;letter-spacing:-0.02em;">DocuMind <span class="ai-badge">AI</span></span>
                     </div>
                     <p style="font-size:.78rem;color:#64748B;line-height:1.7;max-width:300px;">Proyecto de Innovaci&oacute;n y Emprendimiento Tecnol&oacute;gico. Universidad Libre, Facultad de Ingenier&iacute;a, Bogota D.C., Colombia. Reto HIT 2026.</p>
                     <p style="font-size:.72rem;color:#475569;margin-top:.85rem;">Desarrollado por <strong style="color:#64748B;">Daniel Santiago Palencia Sandoval</strong> &amp; <strong style="color:#64748B;">Nelson Andres Ayala Alvarez</strong>.</p>
@@ -2731,10 +2645,10 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <li><a href="#solucion" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Arquitectura AST + LLM</a></li>
                         <li><a href="#empresas-seguridad" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Empresas &amp; Seguridad</a></li>
                         <li><a href="#analizador" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Analizador de IA</a></li>
-                        <li><a href="#planes" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Planes &amp; Precios</a></li>
+                        <li><a href="#security-intelligence" style="font-size:.78rem;color:#A78BFA;font-weight:700;" onmouseover="this.style.color='#C4B5FD'" onmouseout="this.style.color='#A78BFA'"><i class="fa-solid fa-shield-halved" style="margin-right:.3rem;font-size:.7rem;"></i>Security Intelligence</a></li>
                         <li><a href="#faq" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Preguntas Frecuentes</a></li>
                         <li><a href="/simulador" target="_blank" rel="noopener noreferrer" style="font-size:.78rem;color:#34D399;font-weight:700;" onmouseover="this.style.color='#6EE7B7'" onmouseout="this.style.color='#34D399'"><i class="fa-solid fa-sliders" style="margin-right:.3rem;font-size:.7rem;"></i>Simulador de Ingeniería <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:.65rem;margin-left:.2rem;opacity:.7;"></i></a></li>
-                        <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto &amp; Ventas</a></li>
+                        <li><a href="#contacto" style="font-size:.78rem;color:#64748B;" onmouseover="this.style.color='#38BDF8'" onmouseout="this.style.color='#64748B'">Contacto</a></li>
                     </ul>
                 </div>
                 <div>
@@ -2744,7 +2658,6 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <li><a href="#" id="link-footer-privacy" style="font-size:.78rem;color:#64748B;">Política de Privacidad</a></li>
                         <li><a href="#" id="link-footer-data" style="font-size:.78rem;color:#64748B;">Tratamiento de Datos (Ley 1581)</a></li>
                         <li><a href="#" id="link-footer-cookies" style="font-size:.78rem;color:#64748B;">Política de Cookies</a></li>
-                        <li><a href="#planes" style="font-size:.78rem;color:#64748B;">Términos de Compra &amp; Reembolsos</a></li>
                         <li><a href="#" id="link-footer-delete" style="font-size:.78rem;color:#64748B;">Eliminación de Cuenta</a></li>
                     </ul>
                 </div>
@@ -2819,10 +2732,10 @@ const ast = await parseSyntaxTree(repoBuffer, {
             <div class="auth-split-aside">
                 <div>
                     <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1.5rem;">
-                        <div style="width:2.35rem;height:2.35rem;border-radius:.65rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(56,189,248,0.35);">
-                            <img src="/assets/documind-icon.png" alt="DocuMind AI" style="width:1.5rem;height:1.5rem;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
+                        <div style="width:2.35rem;height:2.35rem;border-radius:.65rem;background:linear-gradient(135deg,#0B1120,#1E1B4B);border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(56,189,248,0.3);">
+                            <img src="/assets/documind-mark.svg" alt="DocuMind AI" style="width:1.6rem;height:1.6rem;object-fit:contain;">
                         </div>
-                        <span style="font-size:1.15rem;font-weight:900;letter-spacing:-0.02em;color:#FFFFFF;">DocuMind<span class="ai-badge">AI</span></span>
+                        <span style="font-size:1.15rem;font-weight:900;letter-spacing:-0.02em;color:#FFFFFF;">DocuMind <span class="ai-badge">AI</span></span>
                     </div>
 
                     <span class="badge badge-cyan" style="font-size:.68rem;padding:.2rem .6rem;margin-bottom:1.15rem;display:inline-flex;">
@@ -2854,7 +2767,7 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <div class="auth-split-feature-item">
                             <div class="auth-split-feature-icon" style="color:#818CF8;border-color:rgba(129,140,248,.3);background:rgba(129,140,248,.12);"><i class="fa-solid fa-cloud-arrow-up"></i></div>
                             <div>
-                                <strong style="color:#FFFFFF;display:block;font-size:.82rem;">Supabase Auth + Google SSO</strong>
+                                <strong style="color:#FFFFFF;display:block;font-size:.82rem;">Supabase Auth + Google &amp; GitHub OAuth</strong>
                                 Autenticación federada segura y persistente.
                             </div>
                         </div>
@@ -2877,8 +2790,8 @@ const ast = await parseSyntaxTree(repoBuffer, {
 
             <!-- Brand Icon & Header -->
             <div style="text-align:center;margin-bottom:1.85rem;">
-                <div style="width:3.25rem;height:3.25rem;margin:0 auto 1.1rem;border-radius:.85rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(56,189,248,.25);">
-                    <img src="/assets/documind-icon.png" alt="DocuMind AI" style="width:2.1rem;height:2.1rem;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4));">
+                <div style="width:3.25rem;height:3.25rem;margin:0 auto 1.1rem;border-radius:.85rem;background:linear-gradient(135deg,#0B1120,#1E1B4B);border:1px solid rgba(56,189,248,.35);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(56,189,248,.22);">
+                    <img src="/assets/documind-mark.svg" alt="DocuMind AI" style="width:2.1rem;height:2.1rem;object-fit:contain;">
                 </div>
                 <h3 id="auth-modal-title" style="font-size:1.35rem;font-weight:900;color:#FFFFFF;margin:0 0 .4rem 0;letter-spacing:-0.02em;">DocuMind AI</h3>
                 <p style="font-size:.84rem;color:#94A3B8;line-height:1.55;margin:0 auto;max-width:320px;">
@@ -3131,13 +3044,14 @@ const ast = await parseSyntaxTree(repoBuffer, {
                 </form>
             </div>
 
-            <!-- Separador Visual entre Correo/Contraseña y Google OAuth -->
+            <!-- Separador Visual entre Correo/Contraseña y Google / GitHub OAuth -->
             <div id="auth-oauth-divider" class="auth-divider">
                 <span>o continúa con</span>
             </div>
 
-            <!-- Google OAuth Primary Button -->
-            <div style="margin-bottom:1.5rem;">
+            <!-- Google OAuth & GitHub OAuth Buttons -->
+            <div id="auth-oauth-buttons-wrap" style="margin-bottom:1.5rem;display:flex;flex-direction:column;gap:.75rem;">
+                <!-- Google OAuth Primary Button (100% INTACT) -->
                 <button type="button" id="btn-oauth-google" class="btn-google-premium" aria-label="Continuar con Google">
                     <svg width="18" height="18" viewBox="0 0 18 18">
                         <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/>
@@ -3146,6 +3060,14 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
                     </svg>
                     <span id="google-btn-text">Continuar con Google</span>
+                </button>
+
+                <!-- GitHub OAuth Primary Button -->
+                <button type="button" id="btn-oauth-github" class="btn-github-premium" aria-label="Continuar con GitHub">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                    </svg>
+                    <span id="github-btn-text">Continuar con GitHub</span>
                 </button>
             </div>
 
@@ -3197,7 +3119,7 @@ const ast = await parseSyntaxTree(repoBuffer, {
                 <div>
                     <div style="display:flex;align-items:center;gap:.5rem;">
                         <h3 id="modal-orgs-title" style="font-size:1.2rem;font-weight:800;color:#fff;margin:0;">Grupos y Equipos Corporativos</h3>
-                        <span class="badge badge-purple" style="font-size:.65rem;">Plan Enterprise Activo</span>
+                        <span class="badge badge-purple" style="font-size:.65rem;">Gobernanza RBAC Activa</span>
                     </div>
                     <span style="font-size:.76rem;color:#94A3B8;">Multi-tenancy, asignación de roles RBAC y gobernanza de aprobaciones técnicas.</span>
                 </div>
@@ -3225,8 +3147,8 @@ const ast = await parseSyntaxTree(repoBuffer, {
 
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;">
                         <div style="background:rgba(15,23,42,0.7);padding:.65rem .85rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
-                            <span style="font-size:.62rem;color:#64748B;display:block;">PLAN CORPORATIVO</span>
-                            <strong style="font-size:.85rem;color:#34D399;"><i class="fa-solid fa-circle-check text-xs"></i> Enterprise Ilimitado</strong>
+                            <span style="font-size:.62rem;color:#64748B;display:block;">MODO DE ACCESO</span>
+                            <strong style="font-size:.85rem;color:#34D399;"><i class="fa-solid fa-circle-check text-xs"></i> Acceso Completo</strong>
                         </div>
                         <div style="background:rgba(15,23,42,0.7);padding:.65rem .85rem;border-radius:.5rem;border:1px solid rgba(255,255,255,0.06);">
                             <span style="font-size:.62rem;color:#64748B;display:block;">LÍMITE INTEGRANTES</span>
@@ -3597,6 +3519,7 @@ const ast = await parseSyntaxTree(repoBuffer, {
                 <div style="display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;">
                     <select id="preview-doc-scope" class="cyber-input" style="padding:.45rem .8rem;font-size:.78rem;width:auto;min-width:200px;background:#0F172A;border:1px solid rgba(56,189,248,.3);color:#E2E8F0;border-radius:.45rem;">
                         <option value="all">📚 Suite Completa (Todos los Módulos)</option>
+                        <option value="presentation">📘 Presentación del Proyecto (19 Secciones)</option>
                         <option value="prd">📋 PRD — Requisitos de Producto</option>
                         <option value="srs">📐 SRS — Especificación IEEE 830 / 29148</option>
                         <option value="arch">🏛️ Arquitectura de Software (ISO 42010)</option>
@@ -3610,19 +3533,10 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         <option value="devops">🚀 DevOps, CI/CD &amp; Despliegue</option>
                         <option value="qa">🧪 Plan de Calidad &amp; Matriz QA</option>
                         <option value="sec">🛡️ Seguridad DevSecOps (OWASP / SAST)</option>
+                        <option value="security-report">🛡️ Informe Oficial de Seguridad (PDF / DOCX)</option>
                         <option value="stride">🔒 Modelo de Amenazas STRIDE</option>
                         <option value="adrs">⚖️ Decisiones de Arquitectura (ADR)</option>
                         <option value="user">👤 Manual de Usuario &amp; Operación</option>
-
-
-
-
-
-
-                        <option value="qa">🧪 Plan de Calidad &amp; Matriz QA</option>
-
-                        <option value="adrs">⚖️ Decisiones de Arquitectura (ADR)</option>
-
                     </select>
 
                     <!-- Export Actions -->
@@ -3637,6 +3551,9 @@ const ast = await parseSyntaxTree(repoBuffer, {
                     </button>
                     <button type="button" id="btn-preview-download-json" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar modelo documental estructurado en JSON" data-export-format="json">
                         <i class="fa-solid fa-brackets-curly" style="margin-right:.3rem;color:#A78BFA;"></i>JSON (.json)
+                    </button>
+                    <button type="button" id="btn-preview-download-yaml" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar especificación estructurada en YAML" data-export-format="yaml">
+                        <i class="fa-solid fa-file-code" style="margin-right:.3rem;color:#34D399;"></i>YAML (.yaml)
                     </button>
                     <button type="button" id="btn-preview-download-txt" class="btn-cyber-outline" style="padding:.45rem .8rem;font-size:.8rem;" title="Descargar documento en texto plano (.txt)" data-export-format="txt">
                         <i class="fa-solid fa-align-left" style="margin-right:.3rem;color:#94A3B8;"></i>TXT (.txt)
@@ -3767,126 +3684,6 @@ const ast = await parseSyntaxTree(repoBuffer, {
                         Siguiente<i class="fa-solid fa-arrow-right" style="margin-left:.35rem;"></i>
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================================
-         CHECKOUT & PURCHASING MODAL (SAAS SUBSCRIPTIONS)
-    ============================================================ -->
-    <div id="checkout-modal" class="auth-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
-        <div class="auth-modal-backdrop" id="checkout-modal-backdrop"></div>
-        <div class="auth-modal-dialog glow-card" style="max-width:540px;padding:2.25rem;position:relative;z-index:1001;border-color:rgba(56,189,248,.35);">
-            <div class="auth-modal-header" style="border-bottom:1px solid rgba(148,163,184,.15);padding-bottom:1rem;margin-bottom:1.25rem;">
-                <div style="display:flex;align-items:center;gap:.65rem;">
-                    <div style="width:2.25rem;height:2.25rem;border-radius:.55rem;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);display:flex;align-items:center;justify-content:center;color:var(--tech-cyan);">
-                        <i class="fa-solid fa-credit-card"></i>
-                    </div>
-                    <div>
-                        <h3 id="checkout-modal-title" style="font-size:1.15rem;font-weight:800;color:#FFFFFF;margin:0;">Confirmar Suscripción</h3>
-                        <p style="font-size:.74rem;color:#94A3B8;margin:.15rem 0 0 0;">Checkout seguro con certificación PCI-DSS nivel 1</p>
-                    </div>
-                </div>
-                <button type="button" id="btn-close-checkout" class="auth-modal-close" aria-label="Cerrar modal">&times;</button>
-            </div>
-
-            <!-- Order Summary Card -->
-            <div style="background:rgba(15,23,42,.7);border:1px solid rgba(56,189,248,.2);border-radius:.75rem;padding:1.15rem;margin-bottom:1.25rem;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
-                    <span style="font-size:.84rem;color:#94A3B8;">Plan Seleccionado:</span>
-                    <strong id="checkout-plan-name" style="font-size:.95rem;color:#FFFFFF;font-weight:800;">Plan Pro — Profesional</strong>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">
-                    <span style="font-size:.84rem;color:#94A3B8;">Periodicidad:</span>
-                    <span id="checkout-cycle-label" style="font-size:.82rem;color:var(--tech-cyan);font-weight:700;">Facturación Mensual</span>
-                </div>
-
-                <!-- Features Included in Plan -->
-                <div style="margin:.65rem 0;padding:.6rem 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);">
-                    <span style="display:block;font-size:.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;">Funcionalidades Incluidas:</span>
-                    <ul id="checkout-features-list" style="margin:0;padding-left:1.15rem;font-size:.76rem;color:#CBD5E1;line-height:1.6;">
-                        <li>Análisis de repositorios privados y públicos ilimitados</li>
-                        <li>Exportación completa a Word (.docx) y PDF con diagramas</li>
-                        <li>Análisis de impacto y Blast Radius con navegación a código</li>
-                        <li>Historial persistente en la nube y soporte prioritario</li>
-                    </ul>
-                </div>
-
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;color:#94A3B8;margin-bottom:.35rem;">
-                    <span>Impuestos (IVA / Retenciones):</span>
-                    <span style="color:#34D399;font-weight:700;">$0.00 (Exento B2B Exportación)</span>
-                </div>
-
-                <div style="border-top:1px dashed rgba(148,163,184,.2);margin:.5rem 0 0;padding-top:.65rem;display:flex;justify-content:space-between;align-items:baseline;">
-                    <span style="font-size:.9rem;font-weight:700;color:#FFFFFF;">Total a pagar:</span>
-                    <div>
-                        <span style="font-size:.85rem;color:#94A3B8;margin-right:.2rem;">USD</span>
-                        <strong id="checkout-total-price" style="font-size:1.6rem;font-weight:900;color:var(--tech-cyan);font-family:'JetBrains Mono',monospace;">$29.00</strong>
-                    </div>
-                </div>
-            </div>
-
-            <!-- "¿Cómo puedo pagar?" Collapsible Section Trigger -->
-            <div style="margin-bottom:1.15rem;">
-                <button type="button" id="btn-how-to-pay" style="background:transparent;border:none;color:var(--tech-cyan);font-size:.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem;padding:0;text-decoration:underline;">
-                    <i class="fa-solid fa-circle-question"></i> ¿Cómo puedo pagar?
-                </button>
-                
-                <div id="payment-methods-accordion" style="display:none;margin-top:.75rem;background:rgba(9,13,22,.85);border:1px solid rgba(56,189,248,.2);border-radius:.65rem;padding:.9rem;font-size:.75rem;color:#94A3B8;line-height:1.6;">
-                    <p style="margin:0 0 .5rem 0;color:#F8FAFC;font-weight:700;">
-                        Medios de pago oficiales admitidos:
-                    </p>
-                    <div style="display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.65rem;">
-                        <span class="payment-badge-chip"><i class="fa-brands fa-cc-visa" style="color:#38BDF8;"></i> Visa</span>
-                        <span class="payment-badge-chip"><i class="fa-brands fa-cc-mastercard" style="color:#F59E0B;"></i> Mastercard</span>
-                        <span class="payment-badge-chip"><i class="fa-brands fa-cc-amex" style="color:#60A5FA;"></i> AMEX</span>
-                        <span class="payment-badge-chip"><i class="fa-solid fa-building-columns" style="color:#34D399;"></i> PSE (Bancos Colombia)</span>
-                        <span class="payment-badge-chip"><i class="fa-solid fa-mobile-screen-button" style="color:#F43F5E;"></i> Bancolombia / Nequi</span>
-                    </div>
-                    <p style="margin:0;font-size:.72rem;color:#64748B;">
-                        <i class="fa-solid fa-lock" style="margin-right:.25rem;color:var(--tech-cyan);"></i>
-                        Transacción cifrada de extremo a extremo mediante Wompi y Mercado Pago con certificación internacional PCI-DSS Nivel 1.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Mandatory Legal Acceptance Checkboxes -->
-            <div style="display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.5rem;font-size:.78rem;color:#CBD5E1;">
-                <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
-                    <input type="checkbox" id="chk-accept-terms" checked style="margin-top:.2rem;accent-color:var(--tech-cyan);">
-                    <span>He leído y acepto los <a href="#planes" style="color:var(--tech-cyan);text-decoration:underline;">Términos y Condiciones de Compra y Suscripción</a>.</span>
-                </label>
-                <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
-                    <input type="checkbox" id="chk-accept-privacy" checked style="margin-top:.2rem;accent-color:var(--tech-cyan);">
-                    <span>Acepto la <a href="#" id="link-checkout-privacy" style="color:var(--tech-cyan);text-decoration:underline;">Política de Tratamiento de Datos Personales (Ley 1581)</a>.</span>
-                </label>
-                <label style="display:flex;align-items:flex-start;gap:.6rem;cursor:pointer;">
-                    <input type="checkbox" id="chk-accept-autorenew" checked style="margin-top:.2rem;accent-color:var(--tech-cyan);">
-                    <span>Acepto la renovación automática periódica de mi suscripción, cancelable en cualquier momento desde mi panel de usuario.</span>
-                </label>
-            </div>
-
-            <!-- Payment Provider Selection -->
-            <div style="margin-bottom:1.5rem;">
-                <label style="display:block;font-size:.74rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">Método de Pago Seguro:</label>
-                <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:.65rem;">
-                    <button type="button" id="pay-provider-wompi" class="pricing-toggle-btn active" style="justify-content:center;border:1px solid rgba(56,189,248,.3);" onclick="setPaymentProvider('wompi')">
-                        <i class="fa-solid fa-building-columns"></i> Wompi / PSE / Tarjeta
-                    </button>
-                    <button type="button" id="pay-provider-mercadopago" class="pricing-toggle-btn" style="justify-content:center;border:1px solid rgba(148,163,184,.2);" onclick="setPaymentProvider('mercadopago')">
-                        <i class="fa-solid fa-handshake"></i> Mercado Pago
-                    </button>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div style="display:flex;gap:.75rem;">
-                <button type="button" id="btn-cancel-checkout" class="btn-ghost" style="flex:1;justify-content:center;padding:.85rem;">
-                    Cancelar
-                </button>
-                <button type="button" id="btn-submit-payment" class="btn-cyber" style="flex:2;justify-content:center;padding:.85rem;font-weight:800;">
-                    <i class="fa-solid fa-lock" style="margin-right:.45rem;font-size:.8rem;"></i> Continuar al Pago
-                </button>
             </div>
         </div>
     </div>

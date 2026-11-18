@@ -1,6 +1,6 @@
 -- ============================================================
--- DOCUMENT-MIND AI — ESQUEMA COMPLETO SUPABASE POSTGRESQL + RLS
--- Migración Versionada v2.0 (Perfiles, Proyectos, Análisis, Simulaciones y Chat)
+-- DOCUMIND AI — ESQUEMA COMPLETO SUPABASE POSTGRESQL + RLS
+-- Migración Versionada v3.0 (Perfiles, Proyectos, Análisis, Simulaciones, Chat y Gobernanza)
 -- ============================================================
 
 -- 1. Habilitar extensión UUID
@@ -8,6 +8,7 @@ create extension if not exists "uuid-ossp";
 
 -- ============================================================
 -- 2. TABLA: PROFILES (Perfiles de usuario vinculados a auth.users)
+-- Soporta Correo/Contraseña, Google OAuth y GitHub OAuth
 -- ============================================================
 create table if not exists public.profiles (
     id uuid references auth.users(id) on delete cascade primary key,
@@ -41,23 +42,56 @@ create policy "Los usuarios pueden insertar su propio perfil"
 
 -- Trigger automático al registrar usuario en Supabase Auth
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
 begin
-    insert into public.profiles (id, email, full_name, role)
+    insert into public.profiles (id, email, full_name, role, auth_provider, avatar_url)
     values (
         new.id,
-        new.email,
-        coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)),
-        coalesce(new.raw_user_meta_data->>'role', 'developer')
-    );
+        coalesce(new.email, ''),
+        coalesce(
+            nullif(new.raw_user_meta_data->>'full_name', ''),
+            nullif(new.raw_user_meta_data->>'name', ''),
+            nullif(new.raw_user_meta_data->>'user_name', ''),
+            split_part(coalesce(new.email, 'usuario'), '@', 1)
+        ),
+        'developer',
+        coalesce(
+            nullif(new.raw_app_meta_data->>'provider', ''),
+            nullif(new.raw_user_meta_data->>'auth_provider', ''),
+            'email'
+        ),
+        coalesce(
+            new.raw_user_meta_data->>'avatar_url',
+            new.raw_user_meta_data->>'picture',
+            null
+        )
+    )
+    on conflict (id) do update
+    set
+        email = coalesce(nullif(excluded.email, ''), public.profiles.email),
+        full_name = coalesce(nullif(public.profiles.full_name, ''), excluded.full_name),
+        avatar_url = coalesce(public.profiles.avatar_url, excluded.avatar_url),
+        updated_at = now();
     return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
     after insert on auth.users
     for each row execute function public.handle_new_user();
+
+revoke insert, update on public.profiles from authenticated;
+
+grant insert (id, email, full_name, avatar_url, auth_provider, created_at, updated_at)
+on public.profiles to authenticated;
+
+grant update (full_name, avatar_url, auth_provider, updated_at)
+on public.profiles to authenticated;
 
 -- ============================================================
 -- 3. TABLA: ANALYSES (Proyectos, Documentos y Repositorios Analizados)
@@ -157,151 +191,13 @@ create policy "Aislamiento RLS de conversaciones por usuario"
     with check (auth.uid() = user_id);
 
 -- ============================================================
--- 6. SEGURIDAD ADICIONAL DE PERFILES
--- ============================================================
-
--- El rol siempre será developer al registrarse.
--- Nunca confiar en el rol enviado por el usuario.
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-    insert into public.profiles (id, email, full_name, role, auth_provider, avatar_url)
-    values (
-        new.id,
-        new.email,
-        coalesce(
-            nullif(new.raw_user_meta_data->>'full_name', ''),
-            nullif(new.raw_user_meta_data->>'name', ''),
-            split_part(new.email, '@', 1)
-        ),
-        'developer',
-        coalesce(
-            nullif(new.raw_app_meta_data->>'provider', ''),
-            nullif(new.raw_user_meta_data->>'auth_provider', ''),
-            'email'
-        ),
-        coalesce(
-            new.raw_user_meta_data->>'avatar_url',
-            new.raw_user_meta_data->>'picture',
-            null
-        )
-    )
-    on conflict (id) do update
-    set
-        email = excluded.email,
-        full_name = coalesce(nullif(public.profiles.full_name, ''), excluded.full_name),
-        avatar_url = coalesce(public.profiles.avatar_url, excluded.avatar_url),
-        updated_at = now();
-    return new;
-end;
-$$;
-
--- Los usuarios no pueden insertar perfiles arbitrarios
--- ni modificar su rol.
-revoke insert, update on public.profiles from authenticated;
-
--- Solo pueden insertar/actualizar sus propios datos personales (protegidos por RLS).
-grant insert (id, email, full_name, avatar_url, auth_provider, created_at, updated_at)
-on public.profiles to authenticated;
-
-grant update (full_name, avatar_url, auth_provider, updated_at)
-on public.profiles to authenticated;
-
-
--- ============================================================
--- 7. TABLA: SUBSCRIPTIONS (Suscripciones SaaS: Free, Pro, Enterprise)
--- ============================================================
-create table if not exists public.subscriptions (
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid references auth.users(id) on delete cascade not null unique,
-    plan text not null check (plan in ('free', 'pro', 'enterprise')) default 'free',
-    billing_cycle text not null check (billing_cycle in ('monthly', 'annual')) default 'monthly',
-    status text not null check (status in ('active', 'past_due', 'canceled', 'trialing')) default 'active',
-    current_period_start timestamptz default now(),
-    current_period_end timestamptz default (now() + interval '1 month'),
-    cancel_at_period_end boolean default false,
-    created_at timestamptz default now(),
-    updated_at timestamptz default now()
-);
-
-create index if not exists idx_subscriptions_user_id on public.subscriptions(user_id);
-create index if not exists idx_subscriptions_status on public.subscriptions(status);
-
-alter table public.subscriptions enable row level security;
-
-drop policy if exists "Los usuarios consultan su propia suscripción" on public.subscriptions;
-create policy "Los usuarios consultan su propia suscripción"
-    on public.subscriptions for select
-    using (auth.uid() = user_id);
-
--- ============================================================
--- 8. TABLA: USAGE_RECORDS (Control de Cuotas Mensuales por Plan)
--- ============================================================
-create table if not exists public.usage_records (
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid references auth.users(id) on delete cascade not null,
-    period_ym text not null, -- formato 'YYYY-MM'
-    public_repos_analyzed int default 0,
-    private_repos_analyzed int default 0,
-    export_docs_count int default 0,
-    updated_at timestamptz default now(),
-    unique(user_id, period_ym)
-);
-
-create index if not exists idx_usage_records_user_period on public.usage_records(user_id, period_ym);
-
-alter table public.usage_records enable row level security;
-
-drop policy if exists "Los usuarios ven su propio consumo" on public.usage_records;
-create policy "Los usuarios ven su propio consumo"
-    on public.usage_records for select
-    using (auth.uid() = user_id);
-
--- ============================================================
--- 9. TABLA: PAYMENT_TRANSACTIONS (Registro Inmutable de Pagos Wompi / Mercado Pago)
--- ============================================================
-create table if not exists public.payment_transactions (
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid references auth.users(id) on delete cascade not null,
-    provider text not null check (provider in ('wompi', 'mercadopago', 'mock')),
-    provider_tx_id text not null unique,
-    plan text not null,
-    billing_cycle text not null,
-    amount numeric(10, 2) not null,
-    currency text not null default 'USD',
-    status text not null check (status in ('pending', 'approved', 'rejected', 'cancelled', 'refunded')),
-    payment_method text,
-    signature_hash text,
-    terms_accepted boolean default true,
-    terms_accepted_at timestamptz default now(),
-    metadata jsonb default '{}'::jsonb,
-    created_at timestamptz default now(),
-    updated_at timestamptz default now()
-);
-
-create index if not exists idx_payment_transactions_user on public.payment_transactions(user_id);
-create index if not exists idx_payment_transactions_provider_id on public.payment_transactions(provider_tx_id);
-
-alter table public.payment_transactions enable row level security;
-
-drop policy if exists "Los usuarios consultan sus propias transacciones" on public.payment_transactions;
-create policy "Los usuarios consultan sus propias transacciones"
-    on public.payment_transactions for select
-    using (auth.uid() = user_id);
-
--- ============================================================
--- 10. TABLA: ORGANIZATIONS (Espacios Multi-Tenant y Equipos B2B)
+-- 6. TABLA: ORGANIZATIONS (Equipos de Trabajo y Colaboración Técnica)
 -- ============================================================
 create table if not exists public.organizations (
     id uuid default gen_random_uuid() primary key,
     name text not null,
     slug text not null unique,
     owner_id uuid references auth.users(id) on delete restrict not null,
-    plan text not null default 'enterprise',
     created_at timestamptz default now(),
     updated_at timestamptz default now()
 );
@@ -311,7 +207,7 @@ create index if not exists idx_organizations_slug on public.organizations(slug);
 alter table public.organizations enable row level security;
 
 -- ============================================================
--- 11. TABLA: ORGANIZATION_MEMBERS (Roles y Permisos RBAC)
+-- 7. TABLA: ORGANIZATION_MEMBERS (Roles y Permisos RBAC)
 -- ============================================================
 create table if not exists public.organization_members (
     id uuid default gen_random_uuid() primary key,
@@ -351,7 +247,7 @@ create policy "Miembros ven integrantes de su misma organización"
     );
 
 -- ============================================================
--- 12. TABLA: DOCUMENT_APPROVALS (Gobernanza de Arquitectura y Firmas)
+-- 8. TABLA: DOCUMENT_APPROVALS (Gobernanza de Arquitectura y Firmas)
 -- ============================================================
 create table if not exists public.document_approvals (
     id uuid default gen_random_uuid() primary key,
@@ -387,19 +283,16 @@ create policy "Aprobaciones accesibles por miembros autorizados"
     );
 
 -- ============================================================
--- 13. TABLA: ENTERPRISE_CONFIGS (BYOK, Cero Retención y Marca Blanca)
+-- 9. TABLA: ENTERPRISE_CONFIGS (Configuración de Seguridad y Personalización)
 -- ============================================================
 create table if not exists public.enterprise_configs (
     id uuid default gen_random_uuid() primary key,
     organization_id uuid references public.organizations(id) on delete cascade unique,
     user_id uuid references auth.users(id) on delete cascade,
-    -- BYOK Cifrado
     byok_provider text check (byok_provider in ('gemini', 'azure_openai', 'vertex_ai', 'ollama')),
     encrypted_api_key text,
     api_endpoint text,
-    -- Cero Retención
     ephemeral_processing boolean default false,
-    -- Marca Blanca / Identidad Corporativa
     company_name text,
     company_logo_url text,
     brand_primary_color text default '#38BDF8',
@@ -425,7 +318,7 @@ create policy "Configs accesibles por su dueño o admin de org"
     );
 
 -- ============================================================
--- 14. TABLA: AUDIT_LOGS (Trazabilidad y Cumplimiento Regulatorio)
+-- 10. TABLA: AUDIT_LOGS (Trazabilidad y Cumplimiento Regulatorio)
 -- ============================================================
 create table if not exists public.audit_logs (
     id uuid default gen_random_uuid() primary key,

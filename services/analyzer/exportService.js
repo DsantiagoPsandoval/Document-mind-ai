@@ -39,6 +39,9 @@ function createDocumentationZip(analysis, docxBuffer = null) {
     }
 
     // 1. Root documents
+    if (doc.presentation || (doc.product && doc.product.presentation)) {
+        archive.append(doc.presentation || doc.product.presentation, { name: `${rootFolder}/PRESENTACION_PROYECTO.md` });
+    }
     if (doc.development && doc.development.readme) {
         archive.append(doc.development.readme, { name: `${rootFolder}/README.md` });
     }
@@ -81,6 +84,9 @@ function createDocumentationZip(analysis, docxBuffer = null) {
                 ? doc.api.openApiJson
                 : JSON.stringify(doc.api.openApiJson, null, 2);
             archive.append(specStr, { name: `${rootFolder}/API/openapi.json` });
+        }
+        if (doc.api.openApiYaml) {
+            archive.append(String(doc.api.openApiYaml), { name: `${rootFolder}/API/openapi.yaml` });
         }
     }
 

@@ -451,6 +451,34 @@ function generateJsonDocument(analysisData = {}, scope = 'all') {
 }
 
 /**
+ * Generates YAML specification (.yaml) — outputs OpenAPI 3.0.3 YAML when scope is 'api'
+ * or the canonical structured model in YAML for all other scopes.
+ */
+function generateYamlDocument(analysisData = {}, scope = 'all') {
+    const { toYaml } = require('../analyzer/docGenerator');
+    const normScope = String(scope || 'all').toLowerCase();
+    if (normScope === 'api' && analysisData.documentation?.api?.openApiJson) {
+        return toYaml(analysisData.documentation.api.openApiJson);
+    }
+    const model = buildUnifiedDocumentModel(analysisData, scope);
+    const compactModel = {
+        metadata: model.metadata,
+        documentControl: model.documentControl,
+        toc: model.toc,
+        technical_evidence: model.technical_evidence,
+        sections: (model.sections || []).map(s => ({
+            number: s.number,
+            id: s.id,
+            title: s.title,
+            standardRef: s.standardRef,
+            summary: s.summary
+        })),
+        openApiSpec: analysisData.documentation?.api?.openApiJson || undefined
+    };
+    return toYaml(compactModel);
+}
+
+/**
  * Unified export dispatcher returning `{ buffer, contentType, extension, filename }`.
  */
 async function exportDocumentByFormat(analysisData = {}, format = 'pdf', scope = 'all') {
@@ -521,6 +549,16 @@ async function exportDocumentByFormat(analysisData = {}, format = 'pdf', scope =
         };
     }
 
+    if (fmt === 'yaml' || fmt === 'yml') {
+        const yamlStr = generateYamlDocument(analysisData, scope);
+        return {
+            buffer: Buffer.from(yamlStr, 'utf-8'),
+            contentType: 'application/x-yaml; charset=utf-8',
+            extension: 'yaml',
+            filename: `${safeProject}_Especificacion${scopeSuffix}.yaml`
+        };
+    }
+
     throw new Error(`Formato de exportación no soportado: ${format}`);
 }
 
@@ -529,5 +567,6 @@ module.exports = {
     generateMarkdownDocument,
     generatePlainTextDocument,
     generateJsonDocument,
+    generateYamlDocument,
     exportDocumentByFormat
 };

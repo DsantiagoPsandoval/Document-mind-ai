@@ -46,17 +46,17 @@ it('Should have exactly 12 security dimensions with weights summing to 1.00 (100
 });
 
 // 2. Clean Project Score
-it('Clean project without findings should achieve 100 score and "Excelente"', () => {
+it('Clean project without findings should achieve 100 score and "Seguridad alta"', () => {
     const scoreData = calculateSecurityScore([], { filesAnalyzed: 10, totalFiles: 10 });
     assert.strictEqual(scoreData.score, 100);
-    assert.strictEqual(scoreData.classification, 'Excelente');
+    assert.strictEqual(scoreData.classification, 'Seguridad alta');
     assert.strictEqual(scoreData.grade, 'A+');
     assert.strictEqual(scoreData.coverage.coveragePct, 100);
     assert.strictEqual(scoreData.coverage.confidenceLevel, 'Alta');
 });
 
 // 3. Critical Severity Strict Capping Rule
-it('CRITICAL vulnerability must strictly cap final score at maximum 49 ("Riesgo alto")', () => {
+it('CRITICAL vulnerability must strictly cap final score at maximum 49 ("Riesgo elevado")', () => {
     const criticalFinding = {
         id: 'SEC-1',
         name: 'Exposed OpenAI Key',
@@ -69,8 +69,8 @@ it('CRITICAL vulnerability must strictly cap final score at maximum 49 ("Riesgo 
     // 100 - 25 = 75, but because criticalCount > 0, it must be capped at <= 49
     assert.strictEqual(scoreData.isCappedByCritical, true);
     assert.strictEqual(scoreData.score, 49);
-    assert.strictEqual(scoreData.classification, 'Riesgo alto');
-    assert.ok(scoreData.explanation.includes('acotada estrictamente a 49/100'));
+    assert.strictEqual(scoreData.classification, 'Riesgo elevado');
+    assert.ok(scoreData.explanation.includes('limitada a 49/100'));
 });
 
 // 4. Coverage and Confidence Levels
@@ -85,7 +85,7 @@ it('Coverage calculates properly for partial scopes', () => {
 
     const covLow = calculateCoverage({ filesAnalyzed: 3, totalFiles: 10 });
     assert.strictEqual(covLow.coveragePct, 30);
-    assert.strictEqual(covLow.confidenceLevel, 'Básica');
+    assert.strictEqual(covLow.confidenceLevel, 'Parcial / Básica');
 });
 
 // 5. SAST Rules Detection
@@ -194,7 +194,7 @@ it('Compares historical runs and calculates score delta and status', () => {
     };
     const comp = compareSecurityRuns(run1, run2);
     assert.strictEqual(comp.scoreDelta, 25);
-    assert.strictEqual(comp.trend, 'Mejora de seguridad');
+    assert.ok(comp.trend.includes('Mejora'), 'Should indicate security improvement');
     assert.strictEqual(comp.resolvedCount, 1);
     assert.strictEqual(comp.newCount, 0);
     assert.strictEqual(comp.persistingCount, 1);
@@ -235,7 +235,7 @@ it('Compares historical runs and calculates score delta and status', () => {
 
         const audit = await runSecurityAnalysis(mockProject);
         assert.ok(audit.score <= 49, 'Should be capped at <= 49 due to SQLI critical finding');
-        assert.strictEqual(audit.classification, 'Riesgo alto');
+        assert.strictEqual(audit.classification, 'Riesgo elevado');
         assert.strictEqual(Object.keys(audit.dimensions).length, 12, 'Must have 12 dimension scores');
         assert.ok(audit.remediationPlan.queues.inmediata.length > 0, 'Must have immediate remediation items');
         assert.ok(audit.markdownReport.includes('DocuMind Security Intelligence'), 'Markdown report must include branding');

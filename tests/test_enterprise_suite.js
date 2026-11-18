@@ -8,8 +8,6 @@
 const assert = require('assert');
 const http = require('http');
 const app = require('../server');
-const { PlanService, PLAN_TIERS } = require('../services/plans/planService');
-const { PaymentGateway } = require('../services/billing/paymentGateway');
 const { ASTDeepAnalyzer } = require('../services/analyzer/astDeepAnalyzer');
 const { PRAutomationService } = require('../services/github/prAutomationService');
 const { OrganizationService, ROLES, APPROVAL_STATUS } = require('../services/orgs/organizationService');
@@ -54,7 +52,7 @@ function httpRequest(method, path, body = null, headers = {}) {
 
 async function runSuite() {
     console.log('\n====================================================================');
-    console.log('🚀 DOCUMIND AI — TEST SUITE GLOBAL ENTERPRISE SAAS 2.0 (FASES 2-8)');
+    console.log('🚀 DOCUMIND AI — TEST SUITE GLOBAL ENTERPRISE & SECURITY INTELLIGENCE');
     console.log('====================================================================\n');
 
     server = http.createServer(app);
@@ -62,90 +60,75 @@ async function runSuite() {
 
     try {
         // ========================================================
-        // 1. FASE 2: PLANES, LÍMITES Y PERMISOS
+        // 1. VERIFICACIÓN DE ELIMINACIÓN DE MONETIZACIÓN Y ACCESO LIBRE
         // ========================================================
-        console.log('--- 1. FASE 2: Planes, Límites y Control de Cuotas ---');
+        console.log('--- 1. Eliminación Completa de Monetización & Exportación sin Restricciones ---');
         
-        // 1.1 Usuario Free por defecto
-        const resPlanFree = await httpRequest('GET', '/api/user/plan-status', null, { 'x-user-id': 'usr_test_free' });
-        assert.strictEqual(resPlanFree.status, 200);
-        assert.strictEqual(resPlanFree.body.plan, 'free');
-        assert.strictEqual(resPlanFree.body.definition.limits.allowWordExport, false);
-        logPass('Usuario nuevo inicializa correctamente en Plan Free con límites');
+        const resBillingRemoved = await httpRequest('POST', '/api/billing/create-checkout', { planId: 'pro' });
+        assert.strictEqual(resBillingRemoved.status, 404);
+        const resPlanRemoved = await httpRequest('GET', '/api/user/plan-status');
+        assert.strictEqual(resPlanRemoved.status, 404);
+        logPass('Rutas comerciales (/api/billing/*, /api/user/plan-status) eliminadas completamente (HTTP 404)');
 
-        // 1.2 Intento de exportar Word con usuario Free bloqueado (HTTP 403 Forbidden)
-        const resExportBlock = await httpRequest('POST', '/api/project/export/docx', {
-            analysisData: { projectName: 'Prohibido_Free' }
-        }, { 'x-user-id': 'usr_test_free' });
-        assert.strictEqual(resExportBlock.status, 403);
-        assert.strictEqual(resExportBlock.body.code, 'PLAN_LIMIT_EXCEEDED');
-        logPass('Exportación Word protegida: usuario Free recibe HTTP 403 con invitación a upgrade');
-
-        // 1.3 Upgrade a Plan Pro
-        const resUpgrade = await httpRequest('POST', '/api/user/change-plan', { planId: 'pro' }, { 'x-user-id': 'usr_test_free' });
-        assert.strictEqual(resUpgrade.status, 200);
-        assert.strictEqual(resUpgrade.body.subscription.plan, 'pro');
-        logPass('Actualización de plan exitosa a Pro');
-
-        // 1.4 Ahora el usuario Pro sí puede exportar Word
+        // Exportación Word abierta para cualquier usuario sin restricciones de plan
         const resExportAllow = await httpRequest('POST', '/api/project/export/docx', {
-            analysisData: { projectName: 'Permitido_Pro' }
-        }, { 'x-user-id': 'usr_test_free' });
+            analysisData: { projectName: 'Acceso_Libre_DocuMind' }
+        }, { 'x-user-id': 'usr_any' });
         assert.strictEqual(resExportAllow.status, 200);
         assert.ok(resExportAllow.headers['content-type'].includes('officedocument'));
-        logPass('Usuario Pro exporta Word exitosamente (HTTP 200 y buffer DOCX)');
+        logPass('Exportación Word (.docx) disponible sin restricciones artificiales por tipo de usuario');
 
+        // Exportación YAML y Reporte de Seguridad PDF/DOCX
+        const resYamlExport = await httpRequest('POST', '/api/project/export/format/yaml', {
+            analysisData: { projectName: 'Acceso_Libre_DocuMind', endpoints: [{ method: 'GET', path: '/api/health' }] }
+        });
+        assert.strictEqual(resYamlExport.status, 200);
+        assert.ok(String(resYamlExport.body).includes('documentTitle'));
+        logPass('Exportación estructurada YAML (.yaml) generada correctamente');
 
         // ========================================================
-        // 2. FASE 3: PASARELA DE PAGOS (WOMPI / MERCADO PAGO)
+        // 2. MÓDULO AVANZADO DE AUDITORÍA: SECURITY INTELLIGENCE
         // ========================================================
-        console.log('\n--- 2. FASE 3: Pasarela de Pagos y Términos de Compra ---');
+        console.log('\n--- 2. Módulo Independiente Security Intelligence (/api/security/*) ---');
 
-        // 2.1 Intento de compra sin aceptar términos legales es rechazado
-        const resNoTerms = await httpRequest('POST', '/api/billing/create-checkout', {
-            planId: 'pro',
-            termsAccepted: false
-        }, { 'x-user-id': 'usr_buyer_1' });
-        assert.strictEqual(resNoTerms.status, 500); // Middleware captura throw error
-        logPass('Checkout sin aceptar Términos y Condiciones es bloqueado estrictamente');
+        const resSecAudit = await httpRequest('POST', '/api/security/audit', {
+            projectName: 'DemoSecRepo',
+            files: [
+                { path: 'src/db.js', content: 'const q = "SELECT * FROM accounts WHERE id = " + req.query.id; db.query(q);' },
+                { path: 'package.json', content: JSON.stringify({ name: 'demo', dependencies: { express: '4.18.2' } }) }
+            ],
+            totalRepoFiles: 2
+        });
+        assert.strictEqual(resSecAudit.status, 200);
+        assert.strictEqual(resSecAudit.body.success, true);
+        assert.ok(resSecAudit.body.security.score <= 49);
+        assert.strictEqual(resSecAudit.body.security.classification, 'Riesgo elevado');
+        logPass(`Auditoría independiente Security Intelligence ejecutada: Score ${resSecAudit.body.security.score}/100 (${resSecAudit.body.security.classification})`);
 
-        // 2.2 Creación de checkout con firma de integridad HMAC SHA-256
-        const resCheckout = await httpRequest('POST', '/api/billing/create-checkout', {
-            planId: 'pro',
-            billingCycle: 'monthly',
-            provider: 'wompi',
-            termsAccepted: true,
-            userEmail: 'dev@enterprise.com'
-        }, { 'x-user-id': 'usr_buyer_1' });
-        assert.strictEqual(resCheckout.status, 200);
-        assert.strictEqual(resCheckout.body.amount, 29);
-        assert.ok(resCheckout.body.reference.startsWith('DOCUMIND_PRO_'));
-        logPass('Orden de compra generada con referencia única, monto y firma Wompi');
+        // Intentar marcar como Solucionado sin re-verificar el código debe ser bloqueado
+        const findingId = resSecAudit.body.security.vulnerabilities[0]?.id || 'SEC-001';
+        const resBlockSolve = await httpRequest('POST', '/api/security/finding-status', {
+            projectKey: 'DemoSecRepo',
+            findingId,
+            status: 'Solucionado',
+            reverifiedInCode: false
+        });
+        assert.strictEqual(resBlockSolve.status, 400);
+        logPass('Protección de integridad: bloquea marcar vulnerabilidad como Solucionado sin verificar nuevamente el código');
 
-        // 2.3 Simulación de Webhook Wompi con estado APPROVED
-        const webhookPayload = {
-            event: 'transaction.updated',
-            data: {
-                transaction: {
-                    id: 'tx_wompi_test_998',
-                    reference: resCheckout.body.reference,
-                    status: 'APPROVED',
-                    payment_method_type: 'CARD'
-                }
-            }
-        };
-        const resWebhook = await httpRequest('POST', '/api/billing/webhook/wompi', webhookPayload);
-        assert.strictEqual(resWebhook.status, 200);
-        assert.strictEqual(resWebhook.body.status, 'approved');
-        assert.strictEqual(resWebhook.body.planActivated, 'pro');
-        logPass('Webhook de pasarela recibido y verificado: Plan Pro activado automáticamente');
+        // Exportación directa de informe de seguridad en PDF y DOCX
+        const resSecPdf = await httpRequest('POST', '/api/project/export/security-pdf', {
+            analysisData: { projectName: 'DemoSecRepo', security: resSecAudit.body.security }
+        });
+        assert.strictEqual(resSecPdf.status, 200);
+        assert.ok(resSecPdf.headers['content-type'].includes('application/pdf'));
 
-        // 2.4 Historial de transacciones del usuario registrado
-        const resTxs = await httpRequest('GET', '/api/billing/transactions', null, { 'x-user-id': 'usr_buyer_1' });
-        assert.strictEqual(resTxs.status, 200);
-        assert.strictEqual(resTxs.body.count, 1);
-        assert.strictEqual(resTxs.body.transactions[0].status, 'approved');
-        logPass('Historial inmutable de compras y facturación consultado exitosamente');
+        const resSecDocx = await httpRequest('POST', '/api/project/export/security-docx', {
+            analysisData: { projectName: 'DemoSecRepo', security: resSecAudit.body.security }
+        });
+        assert.strictEqual(resSecDocx.status, 200);
+        assert.ok(resSecDocx.headers['content-type'].includes('officedocument'));
+        logPass('Informe exportable de seguridad generado en PDF y DOCX binarios');
 
 
         // ========================================================
@@ -219,8 +202,6 @@ async function runSuite() {
         console.log('\n--- 6. FASE 7: Organizaciones, Control RBAC y Aprobaciones ---');
 
         // 6.1 Crear Organización
-        // Primero darle plan enterprise
-        await PlanService.setUserSubscription('usr_enterprise_lead', 'enterprise');
         const resOrg = await httpRequest('POST', '/api/orgs/create', {
             name: 'Fintech Solutions Latam',
             slug: 'fintech-solutions'

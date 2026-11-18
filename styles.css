@@ -5193,3 +5193,205 @@ pre, code {
         padding: 1rem 0.5rem !important;
     }
 }
+
+/* ==========================================================================
+   DOCUMIND AI — PREMIUM VISUAL REDESIGN, NAVIGATION & GITHUB OAUTH (v8.0)
+   Estética de nivel empresarial: Azul profundo, violeta tecnológico y detalles luminosos controlados
+   ========================================================================== */
+
+:root {
+    --nav-height: 4.5rem;
+}
+
+#navbar {
+    height: var(--nav-height);
+    background: rgba(6, 10, 18, 0.84);
+    backdrop-filter: blur(20px) saturate(190%);
+    -webkit-backdrop-filter: blur(20px) saturate(190%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.16);
+}
+
+.nav-inner {
+    max-width: min(1400px, 95vw);
+    gap: clamp(0.85rem, 1.8vw, 1.75rem);
+}
+
+.nav-logo {
+    gap: 0.75rem;
+}
+
+.nav-logo-icon {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 0.65rem;
+    background: linear-gradient(135deg, #0B1120 0%, #1E1B4B 100%);
+    border: 1px solid rgba(56, 189, 248, 0.38);
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.nav-logo-icon img {
+    width: 1.65rem;
+    height: 1.65rem;
+}
+
+.nav-logo-text-group {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.nav-logo-text {
+    font-size: 1.12rem;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    color: #F8FAFC;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+}
+
+.nav-logo-brand {
+    background: linear-gradient(90deg, #FFFFFF 0%, #E2E8F0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-logo-sub {
+    font-size: 0.6rem;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+    color: #64748B;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 0.12rem;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.28rem, 0.55vw, 0.55rem);
+    background: rgba(15, 23, 42, 0.68);
+    border: 1px solid rgba(129, 140, 248, 0.18);
+    padding: 0.32rem 0.5rem;
+    border-radius: 9999px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.nav-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    font-size: clamp(0.75rem, 0.85vw, 0.82rem);
+    font-weight: 600;
+    color: #94A3B8;
+    padding: 0.42rem clamp(0.6rem, 0.9vw, 0.95rem);
+    border-radius: 9999px;
+    position: relative;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link-icon {
+    font-size: 0.72rem;
+    opacity: 0.78;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-links a:hover {
+    color: #FFFFFF;
+    background: rgba(99, 102, 241, 0.14);
+}
+
+.nav-links a:hover .nav-link-icon {
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.nav-links a.active {
+    color: #38BDF8;
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(99, 102, 241, 0.18));
+    border: 1px solid rgba(56, 189, 248, 0.32);
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.18);
+    font-weight: 700;
+}
+
+.nav-links a.nav-link-sim {
+    color: #34D399;
+    border: 1px solid rgba(52, 211, 153, 0.22);
+    background: rgba(52, 211, 153, 0.07);
+}
+
+.nav-links a.nav-link-sim:hover {
+    color: #6EE7B7;
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.4);
+}
+
+.nav-actions {
+    gap: 0.65rem;
+}
+
+/* GitHub OAuth Premium Button (Paired with Google OAuth) */
+.btn-github-premium {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.78rem 1.25rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    color: #F8FAFC;
+    font-size: 0.86rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-github-premium:hover {
+    background: linear-gradient(180deg, #27354D 0%, #162033 100%);
+    border-color: rgba(129, 140, 248, 0.55);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45), 0 0 18px rgba(129, 140, 248, 0.22);
+}
+
+.btn-github-premium:active {
+    transform: translateY(0);
+}
+
+.btn-github-premium:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Security Intelligence Scale Pills */
+.sec-scale-pill {
+    transition: all 0.25s ease;
+}
+
+/* Responsive Navigation & Layout Safeguards */
+@media (max-width: 1220px) {
+    .nav-center-nav {
+        display: none !important;
+    }
+    #mobile-menu-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .nav-logo-sub {
+        display: none;
+    }
+    .sec-hero-Banner {
+        padding: 1.15rem !important;
+    }
+}
+

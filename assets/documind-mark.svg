@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <linearGradient id="dm-bg" x1="10" y1="10" x2="110" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B132B"/>
+      <stop offset="50%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E1B4B"/>
+    </linearGradient>
+    <linearGradient id="dm-border" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="50%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="dm-doc" x1="30" y1="26" x2="88" y2="94" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <filter id="dm-glow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <!-- Outer Hexagonal Shield Frame -->
+  <path d="M60 8 L104 33 V87 L60 112 L16 87 V33 Z" fill="url(#dm-bg)" stroke="url(#dm-border)" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M60 15 L97 36.5 V83.5 L60 105 L23 83.5 V36.5 Z" stroke="#38BDF8" stroke-opacity="0.22" stroke-width="1.2"/>
+  <!-- Architectural Document Layer -->
+  <path d="M36 34 C36 30.6863 38.6863 28 42 28 H66 L82 44 V86 C82 89.3137 79.3137 92 76 92 H42 C38.6863 92 36 89.3137 36 86 V34 Z" fill="#090D16" fill-opacity="0.85" stroke="url(#dm-doc)" stroke-width="3"/>
+  <path d="M66 28 V44 H82" stroke="#38BDF8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- AI Neural AST Nodes & Circuit Lines -->
+  <path d="M46 54 H64 M46 66 H72 M46 78 H60" stroke="#E2E8F0" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="72" cy="54" r="4" fill="#38BDF8" filter="url(#dm-glow)"/>
+  <circle cx="72" cy="78" r="4" fill="#34D399" filter="url(#dm-glow)"/>
+  <circle cx="59" cy="66" r="3.5" fill="#818CF8"/>
+  <path d="M72 54 L59 66 L72 78" stroke="#38BDF8" stroke-width="1.8" stroke-dasharray="2 2"/>
+</svg>

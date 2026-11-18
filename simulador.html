@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Ingeniería | DocuMind AI — Arquitectura y Diseño Técnico</title>
     <meta name="description" content="Simulador de Ingeniería y Diseño Técnico para evaluar y comparar arquitecturas de software bajo modelos de colas M/M/c y decisión multicriterio. Universidad Libre — Guía Actividad 9.">
-    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="icon" type="image/svg+xml" href="/assets/documind-mark.svg">
+    <link rel="alternate icon" type="image/png" href="/assets/favicon.png">
     <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/assets/documind-icon.png">
+    <link rel="apple-touch-icon" href="/assets/documind-mark.svg">
     <meta name="theme-color" content="#090D16">
 
     <!-- Fonts & Icons -->
@@ -36,11 +37,11 @@
             
             <!-- Left Brand & App Title -->
             <div style="display:flex;align-items:center;gap:1.25rem;">
-                <a href="/" style="display:flex;align-items:center;gap:.6rem;text-decoration:none;" aria-label="DocuMind AI Home">
-                    <div style="width:2.2rem;height:2.2rem;border-radius:.6rem;background:linear-gradient(135deg,#38BDF8,#818CF8);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(56,189,248,0.35);">
-                        <img src="/assets/documind-icon.png" alt="DocuMind AI" style="width:1.45rem;height:1.45rem;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));">
+                <a href="/" style="display:flex;align-items:center;gap:.65rem;text-decoration:none;" aria-label="DocuMind AI Home">
+                    <div style="width:2.2rem;height:2.2rem;border-radius:.6rem;background:linear-gradient(135deg,#0B1120,#1E1B4B);border:1px solid rgba(56,189,248,.38);display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(56,189,248,0.28);">
+                        <img src="/assets/documind-mark.svg" alt="DocuMind AI" style="width:1.5rem;height:1.5rem;object-fit:contain;">
                     </div>
-                    <span style="font-size:1.05rem;font-weight:900;letter-spacing:-0.02em;color:#fff;">DocuMind<span class="ai-badge">AI</span></span>
+                    <span style="font-size:1.05rem;font-weight:900;letter-spacing:-0.02em;color:#fff;">DocuMind <span class="ai-badge">AI</span></span>
                 </a>
 
                 <div style="height:20px;width:1px;background:rgba(148,163,184,.2);" class="hidden-mobile"></div>
@@ -710,10 +711,14 @@
 
             <div id="sim-auth-alert-box" style="display:none;margin-top:1rem;padding:.75rem 1rem;border-radius:.55rem;font-size:.78rem;"></div>
 
-            <div style="margin-top:1.5rem;">
+            <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem;">
                 <button type="button" id="btn-sim-google-oauth" class="btn-cyber-oauth" style="width:100%;justify-content:center;padding:.75rem 1rem;">
                     <i class="fa-brands fa-google" style="color:#EA4335;"></i>
                     <span>Continuar con Google</span>
+                </button>
+                <button type="button" id="btn-sim-github-oauth" class="btn-github-premium" style="width:100%;justify-content:center;padding:.75rem 1rem;">
+                    <i class="fa-brands fa-github"></i>
+                    <span>Continuar con GitHub</span>
                 </button>
             </div>
 
@@ -740,6 +745,7 @@
             const btnCloseAuth = document.getElementById('btn-close-sim-auth');
             const backdrop = document.getElementById('sim-auth-modal-backdrop');
             const btnGoogle = document.getElementById('btn-sim-google-oauth');
+            const btnGithub = document.getElementById('btn-sim-github-oauth');
             const btnLogout = document.getElementById('btn-sim-logout');
             const alertBox = document.getElementById('sim-auth-alert-box');
 
@@ -808,6 +814,22 @@
                             }
                             await client.auth.signInWithOAuth({
                                 provider: 'google',
+                                options: { redirectTo: window.location.origin + '/simulador' }
+                            });
+                        });
+                    }
+
+                    if (btnGithub) {
+                        btnGithub.addEventListener('click', async () => {
+                            btnGithub.disabled = true;
+                            if (alertBox) {
+                                alertBox.style.display = 'block';
+                                alertBox.style.color = '#38BDF8';
+                                alertBox.style.background = 'rgba(56,189,248,.12)';
+                                alertBox.textContent = 'Conectando con GitHub...';
+                            }
+                            await client.auth.signInWithOAuth({
+                                provider: 'github',
                                 options: { redirectTo: window.location.origin + '/simulador' }
                             });
                         });

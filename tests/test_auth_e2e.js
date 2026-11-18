@@ -297,24 +297,30 @@ const CONTROLLED_SUPABASE_MOCK_SCRIPT = `
             async signInWithOAuth({ provider, options }) {
                 const db = loadDb();
                 db.oauthCalls.push({ provider, redirectTo: options?.redirectTo || "", at: Date.now() });
-                let googleUser = db.users.find(u => u.email === "oauth.google.user@empresa.com");
-                if (!googleUser) {
-                    googleUser = {
-                        id: "usr_google_oauth_99",
-                        email: "oauth.google.user@empresa.com",
+                const isGithub = provider === "github";
+                const targetEmail = isGithub ? "oauth.github.user@empresa.com" : "oauth.google.user@empresa.com";
+                let oauthUser = db.users.find(u => u.email === targetEmail);
+                if (!oauthUser) {
+                    oauthUser = {
+                        id: isGithub ? "usr_github_oauth_77" : "usr_google_oauth_99",
+                        email: targetEmail,
                         passwordHash: null,
                         email_confirmed_at: new Date().toISOString(),
                         confirmed_at: new Date().toISOString(),
                         created_at: new Date().toISOString(),
-                        app_metadata: { provider: "google" },
-                        user_metadata: { full_name: "Carlos OAuth Google", auth_provider: "google" },
-                        identities: [{ provider: "google" }]
+                        app_metadata: { provider },
+                        user_metadata: {
+                            full_name: isGithub ? "Elena OAuth GitHub" : "Carlos OAuth Google",
+                            user_name: isGithub ? "elena-github" : undefined,
+                            auth_provider: provider
+                        },
+                        identities: [{ provider }]
                     };
-                    db.users.push(googleUser);
+                    db.users.push(oauthUser);
                 }
-                db.sessionUserId = googleUser.id;
+                db.sessionUserId = oauthUser.id;
                 saveDb(db);
-                const session = { user: googleUser, access_token: "mock-google-jwt" };
+                const session = { user: oauthUser, access_token: "mock-oauth-jwt" };
                 notify("SIGNED_IN", session);
                 return { data: { provider, url: options?.redirectTo || window.location.href }, error: null };
             },
@@ -879,6 +885,56 @@ async function runAuthSuite() {
         });
 
         // --------------------------------------------------------------------
+        // CASO 10B: Inicio de sesión con GitHub OAuth (coexistencia con Google OAuth)
+        // --------------------------------------------------------------------
+        await step('Caso 10B: Inicio de sesión con GitHub OAuth funciona simultáneamente y registra proveedor GitHub sin romper Google OAuth', async () => {
+            const res = await cdp.eval(`
+                (async () => {
+                    await window.DocuMindAuth.handleLogout();
+                    window.DocuMindAuth.openAuthModal('login');
+                    const githubBtn = document.getElementById('btn-oauth-github');
+                    const googleBtn = document.getElementById('btn-oauth-google');
+                    const bothVisibleInLogin = Boolean(githubBtn && githubBtn.offsetParent !== null && googleBtn && googleBtn.offsetParent !== null);
+                    window.DocuMindAuth.switchAuthView('signup');
+                    const bothVisibleInSignup = Boolean(githubBtn && githubBtn.offsetParent !== null && googleBtn && googleBtn.offsetParent !== null);
+
+                    githubBtn.click();
+                    await new Promise(r => setTimeout(r, 300));
+
+                    const db = window.__DOCUMIND_MOCK_SUPABASE__.getDb();
+                    const user = window.DocuMindAuth.getCurrentUser();
+                    document.getElementById('btn-user-account').click();
+                    await new Promise(r => setTimeout(r, 100));
+                    const providerLabel = document.getElementById('acc-modal-provider').textContent.trim();
+                    const badgeLabel = document.getElementById('acc-modal-auth-badge').textContent.trim();
+                    document.getElementById('btn-close-account-modal').click();
+
+                    // Re-login with Carlos (Google OAuth) for Caso 14
+                    await window.DocuMindAuth.handleLogout();
+                    window.DocuMindAuth.openAuthModal('login');
+                    googleBtn.click();
+                    await new Promise(r => setTimeout(r, 250));
+
+                    return {
+                        bothVisibleInLogin,
+                        bothVisibleInSignup,
+                        lastProvider: db.oauthCalls[1]?.provider,
+                        loggedEmail: user?.email,
+                        providerLabel,
+                        badgeLabel
+                    };
+                })()
+            `);
+            assert.strictEqual(res.bothVisibleInLogin, true, 'Botones Google y GitHub visibles en Iniciar Sesión');
+            assert.strictEqual(res.bothVisibleInSignup, true, 'Botones Google y GitHub visibles en Crear Cuenta');
+            assert.strictEqual(res.lastProvider, 'github');
+            assert.strictEqual(res.loggedEmail, 'oauth.github.user@empresa.com');
+            assert.ok(res.providerLabel.includes('GitHub OAuth 2.0'), 'Muestra proveedor GitHub OAuth 2.0');
+            assert.strictEqual(res.badgeLabel, 'Autenticado con GitHub');
+            return `GitHub OAuth verificado (${res.loggedEmail} — ${res.providerLabel})`;
+        });
+
+        // --------------------------------------------------------------------
         // CASO 14: Separación de datos entre usuarios (Usuario A vs Usuario B)
         // --------------------------------------------------------------------
         await step('Caso 14: Separación estricta de proyectos e historial entre usuarios distintos', async () => {
@@ -946,7 +1002,7 @@ async function runAuthSuite() {
                 const check = await cdp.eval(`
                     (() => {
                         window.DocuMindAuth.openAuthModal('signup');
-                        const card = document.querySelector('#auth-modal .auth-saas-card');
+                        const card = document.querySelector('#auth-modal .auth-saas-card-split, #auth-modal .auth-card-cyber, #auth-modal .auth-saas-card');
                         const rect = card.getBoundingClientRect();
                         return {
                             cardWidth: Math.round(rect.width),

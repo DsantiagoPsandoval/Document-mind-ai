@@ -33,9 +33,23 @@ const SCOPE_CONFIG = {
     all: {
         code: 'DOC-MASTER-001',
         title: 'Expediente Maestro de Ingeniería, Arquitectura y Seguridad de Software',
-        subtitle: 'Especificación Integral PRD, SRS IEEE 830, Modelo C4, UML, Base de Datos, APIs, DevSecOps y QA',
-        standard: 'ISO/IEC/IEEE 29148 • IEEE 830 • C4 Model • OpenAPI 3.0.3 • OWASP ASVS 4.0',
-        chapters: ['intro', 'prd', 'srs', 'arch', 'db', 'api', 'eda', 'devops', 'qa', 'sec', 'adrs', 'user', 'conclusions']
+        subtitle: 'Presentación del Proyecto, PRD, SRS (IEEE 830 / ISO 29148), Arquitectura C4 (ISO 42010), Base de Datos, OpenAPI 3.0.3, Calidad (ISO 25010), DevOps, ADR y Seguridad (ISO 27001/27002 & OWASP)',
+        standard: 'ISO/IEC/IEEE 29148 • IEEE 830 • ISO 42010 • C4 Model • OpenAPI 3.0.3 • ISO 25010 • ISO 27001/27002 • OWASP',
+        chapters: ['intro', 'presentation', 'prd', 'srs', 'arch', 'db', 'api', 'eda', 'devops', 'qa', 'sec', 'adrs', 'user', 'conclusions']
+    },
+    presentation: {
+        code: 'DOC-PRES-001',
+        title: 'Documento Formal de Presentación e Ingeniería del Proyecto',
+        subtitle: 'Identificación, Planteamiento del Problema, Justificación, Objetivos, Alcance, Limitaciones, Metodología, Stack y Conclusiones',
+        standard: 'Ingeniería de Software Basada en Evidencia & ISO/IEC/IEEE 15288 / 12207',
+        chapters: ['presentation', 'arch', 'conclusions']
+    },
+    'security-report': {
+        code: 'DOC-SEC-AUDIT',
+        title: 'Informe Profesional de Auditoría Técnica y Evaluación de Seguridad (Security Intelligence)',
+        subtitle: 'Puntuación 0-100, Metodología, Alcance, Archivos Examinados, Hallazgos SAST/SCA/Secretos, Modelo STRIDE y Plan de Remediación',
+        standard: 'OWASP Top 10 • OWASP ASVS 4.0 • CWE • CVSS 4.0 (Ref.) • ISO/IEC 27001:2022 • ISO/IEC 27002:2022',
+        chapters: ['sec-report-full']
     },
     prd: {
         code: 'DOC-PRD-002',
@@ -240,9 +254,11 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
             { version: '3.0.0', date: isoDate, author: 'Quality Reviewer Engine', description: `Auditoría editorial y verificación de evidencia (${metadata.qualityScore}% cumplimiento).` }
         ],
         evidenceLegend: [
-            { tag: '[Encontrado]', meaning: 'Evidencia directa verificada en archivos fuente, manifiestos, esquemas o controladores del repositorio.' },
-            { tag: '[Inferido]', meaning: 'Deducción técnica fundamentada en la topología de módulos, nombres de rutas y patrones de código.' },
-            { tag: '[Recomendado]', meaning: 'Práctica de ingeniería o control de arquitectura sugerido según estándares ISO/IEEE/OWASP.' }
+            { tag: '[Información verificada]', meaning: 'Evidencia directa encontrada en archivos fuente, manifiestos, esquemas o controladores del repositorio.' },
+            { tag: '[Información inferida]', meaning: 'Deducción técnica fundamentada en la topología de módulos, nombres de rutas y patrones de código.' },
+            { tag: '[Información no encontrada]', meaning: 'Elemento consultado pero ausente en la muestra de archivos procesados.' },
+            { tag: '[Recomendación]', meaning: 'Práctica de ingeniería o control de arquitectura sugerido según normas ISO/IEEE/OWASP.' },
+            { tag: '[Información pendiente de validación]', meaning: 'Aspecto que requiere verificación en entorno de ejecución o infraestructura externa.' }
         ]
     };
 
@@ -377,6 +393,121 @@ function buildUnifiedDocumentModel(analysisData = {}, scope = 'all') {
                         type: 'NOTE',
                         title: 'Criterio de Veracidad Técnica (Anti-Alucinación)',
                         text: `Toda afirmación técnica en este entregable ha sido auditada por el motor de calidad DocuMind AI (Puntaje de Calidad: ${metadata.qualityScore}% — Grado ${metadata.qualityGrade}).`
+                    }
+                ]
+            });
+        }
+
+        if (chKey === 'presentation') {
+            const { buildProjectPresentationMarkdown } = require('../analyzer/docGenerator');
+            const presMd = doc.presentation || doc.product?.presentation || buildProjectPresentationMarkdown(analysisData);
+
+            const objectivesTable = registerTable({
+                id: 'tbl-pres-identification',
+                title: 'Ficha Técnica de Identificación del Proyecto (Evidencia Real)',
+                headers: ['Atributo del Proyecto', 'Detalle Verificado en el Repositorio', 'Estado de Evidencia'],
+                rows: [
+                    ['Nombre del Proyecto', projectName, '[Información verificada]'],
+                    ['Repositorio / Rama', `${fullName} (${branch})`, '[Información verificada]'],
+                    ['Lenguaje Principal', metadata.primaryLanguage, '[Información verificada]'],
+                    ['Tecnologías Detectadas', detectedTechnologies.join(', '), '[Información verificada]'],
+                    ['Archivos Examinados', `${metadata.relevantFilesCount} archivos relevantes`, '[Información verificada]'],
+                    ['Endpoints / Modelos', `${endpoints.length} endpoints HTTP / ${dataDictionary.length} atributos de datos`, '[Información verificada]'],
+                    ['Puntuación de Seguridad', `${metadata.securityScore}/100 (${sec.classification || 'Seguridad alta'})`, '[Información verificada]']
+                ]
+            });
+
+            rawSections.push({
+                id: 'sec-presentation',
+                title: 'Documento Formal de Presentación del Proyecto (19 Secciones)',
+                standardRef: 'Ingeniería de Software & ISO/IEC/IEEE 15288',
+                summary: `Presentación ejecutiva, contexto, planteamiento del problema, justificación, objetivo general y específicos, alcance, limitaciones, metodología, tecnologías, arquitectura y conclusiones de ${projectName}.`,
+                contentMarkdown: stripRawMermaidBlocks(presMd),
+                subsections: [
+                    { title: 'Identificación, Introducción y Planteamiento del Problema', content: 'Contexto real, antecedentes y justificación técnica, académica, organizacional y operativa.' },
+                    { title: 'Objetivos, Alcance, Limitaciones y Metodología', content: 'Objetivo general, objetivos específicos verificables, alcance y metodología basada en evidencia.' },
+                    { title: 'Tecnologías, Arquitectura, Resultados y Conclusiones', content: 'Stack tecnológico, arquitectura general, resultados esperados y referencias.' }
+                ],
+                tables: [objectivesTable],
+                diagrams: [],
+                callouts: [
+                    {
+                        type: 'IMPORTANT',
+                        title: 'Documento Basado en Evidencia del Repositorio',
+                        text: `Los objetivos, alcance, limitaciones y conclusiones han sido formulados directamente a partir de los ${metadata.relevantFilesCount} archivos y ${endpoints.length} endpoints reales de ${fullName}.`
+                    }
+                ]
+            });
+        }
+
+        if (chKey === 'sec-report-full') {
+            const secReportMd = sec.markdownReport || '';
+            const secSummaryTable = registerTable({
+                id: 'tbl-sec-exec-summary',
+                title: 'Tabla 1: Resumen Ejecutivo y Puntuación General de Seguridad (0 a 100)',
+                headers: ['Indicador de Auditoría', 'Resultado Cuantificable', 'Observación Técnica'],
+                rows: [
+                    ['Puntuación General (0-100)', `${metadata.securityScore} / 100`, sec.classification || 'Seguridad aceptable'],
+                    ['Nivel de Riesgo', sec.riskLevel || metadata.securityRiskLevel, `Grado ${metadata.securityGrade}`],
+                    ['Fecha del Análisis', metadata.isoDate, 'Auditoría estática determinista (SAST + SCA + Secretos + STRIDE)'],
+                    ['Archivos Examinados', `${sec.coverage?.filesAnalyzed || metadata.relevantFilesCount} de ${sec.coverage?.totalFiles || metadata.relevantFilesCount}`, `Cobertura: ${sec.coverage?.coveragePct || 100}% (${sec.coverage?.confidenceLevel || 'Alta'})`],
+                    ['Vulnerabilidades Identificadas', `${sec.counts?.total || vulnerabilities.length}`, `Críticas: ${sec.counts?.critical || 0} | Altas: ${sec.counts?.high || 0} | Medias: ${sec.counts?.medium || 0} | Bajas: ${sec.counts?.low || 0}`],
+                    ['Hallazgos Pendientes de Verificar', `${sec.counts?.pendingVerification || 0}`, 'Hallazgos potenciales o riesgos inferidos que requieren validación'],
+                    ['Evolución vs Auditoría Anterior', sec.comparison?.summary || 'Línea base inicial', sec.comparison?.trend || 'Primera evaluación']
+                ]
+            });
+
+            const secFindingsTable = registerTable({
+                id: 'tbl-sec-full-findings',
+                title: 'Tabla 2: Clasificación de Hallazgos, Evidencias y Estándares (OWASP / ASVS / CWE / ISO 27001)',
+                headers: ['ID', 'Vulnerabilidad', 'Severidad', 'Archivo : Línea', 'Veracidad', 'Estándar / CWE', 'Recomendación Técnica'],
+                rows: (sec.findings && sec.findings.length > 0)
+                    ? sec.findings.map(f => [
+                        f.id || 'SEC',
+                        f.name || f.title || 'Hallazgo',
+                        f.severityLabel || f.severity || 'Medio',
+                        `${f.file || 'General'}:${f.line || 1}`,
+                        f.veracityType || 'Vulnerabilidad confirmada',
+                        `${f.cwe || 'CWE'} • ${f.owaspCategory || 'OWASP'}`,
+                        f.recommendation || 'Mitigar según plan'
+                    ])
+                    : [['SEC-000', 'Sin vulnerabilidades confirmadas en la muestra', 'Informativo', 'Repositorio examinado', 'Verificado', 'OWASP ASVS 4.0', 'Mantener controles defensivos y monitoreo continuo']]
+            });
+
+            const secStrideTable = registerTable({
+                id: 'tbl-sec-full-stride',
+                title: 'Tabla 3: Matriz de Modelado de Amenazas STRIDE sobre Componentes Reales',
+                headers: ['ID', 'Categoría STRIDE', 'Componente del Repositorio', 'Amenaza e Impacto', 'Probabilidad', 'Mitigación Técnica'],
+                rows: threats.length > 0
+                    ? threats.map(t => [
+                        t.id || 'STRIDE',
+                        t.category || 'STRIDE',
+                        t.component || projectName,
+                        `${t.scenario || ''} (Impacto: ${t.impact || 'Alto'})`,
+                        t.likelihood || 'Media',
+                        t.recommendedControl || t.mitigation || ''
+                    ])
+                    : [['STRIDE-01', 'Spoofing / Tampering', projectName, 'Evaluación general de frontera', 'Media', 'Autenticación OAuth y validación de entradas']]
+            });
+
+            rawSections.push({
+                id: 'sec-report-complete',
+                title: 'Informe Completo de Auditoría de Ciberseguridad (Security Intelligence)',
+                standardRef: 'OWASP Top 10 • OWASP ASVS 4.0 • CWE • CVSS 4.0 • ISO/IEC 27001:2022 • ISO/IEC 27002:2022',
+                summary: `Diagnóstico técnico cuantificable (${metadata.securityScore}/100 — ${sec.classification || 'Seguridad aceptable'}), metodología, alcance, archivos examinados, hallazgos, evidencias, análisis STRIDE y plan de remediación.`,
+                contentMarkdown: stripRawMermaidBlocks(secReportMd),
+                subsections: [
+                    { title: 'Resumen Ejecutivo, Puntuación General y Metodología', content: 'Criterios técnicos deterministas, escala 0-100 y alcance del análisis.' },
+                    { title: 'Hallazgos, Clasificación de Riesgos y Evidencias', content: 'Vulnerabilidades confirmadas, hallazgos potenciales y riesgos inferidos.' },
+                    { title: 'Modelo STRIDE, Plan de Remediación y Conclusiones', content: 'Matriz de amenazas y acciones urgentes, altas, medias y preventivas.' }
+                ],
+                tables: [secSummaryTable, secFindingsTable, secStrideTable],
+                diagrams: [],
+                callouts: [
+                    {
+                        type: 'WARNING',
+                        title: 'Declaración de Integridad y Alcance de la Auditoría',
+                        text: 'Esta auditoría se basa en el análisis estático de los archivos y configuraciones examinados. Una puntuación alta no garantiza que el repositorio esté libre de vulnerabilidades en tiempo de ejecución ni constituye certificación formal ISO/IEC 27001.'
                     }
                 ]
             });

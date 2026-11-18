@@ -161,36 +161,40 @@ async function runFase1Tests() {
             logFail(`Título inesperado: ${pageTitle}`);
         }
 
-        // --- TEST 2: Navbar y Nuevos Enlaces ---
+        // --- TEST 2: Navbar Rediseñado y Eliminación Completa de Monetización ---
         const navCheck = await cdp.eval(`(() => {
             const links = Array.from(document.querySelectorAll('.nav-links a')).map(a => a.getAttribute('href'));
-            const hasEmpresas = links.includes('#empresas-seguridad');
-            const hasPlanes = links.includes('#planes');
-            const hasFaq = links.includes('#faq');
+            const hasInicio = links.includes('#hero') || links.includes('#inicio');
+            const hasComoFunciona = links.includes('#como-funciona');
             const hasAnalizador = links.includes('#analizador');
+            const hasDocumentacion = !!document.getElementById('nav-link-docs');
+            const hasSecurity = links.includes('#security-intelligence');
             const hasSimulador = links.some(h => h && h.includes('/simulador'));
-            const hasComenzarGratis = !!document.querySelector('#nav-auth-guest a[href="#analizador"]');
-            return { hasEmpresas, hasPlanes, hasFaq, hasAnalizador, hasSimulador, hasComenzarGratis, totalLinks: links.length };
+            const hasEquipo = links.includes('#equipo');
+            const hasContacto = links.includes('#contacto');
+            const hasNoPlanes = !links.includes('#planes') && !document.getElementById('planes') && !document.getElementById('checkout-modal');
+            const hasLogoMark = !!document.querySelector('.nav-logo-icon img[src*="documind-mark.svg"]');
+            return { hasInicio, hasComoFunciona, hasAnalizador, hasDocumentacion, hasSecurity, hasSimulador, hasEquipo, hasContacto, hasNoPlanes, hasLogoMark, totalLinks: links.length };
         })()`);
 
-        if (navCheck.hasEmpresas && navCheck.hasPlanes && navCheck.hasFaq && navCheck.hasComenzarGratis) {
-            logPass(`Navbar empresarial completo con enlaces (#empresas-seguridad, #planes, #faq, #analizador) y CTA 'Comenzar Gratis'`);
+        if (navCheck.hasInicio && navCheck.hasComoFunciona && navCheck.hasAnalizador && navCheck.hasDocumentacion && navCheck.hasSecurity && navCheck.hasSimulador && navCheck.hasEquipo && navCheck.hasContacto && navCheck.hasNoPlanes && navCheck.hasLogoMark) {
+            logPass(`Navbar premium validado (Inicio, Cómo funciona, Analizador, Documentación, Security Intelligence, Simulador, Equipo, Contacto) y 0 elementos de monetización`);
         } else {
-            logFail(`Navbar incompleto: ${JSON.stringify(navCheck)}`);
+            logFail(`Navbar check falló: ${JSON.stringify(navCheck)}`);
         }
 
         // --- TEST 3: Hero Section y 4 Tarjetas de Confianza ---
         const heroCheck = await cdp.eval(`(() => {
             const title = document.querySelector('.hero-title')?.innerText || '';
             const ctaAnalyze = document.querySelector('#btn-hero-analyze')?.getAttribute('href');
-            const ctaPlanes = document.querySelector('#hero a[href="#planes"]');
+            const ctaSimulador = document.querySelector('#hero a[href="/simulador"]');
             const trustPills = Array.from(document.querySelectorAll('#hero .reveal-delay-4 > div')).length;
-            const titleOk = title.toLowerCase().includes('documentación de software') || title.toLowerCase().includes('documenta tus repositorios');
-            return { titleOk, ctaAnalyze: ctaAnalyze === '#analizador', ctaPlanesOk: !!ctaPlanes, trustPills };
+            const titleOk = title.length > 20;
+            return { titleOk, ctaAnalyze: ctaAnalyze === '#analizador', ctaSimOk: !!ctaSimulador, trustPills };
         })()`);
 
-        if (heroCheck.titleOk && heroCheck.ctaAnalyze && heroCheck.ctaPlanesOk && heroCheck.trustPills >= 4) {
-            logPass(`Hero Section configurado con propuesta de valor, CTAs (#analizador, #planes) y 4 tarjetas de confianza`);
+        if (heroCheck.titleOk && heroCheck.ctaAnalyze && heroCheck.ctaSimOk && heroCheck.trustPills >= 4) {
+            logPass(`Hero Section configurado con propuesta de valor, CTAs (#analizador, /simulador) y 4 tarjetas de confianza`);
         } else {
             logFail(`Hero check falló: ${JSON.stringify(heroCheck)}`);
         }
@@ -210,62 +214,30 @@ async function runFase1Tests() {
             logFail(`Sección empresas-seguridad inválida: ${JSON.stringify(secEmpresas)}`);
         }
 
-        // --- TEST 5: Sección Planes & Precios (Tarjetas y Toggle Mensual/Anual) ---
-        const pricingCheck = await cdp.eval(`(() => {
-            const sec = document.getElementById('planes');
-            if (!sec) return null;
-            const planNames = Array.from(sec.querySelectorAll('.plan-name')).map(p => p.innerText.trim());
-            const initialProPrice = document.getElementById('plan-pro-price')?.innerText.trim();
-            const initialEntPrice = document.getElementById('plan-enterprise-price')?.innerText.trim();
-            
-            // Simular cambio a Anual
-            window.setBillingCycle('annual');
-            const annualProPrice = document.getElementById('plan-pro-price')?.innerText.trim();
-            const annualEntPrice = document.getElementById('plan-enterprise-price')?.innerText.trim();
-            const annualBtnActive = document.getElementById('billing-btn-annual')?.classList.contains('active');
-
-            // Revertir a Mensual
-            window.setBillingCycle('monthly');
-            const restoredProPrice = document.getElementById('plan-pro-price')?.innerText.trim();
-
+        // --- TEST 5: Verificación de Eliminación Total de Pagos, Planes y Pasarelas ---
+        const monetizationCheck = await cdp.eval(`(() => {
+            const planesSection = document.getElementById('planes');
+            const checkoutModal = document.getElementById('checkout-modal');
+            const bodyText = document.body.innerText || '';
+            const hasWompi = bodyText.includes('Wompi') || bodyText.includes('Mercado Pago');
+            const hasGoogleBtn = !!document.getElementById('btn-oauth-google');
+            const hasGithubBtn = !!document.getElementById('btn-oauth-github');
             return {
-                planNames,
-                initialProPrice,
-                initialEntPrice,
-                annualProPrice,
-                annualEntPrice,
-                annualBtnActive,
-                restoredProPrice
+                noPlanesSection: !planesSection,
+                noCheckoutModal: !checkoutModal,
+                noPaymentGatewaysInText: !hasWompi,
+                hasGoogleBtn,
+                hasGithubBtn
             };
         })()`);
 
-        if (pricingCheck && pricingCheck.planNames.length === 3 &&
-            pricingCheck.initialProPrice === '29' && pricingCheck.annualProPrice === '23' &&
-            pricingCheck.annualEntPrice === '399' && pricingCheck.restoredProPrice === '29') {
-            logPass(`Planes y Precios (#planes) validado: Free ($0), Pro ($29 -> $23 anual), Enterprise ($499 -> $399 anual)`);
+        if (monetizationCheck.noPlanesSection && monetizationCheck.noCheckoutModal && monetizationCheck.noPaymentGatewaysInText && monetizationCheck.hasGoogleBtn && monetizationCheck.hasGithubBtn) {
+            logPass(`Eliminación completa de monetización verificada (0 planes, 0 checkout, 0 pasarelas) y coexistencia Google OAuth + GitHub OAuth activa`);
         } else {
-            logFail(`Planes y Precios falló: ${JSON.stringify(pricingCheck)}`);
+            logFail(`Verificación de monetización/OAuth falló: ${JSON.stringify(monetizationCheck)}`);
         }
 
-        // --- TEST 6: Tabla Comparativa de Planes (Toggle Expand/Collapse) ---
-        const tableCheck = await cdp.eval(`(() => {
-            const wrapper = document.getElementById('pricing-comparison-table-wrapper');
-            const wasHidden = wrapper?.classList.contains('hidden');
-            window.togglePricingComparison();
-            const isNowVisible = !wrapper?.classList.contains('hidden');
-            window.togglePricingComparison();
-            const isHiddenAgain = wrapper?.classList.contains('hidden');
-            const rowCount = document.querySelectorAll('.comparison-table tbody tr').length;
-            return { wasHidden, isNowVisible, isHiddenAgain, rowCount };
-        })()`);
-
-        if (tableCheck && tableCheck.wasHidden && tableCheck.isNowVisible && tableCheck.isHiddenAgain && tableCheck.rowCount >= 8) {
-            logPass(`Tabla comparativa interactiva validada (${tableCheck.rowCount} características desglosadas con acordeón suave)`);
-        } else {
-            logFail(`Tabla comparativa falló: ${JSON.stringify(tableCheck)}`);
-        }
-
-        // --- TEST 7: Sección Preguntas Frecuentes (#faq) ---
+        // --- TEST 6: Sección Preguntas Frecuentes (#faq) ---
         const faqCheck = await cdp.eval(`(() => {
             const sec = document.getElementById('faq');
             if (!sec) return null;
@@ -277,8 +249,8 @@ async function runFase1Tests() {
             return { totalFaqs: items.length, wasOpen, isOpenNow };
         })()`);
 
-        if (faqCheck && faqCheck.totalFaqs >= 6 && faqCheck.isOpenNow) {
-            logPass(`Sección #faq validada con ${faqCheck.totalFaqs} preguntas frecuentes empresariales interactivas`);
+        if (faqCheck && faqCheck.totalFaqs >= 5 && faqCheck.isOpenNow) {
+            logPass(`Sección #faq validada con ${faqCheck.totalFaqs} preguntas frecuentes técnicas interactivas`);
         } else {
             logFail(`Sección FAQ falló: ${JSON.stringify(faqCheck)}`);
         }

@@ -46,6 +46,7 @@
                 securityStatus: sec.status || (sec.score >= 80 ? 'Aceptable' : 'Requiere Revisión')
             },
             product: {
+                presentation: doc.presentation || doc.product?.presentation || doc.product?.prd || '',
                 prd: doc.product?.prd || '',
                 srs: doc.product?.srs || '',
                 userStories: Array.isArray(doc.product?.userStories) ? doc.product.userStories : []
@@ -586,6 +587,18 @@
         const meta = d.meta;
         const sections = [];
 
+        // 0. PROJECT PRESENTATION DOCUMENT (19 SECTIONS)
+        if (filter === 'all' || filter === 'presentation') {
+            if (d.product.presentation) {
+                sections.push({
+                    num: '0',
+                    id: 'presentation',
+                    title: 'Documento de Presentación del Proyecto (19 Secciones)',
+                    content: `<div class="content-block">${mdToHtml(d.product.presentation)}</div>`
+                });
+            }
+        }
+
         // 1. PRODUCT (PRD & SRS)
         if (filter === 'all' || filter === 'prd' || filter === 'srs') {
             let html = '';
@@ -863,7 +876,7 @@
         }
 
         // 8. SECURITY & SAST AUDIT
-        if (filter === 'all' || filter === 'sec') {
+        if (filter === 'all' || filter === 'sec' || filter === 'security-report') {
             let html = '';
             const cov = d.security.coverage || { coveragePct: 100, confidenceLevel: 'Alta' };
             const dims = d.security.dimensions || {};
@@ -1148,6 +1161,9 @@
         md += `| **Seguridad SAST** | ${meta.securityScore}/100 (Grado ${meta.securityGrade}) |\n\n`;
         md += `---\n\n`;
 
+        if (filter === 'all' || filter === 'presentation') {
+            if (d.product.presentation) md += `${d.product.presentation}\n\n---\n\n`;
+        }
         if (filter === 'all' || filter === 'prd' || filter === 'srs') {
             if (d.product.prd) md += `${d.product.prd}\n\n---\n\n`;
             if (d.product.srs) md += `${d.product.srs}\n\n---\n\n`;
@@ -1202,7 +1218,7 @@
                 md += `\n---\n\n`;
             }
         }
-        if (filter === 'all' || filter === 'sec') {
+        if (filter === 'all' || filter === 'sec' || filter === 'security-report') {
             md += `## Seguridad DevSecOps (SAST & STRIDE)\n\n`;
             md += `**Puntuación de Seguridad**: ${d.security.score}/100 (Grado ${d.security.grade})\n\n`;
             if (d.security.markdownReport) md += `${d.security.markdownReport}\n\n---\n\n`;
@@ -1314,6 +1330,9 @@
         const d = normalizeData(analysisData);
         if (!d) return [];
         const list = [];
+        if (filter === 'all' || filter === 'presentation') {
+            list.push({ id: 'presentation', num: '0', title: 'Presentación del Proyecto (19 Secciones)', icon: 'fa-book-open' });
+        }
         if (filter === 'all' || filter === 'prd' || filter === 'srs') {
             list.push({ id: 'prd', num: '1', title: 'Requisitos de Producto (PRD & SRS)', icon: 'fa-clipboard-list' });
         }
@@ -1335,7 +1354,7 @@
         if (filter === 'all' || filter === 'qa') {
             list.push({ id: 'qa', num: '7', title: 'Estrategia de Calidad & QA', icon: 'fa-vial-circle-check' });
         }
-        if (filter === 'all' || filter === 'sec') {
+        if (filter === 'all' || filter === 'sec' || filter === 'security-report') {
             list.push({ id: 'sec', num: '8', title: 'Seguridad DevSecOps & SAST', icon: 'fa-shield-halved' });
         }
         if (filter === 'all' || filter === 'adrs') {
@@ -1491,6 +1510,79 @@
         return true;
     }
 
+    function toYaml(obj, indent = 0) {
+        const pad = '  '.repeat(indent);
+        if (obj === null || obj === undefined) return 'null';
+        if (typeof obj === 'boolean' || typeof obj === 'number') return String(obj);
+        if (typeof obj === 'string') {
+            if (obj.includes('\n') || obj.includes(':') || obj.includes('#') || obj.includes('"') || obj.trim() === '') {
+                return JSON.stringify(obj);
+            }
+            return obj;
+        }
+        if (Array.isArray(obj)) {
+            if (obj.length === 0) return '[]';
+            return obj.map(item => {
+                if (typeof item === 'object' && item !== null) {
+                    const sub = toYaml(item, indent + 1);
+                    const lines = sub.split('\n');
+                    return `${pad}- ${lines[0].trimStart()}${lines.length > 1 ? '\n' + lines.slice(1).join('\n') : ''}`;
+                }
+                return `${pad}- ${toYaml(item, 0)}`;
+            }).join('\n');
+        }
+        if (typeof obj === 'object') {
+            const keys = Object.keys(obj);
+            if (keys.length === 0) return '{}';
+            return keys.map(k => {
+                const v = obj[k];
+                if (typeof v === 'object' && v !== null) {
+                    if (Array.isArray(v) && v.length === 0) return `${pad}${k}: []`;
+                    if (!Array.isArray(v) && Object.keys(v).length === 0) return `${pad}${k}: {}`;
+                    return `${pad}${k}:\n${toYaml(v, indent + 1)}`;
+                }
+                return `${pad}${k}: ${toYaml(v, 0)}`;
+            }).join('\n');
+        }
+        return String(obj);
+    }
+
+    async function downloadYamlFile(analysisData, scope = 'all') {
+        const d = normalizeData(analysisData);
+        if (!d) throw new Error('No hay datos disponibles para exportar a YAML.');
+        const projectName = (d.meta.projectName || 'Proyecto').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        try {
+            const res = await fetch('/api/project/export/format/yaml', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ analysisData, scope, projectName })
+            });
+            if (res.ok) {
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${projectName}_Documentacion_Tecnica_${scope}.yaml`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+                return true;
+            }
+        } catch (_) {}
+        const yamlStr = `# DocuMind AI — Especificación Técnica Estructurada (YAML)\n` + toYaml(analysisData.unifiedDocument || d, 0) + '\n';
+        const blob = new Blob([yamlStr], { type: 'application/x-yaml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${projectName}_Documentacion_Tecnica_${scope}.yaml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        return true;
+    }
+
     async function exportByFormat(analysisData, format = 'pdf', scope = 'all') {
         const fmt = String(format || 'pdf').toLowerCase();
         if (fmt === 'docx' || fmt === 'word') return downloadWordDocx(analysisData, scope);
@@ -1501,6 +1593,7 @@
         }
         if (fmt === 'html') return downloadHtmlFile(analysisData, scope);
         if (fmt === 'json') return downloadJsonFile(analysisData, scope);
+        if (fmt === 'yaml' || fmt === 'yml') return downloadYamlFile(analysisData, scope);
         if (fmt === 'txt' || fmt === 'text') return downloadTxtFile(analysisData, scope);
         throw new Error('Formato no soportado: ' + format);
     }
@@ -1549,6 +1642,8 @@
         downloadDirectPdf,
         downloadHtmlFile,
         downloadJsonFile,
+        downloadYamlFile,
+        toYaml,
         downloadTxtFile,
         exportByFormat,
         downloadWordDocx
